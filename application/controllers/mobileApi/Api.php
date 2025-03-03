@@ -1,0 +1,194 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Api extends CI_Controller {
+
+	public function __construct() {
+        parent::__construct();
+		header("Access-Control-Allow-Origin: *"); // Allow all domains
+        header("Access-Control-Allow-Methods: POST, OPTIONS"); // Allow specific methods
+        header("Access-Control-Allow-Headers: Content-Type");
+		if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+			exit;
+		} 
+		if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $response = array(
+                'status' => false,
+                'message' => 'Only POST method is allowed'
+            );
+            echo json_encode($response);
+            exit;
+        }
+        $this->validate_auth_key();
+    }
+
+	private function validate_auth_key() {
+        $auth_key = $this->input->get_request_header('auth_key'); // Get from header
+        $valid_key = AUTH_KEY; // Store securely in .env or database
+        if ($auth_key !== $valid_key) {
+            $response = array(
+                'status' => false,
+                'message' => 'Unauthorized access'
+            );
+            echo json_encode($response);
+            exit; // Stop execution
+        }
+    }
+
+	public function projectlist() {
+		$result_data = $this->Master->f_select('td_admin_approval', array('scheme_name','project_id','approval_no'), NULL, NULL);
+
+		$response = (!empty($result_data)) 
+			? ['status' => 1, 'message' => $result_data] 
+			: ['status' => 0, 'message' => 'No data found'];
+	
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
+    }
+
+// 	public function progress_update() {
+		
+// 	    $app_res_data = $this->Master->f_select('td_progress','IFNULL(MAX(visit_no), 0) + 1 AS visit_no',array('approval_no'=>$this->input->post('approval_no')),1);
+// 		$file_fields = $this->input->post('progress_pic');
+	
+// 		foreach ($file_fields as $field) {
+// 		if (!empty($_FILES[$field]['name'])) {
+// 			// Load the upload library if not already loaded
+// 			$this->load->library('upload');
+// 			// Set upload configuration
+// 			$config['upload_path']   = './uploads/progress_image/'; // Ensure folder exists & has correct permissions
+// 			$config['allowed_types'] = 'jpg|jpeg|png';
+// 			$config['max_size']      = 2048; // Max file size (2MB)
+// 			$config['encrypt_name']  = TRUE; // Encrypt filename for security
+		
+// 			$this->upload->initialize($config); // Initialize config
+// 			// Perform upload
+// 			if (!$this->upload->do_upload($field)) {
+// 				echo json_encode([
+// 					'status' => false,
+// 					'message' => "Error uploading progress_pic: " . strip_tags($this->upload->display_errors())
+// 				]);
+// 				return;
+// 			}
+// 			// Store uploaded file path
+// 			$fileData = $this->upload->data();
+// 			$upload_paths[$field] = $fileData['file_name'];
+// 		} else {
+// 			$upload_paths[$field] = null; // No file uploaded
+// 		}
+// 	    }
+// 		// Insert into database
+// 		$data = [
+// 			'approval_no' => $this->input->post('approval_no'),
+// 			'visit_no' => $app_res_data->visit_no,
+// 			'progress_percent' => $this->input->post('progress_percent'),
+// 			'pic_path' => $upload_paths['progress_pic'],
+// 			'created_by' => $this->input->post('created_by'),
+// 			'created_at' => date('Y-m-d h:i:s'),
+// 		];
+	
+// 		$id = $this->db->insert('td_progress', $data);
+// 	    if($id){
+// 			echo json_encode([
+// 				'status' => 1,
+// 				'data' => 'Files uploaded successfully!',
+// 				'file_paths' => $upload_paths
+// 			]);
+// 		}else{
+// 			echo json_encode([
+// 				'status' => 0,
+// 				'data' => 'Something Went Wrong',
+// 				'file_paths' => $upload_paths
+// 			]);
+// 		}
+		
+//    }
+
+    public function progress_update(){
+
+		  // Get client IP address
+		  $client_ip = $this->input->ip_address();
+
+		  // Log request headers
+		  $headers = json_encode($this->input->request_headers());
+	  
+		  // Log POST data (excluding sensitive information)
+		  $post_data = json_encode($this->input->post());
+	  
+		  // Log the timestamp
+		  $timestamp = date('Y-m-d H:i:s');
+	  
+		  // Write log entry
+		  $log_entry = "[{$timestamp}] IP: {$client_ip} | Headers: {$headers} | POST Data: {$post_data}" . PHP_EOL;
+		  file_put_contents(APPPATH . 'logs/api_requests.log', $log_entry, FILE_APPEND);  
+		
+			$app_res_data = $this->Master->f_select('td_progress', 'IFNULL(MAX(visit_no), 0) + 1 AS visit_no', ['approval_no' => $this->input->post('approval_no')], 1);
+		
+			$upload_paths = []; // Store file names
+		
+			if (!empty($_FILES['progress_pic']['name'][0])) { // Check if files are uploaded
+				$this->load->library('upload');
+		
+				$config['upload_path']   = './uploads/progress_image/';
+				$config['allowed_types'] = 'jpg|jpeg|png';
+				$config['max_size']      = 2048;
+				$config['encrypt_name']  = TRUE;
+		
+				$filesCount = count($_FILES['progress_pic']['name']); // Count total files
+		
+				for ($i = 0; $i < $filesCount; $i++) {
+					$_FILES['file']['name']     = $_FILES['progress_pic']['name'][$i];
+					$_FILES['file']['type']     = $_FILES['progress_pic']['type'][$i];
+					$_FILES['file']['tmp_name'] = $_FILES['progress_pic']['tmp_name'][$i];
+					$_FILES['file']['error']    = $_FILES['progress_pic']['error'][$i];
+					$_FILES['file']['size']     = $_FILES['progress_pic']['size'][$i];
+		
+					$this->upload->initialize($config);
+		
+					if ($this->upload->do_upload('file')) {
+						$fileData = $this->upload->data();
+						$upload_paths[] = $fileData['file_name']; // Store uploaded file names
+					}
+				}
+			}
+			// Fetch progress_percent as an array
+			$progress_percent = $this->input->post('progress_percent');
+		
+			// Convert progress_percent & file paths into JSON before storing in the database
+		
+			$pic_path_json = json_encode($upload_paths);
+		
+			// Insert into database
+			$data = [
+				'approval_no'       => $this->input->post('approval_no'),
+				'visit_no'          => $app_res_data->visit_no,
+				'progress_percent'  => $progress_percent, // Store as JSON
+				'pic_path'          => $pic_path_json, // Store multiple image paths as JSON
+				'created_by'        => $this->input->post('created_by'),
+				'created_at'        => date('Y-m-d H:i:s'),
+			];
+		
+			$inserted = $this->db->insert('td_progress', $data);
+		
+			if ($inserted) {
+				$response = [
+					'status' => 1,
+					'message' => 'Files uploaded successfully!',
+					'file_paths' => $upload_paths
+				];
+			} else {
+				$response = [
+					'status' => 0,
+					'message' => 'Something Went Wrong',
+					'file_paths' => $upload_paths
+				];
+			}
+
+			 // Log API response
+			 $response_log = "[{$timestamp}] Response: " . json_encode($response) . PHP_EOL;
+			 file_put_contents(APPPATH . 'logs/api_requests.log', $response_log, FILE_APPEND);
+		 
+			 echo json_encode($response);
+	}
+}
