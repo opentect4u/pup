@@ -250,7 +250,7 @@ class Admapi extends CI_Controller {
 			$where = array_merge($where, ['a.district_id' => $dist_id]); 
 		}
 		
-		$result_data = $this->Master->f_select('td_admin_approval a ,md_sector b ,md_account c', 'a.approval_no,a.scheme_name,b.sector_desc as sector_name,(a.sch_amt+a.cont_amt) as tot_amt,a.project_id,c.account_head ', $where, NULL);
+		$result_data = $this->Master->f_select('td_admin_approval a ,md_sector b ,md_account c', 'a.approval_no,a.admin_approval_dt,a.scheme_name,b.sector_desc as sector_name,(a.sch_amt+a.cont_amt) as tot_amt,a.project_id,c.account_head ', $where, NULL);
 		if (!empty($result_data)) {
 			echo json_encode(['status' => 1, 'message' => $result_data]);
 		} else {
@@ -277,6 +277,16 @@ class Admapi extends CI_Controller {
 		}
 		
 		$result_data = $this->Master->f_select('td_admin_approval a ', '*', $where, 1);
+		if (!empty($result_data)) {
+			echo json_encode(['status' => 1, 'message' => $result_data]);
+		} else {
+			echo json_encode(['status' => 0, 'message' => 'No data found']);
+		}
+    }
+
+	public function get_approval_no() {
+		
+		$result_data = $this->Master->f_select('td_admin_approval', 'approval_no,project_id', NULL, 0);
 		if (!empty($result_data)) {
 			echo json_encode(['status' => 1, 'message' => $result_data]);
 		} else {
