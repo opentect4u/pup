@@ -7,9 +7,10 @@ import { url, auth_key } from "../../Assets/Addresses/BaseUrl";
 import VError from "../../Components/VError";
 import * as Yup from 'yup';
 import { useFormik } from "formik";
-import { Select } from "antd";
+import { Select, Spin } from "antd";
 import { Message } from "../../Components/Message";
 import { useNavigate, useParams } from "react-router"
+import { LoadingOutlined } from "@ant-design/icons";
 
 
 const initialValues = {
@@ -34,41 +35,41 @@ const initialValues = {
 
 
 const validationSchema = Yup.object({
-  scheme_name: '',
-  sector_name: '',
-  fin_yr: '',
-  schm_amt: '',
-  cont_amt: '',
-  tot_amt: '',
-  admin_appr_pdf: '',
-  proj_id: '',
-  head_acc: '',
-  dt_appr: '',
-  proj_sub_by: '',
-  proj_imp_by: '',
-  dis: '',
-  block: '',
-  vet_dpr_pdf: '',
-  src: '',
+  // scheme_name: '',
+  // sector_name: '',
+  // fin_yr: '',
+  // schm_amt: '',
+  // cont_amt: '',
+  // tot_amt: '',
+  // admin_appr_pdf: '',
+  // proj_id: '',
+  // head_acc: '',
+  // dt_appr: '',
+  // proj_sub_by: '',
+  // proj_imp_by: '',
+  // dis: '',
+  // block: '',
+  // vet_dpr_pdf: '',
+  // src: '',
 
 
 
-  // scheme_name: Yup.string().required('Scheme name is Required'),
-  // sector_name: Yup.string().required('Sector is Required'),
-  // fin_yr: Yup.string().required('Financial Year is Required'),
-  // schm_amt: Yup.string().required('Schematic Amount is Required'),
-  // cont_amt: Yup.string().required('Contigency Amount is Required'),
-  // tot_amt: Yup.string().required('Total Amount is Required'),
-  // admin_appr_pdf: Yup.string().required('Administrative Approval(G.O) is Required'),
-  // proj_id: Yup.string().required('Project ID is Required'),
-  // head_acc: Yup.string().required('Head Account is Required'),
-  // dt_appr: Yup.string().required('Date of administrative approval is Required'),
-  // proj_sub_by: Yup.string().required('Project Submitted By is Required'),
-  // proj_imp_by: Yup.string().required('Project implemented By is Required'),
-  // dis: Yup.string().required('District is Required'),
-  // block: Yup.string().required('Block is Required'),
-  // vet_dpr_pdf: Yup.string().required('Vetted DPR is Required'),
-  // src: Yup.string().required('Source of Fund is Required'),
+  scheme_name: Yup.string().required('Scheme name is Required'),
+  sector_name: Yup.string().required('Sector is Required'),
+  fin_yr: Yup.string().required('Financial Year is Required'),
+  schm_amt: Yup.string().required('Schematic Amount is Required'),
+  cont_amt: Yup.string().required('Contigency Amount is Required'),
+  tot_amt: Yup.string().required('Total Amount is Required'),
+  admin_appr_pdf: Yup.string().required('Administrative Approval(G.O) is Required'),
+  proj_id: Yup.string().required('Project ID is Required'),
+  head_acc: Yup.string().required('Head Account is Required'),
+  dt_appr: Yup.string().required('Date of administrative approval is Required'),
+  proj_sub_by: Yup.string().required('Project Submitted By is Required'),
+  proj_imp_by: Yup.string().required('Project implemented By is Required'),
+  dis: Yup.string().required('District is Required'),
+  block: Yup.string().required('Block is Required'),
+  vet_dpr_pdf: Yup.string().required('Vetted DPR is Required'),
+  src: Yup.string().required('Source of Fund is Required'),
 
 
 });
@@ -92,9 +93,11 @@ function AdApForm() {
   const params = useParams()
   const [formValues, setValues] = useState(initialValues)
   const navigate = useNavigate()
+  const [loading, setLoading] = useState(false)
 
 
   const fetchSectorDropdownOption = async () => {
+    setLoading(true);
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Mdapi/sector',
@@ -108,12 +111,15 @@ function AdApForm() {
 
       // console.log("Response Data:", response.data.message); // Log the actual response data
       setSectorDropList(response.data.message)
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error); // Handle errors properly
+      setLoading(false);
     }
   };
 
   const fetchFinancialYeardownOption = async () => {
+    setLoading(true);
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Mdapi/fin_year',
@@ -127,12 +133,15 @@ function AdApForm() {
 
       // console.log("Response Data:", response.data.message); // Log the actual response data
       setFinancialYearDropList(response.data.message)
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error); // Handle errors properly
+      setLoading(false);
     }
   };
 
   const fetchHeadAccountdownOption = async () => {
+    setLoading(true);
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Mdapi/head_of_acc',
@@ -146,12 +155,15 @@ function AdApForm() {
 
       // console.log("Response Data:", response.data.message); // Log the actual response data
       setHeadAccountDropList(response.data.message)
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       console.error("Error fetching data:", error); // Handle errors properly
     }
   };
 
   const fetchDistrictdownOption = async () => {
+    setLoading(true);
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Mdapi/dist',
@@ -165,7 +177,9 @@ function AdApForm() {
 
       // console.log("Response Data__:", response.data.message); // Log the actual response data
       setDistrictDropList(response.data.message)
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       console.error("Error fetching data:", error); // Handle errors properly
     }
   };
@@ -319,7 +333,8 @@ function AdApForm() {
   };
 
   const saveFormData = async () => {
-    // setLoading(true); // Set loading state
+
+    setLoading(true);
   
     const formData = new FormData();
   
@@ -357,9 +372,10 @@ function AdApForm() {
   
       // setLoading(false);
       Message("success", "Updated successfully.");
+      setLoading(false);
       formik.resetForm();
     } catch (error) {
-      // setLoading(false);
+      setLoading(false);
       Message("error", "Error Submitting Form:");
       console.error("Error submitting form:", error);
     }
@@ -367,7 +383,7 @@ function AdApForm() {
   };
 
   const updateFormData = async () => {
-    // setLoading(true); // Set loading state
+    setLoading(true); // Set loading state
   
     const formData = new FormData();
   
@@ -405,13 +421,13 @@ function AdApForm() {
         }
       );
   
-      // setLoading(false);
+      setLoading(false);
       Message("success", "Updated successfully.");
       navigate(`/home/admin_approval`);
 
       formik.resetForm();
     } catch (error) {
-      // setLoading(false);
+      setLoading(false);
       Message("error", "Error Submitting Form:");
       console.error("Error submitting form:", error);
     }
@@ -448,6 +464,12 @@ function AdApForm() {
     <section class="bg-white p-5 dark:bg-gray-900">
       <div class="py-5 mx-auto w-full lg:py-5">
         <Heading title={'Administrative Approval'} button={'Y'} />
+        <Spin
+						indicator={<LoadingOutlined spin />}
+						size="large"
+						className="text-gray-500 dark:text-gray-400"
+						spinning={loading}
+					>
         <form onSubmit={formik.handleSubmit}>
           <div class="grid gap-4 sm:grid-cols-12 sm:gap-6">
             <div class="sm:col-span-12">
@@ -856,6 +878,7 @@ function AdApForm() {
           </div>
 
         </form>
+        </Spin>
       </div>
     </section>
   );

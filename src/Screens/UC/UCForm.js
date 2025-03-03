@@ -9,7 +9,8 @@ import VError from '../../Components/VError';
 import axios from 'axios';
 import { auth_key, url } from '../../Assets/Addresses/BaseUrl';
 import { Message } from '../../Components/Message';
-import { FilePdfOutlined } from '@ant-design/icons';
+import { FilePdfOutlined, LoadingOutlined } from '@ant-design/icons';
+import { Spin } from 'antd';
 
 const initialValues = {
   issued_by: '',
@@ -43,6 +44,7 @@ function UCForm() {
   const navigate = useNavigate()
   const [fundStatus, setFundStatus] = useState(() => []);
   const [folderName, setFolderName] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(()=>{
       console.log(operation_status, 'loadFormData', 'kkkk', params?.id);
@@ -50,7 +52,7 @@ function UCForm() {
 
     
     const fundAddedList = async () => {
-      // setLoading(true); // Set loading state
+      setLoading(true); // Set loading state
     
       
       const formData = new FormData();
@@ -73,16 +75,18 @@ function UCForm() {
         if(response.data.status > 0){
           setFundStatus(response?.data?.message)
           setFolderName(response.data.folder_name)
+          setLoading(false);
         }
 
         if(response.data.status < 1){
           setFundStatus([])
+          setLoading(false);
         }
         // setLoading(false);
         // Message("success", "Updated successfully.");
         // navigate(`/home/fund_release`);
       } catch (error) {
-        // setLoading(false);
+        setLoading(false);
         Message("error", "Error Submitting Form:");
         console.error("Error submitting form:", error);
       }
@@ -162,7 +166,13 @@ function UCForm() {
     <section class="bg-white p-5 dark:bg-gray-900">
       <div class="py-5 mx-auto w-full lg:py-5">
        
-
+      <Spin
+						indicator={<LoadingOutlined spin />}
+						size="large"
+						className="text-gray-500 dark:text-gray-400"
+						spinning={loading}
+					>
+            
         {fundStatus?.length > 0 &&(
           <>
           <Heading title={"Utilization Certificate History"} button={'Y'}/>
@@ -209,6 +219,7 @@ function UCForm() {
             ))}
           </>
         )}
+        </Spin>
        
        {fundStatus.length < 6 &&(
         <>

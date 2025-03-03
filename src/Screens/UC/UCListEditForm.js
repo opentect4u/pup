@@ -9,7 +9,8 @@ import VError from '../../Components/VError';
 import axios from 'axios';
 import { auth_key, url, folder_certificate } from '../../Assets/Addresses/BaseUrl';
 import { Message } from '../../Components/Message';
-import { FilePdfOutlined } from '@ant-design/icons';
+import { FilePdfOutlined, LoadingOutlined } from '@ant-design/icons';
+import { Spin } from 'antd';
 
 const initialValues = {
   issued_by: '',
@@ -38,6 +39,7 @@ function UCListEditForm() {
   const location = useLocation();
   const operation_status = location.state?.operation_status || "add";
   const certificate_no = location.state?.certificate_no || "";
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate()
   const [fundStatus, setFundStatus] = useState(() => []);
@@ -52,7 +54,7 @@ function UCListEditForm() {
 
 
     const loadFormData = async () => {
-      // setLoading(true); // Set loading state
+      setLoading(true); // Set loading state
       // const cread = {
       //   approval_no: params?.id,
       //   receive_no: receive_no,
@@ -77,7 +79,7 @@ function UCListEditForm() {
         );
 
         console.log("loadFormData", response.data.message);
-  
+        setLoading(false);
         // const totalAmount = Number(response.data.message.sch_amt) + Number(response.data.message.cont_amt);
         // fetchBlockdownOption__load(response?.data?.message?.district_id, response?.data?.message?.block_id)
         setValues({
@@ -102,6 +104,7 @@ function UCListEditForm() {
         console.log(formValues, "loadFormData", response); // Log the actual response data
         // setSourceFundDropList(response.data.message)
       } catch (error) {
+        setLoading(false);
         console.error("Error fetching data:", error); // Handle errors properly
       }
   
@@ -194,6 +197,12 @@ function UCListEditForm() {
        
         <>
        <Heading title={"Utilization Certificate Edit"} button={'Y'}/>
+       <Spin
+						indicator={<LoadingOutlined spin />}
+						size="large"
+						className="text-gray-500 dark:text-gray-400"
+						spinning={loading}
+					>
        <form onSubmit={formik.handleSubmit}>
           <div class="grid gap-4 sm:grid-cols-12 sm:gap-6">
             <div class="sm:col-span-4">
@@ -283,6 +292,7 @@ function UCListEditForm() {
           </div>
 
         </form>
+        </Spin>
         </>
       
       </div>

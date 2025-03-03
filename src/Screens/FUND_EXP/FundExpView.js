@@ -9,7 +9,7 @@ import Heading from '../../Components/Heading';
 import { auth_key, url } from '../../Assets/Addresses/BaseUrl';
 import axios from 'axios';
 import { Message } from '../../Components/Message';
-import { EditOutlined, EyeOutlined, PlusCircleOutlined } from '@ant-design/icons';
+import { EditOutlined, EyeOutlined, LoadingOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import Radiobtn from '../../Components/Radiobtn';
 import { DataTable } from "primereact/datatable"
 import Column from 'antd/es/table/Column';
@@ -18,6 +18,7 @@ import Column from 'antd/es/table/Column';
 import { Paginator } from "primereact/paginator"
 import { motion } from "framer-motion"
 import { Toast } from "primereact/toast"
+import { Spin } from 'antd';
 
 const options = [
   {
@@ -82,7 +83,7 @@ function FundExpView() {
   const [rowsPerPage, setRowsPerPage] = useState(5)
   const [selectedProducts, setSelectedProducts] = useState(null)
   const [OPERATION_STATUS, setOPERATION_STATUS] = useState('');
-
+  const [loading, setLoading] = useState(false)
 
 
   useEffect(() => {
@@ -100,7 +101,7 @@ function FundExpView() {
 
 
     const searchTenderList = async()=>{
-    
+    setLoading(true);
     const cread = {
         project_id : formik.values.tender_id,
         approval_no : formik.values.approval_no
@@ -123,13 +124,16 @@ function FundExpView() {
     if(response.data.status > 0){
       setTenderListSearch(response.data.message);
       setOPERATION_STATUS(response.data.OPERATION_STATUS);
+      setLoading(false);
     } else {
       setTenderListSearch([])
       setOPERATION_STATUS('')
+      setLoading(false);
     }
     console.log(response.data.OPERATION_STATUS, "Search_Data:", response.data, '...........', cread); // Log the actual response data
     
     } catch (error) {
+      setLoading(false);
     console.error("Error fetching data:", error); // Handle errors properly
     }
 
@@ -189,22 +193,7 @@ function FundExpView() {
 							onChange(value)
 						}}
 
-            // onChangeVal={(value) => {
-            //   let newValues = { ...formik.values, radioOption: value };
-          
-            //   // Remove tender_id if not "T"
-            //   if (value !== "T") {
-            //     newValues = omit(newValues, ["tender_id"]);
-            //   }
-          
-            //   // Remove approval_no if not "A"
-            //   if (value !== "A") {
-            //     newValues = omit(newValues, ["approval_no"]);
-            //   }
-          
-            //   formik.setValues(newValues);
-            //   formik.setTouched({ tender_id: false, approval_no: false }); // Reset touch state
-            // }}
+           
 					/>
 
     <form onSubmit={formik.handleSubmit}>
@@ -271,6 +260,12 @@ function FundExpView() {
         </form>
     </section>
        
+    <Spin
+						indicator={<LoadingOutlined spin />}
+						size="large"
+						className="text-gray-500 dark:text-gray-400"
+						spinning={loading}
+					>
         <div class="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
         <div class="flex flex-col bg-blue-900 md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
             <h2 className='text-xl font-bold text-white'>Expenditure </h2>
@@ -287,44 +282,12 @@ function FundExpView() {
                         </div>
                 </div>
                 <div class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-                   <BtnComp bgColor="bg-white" color="text-blue-900" title="Fund List" onClick={()=>{navigate('felist')}}/>
+                   <BtnComp bgColor="bg-white" color="text-blue-900" title="Expenditure List" onClick={()=>{navigate('felist')}}/>
                 </div>
             </div>
             <div class="overflow-x-auto">
 
-            {/* <motion.section
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, type: "spring", stiffness: 30 }}
-            >
-            <Toast ref={toast} />
-
-            <DataTable
-            value={tenderListSearch?.map((item, i) => [{ ...item, id: i }]).flat()}
-            selectionMode="checkbox"
-            onSelectionChange={(e) => handleSelectionChange(e)}
-            tableStyle={{ minWidth: "50rem" }}
-            dataKey="id"
-            paginator
-            rows={rowsPerPage }
-            first={currentPage}
-            onPage={onPageChange}
-            rowsPerPageOptions={[5, 10, 20]} // Add options for number of rows per page
-            tableClassName="w-full text-sm text-left rtl:text-right shadow-lg text-green-900dark:text-gray-400 table_Custome table_Custome_1st" // Apply row classes
-            >
-            <Column
-            header="Sl No."
-            body={(rowData) => (
-            <span style={{ fontWeight: "bold" }}>{rowData?.id + 1}</span>
-            )}
-            ></Column>
-            <Column
-            field="scheme_name"
-            header="Scheme Name"
-            ></Column>
-
-            </DataTable>
-            </motion.section> */}
+            
             
             <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                     <thead class="text-xs text-gray-700 uppercase bg-slate-200 dark:bg-gray-700 dark:text-gray-400">
@@ -416,6 +379,7 @@ function FundExpView() {
                 </ul>
             </nav>
         </div>
+        </Spin>
     </div>
     </section>
     )

@@ -9,7 +9,7 @@ import Heading from '../../Components/Heading';
 import { auth_key, url, folder_progresImg } from '../../Assets/Addresses/BaseUrl';
 import axios from 'axios';
 import { Message } from '../../Components/Message';
-import { EditOutlined, EyeOutlined, PlusCircleOutlined } from '@ant-design/icons';
+import { EditOutlined, EyeOutlined, LoadingOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import Radiobtn from '../../Components/Radiobtn';
 import { DataTable } from "primereact/datatable"
 import Column from 'antd/es/table/Column';
@@ -18,6 +18,7 @@ import Column from 'antd/es/table/Column';
 import { Paginator } from "primereact/paginator"
 import { motion } from "framer-motion"
 import { Toast } from "primereact/toast"
+import { Spin } from 'antd';
 
 const options = [
   {
@@ -82,6 +83,7 @@ function PRView() {
 	const [rowsPerPage, setRowsPerPage] = useState(5)
   const [selectedProducts, setSelectedProducts] = useState(null)
   const [OPERATION_STATUS, setOPERATION_STATUS] = useState('');
+  const [loading, setLoading] = useState(false)
 
 
 
@@ -100,7 +102,7 @@ function PRView() {
 
 
     const searchTenderList = async()=>{
-    
+      setLoading(true);
     // const cread = {
     //   project_id : formik.values.tender_id,
     //   approval_no : formik.values.approval_no
@@ -129,14 +131,17 @@ function PRView() {
     if(response.data.status > 0){
       setTenderListSearch(response.data.message);
       setOPERATION_STATUS(response.data.OPERATION_STATUS);
+      setLoading(false);
     } else {
       setTenderListSearch([])
       setOPERATION_STATUS('')
+      setLoading(false);
     }
     console.log(response.data.OPERATION_STATUS, "Search_Data:", response.data, '...........', formData); // Log the actual response data
     
     } catch (error) {
     console.error("Error fetching data:", error); // Handle errors properly
+    setLoading(false);
     }
 
 
@@ -276,7 +281,12 @@ function PRView() {
 
         </form>
     </section>
-       
+          <Spin
+						indicator={<LoadingOutlined spin />}
+						size="large"
+						className="text-gray-500 dark:text-gray-400"
+						spinning={loading}
+					>
         <div class="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
         <div class="flex flex-col bg-blue-900 md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
             <h2 className='text-xl font-bold text-white'>Progress Report</h2>
@@ -333,6 +343,7 @@ function PRView() {
             </div>
           
         </div>
+        </Spin>
     </div>
     </section>
     ) 

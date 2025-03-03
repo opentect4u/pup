@@ -9,7 +9,7 @@ import Heading from '../../Components/Heading';
 import { auth_key, url } from '../../Assets/Addresses/BaseUrl';
 import axios from 'axios';
 import { Message } from '../../Components/Message';
-import { EditOutlined, EyeOutlined, PlusCircleOutlined } from '@ant-design/icons';
+import { EditOutlined, EyeOutlined, LoadingOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import Radiobtn from '../../Components/Radiobtn';
 import { DataTable } from "primereact/datatable"
 import Column from 'antd/es/table/Column';
@@ -18,6 +18,7 @@ import Column from 'antd/es/table/Column';
 import { Paginator } from "primereact/paginator"
 import { motion } from "framer-motion"
 import { Toast } from "primereact/toast"
+import { Spin } from 'antd';
 
 const options = [
   {
@@ -78,29 +79,36 @@ function TFView() {
   const navigate = useNavigate()
   const [tenderListSearch, setTenderListSearch] = useState([]);
   const [radioType, setRadioType] = useState("T")
-  const [currentPage, setCurrentPage] = useState(0)
-	const [rowsPerPage, setRowsPerPage] = useState(5)
+
   const [selectedProducts, setSelectedProducts] = useState(null)
   const [OPERATION_STATUS, setOPERATION_STATUS] = useState('');
+  const [loading, setLoading] = useState(false)
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 5;
 
 
 
   useEffect(() => {
+    
     // let newValues = { ...formik.values, radioOption: value };
     if (radioType === "T") {
       console.log('fff', 'SSSSSSSSSSSSSSS');
       formik.resetForm();
+      // setLoading(false);
       
     } else if (radioType === "A") {
       console.log('fff', 'RRRRRRRRRRRRRRR');
       formik.resetForm();
+      // setLoading(false);
     }
 
   }, [radioType])
 
 
     const searchTenderList = async()=>{
-    
+    setLoading(true);
+
     const cread = {
         project_id : formik.values.tender_id,
         approval_no : formik.values.approval_no
@@ -123,9 +131,11 @@ function TFView() {
     if(response.data.status > 0){
       setTenderListSearch(response.data.message);
       setOPERATION_STATUS(response.data.OPERATION_STATUS);
+      setLoading(false);
     } else {
       setTenderListSearch([])
       setOPERATION_STATUS('')
+      setLoading(false);
     }
     console.log(response.data.OPERATION_STATUS, "Search_Data:", response.data, '...........', cread); // Log the actual response data
     
@@ -161,10 +171,10 @@ function TFView() {
 
     
 
-    const onPageChange = (event) => {
-      setCurrentPage(event.first)
-      setRowsPerPage(event.rows)
-    } 
+    // const onPageChange = (event) => {
+    //   setCurrentPage(event.first)
+    //   setRowsPerPage(event.rows)
+    // } 
 
     const handleSelectionChange = (e) => {
       // Update the selected products setPaymentDate
@@ -174,6 +184,13 @@ function TFView() {
       
     }
 
+  const totalPages = Math.ceil(tenderListSearch.length / rowsPerPage);
+  const currentTableData = tenderListSearch.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  }
+
  return( 
  <section class="bg-slate-200 dark:bg-gray-900 p-3 sm:p-5">
     <div class="mx-auto max-w-screen-xl  ">
@@ -181,6 +198,7 @@ function TFView() {
     <section class="bg-white p-5 dark:bg-gray-900 mb-8 rounded-md">
     <Heading title={'Search Tender'} button={'N'} />
 
+    
           <Radiobtn
             name="radioOption"
 						data={options}
@@ -189,22 +207,6 @@ function TFView() {
 							onChange(value)
 						}}
 
-            // onChangeVal={(value) => {
-            //   let newValues = { ...formik.values, radioOption: value };
-          
-            //   // Remove tender_id if not "T"
-            //   if (value !== "T") {
-            //     newValues = omit(newValues, ["tender_id"]);
-            //   }
-          
-            //   // Remove approval_no if not "A"
-            //   if (value !== "A") {
-            //     newValues = omit(newValues, ["approval_no"]);
-            //   }
-          
-            //   formik.setValues(newValues);
-            //   formik.setTouched({ tender_id: false, approval_no: false }); // Reset touch state
-            // }}
 					/>
 
     <form onSubmit={formik.handleSubmit}>
@@ -271,6 +273,12 @@ function TFView() {
         </form>
     </section>
        
+    <Spin
+						indicator={<LoadingOutlined spin />}
+						size="large"
+						className="text-gray-500 dark:text-gray-400"
+						spinning={loading}
+					>
         <div class="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
         <div class="flex flex-col bg-blue-900 md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
             <h2 className='text-xl font-bold text-white'>Tender Formality</h2>
@@ -292,39 +300,7 @@ function TFView() {
             </div>
             <div class="overflow-x-auto">
 
-            {/* <motion.section
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, type: "spring", stiffness: 30 }}
-            >
-            <Toast ref={toast} />
-
-            <DataTable
-            value={tenderListSearch?.map((item, i) => [{ ...item, id: i }]).flat()}
-            selectionMode="checkbox"
-            onSelectionChange={(e) => handleSelectionChange(e)}
-            tableStyle={{ minWidth: "50rem" }}
-            dataKey="id"
-            paginator
-            rows={rowsPerPage }
-            first={currentPage}
-            onPage={onPageChange}
-            rowsPerPageOptions={[5, 10, 20]} // Add options for number of rows per page
-            tableClassName="w-full text-sm text-left rtl:text-right shadow-lg text-green-900dark:text-gray-400 table_Custome table_Custome_1st" // Apply row classes
-            >
-            <Column
-            header="Sl No."
-            body={(rowData) => (
-            <span style={{ fontWeight: "bold" }}>{rowData?.id + 1}</span>
-            )}
-            ></Column>
-            <Column
-            field="scheme_name"
-            header="Scheme Name"
-            ></Column>
-
-            </DataTable>
-            </motion.section> */}
+           
             
             <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                     <thead class="text-xs text-gray-700 uppercase bg-slate-200 dark:bg-gray-700 dark:text-gray-400">
@@ -338,7 +314,7 @@ function TFView() {
                     </thead>
                     <tbody>
                     
-                    {tenderListSearch?.map((data, index) => ( 
+                    {currentTableData?.map((data, index) => ( 
                     <>
                     <tr class="border-b dark:border-gray-700">
                     <td scope="row" class="px-4 py-3">{data?.scheme_name}</td>
@@ -374,48 +350,28 @@ function TFView() {
                     </tbody>
                 </table>
             </div>
-            <nav class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4" aria-label="Table navigation">
-                <span class="text-sm font-normal text-gray-500 dark:text-gray-400">
-                    Showing
-                    <span class="font-semibold text-gray-900 dark:text-white">1-10</span>
-                    of
-                    <span class="font-semibold text-gray-900 dark:text-white">1000</span>
-                </span>
-                <ul class="inline-flex items-stretch -space-x-px">
-                    <li>
-                        <a href="#" class="flex items-center justify-center h-full py-1.5 px-3 ml-0 text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                            <span class="sr-only">Previous</span>
-                            <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                            </svg>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">1</a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">2</a>
-                    </li>
-                    <li>
-                        <a href="#" aria-current="page" class="flex items-center justify-center text-sm z-10 py-2 px-3 leading-tight text-primary-600 bg-primary-50 border border-primary-300 hover:bg-primary-100 hover:text-primary-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white">3</a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">...</a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">100</a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center justify-center h-full py-1.5 px-3 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                            <span class="sr-only">Next</span>
-                            <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                            </svg>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
+            
+            
+            <div className="flex justify-between p-4">
+            <span className="text-sm text-gray-500">
+              Showing {(currentPage - 1) * rowsPerPage + 1} to {Math.min(currentPage * rowsPerPage, tenderListSearch.length)} of {tenderListSearch.length}
+            </span>
+            <div className="flex space-x-2 pagination">
+              {Array.from({ length: totalPages }, (_, index) => (
+                <button
+                  key={index}
+                  className={`px-3 py-1 rounded-md ${currentPage === index + 1 ? 'bg-blue-700 text-white' : 'bg-gray-200 text-gray-700'}`}
+                  onClick={() => handlePageChange(index + 1)}
+                >
+                  {index + 1}
+                </button>
+              ))}
+            </div>
+          </div>
+
+
         </div>
+        </Spin>
     </div>
     </section>
     )

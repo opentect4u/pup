@@ -3,8 +3,9 @@ import BtnComp from '../../Components/BtnComp'
 import { useNavigate } from 'react-router-dom'
 import { auth_key, url } from '../../Assets/Addresses/BaseUrl';
 import axios from 'axios';
-import { EditOutlined, FilePdfOutlined } from '@ant-design/icons';
+import { EditOutlined, FilePdfOutlined, LoadingOutlined } from '@ant-design/icons';
 import { useParams } from "react-router"
+import { Spin } from 'antd';
 
 
 
@@ -14,9 +15,13 @@ function FundRelList() {
   const [folderName, setFolderName] = useState('');
   const params = useParams()
   const [OPERATION_STATUS, setOPERATION_STATUS] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 5;
 
   const fetchTableDataList_Fn = async () => {
-
+    setLoading(true);
     const cread = {
         fin_year: '0',
     }
@@ -34,8 +39,10 @@ function FundRelList() {
       setTableDataList(response.data.message)
       setFolderName(response.data.folder_name)
       setOPERATION_STATUS(response.data.OPERATION_STATUS);
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error); // Handle errors properly
+      setLoading(false);
 
     }
   };
@@ -47,10 +54,23 @@ function FundRelList() {
   }, [])
 
 
+  const totalPages = Math.ceil(tableDataList.length / rowsPerPage);
+  const currentTableData = tableDataList.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  }
+
+
   return (
     <section class="bg-slate-200 dark:bg-gray-900 p-3 sm:p-5">
     <div class="mx-auto max-w-screen-xl  ">
-       
+    <Spin
+						indicator={<LoadingOutlined spin />}
+						size="large"
+						className="text-gray-500 dark:text-gray-400"
+						spinning={loading}
+					>
         <div class="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
             <div class="flex flex-col bg-blue-900 md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
             <h2 className='text-xl font-bold text-white'>Fund List</h2>
@@ -70,6 +90,7 @@ function FundRelList() {
                    {/* <BtnComp bgColor={'bg-white'} color="text-blue-900" title="Add Document" onClick={()=>{navigate('AdApcrud/0')}}/> */}
                 </div>
             </div>
+
             <div class="overflow-x-auto">
                 <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                     <thead class="text-xs text-gray-700 uppercase bg-slate-200 dark:bg-gray-700 dark:text-gray-400">
@@ -87,7 +108,7 @@ function FundRelList() {
                     </thead>
                     <tbody>
                     
-                    {tableDataList?.map((data, index) => ( 
+                    {currentTableData?.map((data, index) => ( 
                     <>
                     <tr class="border-b dark:border-gray-700">
                     {/* <td scope="row" class="px-4 py-3">{data?.sl_no}</td>   */}
@@ -126,48 +147,26 @@ function FundRelList() {
                     </tbody>
                 </table>
             </div>
-            <nav class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4" aria-label="Table navigation">
-                <span class="text-sm font-normal text-gray-500 dark:text-gray-400">
-                    Showing
-                    <span class="font-semibold text-gray-900 dark:text-white">1-10</span>
-                    of
-                    <span class="font-semibold text-gray-900 dark:text-white">1000</span>
-                </span>
-                <ul class="inline-flex items-stretch -space-x-px">
-                    <li>
-                        <a href="#" class="flex items-center justify-center h-full py-1.5 px-3 ml-0 text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                            <span class="sr-only">Previous</span>
-                            <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                            </svg>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">1</a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">2</a>
-                    </li>
-                    <li>
-                        <a href="#" aria-current="page" class="flex items-center justify-center text-sm z-10 py-2 px-3 leading-tight text-primary-600 bg-primary-50 border border-primary-300 hover:bg-primary-100 hover:text-primary-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white">3</a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">...</a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">100</a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center justify-center h-full py-1.5 px-3 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                            <span class="sr-only">Next</span>
-                            <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                            </svg>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
+            
+            <div className="flex justify-between p-4">
+            <span className="text-sm text-gray-500">
+              Showing {(currentPage - 1) * rowsPerPage + 1} to {Math.min(currentPage * rowsPerPage, tableDataList.length)} of {tableDataList.length}
+            </span>
+            <div className="flex space-x-2 pagination">
+              {Array.from({ length: totalPages }, (_, index) => (
+                <button
+                  key={index}
+                  className={`px-3 py-1 rounded-md ${currentPage === index + 1 ? 'bg-blue-700 text-white' : 'bg-gray-200 text-gray-700'}`}
+                  onClick={() => handlePageChange(index + 1)}
+                >
+                  {index + 1}
+                </button>
+              ))}
+            </div>
+          </div>
+
         </div>
+        </Spin>
     </div>
     </section>
   )

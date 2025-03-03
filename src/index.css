@@ -34,21 +34,21 @@ code {
 
 
 .ant-radio-wrapper .ant-radio-checked .ant-radio-inner {
-  border-color: #424444;
-  background-color: #424444;
+  border-color: #3EB8BD;
+  background-color: #3EB8BD;
 }
 .ant-radio-wrapper:hover .ant-radio-inner {
-  border-color: #424444;
+  border-color: #3EB8BD;
 }
 
 .ant-radio-wrapper .ant-radio-inner {
-  border-color: #424444;
+  border-color: #3EB8BD;
 }
 
-.bg-blue-900{background-color: #CDD5D7;}
-.bg-blue-950{background-color: #424444;}
-.border-blue-900{border-color:#424444;}
-.text-blue-900{color: #424444;}
+.bg-blue-900{background-color: #3EB8BD;}
+.bg-blue-950{background-color: #3EB8BD;}
+.border-blue-900{border-color:#3EB8BD;}
+.text-blue-900{color: #3EB8BD;}
 /* 
 background: #7fbf9f
 border-color:#425e50;
@@ -58,20 +58,20 @@ ul.ant-menu{border: none !important;}
 
 
 .border-blue-700 {
-  border-color: #424444;
-  color: #424444;
+  border-color: #3EB8BD;
+  color: #3EB8BD;
 }
 
-.hover\:text-white:hover{background: #424444 !important;}
-.p-scrolltop{background-color: #424444 !important;}
+.hover\:text-white:hover{background: #3EB8BD !important;}
+.p-scrolltop{background-color: #3EB8BD !important;}
 
-button.bg-blue-900{background: #424444; color: #fff;}
+button.bg-blue-900{background: #3EB8BD; color: #fff;}
 
 /* .text-gray-500{color: #fff;} */
-h2.text-white {color: #424444;}
-/* nav ul li a.leading-tight{color: #424444;} */
+h2.text-white {color: #3EB8BD;}
+/* nav ul li a.leading-tight{color: #3EB8BD;} */
 
 
+.pagination button.bg-gray-200{background-color: #3EB8BD;}
 
-
-
+.pagination button.bg-blue-700{background-color: #3EB8BD !important;}

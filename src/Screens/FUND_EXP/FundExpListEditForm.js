@@ -9,7 +9,8 @@ import VError from '../../Components/VError';
 import axios from 'axios';
 import { auth_key, url, folder_fund } from '../../Assets/Addresses/BaseUrl';
 import { Message } from '../../Components/Message';
-import { FilePdfOutlined } from '@ant-design/icons';
+import { FilePdfOutlined, LoadingOutlined } from '@ant-design/icons';
+import { Spin } from 'antd';
 
 const initialValues = {
   exp_text: '',
@@ -39,6 +40,7 @@ function FundExpListEditForm() {
   const operation_status = location.state?.operation_status || "add";
   const payment_no = location.state?.payment_no || "";
   const payment_date = location.state?.payment_date || "";
+  const [loading, setLoading] = useState(false)
 
   const navigate = useNavigate()
   const [fundStatus, setFundStatus] = useState(() => []);
@@ -59,6 +61,7 @@ function FundExpListEditForm() {
       //   receive_no: receive_no,
       //   receive_date: receive_date,
       // }
+      setLoading(true);
 
       const formData = new FormData();
   
@@ -79,7 +82,7 @@ function FundExpListEditForm() {
         );
 
         console.log("loadFormData___", response.data.message);
-  
+        setLoading(false);
         // const totalAmount = Number(response.data.message.sch_amt) + Number(response.data.message.cont_amt);
         // fetchBlockdownOption__load(response?.data?.message?.district_id, response?.data?.message?.block_id)
         setValues({
@@ -93,6 +96,7 @@ function FundExpListEditForm() {
         console.log(formValues, "loadFormData", response); // Log the actual response data
         // setSourceFundDropList(response.data.message)
       } catch (error) {
+        setLoading(false);
         console.error("Error fetching data:", error); // Handle errors properly
       }
   
@@ -177,6 +181,12 @@ function FundExpListEditForm() {
        
         <>
        <Heading title={"Expenditure  Edit"} button={'Y'}/>
+       <Spin
+						indicator={<LoadingOutlined spin />}
+						size="large"
+						className="text-gray-500 dark:text-gray-400"
+						spinning={loading}
+					>
        <form onSubmit={formik.handleSubmit}>
           <div class="grid gap-4 sm:grid-cols-12 sm:gap-6">
             <div class="sm:col-span-4">
@@ -245,6 +255,7 @@ function FundExpListEditForm() {
           </div>
 
         </form>
+        </Spin>
         </>
       
       </div>

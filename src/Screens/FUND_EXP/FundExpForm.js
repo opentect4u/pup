@@ -9,7 +9,8 @@ import VError from '../../Components/VError';
 import axios from 'axios';
 import { auth_key, url } from '../../Assets/Addresses/BaseUrl';
 import { Message } from '../../Components/Message';
-import { FilePdfOutlined } from '@ant-design/icons';
+import { FilePdfOutlined, LoadingOutlined } from '@ant-design/icons';
+import { Spin } from 'antd';
 
 const initialValues = {
   exp_text: '',
@@ -45,6 +46,7 @@ function FundExpForm() {
   const [folderName, setFolderName] = useState('');
   const [schemaAmt, setSchemaAmt] = useState('');
   const [contiAmt, setContiAmt] = useState('');
+  const [loading, setLoading] = useState(false)
 
 
 
@@ -54,7 +56,7 @@ function FundExpForm() {
 
     
     const fundAddedList = async () => {
-      // setLoading(true); // Set loading state
+      setLoading(true); // Set loading state
     
       
       const formData = new FormData();
@@ -75,6 +77,7 @@ function FundExpForm() {
         console.log("FormData_____", response?.data);
 
         if(response.data.status > 0){
+          setLoading(false);
           setFundStatus(response?.data?.message)
           setFolderName(response.data.folder_name)
           setSchemaAmt(response?.data?.message.reduce((acc, item) => acc + (Number(item?.sch_amt) || 0), 0));
@@ -85,12 +88,13 @@ function FundExpForm() {
 
         if(response.data.status < 1){
           setFundStatus([])
+          setLoading(false);
         }
         // setLoading(false);
         // Message("success", "Updated successfully.");
         // navigate(`/home/fund_release`);
       } catch (error) {
-        // setLoading(false);
+        setLoading(false);
         Message("error", "Error Fetching Form Data:");
         // console.error("Error submitting form:", error);
       }
@@ -171,7 +175,12 @@ function FundExpForm() {
     <section class="bg-white p-5 dark:bg-gray-900">
       <div class="py-5 mx-auto w-full lg:py-5">
        
-
+      <Spin
+						indicator={<LoadingOutlined spin />}
+						size="large"
+						className="text-gray-500 dark:text-gray-400"
+						spinning={loading}
+					>
         {fundStatus?.length > 0 && (
           <>
             <Heading title={"Expenditure  History"} button={'Y'} />
@@ -239,6 +248,7 @@ function FundExpForm() {
             </div>
           </>
         )}
+        </Spin>
        
        {fundStatus.length < 4 &&(
         <>

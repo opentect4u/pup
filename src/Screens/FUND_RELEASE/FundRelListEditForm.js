@@ -9,7 +9,8 @@ import VError from '../../Components/VError';
 import axios from 'axios';
 import { auth_key, url, folder_fund } from '../../Assets/Addresses/BaseUrl';
 import { Message } from '../../Components/Message';
-import { FilePdfOutlined } from '@ant-design/icons';
+import { FilePdfOutlined, LoadingOutlined } from '@ant-design/icons';
+import { Spin } from 'antd';
 
 const initialValues = {
   receipt_first: '',
@@ -41,6 +42,7 @@ function FundRelListEditForm() {
   const operation_status = location.state?.operation_status || "add";
   const receive_no = location.state?.receive_no || "";
   const receive_date = location.state?.receive_date || "";
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate()
   const [fundStatus, setFundStatus] = useState(() => []);
@@ -55,7 +57,7 @@ function FundRelListEditForm() {
 
 
     const loadFormData = async () => {
-      // setLoading(true); // Set loading state
+      setLoading(true); // Set loading state
       // const cread = {
       //   approval_no: params?.id,
       //   receive_no: receive_no,
@@ -81,6 +83,7 @@ function FundRelListEditForm() {
         );
 
         console.log("loadFormData", response.data.message);
+        setLoading(false);
   
         // const totalAmount = Number(response.data.message.sch_amt) + Number(response.data.message.cont_amt);
         // fetchBlockdownOption__load(response?.data?.message?.district_id, response?.data?.message?.block_id)
@@ -113,7 +116,7 @@ function FundRelListEditForm() {
     };
 
     const saveFormData = async () => {
-      // setLoading(true); // Set loading state
+      setLoading(true); // Set loading state
     
       const formData = new FormData();
   
@@ -144,13 +147,13 @@ function FundRelListEditForm() {
           }
         );
     
-        // setLoading(false);
+        setLoading(false);
         Message("success", "Updated successfully.");
         // navigate(`/home/fund_release`);
         loadFormData()
         formik.resetForm();
       } catch (error) {
-        // setLoading(false);
+        setLoading(false);
         Message("error", "Error Submitting Form:");
         console.error("Error submitting form:", error);
       }
@@ -194,6 +197,12 @@ function FundRelListEditForm() {
        
         <>
        <Heading title={"Fund Release Instalment Edit"} button={'Y'}/>
+       <Spin
+						indicator={<LoadingOutlined spin />}
+						size="large"
+						className="text-gray-500 dark:text-gray-400"
+						spinning={loading}
+					>
        <form onSubmit={formik.handleSubmit}>
           <div class="grid gap-4 sm:grid-cols-12 sm:gap-6">
             <div class="sm:col-span-3">
@@ -295,6 +304,7 @@ function FundRelListEditForm() {
           </div>
 
         </form>
+        </Spin>
         </>
       
       </div>

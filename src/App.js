@@ -26,15 +26,15 @@ function App() {
           },
         
           Menu: {
-            itemBg: "#CDD5D7",
-            subMenuItemBg: "#CDD5D7",
-            popupBg: "#CDD5D7",
-            itemColor: "#424444",
+            itemBg: "#3EB8BD",
+            subMenuItemBg: "#3EB8BD",
+            popupBg: "#3EB8BD",
+            itemColor: "#fff",
             itemSelectedBg: "#ffffff",
             itemMarginInline: 15,
             itemHoverBg: "#ffffff",
-            itemSelectedColor: "#424444",
-            itemHoverColor: "#424444",
+            itemSelectedColor: "#3EB8BD",
+            itemHoverColor: "#3EB8BD",
             colorPrimaryBorder: "#A31E21",
             horizontalItemSelectedColor: "#FBEC21",
             itemMarginInline: 4,
@@ -69,8 +69,9 @@ function App() {
           },
           Dropdown: {
             colorBgElevated: "white",
-            colorText: "#7fbf9f",
-            controlItemBgHover: "#7fbf9f",
+            colorText: "#3EB8BD",
+            colorTextHover: "#fff",
+            controlItemBgHover: "#436B6C",
             controlItemColorHover: "white",
           },
           Radio: {
