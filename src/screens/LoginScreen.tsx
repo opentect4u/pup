@@ -46,8 +46,12 @@ const LoginScreen = () => {
                         alignSelf: 'center'
                     }} />
 
-                    <Text variant='displaySmall'>{strings.login}</Text>
-                    <Text variant='bodyLarge'>{strings.loginSubText}</Text>
+                    <Text variant='displaySmall' style={{
+                        color: theme.colors.primary
+                    }}>{strings.login}</Text>
+                    <Text variant='bodyLarge' style={{
+                        color: theme.colors.secondary
+                    }}>{strings.loginSubText}</Text>
 
                     <View>
                         <InputPaper label="Username" maxLength={50} leftIcon='account-circle-outline' keyboardType="default" value={formData.username} onChangeText={(txt: any) => handleFormChange("username", txt)} customStyle={{
