@@ -1,8 +1,8 @@
-const UAT = true
+const UAT = false
 
 const BASE_URL = UAT
     ? `http://192.168.1.60/puad/index.php`
-    : `https://google.com`
+    : `https://pup.opentech4u.co.in/pup/index.php`
 
 export {
     UAT,
