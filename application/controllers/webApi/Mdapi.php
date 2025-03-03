@@ -90,6 +90,14 @@ class Mdapi extends CI_Controller {
 			echo json_encode(['status' => 0, 'message' => 'No data found']);
 		}
     }
+	public function impagency() {
+		$data = $this->Master->f_select('md_proj_imp_agency', array('id','agency_name',), NULL, NULL);
+		if (!empty($data)) {
+			echo json_encode(['status' => 1, 'message' => $data]);
+		} else {
+			echo json_encode(['status' => 0, 'message' => 'No data found']);
+		}
+    }
 
 	
 
