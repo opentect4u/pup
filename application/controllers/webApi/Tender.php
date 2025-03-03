@@ -67,7 +67,7 @@ class Tender extends CI_Controller {
 			if (!empty($_FILES[$field]['name'])) {
 				$config['upload_path']   = './uploads/tender/'; // Folder to store files
 				$config['allowed_types'] = 'pdf'; // Allow only PDFs
-				$config['max_size']      = 2048; // Max file size (2MB)
+				$config['max_size']      = 8048; // Max file size (2MB)
 				$config['encrypt_name']  = TRUE; // Encrypt filename for security
 	
 				$this->upload->initialize($config); // Initialize config for each file
