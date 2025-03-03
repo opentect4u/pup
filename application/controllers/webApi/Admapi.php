@@ -208,12 +208,22 @@ class Admapi extends CI_Controller {
 	
 		// Update data in the database
 		$this->Master->f_edit('td_admin_approval', $data, $where);
+		echo $this->db->last_query();
+		if ($this->db->affected_rows() > 0) {
 	
 		echo json_encode([
-			'status' => true,
+			'status' => 1,
 			'message' => 'Edited successfully!',
 			'file_names' => $upload_paths // Return filenames in response
 		]);
+	    }else{
+			
+		echo json_encode([
+			'status' => 0,
+			'message' => 'Some Thing Went Wrong!',
+			'file_names' => $upload_paths // Return filenames in response
+		]);
+		}
 	}
 		
 
