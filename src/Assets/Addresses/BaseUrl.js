@@ -1,4 +1,4 @@
-export const url='http://192.168.1.60/back-end/'
+export const url='http://localhost/pup/'
 
 export const auth_key='c299cf0ae55db8193eb2d3116'
 export const folder_fund='uploads/fund/'
