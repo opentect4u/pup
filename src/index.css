@@ -46,8 +46,11 @@ code {
 }
 
 .bg-blue-900{background-color: #3EB8BD;}
-.bg-blue-950{background-color: #3EB8BD;}
-.border-blue-900{border-color:#3EB8BD;}
+.bg-blue-950{background-color: #fff;}
+.border-blue-900{border-color:#fff; color: #333;}
+input[type="text"]{color: #333;}
+
+button.border-blue-900{border-color:#3EB8BD;}
 .text-blue-900{color: #3EB8BD;}
 /* 
 background: #7fbf9f
@@ -68,7 +71,7 @@ ul.ant-menu{border: none !important;}
 button.bg-blue-900{background: #3EB8BD; color: #fff;}
 
 /* .text-gray-500{color: #fff;} */
-h2.text-white {color: #3EB8BD;}
+h2.text-white {color: #fff;}
 /* nav ul li a.leading-tight{color: #3EB8BD;} */
 
 

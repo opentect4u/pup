@@ -69,7 +69,7 @@ function AdApView() {
 					>
         <div class="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
             <div class="flex flex-col bg-blue-900 md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
-            <h2 className='text-xl font-bold text-white'>Admin Approval</h2>
+            <h2 className='text-xl font-bold text-white'>Administrative Approval</h2>
 
             
                 <div class="w-full md:w-1/2">
@@ -92,24 +92,39 @@ function AdApView() {
                 <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                     <thead class="text-xs text-gray-700 uppercase bg-slate-200 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
+                            <th scope="col" class="px-4 py-3">Sl.No.</th>
+                            <th scope="col" class="px-4 py-3">Project ID</th>
+                            <th scope="col" class="px-4 py-3">Approval No</th>
+                            <th scope="col" class="px-4 py-3">Date of Approval</th>
+
+
                             <th scope="col" class="px-4 py-3">Scheme Name</th>
                             <th scope="col" class="px-4 py-3">Sector</th>
-                            <th scope="col" class="px-4 py-3">Project ID</th>
-                            <th scope="col" class="px-4 py-3">Head Account</th>
-                            <th scope="col" class="px-4 py-3">Total Amount</th>
+
+
+                            {/* <th scope="col" class="px-4 py-3">Project ID</th> */}
+                            {/* <th scope="col" class="px-4 py-3">Head Account</th>
+                            <th scope="col" class="px-4 py-3">Total Amount</th> */}
                             <th scope="col" class="px-4 py-3">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                    
+                    {/* {JSON.stringify(currentTableData, null, 2)} */}
                     {currentTableData?.map((data, index) => ( 
                     <>
                     <tr class="border-b dark:border-gray-700">
+                    <td className="px-4 py-3">{index + 1}</td>
+                    <td scope="row" class="px-4 py-3">{data?.project_id}</td>
+                    <td scope="row" class="px-4 py-3">{data?.approval_no}</td>
+                    <td scope="row" class="px-4 py-3">{data?.admin_approval_dt}</td>
+
                     <td scope="row" class="px-4 py-3">{data?.scheme_name}</td>
                     <td scope="row" class="px-4 py-3">{data?.sector_name}</td>
-                    <td scope="row" class="px-4 py-3">{data?.project_id}</td>
-                    <td scope="row" class="px-4 py-3">{data?.account_head}</td>
-                    <td scope="row" class="px-4 py-3">{data?.tot_amt}</td>
+
+
+                    {/* <td scope="row" class="px-4 py-3">{data?.project_id}</td> */}
+                    {/* <td scope="row" class="px-4 py-3">{data?.account_head}</td>
+                    <td scope="row" class="px-4 py-3">{data?.tot_amt}</td> */}
                     <td scope="row" class="px-4 py-3">
                         <button type="button" class="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 
                         focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1.5 text-center 

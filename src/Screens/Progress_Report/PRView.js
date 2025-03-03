@@ -226,7 +226,7 @@ function PRView() {
             <TDInputTemplate
               type="text"
               placeholder="Project ID goes here..."
-              // label="Search By Tender ID"
+              // label="Search By Project ID"
               name="tender_id"
               formControlName={formik.values.tender_id}
               handleChange={formik.handleChange}

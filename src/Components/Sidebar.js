@@ -10,11 +10,11 @@ import { Menu } from "antd";
 import { Link } from "react-router-dom";
 
 const items = [
-  {
-    label: <Link to={""}>Home </Link>,
-    key: "home",
-    icon: <HomeFilled />,
-  },
+  // {
+  //   label: <Link to={""}>Home </Link>,
+  //   key: "home",
+  //   icon: <HomeFilled />,
+  // },
   {
     label: <Link to={"admin_approval"}>Administrative Approval </Link>,
     key: "ad-appr",

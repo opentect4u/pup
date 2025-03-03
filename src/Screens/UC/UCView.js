@@ -22,7 +22,7 @@ import { Spin } from 'antd';
 
 const options = [
   {
-  	label: "Search By Tender ID",
+  	label: "Search By Project ID",
   	value: "T",
   },
   {
@@ -195,7 +195,7 @@ function UCView() {
             <TDInputTemplate
               type="text"
               placeholder="Tender ID goes here..."
-              // label="Search By Tender ID"
+              // label="Search By Project ID"
               name="tender_id"
               formControlName={formik.values.tender_id}
               handleChange={formik.handleChange}

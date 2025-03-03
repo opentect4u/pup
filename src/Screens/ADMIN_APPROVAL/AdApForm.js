@@ -3,14 +3,14 @@ import TDInputTemplate from "../../Components/TDInputTemplate";
 import BtnComp from "../../Components/BtnComp";
 import Heading from "../../Components/Heading";
 import axios from "axios";
-import { url, auth_key } from "../../Assets/Addresses/BaseUrl";
+import { url, auth_key, folder_admin } from "../../Assets/Addresses/BaseUrl";
 import VError from "../../Components/VError";
 import * as Yup from 'yup';
 import { useFormik } from "formik";
 import { Select, Spin } from "antd";
 import { Message } from "../../Components/Message";
 import { useNavigate, useParams } from "react-router"
-import { LoadingOutlined } from "@ant-design/icons";
+import { FilePdfOutlined, LoadingOutlined } from "@ant-design/icons";
 
 
 const initialValues = {
@@ -59,7 +59,7 @@ const validationSchema = Yup.object({
   fin_yr: Yup.string().required('Financial Year is Required'),
   schm_amt: Yup.string().required('Schematic Amount is Required'),
   cont_amt: Yup.string().required('Contigency Amount is Required'),
-  tot_amt: Yup.string().required('Total Amount is Required'),
+  // tot_amt: Yup.string().required('Total Amount is Required'),
   admin_appr_pdf: Yup.string().required('Administrative Approval(G.O) is Required'),
   proj_id: Yup.string().required('Project ID is Required'),
   head_acc: Yup.string().required('Head Account is Required'),
@@ -82,6 +82,7 @@ function AdApForm() {
   // axios.defaults.headers.common['Content-Type'] = 'application/json';
   const [sectorDropList, setSectorDropList] = useState([]);
   const [financialYearDropList, setFinancialYearDropList] = useState([]);
+  const [projectImple, setProjectImple] = useState([]);
   const [headAccountDropList, setHeadAccountDropList] = useState([]);
   const [districtDropList, setDistrictDropList] = useState([]);
   const [district_ID, setDistrict_ID] = useState([]);
@@ -94,6 +95,8 @@ function AdApForm() {
   const [formValues, setValues] = useState(initialValues)
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
+  const [filePreview, setFilePreview] = useState(null);
+  const [filePreview_2, setFilePreview_2] = useState(null);
 
 
   const fetchSectorDropdownOption = async () => {
@@ -110,7 +113,7 @@ function AdApForm() {
       );
 
       // console.log("Response Data:", response.data.message); // Log the actual response data
-      setSectorDropList(response.data.message)
+      setSectorDropList(response?.data?.message)
       setLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error); // Handle errors properly
@@ -139,6 +142,29 @@ function AdApForm() {
       setLoading(false);
     }
   };
+
+  const fetchProjectImplement = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        url + 'index.php/webApi/Mdapi/impagency',
+        {}, // Empty body
+        {
+          headers: {
+            'auth_key': auth_key,
+          },
+        }
+      );
+
+      console.log("fetchProjectImplement:", response.data.message); // Log the actual response data
+      setProjectImple(response.data.message)
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching data:", error); // Handle errors properly
+      setLoading(false);
+    }
+  };
+
 
   const fetchHeadAccountdownOption = async () => {
     setLoading(true);
@@ -234,6 +260,7 @@ function AdApForm() {
     // }}).then(res=>console.log(res))
     fetchSectorDropdownOption()
     fetchFinancialYeardownOption()
+    fetchProjectImplement()
     fetchHeadAccountdownOption()
     fetchDistrictdownOption()
     fetchSourceFunddownOption()
@@ -324,7 +351,7 @@ function AdApForm() {
         src: response.data.message.fund_id,
       })
 
-      console.log((response.data.message.sch_amt + response.data.message.cont_amt), "loadFormData", response.data.message); // Log the actual response data
+      console.log("loadFormData", response.data.message); // Log the actual response data
       // setSourceFundDropList(response.data.message)
     } catch (error) {
       console.error("Error fetching data:", error); // Handle errors properly
@@ -356,7 +383,7 @@ function AdApForm() {
     formData.append("fund_id", formik.values.src);
     formData.append("created_by", "SSS Name Created By");
   
-    console.log(formik.values.block, "FormData:", formData);
+    console.log(formik.values.admin_appr_pdf, "FormData:", formik.values.vet_dpr_pdf);
 
     try {
       const response = await axios.post(
@@ -457,6 +484,13 @@ function AdApForm() {
   });
 
 
+  useEffect(() => {
+    const schmAmt = parseFloat(formik.values.schm_amt) || 0;
+    const contAmt = parseFloat(formik.values.cont_amt) || 0;
+    const total = schmAmt + contAmt;
+  
+    formik.setFieldValue("tot_amt", total);
+  }, [formik.values.schm_amt, formik.values.cont_amt]);
 
 
 
@@ -472,7 +506,60 @@ function AdApForm() {
 					>
         <form onSubmit={formik.handleSubmit}>
           <div class="grid gap-4 sm:grid-cols-12 sm:gap-6">
-            <div class="sm:col-span-12">
+
+          <div class="sm:col-span-4">
+              <TDInputTemplate
+                placeholder="Choose Project ID"
+                type="text"
+                label="Project ID"
+                name="proj_id"
+                formControlName={formik.values.proj_id}
+                handleChange={formik.handleChange}
+                handleBlur={formik.handleBlur}
+                mode={1}
+              />
+              {formik.errors.proj_id && formik.touched.proj_id && (
+                <VError title={formik.errors.proj_id} />
+              )}
+            </div>
+
+            {params?.id > 0 &&(
+              <div class="sm:col-span-4">
+              <TDInputTemplate
+                // placeholder="Choose Project ID"
+                type="text"
+                label="Approval No"
+                // name="proj_id"
+                value = {params?.id}
+                formControlName={params?.id}
+                // handleChange={formik.handleChange}
+                // handleBlur={formik.handleBlur}
+                mode={1}
+                disabled={true}
+              />
+              
+            </div>
+            )}
+
+<div class="sm:col-span-4">
+              <TDInputTemplate
+                placeholder="Date of administrative approval"
+                type="date"
+                label="Date of administrative approval"
+                name="dt_appr"
+                formControlName={formik.values.dt_appr}
+                handleChange={formik.handleChange}
+                handleBlur={formik.handleBlur}
+                mode={1}
+              />
+              {formik.errors.dt_appr && formik.touched.dt_appr && (
+                <VError title={formik.errors.dt_appr} />
+              )}
+            </div>
+            
+
+
+            <div class="sm:col-span-4">
               <TDInputTemplate
                 type="text"
                 placeholder="Scheme name goes here..."
@@ -487,7 +574,7 @@ function AdApForm() {
                 <VError title={formik.errors.scheme_name} />
               )}
             </div>
-            <div class="sm:col-span-6">
+            <div class="sm:col-span-4">
               {/* <TDInputTemplate
                 placeholder="Choose Sector"
                 type="text"
@@ -511,7 +598,7 @@ function AdApForm() {
                 style={{ width: "100%" }}
               >
                 <Select.Option value="" disabled> Choose Sector </Select.Option>
-                {sectorDropList.map(data => (
+                {sectorDropList?.map(data => (
                   <Select.Option key={data.sl_no} value={data.sl_no}>
                     {data.sector_desc}
                   </Select.Option>
@@ -525,7 +612,7 @@ function AdApForm() {
                 <VError title={formik.errors.sector_name} />
               )}
             </div>
-            <div class="sm:col-span-6">
+            <div class="sm:col-span-4">
               <label for="fin_yr" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Financial Year</label>
               <Select
                 placeholder="Choose Financial Year"
@@ -538,7 +625,7 @@ function AdApForm() {
                 style={{ width: "100%" }}
               >
                 <Select.Option value="" disabled> Choose Financial Year </Select.Option>
-                {financialYearDropList.map(data => (
+                {financialYearDropList?.map(data => (
                   <Select.Option key={data.sl_no} value={data.sl_no}>
                     {data.fin_year}
                   </Select.Option>
@@ -552,6 +639,9 @@ function AdApForm() {
             <div className="sm:col-span-12 text-blue-900 text-md font-bold mt-3 -mb-2">
               Amount of administrative approval
             </div>
+
+            
+
             <div class="sm:col-span-4">
               <TDInputTemplate
                 placeholder="Schematic amount goes here..."
@@ -592,6 +682,7 @@ function AdApForm() {
                 handleChange={formik.handleChange}
                 handleBlur={formik.handleBlur}
                 mode={1}
+                disabled= {true}
               />
               {formik.errors.tot_amt && formik.touched.tot_amt && (
                 <VError title={formik.errors.tot_amt} />
@@ -611,60 +702,49 @@ function AdApForm() {
                 mode={1}
               />
             </div> */}
-            <div class="sm:col-span-4">
-              {/* <TDInputTemplate
-                placeholder="Administrative Approval(G.O)"
-                type="file"
-                label="Administrative Approval(G.O)"
-                name="admin_appr_pdf"
-                formControlName={formik.values.admin_appr_pdf}
-                handleChange={formik.handleChange}
-                handleBlur={formik.handleBlur}
-                mode={1}
-              /> */}
+            <div class="sm:col-span-4" style={{position:'relative'}}>
+              
+
+{/* {JSON.stringify(filePreview, null, 2)} */}
 
               <TDInputTemplate
               type="file"
               name="admin_appr_pdf"
               placeholder="Administrative Approval(G.O)"
               label="Administrative Approval(G.O)"
+              // handleChange={(event) => {
+              // formik.setFieldValue("vet_dpr_pdf", event.currentTarget.files[0]);
+              // }}
               handleChange={(event) => {
-              formik.setFieldValue("admin_appr_pdf", event.currentTarget.files[0]);
+                const file = event.currentTarget.files[0];
+                if (file) {
+                formik.setFieldValue("admin_appr_pdf", file);
+                setFilePreview(URL.createObjectURL(file)); // Create a preview URL
+                }
               }}
               handleBlur={formik.handleBlur}
               mode={1}
               />
 
+            {filePreview && (
+            <a href={filePreview_2} target="_blank" rel="noopener noreferrer" style={{position:'absolute', top:37, right:10}}>
+            <FilePdfOutlined style={{ fontSize: 22, color: "red" }} />
+            </a>
+            )}
+
+            {filePreview === null && (
+            <a href={url + folder_admin + formValues.admin_appr_pdf} target='_blank' style={{position:'absolute', top:37, right:10}}>
+            <FilePdfOutlined style={{fontSize:22, color:'red'}} /></a>
+            )}
+
               {formik.errors.admin_appr_pdf && formik.touched.admin_appr_pdf && (
                 <VError title={formik.errors.admin_appr_pdf} />
               )}
+
             </div>
+            
             <div class="sm:col-span-4">
-              <TDInputTemplate
-                placeholder="Choose Project ID"
-                type="text"
-                label="Project ID"
-                name="proj_id"
-                formControlName={formik.values.proj_id}
-                handleChange={formik.handleChange}
-                handleBlur={formik.handleBlur}
-                mode={1}
-              />
-              {formik.errors.proj_id && formik.touched.proj_id && (
-                <VError title={formik.errors.proj_id} />
-              )}
-            </div>
-            <div class="sm:col-span-4">
-              {/* <TDInputTemplate
-                placeholder="Choose Head Account"
-                type="text"
-                label="Head Account"
-                name="head_acc"
-                formControlName={formik.values.head_acc}
-                handleChange={formik.handleChange}
-                handleBlur={formik.handleBlur}
-                mode={2}
-              /> */}
+              
 
               <label for="head_acc" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Head Account</label>
               <Select
@@ -678,7 +758,7 @@ function AdApForm() {
                 style={{ width: "100%" }}
               >
                 <Select.Option value="" disabled> Choose Head Account </Select.Option>
-                {headAccountDropList.map(data => (
+                {headAccountDropList?.map(data => (
                   <Select.Option key={data.sl_no} value={data.sl_no}>
                     {data.account_head}
                   </Select.Option>
@@ -689,21 +769,7 @@ function AdApForm() {
                 <VError title={formik.errors.head_acc} />
               )}
             </div>
-            <div class="sm:col-span-4">
-              <TDInputTemplate
-                placeholder="Date of administrative approval"
-                type="date"
-                label="Date of administrative approval"
-                name="dt_appr"
-                formControlName={formik.values.dt_appr}
-                handleChange={formik.handleChange}
-                handleBlur={formik.handleBlur}
-                mode={1}
-              />
-              {formik.errors.dt_appr && formik.touched.dt_appr && (
-                <VError title={formik.errors.dt_appr} />
-              )}
-            </div>
+            
             <div class="sm:col-span-4">
               <TDInputTemplate
                 placeholder="Name goes here..."
@@ -720,7 +786,7 @@ function AdApForm() {
               )}
             </div>
             <div class="sm:col-span-4">
-              <TDInputTemplate
+              {/* <TDInputTemplate
                 placeholder="Name goes here..."
                 type="text"
                 label="Project implemented By"
@@ -729,7 +795,28 @@ function AdApForm() {
                 handleChange={formik.handleChange}
                 handleBlur={formik.handleBlur}
                 mode={1}
-              />
+              /> */}
+
+              <label for="dis" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Project implemented By</label>
+              <Select
+                placeholder="Choose Project implemented By"
+                value={formik.values.proj_imp_by || undefined} // Ensure default empty state
+                onChange={(value) => {
+                  formik.setFieldValue("proj_imp_by", value)
+                  console.log(value, 'ggggggggggggggggggg');
+                }}
+                onBlur={formik.handleBlur}
+                style={{ width: "100%" }}
+              >
+                <Select.Option value="" disabled> Choose Project implemented By </Select.Option>
+                {projectImple?.map(data => (
+                  <Select.Option key={data.id} value={data.id}>
+                    {data.agency_name}
+                  </Select.Option>
+                ))}
+              </Select>
+
+              
               {formik.errors.proj_imp_by && formik.touched.proj_imp_by && (
                 <VError title={formik.errors.proj_imp_by} />
               )}
@@ -752,7 +839,7 @@ function AdApForm() {
                 style={{ width: "100%" }}
               >
                 <Select.Option value="" disabled> Choose District </Select.Option>
-                {districtDropList.map(data => (
+                {districtDropList?.map(data => (
                   <Select.Option key={data.dist_code} value={data.dist_code}>
                     {data.dist_name}
                   </Select.Option>
@@ -790,41 +877,38 @@ function AdApForm() {
                 <VError title={formik.errors.block} />
               )}
             </div>
-            {/* <div class="sm:col-span-8">
-              <TDInputTemplate
-                placeholder="Vetted DPR"
-                type="text"
-                label="Vetted DPR"
-                name="vet_dpr"
-                // formControlName={formik.values.email}
-                // handleChange={formik.handleChange}
-                // handleBlur={formik.handleBlur}
-                mode={1}
-              />
-            </div> */}
-            <div class="sm:col-span-4">
-              {/* <TDInputTemplate
-                placeholder="Vetted DPR"
-                type="file"
-                label="Vetted DPR"
-                name="vet_dpr_pdf"
-                formControlName={formik.values.vet_dpr_pdf}
-                handleChange={formik.handleChange}
-                handleBlur={formik.handleBlur}
-                mode={1}
-              /> */}
+
+            <div class="sm:col-span-4" style={{position:'relative'}}>
 
               <TDInputTemplate
               type="file"
               name="vet_dpr_pdf"
               placeholder="Vetted DPR"
               label="Vetted DPR"
+              // handleChange={(event) => {
+              // formik.setFieldValue("vet_dpr_pdf", event.currentTarget.files[0]);
+              // }}
               handleChange={(event) => {
-              formik.setFieldValue("vet_dpr_pdf", event.currentTarget.files[0]);
+                const file = event.currentTarget.files[0];
+                if (file) {
+                formik.setFieldValue("vet_dpr_pdf", file);
+                setFilePreview_2(URL.createObjectURL(file)); // Create a preview URL
+                }
               }}
               handleBlur={formik.handleBlur}
               mode={1}
               />
+
+            {filePreview_2 && (
+            <a href={filePreview_2} target="_blank" rel="noopener noreferrer" style={{position:'absolute', top:37, right:10}}>
+            <FilePdfOutlined style={{ fontSize: 22, color: "red" }} />
+            </a>
+            )}
+
+            {filePreview_2 === null && (
+            <a href={url + folder_admin + formValues.vet_dpr_pdf} target='_blank' style={{position:'absolute', top:37, right:10}}>
+            <FilePdfOutlined style={{fontSize:22, color:'red'}} /></a>
+            )}
 
               {formik.errors.vet_dpr_pdf && formik.touched.vet_dpr_pdf && (
                 <VError title={formik.errors.vet_dpr_pdf} />
@@ -854,7 +938,7 @@ function AdApForm() {
                 style={{ width: "100%" }}
               >
                 <Select.Option value="" disabled> Choose Source of Fund </Select.Option>
-                {sourceFundDropList.map(data => (
+                {sourceFundDropList?.map(data => (
                   <Select.Option key={data.sl_no} value={data.sl_no}>
                     {data.fund_type}
                   </Select.Option>

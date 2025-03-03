@@ -7,11 +7,14 @@ import { useFormik } from "formik";
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import VError from '../../Components/VError';
 import axios from 'axios';
-import { auth_key, url } from '../../Assets/Addresses/BaseUrl';
+import { auth_key, url, folder_tender } from '../../Assets/Addresses/BaseUrl';
 import { Message } from '../../Components/Message';
+import { FilePdfOutlined } from '@ant-design/icons';
+import { Select } from 'antd';
 
 
 const initialValues = {
+  project_id: '',
   td_dt: '',
   td_pdf: '',
   tia: '',
@@ -25,23 +28,24 @@ const initialValues = {
 
 
 const validationSchema = Yup.object({
-  // td_dt: Yup.string().required('Tender Invited On is Required'),
-  // td_pdf: Yup.string().required('Tender Notice is Required'),
-  // tia: Yup.string().required('Tender Inviting Authority is Required'),
-  // td_mt_dt: Yup.string().required('Tender Matured On is Required'),
-  // wo_dt: Yup.string().required('Work Order Issued On is Required'),
-  // wo_pdf: Yup.string().required('Work Order Copy is Required'),
-  // wo_value: Yup.string().required('Work Order Value is Required'),
-  // compl: Yup.string().required('Tentative Date of Completion is Required'),
+  project_id: Yup.string().required('Project ID / Approval Number is Required'),
+  td_dt: Yup.string().required('Tender Invited On is Required'),
+  td_pdf: Yup.string().required('Tender Notice is Required'),
+  tia: Yup.string().required('Tender Inviting Authority is Required'),
+  td_mt_dt: Yup.string().required('Tender Matured On is Required'),
+  wo_dt: Yup.string().required('Work Order Issued On is Required'),
+  wo_pdf: Yup.string().required('Work Order Copy is Required'),
+  wo_value: Yup.string().required('Work Order Value is Required'),
+  compl: Yup.string().required('Tentative Date of Completion is Required'),
 
-  td_dt: Yup.string(),
-  td_pdf: Yup.string(),
-  tia: Yup.string(),
-  td_mt_dt: Yup.string(),
-  wo_dt: Yup.string(),
-  wo_pdf: Yup.string(),
-  wo_value: Yup.string(),
-  compl: Yup.string(),
+  // td_dt: Yup.string(),
+  // td_pdf: Yup.string(),
+  // tia: Yup.string(),
+  // td_mt_dt: Yup.string(),
+  // wo_dt: Yup.string(),
+  // wo_pdf: Yup.string(),
+  // wo_value: Yup.string(),
+  // compl: Yup.string(),
 
 
 });
@@ -53,6 +57,10 @@ function TFForm() {
   const operation_status = location.state?.operation_status || "add";
   const sl_no = location.state?.sl_no || "";
   const navigate = useNavigate()
+  const [filePreview_1, setFilePreview_1] = useState(null);
+  const [filePreview_2, setFilePreview_2] = useState(null);
+  const [loading, setLoading] = useState(false)
+  const [projectId, setProjectId] = useState([]);
 
   useEffect(()=>{
     console.log(operation_status, 'loadFormData', sl_no, 'kkkk', params?.id);
@@ -83,6 +91,7 @@ function TFForm() {
 
       
       setValues({
+        project_id: response.data.message.approval_no,
         td_dt: response.data.message.tender_date,
         td_pdf: response.data.message.tender_notice,
         tia: response.data.message.invite_auth,
@@ -103,13 +112,38 @@ function TFForm() {
   };
 
     useEffect(()=>{
-  
+      console.log(operation_status, 'operation_status');
+      
       if(operation_status == 'edit'){
         loadFormData()
       }
+
+      fetchFinancialYeardownOption()
   
   
     }, [])
+
+    const fetchFinancialYeardownOption = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.post(
+          url + 'index.php/webApi/Admapi/get_approval_no',
+          {}, // Empty body
+          {
+            headers: {
+              'auth_key': auth_key,
+            },
+          }
+        );
+  
+        console.log("Response Data:", response.data); // Log the actual response data
+        setProjectId(response.data.message)
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching data:", error); // Handle errors properly
+        setLoading(false);
+      }
+    };
 
 
   const saveFormData = async () => {
@@ -118,7 +152,8 @@ function TFForm() {
     const formData = new FormData();
 
     // Append each field to FormData
-    formData.append("approval_no", params?.id);
+    // formData.append("approval_no", params?.id);
+    formData.append("approval_no", formik.values.project_id);
     formData.append("tender_date", formik.values.td_dt);
     formData.append("tender_notice", formik.values.td_pdf); // Ensure this is a file if applicable
     formData.append("invite_auth", formik.values.tia);
@@ -175,7 +210,7 @@ function TFForm() {
     formData.append("updated_by", "SSS Name Updated By");
 
   
-    console.log("FormData:", formData);
+    console.log(formik.values.td_pdf, "FormData:", formik.values.td_pdf);
 
     try {
       const response = await axios.post(
@@ -238,6 +273,56 @@ function TFForm() {
       
         <form onSubmit={formik.handleSubmit}>
           <div class="grid gap-4 sm:grid-cols-12 sm:gap-6">
+
+          <div class="sm:col-span-4">
+              <label for="fin_yr" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Project ID / Approval Number</label>
+              <Select
+                placeholder="Choose Project ID"
+                value={formik.values.project_id || undefined} // Ensure default empty state
+                onChange={(value) => {
+                  formik.setFieldValue("project_id", value)
+                  console.log(value, 'ggggggggggggggggggg');
+                }}
+                onBlur={formik.handleBlur}
+                style={{ width: "100%" }}
+                disabled={params?.id > 0 ? true : false}
+              >
+                <Select.Option value="" disabled> Choose Project ID </Select.Option>
+                {projectId.map(data => (
+                  <Select.Option key={data.approval_no} value={data.approval_no}>
+                    {data.project_id} - {data.approval_no}
+                  </Select.Option>
+                ))}
+              </Select>
+
+
+              {/* <Select
+              placeholder="Choose District"
+              value={formik.values.dis || undefined} // Ensure default empty state
+              onChange={(value) => {
+              formik.setFieldValue("dis", value)
+              setDistrict_ID(value)
+              formik.setFieldValue("block", "");
+              setBlockDropList([]);
+              setBlockDropList_Load([]);
+              console.log(value, 'disdisdis');
+              }}
+              onBlur={formik.handleBlur}
+              style={{ width: "100%" }}
+              >
+              <Select.Option value="" disabled> Choose District </Select.Option>
+              {districtDropList.map(data => (
+              <Select.Option key={data.dist_code} value={data.dist_code}>
+              {data.dist_name}
+              </Select.Option>
+              ))}
+              </Select> */}
+
+              {formik.errors.project_id && formik.touched.project_id && (
+                <VError title={formik.errors.project_id} />
+              )}
+            </div>
+
             <div class="sm:col-span-4">
               <TDInputTemplate
                 type="date"
@@ -255,19 +340,40 @@ function TFForm() {
             </div>
           
            
-            <div class="sm:col-span-4">
+            <div class="sm:col-span-4" style={{position:'relative'}}>
               
               <TDInputTemplate
               type="file"
               name="td_pdf"
               placeholder="Tender Notice"
               label="Tender Notice"
+              // handleChange={(event) => {
+              // formik.setFieldValue("td_pdf", event.currentTarget.files[0]);
+              // }}
               handleChange={(event) => {
-              formik.setFieldValue("td_pdf", event.currentTarget.files[0]);
+                const file = event.currentTarget.files[0];
+                if (file) {
+                formik.setFieldValue("td_pdf", file);
+                setFilePreview_1(URL.createObjectURL(file)); // Create a preview URL
+                }
               }}
               handleBlur={formik.handleBlur}
               mode={1}
               />
+
+            {filePreview_1 && (
+            <a href={filePreview_1} target="_blank" rel="noopener noreferrer" style={{position:'absolute', top:37, right:10}}>
+            <FilePdfOutlined style={{ fontSize: 22, color: "red" }} />
+            </a>
+            )}
+
+            {filePreview_1 === null && (
+            <a href={url + folder_tender + formValues.td_pdf} target='_blank' style={{position:'absolute', top:37, right:10}}>
+            <FilePdfOutlined style={{fontSize:22, color:'red'}} /></a>
+            )}
+
+              
+
               {formik.errors.td_pdf && formik.touched.td_pdf && (
                 <VError title={formik.errors.td_pdf} />
               )}
@@ -319,19 +425,38 @@ function TFForm() {
               )}
             </div>
            
-            <div class="sm:col-span-4">
+            <div class="sm:col-span-4" style={{position:'relative'}}>
 
               <TDInputTemplate
               type="file"
               name="wo_pdf"
               placeholder="Work Order Copy"
               label="Work Order Copy"
+              // handleChange={(event) => {
+              // formik.setFieldValue("wo_pdf", event.currentTarget.files[0]);
+              // }}
               handleChange={(event) => {
-              formik.setFieldValue("wo_pdf", event.currentTarget.files[0]);
+                const file = event.currentTarget.files[0];
+                if (file) {
+                formik.setFieldValue("wo_pdf", file);
+                setFilePreview_2(URL.createObjectURL(file)); // Create a preview URL
+                }
               }}
               handleBlur={formik.handleBlur}
               mode={1}
               />
+
+            {filePreview_2 && (
+            <a href={filePreview_2} target="_blank" rel="noopener noreferrer" style={{position:'absolute', top:37, right:10}}>
+            <FilePdfOutlined style={{ fontSize: 22, color: "red" }} />
+            </a>
+            )}
+
+            {filePreview_2 === null && (
+            <a href={url + folder_tender + formValues.wo_pdf} target='_blank' style={{position:'absolute', top:37, right:10}}>
+            <FilePdfOutlined style={{fontSize:22, color:'red'}} /></a>
+            )}
+
               {formik.errors.wo_pdf && formik.touched.wo_pdf && (
                 <VError title={formik.errors.wo_pdf} />
               )}
