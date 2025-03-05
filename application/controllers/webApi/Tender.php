@@ -271,12 +271,14 @@ class Tender extends CI_Controller {
 		if ($approval_no > 0) {
 			$where = array_merge($where, ['b.approval_no' => $approval_no]); 
 		}
-		$where = array_merge($where, ['1 limit 6' => NULL]); 
 		
-		$result_data = $this->Master->f_select('td_progress a,td_admin_approval b', 'b.scheme_name,b.project_id,a.approval_no,a.visit_no,a.progress_percent,a.pic_path', $where, NULL);
+		 
+		
+		$result_data = $this->Master->f_select('td_progress a,td_admin_approval b', 'b.admin_approval_dt,b.scheme_name,b.sector_id,b.fin_year,b.project_id,b.impl_agency,b.district_id,b.block_id,a.approval_no', array_merge($where, ['1 limit 1' => NULL]), NULL);
+		$image_data = $this->Master->f_select('td_progress a,td_admin_approval b', 'a.approval_no,a.visit_no,a.progress_percent,a.pic_path', array_merge($where, ['1 limit 6' => NULL]), NULL);
 		
 		$response = (!empty($result_data)) 
-			? ['status' => 1, 'message' => $result_data,'OPERATION_STATUS' => 'edit','folder_name'=>'uploads/progress_image/'] 
+			? ['status' => 1, 'message' => $result_data,'prog_img'=>$image_data,'OPERATION_STATUS' => 'edit','folder_name'=>'uploads/progress_image/'] 
 			: ['status' => 0, 'message' => 'No data found'];
 	
 		$this->output
