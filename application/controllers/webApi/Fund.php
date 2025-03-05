@@ -123,7 +123,7 @@ class Fund extends CI_Controller {
 	
 				if (!$this->upload->do_upload($field)) {
 					echo json_encode([
-						'status' => false,
+						'status' => 0,
 						'message' => "Error uploading {$field}: " . $this->upload->display_errors()
 					]);
 					return;
@@ -152,13 +152,18 @@ class Fund extends CI_Controller {
 			'created_at' => date('Y-m-d h:i:s'),
 		];
 	
-		$this->db->insert('td_fund_receive', $data);
-	
+		$check = $this->db->insert('td_fund_receive', $data);
+	    if($check){
 		echo json_encode([
 			'status' => 1,
-			'data' => 'Files uploaded successfully!',
-			'file_paths' => $upload_paths
+			'data' => 'Added successfully!',
 		]);
+		}else{
+			echo json_encode([
+				'status' => 0,
+				'data' => 'Some Thing Went Wrong!'
+			]);
+		}
 	}
 
 	public function fund_single_data() {
