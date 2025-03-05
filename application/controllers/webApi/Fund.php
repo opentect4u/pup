@@ -92,8 +92,12 @@ class Fund extends CI_Controller {
 
 	public function fund_list() {
 		
-		//$where = array('approval_no'=>$this->input->post('approval_no'));
-		$result_data = $this->Master->f_select('td_fund_receive', 'approval_no,receive_no,receive_date,received_by,instl_amt,allotment_no,sch_amt,cont_amt', NULL, NULL);
+		$where = array('a.approval_no = b.approval_no' => NULL,'b.sector_id = c.sl_no' => NULL,
+		               'b.fin_year = d.sl_no' => NULL,'b.district_id = e.dist_code' => NULL,
+					   'b.block_id = f.block_id' => NULL,'1 group by b.admin_approval_dt,b.scheme_name,sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no'=>NULL);
+		
+		$result_data = $this->Master->f_select('td_fund_receive a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f', 'b.admin_approval_dt,b.scheme_name,c.sector_desc as sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no', $where, NULL);
+
 		if (!empty($result_data)) {
 			echo json_encode(['status' => 1, 'message' => $result_data,'folder_name'=>'uploads/fund/']);
 		} else {

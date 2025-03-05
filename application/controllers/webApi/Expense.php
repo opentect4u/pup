@@ -49,15 +49,6 @@ class Expense extends CI_Controller {
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
     }
-
-	// public function expense_list() {
-	// 	$result_data = $this->Master->f_select('td_expenditure', 'approval_no,payment_no,payment_date,payment_to,sch_amt,cont_amt', NULL, NULL);
-	// 	if (!empty($result_data)) {
-	// 		echo json_encode(['status' => 1, 'message' => $result_data]);
-	// 	} else {
-	// 		echo json_encode(['status' => 0, 'message' => 'No data found']);
-	// 	}
-    // }
 	
 	public function expense_list() {
 		
