@@ -87,7 +87,7 @@ function TFView() {
                 </div>
                 <div class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
                    {/* <BtnComp bgColor={'bg-white'} color="text-blue-900" title="Add Document" onClick={()=>{navigate('AdApcrud/0')}}/> */}
-                   <BtnComp bgColor="bg-white" color="text-blue-900" title="Add Tender" onClick={()=>{navigate('tfcrud/0`', {
+                   <BtnComp bgColor="bg-white" color="text-blue-900" title="Add Tender" onClick={()=>{navigate('tfcrud/0', {
                         state: {
                         operation_status: 'add', // Explicitly include approval_status
                         },
@@ -98,16 +98,13 @@ function TFView() {
                 <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                     <thead class="text-xs text-gray-700 uppercase bg-slate-200 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
-                            <th scope="col" class="px-4 py-3">Sl.No.</th>
-                            <th scope="col" class="px-4 py-3">Tender Inviting Authority </th>
-                            <th scope="col" class="px-4 py-3">Tender Date</th>
-                            <th scope="col" class="px-4 py-3">Tender Matured On</th>
-                            <th scope="col" class="px-4 py-3">Tender Notice</th>
-                            <th scope="col" class="px-4 py-3">Work Order Copy</th>
-                            <th scope="col" class="px-4 py-3">Work Order Value</th>
-                            {/* <th scope="col" class="px-4 py-3">Head Account</th>
-                            <th scope="col" class="px-4 py-3">Total Amount</th> */}
-                            <th scope="col" class="px-4 py-3">Actions</th>
+                        <th className="px-4 py-3">Project ID</th>
+                        <th className="px-4 py-3">Schematic Name</th>
+                        <th className="px-4 py-3">Sector Name</th>
+                        <th className="px-4 py-3">Financial Year</th>
+                        <th className="px-4 py-3">District</th>
+                        <th className="px-4 py-3">Block</th>
+                        <th className="px-4 py-3">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -115,31 +112,28 @@ function TFView() {
                     {currentTableData?.map((data, index) => ( 
                     <>
                     <tr class="border-b dark:border-gray-700">
-                    <td scope="row" class="px-4 py-3">{data?.sl_no}</td>  
-                    <td scope="row" class="px-4 py-3">{data?.invite_auth}</td> 
-                    <td scope="row" class="px-4 py-3">{data?.tender_date}</td>
-                    <td scope="row" class="px-4 py-3">{data?.mat_date}</td>
-                    <td scope="row" class="px-4 py-3"><a href={url + folderName + data?.tender_notice} target='_blank'>
-                        <FilePdfOutlined style={{fontSize:22, color:'red'}} /></a></td>
-                    <td scope="row" class="px-4 py-3"><a href={url + folderName + data?.wo_copy} target='_blank'>
-                        <FilePdfOutlined style={{fontSize:22, color:'red'}} /></a></td>
-                    <td scope="row" class="px-4 py-3">{data?.wo_value}</td>
+                    <td className="px-4 py-3">{data?.project_id}</td>
+                    <td className="px-4 py-3">{data?.scheme_name}</td>
+                    <td className="px-4 py-3">{data?.sector_name}</td>
+                    <td className="px-4 py-3">{data?.fin_year}</td>
+                    <td className="px-4 py-3">{data?.dist_name}</td>
+                    <td className="px-4 py-3">{data?.block_name}</td>
                     <td scope="row" class="px-4 py-3">
-                        <button type="button" class="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 
-                        focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1.5 text-center 
-                        me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 
-                        dark:focus:ring-blue-800"
-                        onClick={() => {
-                        navigate(`/home/tender_formality/tfcrud/${data?.approval_no}`, {
-                        state: {
-                        ...data, // Spread existing rowData
-                        operation_status: OPERATION_STATUS, // Explicitly include approval_status
-                        sl_no: data?.sl_no
-                        },
-                        });
+                    <button type="button" class="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 
+                    focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1.5 text-center 
+                    me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 
+                    dark:focus:ring-blue-800"
+                    onClick={() => {
+                    navigate(`/home/tender_formality/tfcrud/${data?.approval_no}`, {
+                    state: {
+                    ...data, // Spread existing rowData
+                    operation_status: OPERATION_STATUS, // Explicitly include approval_status
+                    sl_no: data?.sl_no
+                    },
+                    });
 
-                        }}
-                        > <EditOutlined /> </button>
+                    }}
+                    > <EditOutlined /> </button>
                     </td>
                     </tr>
                     </>

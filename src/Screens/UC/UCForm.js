@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import TDInputTemplate from '../../Components/TDInputTemplate'
 import BtnComp from '../../Components/BtnComp'
 import Heading from '../../Components/Heading'
@@ -7,16 +7,21 @@ import { useFormik } from "formik";
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import VError from '../../Components/VError';
 import axios from 'axios';
-import { auth_key, url } from '../../Assets/Addresses/BaseUrl';
+import { auth_key, url, folder_certificate } from '../../Assets/Addresses/BaseUrl';
 import { Message } from '../../Components/Message';
 import { FilePdfOutlined, LoadingOutlined } from '@ant-design/icons';
-import { Spin } from 'antd';
+import { Select, Spin } from 'antd';
+import { DataTable } from 'primereact/datatable';
+import Column from 'antd/es/table/Column';
+import { Toast } from "primereact/toast"
 
 const initialValues = {
   issued_by: '',
   certificate_path: '',
   issued_to: '',
   cont_amt_one: '',
+  exp_text: '',
+  certificate_date: ''
 };
 
 
@@ -25,7 +30,8 @@ const validationSchema = Yup.object({
   issued_by: Yup.string().required('Issued By is Required'),
   issued_to: Yup.string().required('Issued To is Required'),
   certificate_path: Yup.string().required('Utilization Certificate is Required'),
-  
+  certificate_date: Yup.string().required('Certificate Date is Required'),
+  exp_text: Yup.string().required('Remarks is Required'),
 
   // issued_by: Yup.string(),
   // certificate_path: Yup.string(),
@@ -46,17 +52,25 @@ function UCForm() {
   const [folderName, setFolderName] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const [projectId, setProjectId] = useState([]);
+  // const [getStatusData, setGetStatusData] = useState([]);
+  const [getMsgData, setGetMsgData] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [approvalNo, setApprovalNo] = useState('');
+  const toast = useRef(null)
+
   useEffect(()=>{
       console.log(operation_status, 'loadFormData', 'kkkk', params?.id);
     }, [])
 
     
-    const fundAddedList = async () => {
+    const fundAddedList = async (approvalNo_Para) => {
       setLoading(true); // Set loading state
     
       
       const formData = new FormData();
-      formData.append("approval_no", params?.id);
+      // formData.append("approval_no", params?.id);
+      formData.append("approval_no", approvalNo_Para);
   
       try {
         const response = await axios.post(
@@ -70,7 +84,7 @@ function UCForm() {
           }
         );
 
-        console.log("FormData_____DONE", response?.data?.message.length);
+        console.log("FormData_____DONE", response?.data?.message);
 
         if(response.data.status > 0){
           setFundStatus(response?.data?.message)
@@ -99,14 +113,16 @@ function UCForm() {
       const formData = new FormData();
   
       // // Append each field to FormData
-      formData.append("approval_no", params?.id);
+      formData.append("approval_no", approvalNo);
       formData.append("issued_by", formik.values.issued_by);
       formData.append("certificate_path", formik.values.certificate_path); // Ensure this is a file if applicable
       formData.append("issued_to", formik.values.issued_to);
+      formData.append("certificate_date", formik.values.certificate_date);
+      formData.append("remarks", formik.values.exp_text);
       formData.append("created_by", "SSS Name Created By");
   
     
-      console.log("FormData:", formData);
+      console.log("FormData_____DONE", formData);
   
       try {
         const response = await axios.post(
@@ -123,7 +139,7 @@ function UCForm() {
         // setLoading(false);
         Message("success", "Updated successfully.");
         // navigate(`/home/fund_release`);
-        fundAddedList()
+        fundAddedList(approvalNo)
         formik.resetForm();
       } catch (error) {
         // setLoading(false);
@@ -136,19 +152,102 @@ function UCForm() {
  const onSubmit = (values) => {
     console.log(values, 'credcredcredcredcred', operation_status ==  'edit', 'lll', params?.id);
 
-    // if(operation_status == 'edit'){
-    //   updateFormData()
-    // } 
-    if(operation_status ==  'add'){
+   
+    // if(operation_status ==  'add'){
       saveFormData()
-      
-    }
+    // }
     
   };
 
+  const fetchProjectId = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        url + 'index.php/webApi/Admapi/get_approval_no',
+        {}, // Empty body
+        {
+          headers: {
+            'auth_key': auth_key,
+          },
+        }
+      );
+
+      if(response?.data?.status > 0){
+      // fundAddedList()
+      console.log("Response Data:", response?.data?.status); // Log the actual response data
+      setProjectId(response.data.message)
+      setLoading(false);
+      }
+
+      if(response?.data?.status < 1){
+        setLoading(false);
+      }
+      
+    } catch (error) {
+      console.error("Error fetching data:", error); // Handle errors properly
+      setLoading(false);
+    }
+  };
+
+  const loadFormData = async (project_id) => {
+    // console.log(project_id, 'responsedata');
+    setLoading(true); // Set loading state
+
+    const formData = new FormData();
+
+    formData.append("approval_no", project_id);
+
+    try {
+      const response = await axios.post(
+        url + 'index.php/webApi/Tender/progress_list',
+        formData,
+        {
+          headers: {
+            'auth_key': auth_key,
+          },
+        }
+      );
+
+      console.log(response?.data, 'responsedata');
+      
+      if (response?.data.status > 0) {
+        setLoading(false);
+        setGetMsgData(response?.data?.message)
+        
+        // setGetStatusData(response?.data?.prog_img)
+        // setFolderProgres(response?.data?.folder_name)
+
+      }
+
+      if (response?.data.status < 1) {
+        setLoading(false);
+        // setGetStatusData([])
+        setGetMsgData([])
+        // setShowForm(false);
+      }
+
+    } catch (error) {
+      setLoading(false);
+      console.error("Error fetching data:", error); // Handle errors properly
+    }
+
+  };
+
   useEffect(()=>{
+    fetchProjectId()
     fundAddedList()
   }, [])
+  
+  useEffect(()=>{
+    if(params?.id > 0){
+      loadFormData(params?.id)
+      fundAddedList(params?.id)
+      setApprovalNo(params?.id)
+      setShowForm(true);
+    }
+  }, [])
+
+  
 
   const formik = useFormik({
       // initialValues:formValues,
@@ -161,10 +260,177 @@ function UCForm() {
     });
 
 
+
     
   return (
     <section class="bg-white p-5 dark:bg-gray-900">
       <div class="py-5 mx-auto w-full lg:py-5">
+
+      <Heading title={'Project Details'} button={'Y'} />
+        <Spin
+        indicator={<LoadingOutlined spin />}
+        size="large"
+        className="text-gray-500 dark:text-gray-400"
+        spinning={loading}
+        >
+        <div class="grid gap-4 sm:grid-cols-12 sm:gap-6 mb-5">
+
+        <div class="sm:col-span-4">
+        
+        {params?.id < 1 &&(
+          <>
+          <label for="fin_yr" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Project ID / Approval Number</label>
+          <Select
+          placeholder="Choose Project ID"
+          onChange={(value) => {
+          loadFormData(value)
+          fundAddedList(value)
+          setApprovalNo(value)
+          setShowForm(true);
+          }}
+          style={{ width: "100%" }}
+          >
+          <Select.Option value="" disabled> Choose Project ID </Select.Option>
+          {projectId.map(data => (
+          <Select.Option key={data.approval_no} value={data.approval_no}>
+          {data.project_id} - {data.approval_no}
+          </Select.Option>
+          ))}
+          </Select>
+          </>
+          
+        )}
+        {params?.id > 0 &&(
+        <>
+        {projectId.map((data) => (
+        <div key={data.approval_no}>
+        {data.approval_no === params?.id && (
+        <>
+        <TDInputTemplate
+        type="text"
+        label="Project ID / Approval Number"
+        formControlName={data.project_id +'-'+ data.approval_no}
+        mode={1}
+        disabled={true}
+        />
+        </>
+        )}
+        </div>
+        ))}
+      
+        </>
+        )}
+        
+        </div>
+
+
+        <div className="sm:col-span-12 text-blue-900 text-md font-bold mt-3 -mb-2">
+        {/* All Data  */}
+        </div>
+
+        <div class="sm:col-span-4">
+        <TDInputTemplate
+        type="date"
+        label="Date of administrative approval"
+        formControlName={getMsgData[0]?.admin_approval_dt ? getMsgData[0]?.admin_approval_dt : '0000-00-00'}
+        mode={1}
+        disabled={true}
+        />
+
+
+        </div>
+
+        <div class="sm:col-span-4">
+        <TDInputTemplate
+        type="text"
+        label="Enter scheme name"
+        formControlName={getMsgData[0]?.scheme_name ? getMsgData[0]?.scheme_name : 'No Data'}
+        mode={1}
+        disabled={true}
+        />
+
+        </div>
+        <div class="sm:col-span-4">
+
+
+
+
+        <TDInputTemplate
+        type="text"
+        label="Enter Sector name"
+        formControlName={getMsgData[0]?.sector_name ? getMsgData[0]?.sector_name : 'No Data'}
+        mode={1}
+        disabled={true}
+        />
+
+        {/* sectorDropList */}
+        {/* {JSON.stringify(sectorDropList, null, 2)} */}
+
+
+        </div>
+        <div class="sm:col-span-4">
+
+
+        <TDInputTemplate
+        type="text"
+        label="Financial Year"
+        formControlName={getMsgData[0]?.fin_year ? getMsgData[0]?.fin_year : '0000-00'}
+        mode={1}
+        disabled={true}
+        />
+
+        </div>
+
+        <div class="sm:col-span-4">
+        <TDInputTemplate
+        type="text"
+        label="Project implemented By"
+        formControlName={getMsgData[0]?.agency_name ? getMsgData[0]?.agency_name : 'No Data'}
+        mode={1}
+        disabled={true}
+        />
+        </div>
+
+        <div class="sm:col-span-4">
+
+
+        <TDInputTemplate
+        type="text"
+        label="District"
+        formControlName={getMsgData[0]?.dist_name ? getMsgData[0]?.dist_name : 'No Data'}
+        mode={1}
+        disabled={true}
+        />
+
+        </div>
+        <div class="sm:col-span-4">
+
+        <TDInputTemplate
+        type="text"
+        label="Block"
+        formControlName={getMsgData[0]?.block_name ? getMsgData[0]?.block_name : 'No Data'}
+        mode={1}
+        disabled={true}
+        />
+
+        </div>
+
+        <div class="sm:col-span-4">
+
+
+        <TDInputTemplate
+        type="date"
+        label="Work Order Issued On"
+        formControlName={getMsgData[1]?.wo_date ? getMsgData[1]?.wo_date : '0000-00'}
+        mode={1}
+        disabled={true}
+        />
+
+        </div>
+
+
+        </div>
+        </Spin>
        
       <Spin
 						indicator={<LoadingOutlined spin />}
@@ -175,58 +441,71 @@ function UCForm() {
             
         {fundStatus?.length > 0 &&(
           <>
-          <Heading title={"Utilization Certificate History"} button={'Y'}/>
-          {fundStatus?.map((data, index) => ( 
-          <div class="grid gap-0 sm:grid-cols-12 sm:gap-6 mb-5">
-          <div class="sm:col-span-12">
-          <h6 class="text-lg font-bold dark:text-white mb-0">{data?.certificate_no == 1? 'First' : data?.certificate_no == 2? 'Secound' : data?.certificate_no == 3? 'Third' : 'Fourth'} installment Details</h6>
-          </div>
-               <div class="sm:col-span-4">
-                 <TDInputTemplate
-                   type="text"
-                   label="Issued By"
-                   formControlName={data?.issued_by}
-                   mode={1}
-                   disable={true}
-                 />
-                
-               </div>
+          <Heading title={"Utilization Certificate History"} button={'N'}/>
 
-               <div class="sm:col-span-4">
-                 <TDInputTemplate
-                   type="text"
-                   label="Issued To"
-                   formControlName={data?.issued_to}
-                   mode={1}
-                   disable={true}
-                 />
-                
-               </div>
+          <Toast ref={toast} />
 
-              
-             
-               <div class="sm:col-span-4">
-                <label className='block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100'>Allotment Order No.</label>
-                 
-                 <a href={url + folderName + data?.certificate_path} target='_blank'>
-                 <FilePdfOutlined style={{fontSize:22, color:'red'}} /></a>
-   
-                
-               </div>
-               
-           
-             </div>
-            ))}
+          <DataTable
+          value={fundStatus?.map((item, i) => [{ ...item, id: i }]).flat()}
+          selectionMode="checkbox"
+          tableStyle={{ minWidth: "50rem" }}
+          dataKey="id"
+          tableClassName="w-full text-sm text-left rtl:text-right shadow-lg text-green-900dark:text-gray-400 table_Custome table_Custome_1st" // Apply row classes
+          >
+
+          <Column
+          field="certificate_no"
+          header="SL.No."
+          footer={
+            <span style={{ fontWeight: "bold", color: "#0694A2" }}>
+            Total: 
+            </span>
+            }
+          ></Column>
+
+          <Column
+          field="certificate_date"
+          header="Date"
+          ></Column>
+
+          <Column
+          field="issued_by"
+          header="Issued By"
+          ></Column>
+
+          <Column
+          field="issued_to"
+          header="Issued To"
+          ></Column>
+
+          <Column
+          // field="instl_amt"
+          header="Allotment Order No."
+          body={(rowData) => (
+          <a href={url + folder_certificate + rowData?.certificate_path} target='_blank'><FilePdfOutlined style={{fontSize:22, color:'red'}} /></a>
+          )}
+          ></Column>
+
+          <Column
+          field="remarks"
+          header="Remarks"
+          ></Column>
+
+          
+
+          </DataTable>
+
+          
           </>
         )}
         </Spin>
-       
-       {fundStatus.length < 6 &&(
+        {/* fundStatus.length < 6 */}
+       {showForm &&(
         <>
        <Heading title={"Utilization Certificate Details"} button={'N'}/>
        <form onSubmit={formik.handleSubmit}>
           <div class="grid gap-4 sm:grid-cols-12 sm:gap-6">
-            <div class="sm:col-span-4">
+            <div class="sm:col-span-3">
               <TDInputTemplate
                 type="text"
                 placeholder="Issued By"
@@ -242,7 +521,7 @@ function UCForm() {
               )}
             </div>
 
-            <div class="sm:col-span-4">
+            <div class="sm:col-span-3">
               <TDInputTemplate
                 placeholder="Issued To"
                 type="text"
@@ -258,7 +537,7 @@ function UCForm() {
               )}
             </div>
           
-            <div class="sm:col-span-4">
+            <div class="sm:col-span-3">
               <TDInputTemplate
               type="file"
               name="certificate_path"
@@ -274,6 +553,38 @@ function UCForm() {
 
               {formik.errors.certificate_path && formik.touched.certificate_path && (
                 <VError title={formik.errors.certificate_path} />
+              )}
+            </div>
+
+            <div class="sm:col-span-3">
+              <TDInputTemplate
+                type="date"
+                placeholder="Certificate Date goes here.."
+                label="Certificate Date"
+                name="certificate_date"
+                formControlName={formik.values.certificate_date}
+                handleChange={formik.handleChange}
+                handleBlur={formik.handleBlur}
+                mode={1}
+              />
+              {formik.errors.certificate_date && formik.touched.certificate_date && (
+                <VError title={formik.errors.certificate_date} />
+              )}
+            </div>
+
+            <div class="sm:col-span-12">
+              <TDInputTemplate
+                type="text"
+                placeholder="Remarks Text.."
+                label="Remarks"
+                name="exp_text"
+                formControlName={formik.values.exp_text}
+                handleChange={formik.handleChange}
+                handleBlur={formik.handleBlur}
+                mode={3}
+              />
+              {formik.errors.exp_text && formik.touched.exp_text && (
+                <VError title={formik.errors.exp_text} />
               )}
             </div>
             

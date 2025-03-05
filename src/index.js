@@ -6,14 +6,16 @@ import reportWebVitals from './reportWebVitals';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Home from './Screens/HomeScreen/Home';
 import HomeScreen from './Screens/HomeScreen/HomeScreen';
-import TFTenderList from './Screens/TENDER_FORMALITY/TFTenderList';
-import FundRelList from './Screens/FUND_RELEASE/FundRelList';
-import FundExpList from './Screens/FUND_EXP/FundExpList';
+import TFTenderList from './Screens/TENDER_FORMALITY/TFTenderList___bkp';
+// import FundRelList from './Screens/FUND_RELEASE/FundRelList';
+// import FundExpList from './Screens/FUND_EXP/FundExpList___bkp';
 import FundRelListEditForm from './Screens/FUND_RELEASE/FundRelListEditForm';
 import FundExpListEditForm from './Screens/FUND_EXP/FundExpListEditForm';
-import UCList from './Screens/UC/UCList';
+// import UCList from './Screens/UC/UCList__bkp';
 import UCListEditForm from './Screens/UC/UCListEditForm';
 import PRView from './Screens/Progress_Report/PRView';
+import PRDetails from './Screens/Progress_Report/PRDetails';
+import PRComp from './Screens/Progress_Report/PRComp';
 const FundRelForm =lazy(()=>import('./Screens/FUND_RELEASE/FundRelForm'))
 const Sign_in =lazy(()=>import('./Screens/Auth/Sign_in'))
 const AdApForm =lazy(()=>import('./Screens/ADMIN_APPROVAL/AdApForm'))
@@ -91,10 +93,10 @@ const router = createBrowserRouter([
               path: "tfcrud/:id",
               element: <TFForm />,
             },
-            {
-              path: "tftenderlist",
-              element: <TFTenderList />,
-            }
+            // {
+            //   path: "tftenderlist",
+            //   element: <TFTenderList />,
+            // }
           ]
         },
         {
@@ -113,10 +115,10 @@ const router = createBrowserRouter([
               path: "frlistedit/:id",
               element: <FundRelListEditForm />,
             },
-            {
-              path: "frlist",
-              element: <FundRelList />,
-            },
+            // {
+            //   path: "frlist",
+            //   element: <FundRelList />,
+            // },
           ]
         },
         {
@@ -135,10 +137,10 @@ const router = createBrowserRouter([
               path: "felistedit/:id",
               element: <FundExpListEditForm />,
             },
-            {
-              path: "felist",
-              element: <FundExpList />,
-            },
+            // {
+            //   path: "felist",
+            //   element: <FundExpList />,
+            // },
           ]
         },
         {
@@ -153,10 +155,10 @@ const router = createBrowserRouter([
               path: "uccrud/:id",
               element: <UCForm />,
             },
-            {
-              path: "uclist/",
-              element: <UCList />,
-            },
+            // {
+            //   path: "uclist/",
+            //   element: <UCList />,
+            // },
             {
               path: "uclistedit/:id",
               element: <UCListEditForm />,
@@ -164,15 +166,29 @@ const router = createBrowserRouter([
           ]
         },
         {
-          path: "progress_report",
-          element: <PRView />,
+          path: "pr",
+          element: <PRComp />,
           children: [
-            // {
-            //   path: "",
-            //   element: <UCView />,
-            // }
+            {
+                path: "",
+                element: <PRView />,
+            },
+            {
+              path: "prdetails/:id",
+              element: <PRDetails />,
+            },
           ]
         },
+        // {
+        //   path: "progress_report",
+        //   element: <PRView />,
+        //   children: [
+        //     {
+        //       path: "prdetails/:id",
+        //       element: <PRDetails />,
+        //     }
+        //   ]
+        // },
       ]
       }
 ]}

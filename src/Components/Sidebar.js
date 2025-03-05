@@ -26,7 +26,7 @@ const items = [
     icon: <FileFilled />,
   },
   {
-    label: <Link to={"progress_report"}>Progress Report </Link>,
+    label: <Link to={"pr"}>Progress Report </Link>,
     key: "PR",
     icon: <FileFilled />,
   },

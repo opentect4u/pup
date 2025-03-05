@@ -118,12 +118,12 @@ function TFForm() {
         loadFormData()
       }
 
-      fetchFinancialYeardownOption()
+      fetchProjectId()
   
   
     }, [])
 
-    const fetchFinancialYeardownOption = async () => {
+    const fetchProjectId = async () => {
       setLoading(true);
       try {
         const response = await axios.post(
@@ -294,29 +294,6 @@ function TFForm() {
                   </Select.Option>
                 ))}
               </Select>
-
-
-              {/* <Select
-              placeholder="Choose District"
-              value={formik.values.dis || undefined} // Ensure default empty state
-              onChange={(value) => {
-              formik.setFieldValue("dis", value)
-              setDistrict_ID(value)
-              formik.setFieldValue("block", "");
-              setBlockDropList([]);
-              setBlockDropList_Load([]);
-              console.log(value, 'disdisdis');
-              }}
-              onBlur={formik.handleBlur}
-              style={{ width: "100%" }}
-              >
-              <Select.Option value="" disabled> Choose District </Select.Option>
-              {districtDropList.map(data => (
-              <Select.Option key={data.dist_code} value={data.dist_code}>
-              {data.dist_name}
-              </Select.Option>
-              ))}
-              </Select> */}
 
               {formik.errors.project_id && formik.touched.project_id && (
                 <VError title={formik.errors.project_id} />

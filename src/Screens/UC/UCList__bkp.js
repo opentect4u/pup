@@ -31,9 +31,19 @@ function UCList() {
           },
         }
       );
-      setTableDataList(response.data.message)
-      setOPERATION_STATUS(response.data.OPERATION_STATUS);
-      setLoading(false);
+
+      if(response?.data?.status > 0){
+        setTableDataList(response?.data?.message)
+        setOPERATION_STATUS(response.data.OPERATION_STATUS);
+        setLoading(false);
+        }
+  
+        if(response?.data?.status < 1){
+          setLoading(false);
+        }
+      console.log(response.data, 'response');
+      
+      
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -75,7 +85,7 @@ function UCList() {
                 </tr>
               </thead>
               <tbody>
-                {currentTableData.map((data, index) => (
+                {currentTableData?.map((data, index) => (
                   <tr key={index} className="border-b">
                     <td className="px-4 py-3">{data?.issued_by}</td>
                     <td className="px-4 py-3">{data?.issued_to}</td>

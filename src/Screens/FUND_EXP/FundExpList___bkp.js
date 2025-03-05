@@ -36,10 +36,19 @@ function FundExpList() {
       );
 
       console.log("Response Data Table:", response.data); // Log the actual response data
-      setTableDataList(response.data.message)
+
+      if(response?.data?.status > 0){
+        setTableDataList(response.data.message)
       setFolderName(response.data.folder_name)
       setOPERATION_STATUS(response.data.OPERATION_STATUS);
       setLoading(false);
+      }
+
+      if(response?.data?.status < 1){
+      setLoading(false);
+      }
+
+      
     } catch (error) {
       setLoading(false);
       console.error("Error fetching data:", error); // Handle errors properly

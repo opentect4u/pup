@@ -78,3 +78,8 @@ h2.text-white {color: #fff;}
 .pagination button.bg-gray-200{background-color: #3EB8BD;}
 
 .pagination button.bg-blue-700{background-color: #3EB8BD !important;}
+
+.lightBox_thum{height: 80px !important;
+  width: 80px !important;}
+
+  .ant-progress .ant-progress-inner {background-color: rgba(170, 163, 163, 0.32);}
