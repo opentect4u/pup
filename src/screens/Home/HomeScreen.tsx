@@ -493,20 +493,24 @@ const HomeScreen = () => {
 
                             {
                                 fetchedProjectDetails && (() => {
-                                    // Parse the whole response once
                                     const projectData = JSON.parse(fetchedProjectDetails);
                                     const baseURL = "https://pup.opentech4u.co.in/pup/";
 
-                                    return projectData.prog_img.map((item: any, idx: number) => {
-                                        // Convert the pic_path string into an array (or empty array if none)
-                                        const images = item.pic_path ? JSON.parse(item.pic_path) : [];
+                                    return projectData.prog_img.map((item, idx) => {
+                                        // Parse the pic_path string into an array of image filenames.
+                                        let images = [];
+                                        try {
+                                            images = JSON.parse(item.pic_path);
+                                        } catch (error) {
+                                            console.error("Error parsing pic_path for item:", item, error);
+                                        }
 
                                         return (
                                             <View
                                                 key={idx}
                                                 style={{
-                                                    flexDirection: "row", // arrange content in a row
-                                                    alignItems: "center", // vertically center items
+                                                    flexDirection: "row",
+                                                    alignItems: "center",
                                                     padding: 10,
                                                     borderWidth: 0.8,
                                                     borderRadius: 10,
@@ -522,20 +526,22 @@ const HomeScreen = () => {
                                                     <Text>Progress Percent: {item?.progress_percent}%</Text>
                                                 </View>
 
-                                                {/* Right Side: Render Images */}
+                                                {/* Right Side: Horizontal ScrollView for Images */}
                                                 {images.length > 0 && (
-                                                    <View style={{ flexDirection: "row" }}>
-                                                        {images.map((img: any, index: number) => (
-                                                            <Image
-                                                                key={index}
-                                                                source={{
-                                                                    uri: `${baseURL}${projectData.folder_name}${img}`,
-                                                                }}
-                                                                style={{ width: 50, height: 50, marginLeft: 5 }}
-                                                                resizeMode="cover"
-                                                            />
-                                                        ))}
-                                                    </View>
+                                                    <ScrollView horizontal showsHorizontalScrollIndicator={true}>
+                                                        {images.map((img, index) => {
+                                                            const imageUrl = `${baseURL}${projectData.folder_name}${img}`;
+                                                            console.log("IMAGE URL ====", imageUrl)
+                                                            return (
+                                                                <Image
+                                                                    key={index}
+                                                                    source={{ uri: imageUrl }}
+                                                                    style={{ width: 15, height: 15, marginLeft: 5 }}
+                                                                    resizeMode="cover"
+                                                                />
+                                                            );
+                                                        })}
+                                                    </ScrollView>
                                                 )}
                                             </View>
                                         );
