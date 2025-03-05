@@ -39,8 +39,8 @@ class Expense extends CI_Controller {
 	public function get_added_expense_list() {
 		
 		$approval_no = $this->input->post('approval_no') ;
-		$where = array('approval_no' => $approval_no); 
-		$result_data = $this->Master->f_select('td_expenditure', 'approval_no,payment_no,payment_date,payment_to,sch_amt,cont_amt', $where, NULL);
+		$where = array('approval_no' => $approval_no,'order by payment_no ASC'); 
+		$result_data = $this->Master->f_select('td_expenditure', 'payment_no,approval_no,payment_date,payment_to,sch_amt,cont_amt', $where, NULL);
 		$response = (!empty($result_data)) 
 			? ['status' => 1, 'message' => $result_data,'OPERATION_STATUS' => 'add'] 
 			: ['status' => 0, 'message' => 'No data found'];
@@ -50,10 +50,25 @@ class Expense extends CI_Controller {
 			->set_output(json_encode($response));
     }
 
+	// public function expense_list() {
+	// 	$result_data = $this->Master->f_select('td_expenditure', 'approval_no,payment_no,payment_date,payment_to,sch_amt,cont_amt', NULL, NULL);
+	// 	if (!empty($result_data)) {
+	// 		echo json_encode(['status' => 1, 'message' => $result_data]);
+	// 	} else {
+	// 		echo json_encode(['status' => 0, 'message' => 'No data found']);
+	// 	}
+    // }
+	
 	public function expense_list() {
-		$result_data = $this->Master->f_select('td_expenditure', 'approval_no,payment_no,payment_date,payment_to,sch_amt,cont_amt', NULL, NULL);
+		
+		$where = array('a.approval_no = b.approval_no' => NULL,'b.sector_id = c.sl_no' => NULL,
+		               'b.fin_year = d.sl_no' => NULL,'b.district_id = e.dist_code' => NULL,
+					   'b.block_id = f.block_id' => NULL,'1 group by b.admin_approval_dt,b.scheme_name,sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no'=>NULL);
+		
+		$result_data = $this->Master->f_select('td_expenditure a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f', 'b.admin_approval_dt,b.scheme_name,c.sector_desc as sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no', $where, NULL);
+
 		if (!empty($result_data)) {
-			echo json_encode(['status' => 1, 'message' => $result_data]);
+			echo json_encode(['status' => 1, 'message' => $result_data,'folder_name'=>'uploads/fund/']);
 		} else {
 			echo json_encode(['status' => 0, 'message' => 'No data found']);
 		}
@@ -66,7 +81,7 @@ class Expense extends CI_Controller {
 		$data = [
 			'approval_no' => $this->input->post('approval_no'),
 			'payment_no' => $app_res_data[0]->payment_no,
-			'payment_date' => date('Y-m-d'),
+			'payment_date' => $this->input->post('payment_date'),
 			'payment_to' => $this->input->post('payment_to'),
 			'sch_amt' => $this->input->post('sch_amt'),
 			'cont_amt' => $this->input->post('cont_amt'),
@@ -110,6 +125,7 @@ class Expense extends CI_Controller {
 		// Prepare data array for update
 		$data = [
 			'payment_to' => $this->input->post('payment_to'),
+			'payment_date'=> $this->input->post('payment_date'),
 			'sch_amt' => $this->input->post('sch_amt'),
 			'cont_amt' => $this->input->post('cont_amt'),
 			'modified_by' => $this->input->post('modified_by'),
@@ -120,7 +136,6 @@ class Expense extends CI_Controller {
 		$where = [
 			'approval_no' => $this->input->post('approval_no'),
 			'payment_no' => $this->input->post('payment_no'),
-			'payment_date' => $this->input->post('payment_date')
 		];
 	
 		// Update data in the database

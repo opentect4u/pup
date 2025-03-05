@@ -267,23 +267,24 @@ class Tender extends CI_Controller {
 		$where2 = array('a.approval_no = b.approval_no' => NULL);			   
 		$approval_no = $this->input->post('approval_no');
 		$project_id  = $this->input->post('project_id');
-		
+		$where3 = array('a.approval_no = b.approval_no' => NULL);	
 		if ($project_id > 0) {
 			$where = array_merge($where, ['b.project_id' => $project_id]); 
 			$where2 = array_merge($where2, ['b.project_id' => $project_id]);
+			$where3 = array_merge($where3, ['a.project_id' => $project_id]);
 		}
 		if ($approval_no > 0) {
 			$where = array_merge($where, ['b.approval_no' => $approval_no]); 
 			$where2 = array_merge($where2, ['b.approval_no' => $approval_no]);
+			$where3 = array_merge($where3, ['a.approval_no' => $approval_no]);
 		}
-		
 		
 		$result_data = $this->Master->f_select('td_progress a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f,md_proj_imp_agency g,td_tender h', 'b.admin_approval_dt,b.scheme_name,c.sector_desc as sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no,g.agency_name', array_merge($where, ['1 limit 1' => NULL]), NULL);
 		$image_data = $this->Master->f_select('td_progress a,td_admin_approval b', 'a.approval_no,a.visit_no,a.progress_percent,a.pic_path', array_merge($where2, ['1 limit 6' => NULL]), NULL);
-		//$wo_date = $this->Master->f_select('td_tender', 'wo_date', $where2, NULL);
+		$wo_date = $this->Master->f_select('td_admin_approval a,td_tender b', 'b.wo_date', $where3, NULL);
 		
 		$response = (!empty($result_data)) 
-			? ['status' => 1, 'message' => $result_data,'prog_img'=>$image_data,'OPERATION_STATUS' => 'edit','folder_name'=>'uploads/progress_image/'] 
+			? ['status' => 1, 'message' => array_merge($result_data,$wo_date),'prog_img'=>$image_data,'OPERATION_STATUS' => 'edit','folder_name'=>'uploads/progress_image/'] 
 			: ['status' => 0, 'message' => 'No data found'];
 	
 		$this->output

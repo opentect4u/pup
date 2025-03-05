@@ -79,7 +79,8 @@ class Fund extends CI_Controller {
 		
 		$approval_no = $this->input->post('approval_no') ;
 		$where = array('approval_no' => $approval_no); 
-		$result_data = $this->Master->f_select('td_fund_receive', 'receive_no,received_by,instl_amt,allotment_no,sch_amt,cont_amt', $where, NULL);
+		
+		$result_data = $this->Master->f_select('td_fund_receive', 'receive_no,received_by,receive_date as isntl_date,instl_amt,allotment_no,sch_amt,cont_amt', $where, NULL);
 		$response = (!empty($result_data)) 
 			? ['status' => 1, 'message' => $result_data,'OPERATION_STATUS' => 'add','folder_name'=>'uploads/fund/'] 
 			: ['status' => 0, 'message' => 'No data found'];
@@ -98,6 +99,37 @@ class Fund extends CI_Controller {
 		} else {
 			echo json_encode(['status' => 0, 'message' => 'No data found']);
 		}
+    }
+
+	public function fund_added_list() {
+		$where = array('a.approval_no = b.approval_no' => NULL,'b.sector_id = c.sl_no' => NULL,
+		               'b.fin_year = d.sl_no' => NULL,'b.district_id = e.dist_code' => NULL,
+					   'b.block_id = f.block_id' => NULL,'b.impl_agency = g.id' => NULL);
+		$where2 = array('a.approval_no = b.approval_no' => NULL);			   
+		$approval_no = $this->input->post('approval_no');
+		$project_id  = $this->input->post('project_id');
+		
+		if ($project_id > 0) {
+			$where = array_merge($where, ['b.project_id' => $project_id]); 
+			$where2 = array_merge($where2, ['b.project_id' => $project_id]);
+		}
+		if ($approval_no > 0) {
+			$where = array_merge($where, ['b.approval_no' => $approval_no]); 
+			$where2 = array_merge($where2, ['b.approval_no' => $approval_no]);
+		}
+		
+		
+		$result_data = $this->Master->f_select('td_progress a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f,md_proj_imp_agency g,td_tender h', 'b.admin_approval_dt,b.scheme_name,c.sector_desc as sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no,g.agency_name', array_merge($where, ['1 limit 1' => NULL]), NULL);
+		$image_data = $this->Master->f_select('td_progress a,td_admin_approval b', 'a.approval_no,a.visit_no,a.progress_percent,a.pic_path', array_merge($where2, ['1 limit 6' => NULL]), NULL);
+		//$wo_date = $this->Master->f_select('td_tender', 'wo_date', $where2, NULL);
+		
+		$response = (!empty($result_data)) 
+			? ['status' => 1, 'message' => $result_data,'prog_img'=>$image_data,'OPERATION_STATUS' => 'edit','folder_name'=>'uploads/progress_image/'] 
+			: ['status' => 0, 'message' => 'No data found'];
+	
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
     }
 
 
@@ -142,7 +174,7 @@ class Fund extends CI_Controller {
 		$data = [
 			'approval_no' => $this->input->post('approval_no'),
 			'receive_no' => $app_res_data->receive_no,
-			'receive_date' => date('Y-m-d'),
+			'receive_date' => $this->input->post('isntl_date'),
 			'received_by' => $this->input->post('created_by'),
 			'instl_amt' => $this->input->post('instl_amt'),
 			'allotment_no' => $upload_paths['allotment_no'],
@@ -225,6 +257,7 @@ class Fund extends CI_Controller {
 		// Prepare data array for update
 		$data = [
 			'instl_amt' => $this->input->post('instl_amt'),
+			'receive_date' => $this->input->post('isntl_date'),
 			'sch_amt' => $this->input->post('sch_amt'),
 			'cont_amt' => $this->input->post('cont_amt'),
 			'modified_by' => $this->input->post('modified_by'),

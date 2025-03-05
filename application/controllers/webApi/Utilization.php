@@ -79,7 +79,7 @@ class Utilization extends CI_Controller {
 		
 		$approval_no = $this->input->post('approval_no') ;
 		$where = array('approval_no' => $approval_no); 
-		$result_data = $this->Master->f_select('td_utilization', 'approval_no,certificate_no,certificate_date,certificate_path,issued_by,issued_to', $where, NULL);
+		$result_data = $this->Master->f_select('td_utilization', 'approval_no,certificate_no,certificate_date,certificate_path,issued_by,issued_to,remarks', $where, NULL);
 		$response = (!empty($result_data)) 
 			? ['status' => 1, 'message' => $result_data,'OPERATION_STATUS' => 'add','folder_name'=>'uploads/fund/'] 
 			: ['status' => 0, 'message' => 'No data found'];
@@ -91,8 +91,12 @@ class Utilization extends CI_Controller {
 
 	public function utlization_list() {
 		
-		//$where = array('approval_no'=>$this->input->post('approval_no'));
-		$result_data = $this->Master->f_select('td_utilization', 'approval_no,certificate_no,certificate_date,certificate_path,issued_by,issued_to', NULL, NULL);
+		$where = array('a.approval_no = b.approval_no' => NULL,'b.sector_id = c.sl_no' => NULL,
+		               'b.fin_year = d.sl_no' => NULL,'b.district_id = e.dist_code' => NULL,
+					   'b.block_id = f.block_id' => NULL,'1 group by b.admin_approval_dt,b.scheme_name,sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no'=>NULL);
+		
+		$result_data = $this->Master->f_select('td_utilization a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f', 'b.admin_approval_dt,b.scheme_name,c.sector_desc as sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no', $where, NULL);
+
 		if (!empty($result_data)) {
 			echo json_encode(['status' => 1, 'message' => $result_data,'folder_name'=>'uploads/fund/']);
 		} else {
@@ -141,10 +145,11 @@ class Utilization extends CI_Controller {
 		$data = [
 			'approval_no' => $this->input->post('approval_no'),
 			'certificate_no' => $app_res_data->certificate_no,
-			'certificate_date' => date('Y-m-d'),
+			'certificate_date' => $this->input->post('certificate_date'),
 			'certificate_path' => $upload_paths['certificate_path'],
 			'issued_by' => $this->input->post('issued_by'),
 			'issued_to' => $this->input->post('issued_to'),
+			'remarks'  => $this->input->post('remarks'),
 			'created_by' => $this->input->post('created_by'),
 			'created_at' => date('Y-m-d h:i:s'),
 		];
@@ -213,8 +218,10 @@ class Utilization extends CI_Controller {
 		}
 		// Prepare data array for update
 		$data = [
+			'certificate_date' => $this->input->post('certificate_date'),
 			'issued_by' => $this->input->post('issued_by'),
 			'issued_to' => $this->input->post('issued_to'),
+			'remarks'  => $this->input->post('remarks'),
 			'modified_by' => $this->input->post('modified_by'),
 			'modified_at' => date('Y-m-d H:i:s')
 		];

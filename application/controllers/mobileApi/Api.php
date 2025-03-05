@@ -194,4 +194,28 @@ class Api extends CI_Controller {
 		 
 			 echo json_encode($response);
 	}
+	 
+	public function progress_list() {
+		$where = array('a.approval_no = b.approval_no' => NULL,'b.sector_id = c.sl_no' => NULL,
+		               'b.fin_year = d.sl_no' => NULL,'b.district_id = e.dist_code' => NULL,
+					   'b.block_id = f.block_id' => NULL,'b.impl_agency = g.id' => NULL);
+		$where2 = array('a.approval_no = b.approval_no' => NULL);			   
+		$approval_no = $this->input->post('approval_no');
+		if ($approval_no > 0) {
+			$where = array_merge($where, ['b.approval_no' => $approval_no]); 
+			$where2 = array_merge($where2, ['b.approval_no' => $approval_no]);
+		}
+		
+		$result_data = $this->Master->f_select('td_progress a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f,md_proj_imp_agency g,td_tender h', 'b.scheme_name,c.sector_desc as sector_name,b.project_id,e.dist_name,f.block_name,a.approval_no', array_merge($where, ['1 limit 1' => NULL]), NULL);
+		$image_data = $this->Master->f_select('td_progress a,td_admin_approval b', 'a.approval_no,a.visit_no,a.progress_percent,a.pic_path', array_merge($where2, ['1 limit 6' => NULL]), NULL);
+		
+		
+		$response = (!empty($result_data)) 
+			? ['status' => 1, 'message' => $result_data,'prog_img'=>$image_data,'OPERATION_STATUS' => 'edit','folder_name'=>'uploads/progress_image/'] 
+			: ['status' => 0, 'message' => 'No data found'];
+	
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
+    }
 }

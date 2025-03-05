@@ -25,6 +25,7 @@ class Login extends CI_Controller {
 	private function validate_auth_key() {
         $auth_key = $this->input->get_request_header('auth_key'); // Get from header
         $valid_key = AUTH_KEY; // Store securely in .env or database
+	
         if ($auth_key !== $valid_key) {
             $response = array(
                 'status' => false,
