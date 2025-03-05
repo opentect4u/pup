@@ -280,8 +280,8 @@ class Tender extends CI_Controller {
 		}
 		
 		$result_data = $this->Master->f_select('td_progress a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f,md_proj_imp_agency g,td_tender h', 'b.admin_approval_dt,b.scheme_name,c.sector_desc as sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no,g.agency_name', array_merge($where, ['1 limit 1' => NULL]), NULL);
-		$image_data = $this->Master->f_select('td_progress a,td_admin_approval b', 'a.approval_no,a.visit_no,a.progress_percent,a.pic_path', array_merge($where2, ['1 limit 6' => NULL]), NULL);
-		$wo_date = $this->Master->f_select('td_admin_approval a,td_tender b', 'b.wo_date', $where3, NULL);
+		$image_data = $this->Master->f_select('td_progress a,td_admin_approval b', 'a.approval_no,a.visit_no,a.progress_percent,a.pic_path,a.created_by as visit_by,a.created_at as visit_dt,a.address', array_merge($where2, ['1 limit 6' => NULL]), NULL);
+		$wo_date = $this->Master->f_select('td_admin_approval a,td_tender b', 'b.wo_date', array_merge($where3,['1 order by b.tender_date desc limit 1'=>NULL]), NULL);
 		
 		$response = (!empty($result_data)) 
 			? ['status' => 1, 'message' => array_merge($result_data,$wo_date),'prog_img'=>$image_data,'OPERATION_STATUS' => 'edit','folder_name'=>'uploads/progress_image/'] 
