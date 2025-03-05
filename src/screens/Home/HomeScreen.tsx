@@ -47,7 +47,8 @@ const HomeScreen = () => {
         projectId: null as string | null,
         progress: "",
         latitude: "",
-        longitude: ""
+        longitude: "",
+        locationAddress: "",
     })
 
     console.log("LOCATION: ", location)
@@ -211,6 +212,9 @@ const HomeScreen = () => {
         const formData = new FormData()
         formData.append('approval_no', formData1.projectId || '')
         formData.append('progress_percent', formData1.progress)
+        formData.append('lat', formData1.latitude)
+        formData.append('long', formData1.longitude)
+        formData.append('address', formData1.locationAddress)
 
         // Process each image to ensure its size is under 2MB (2 * 1024 * 1024 bytes)
         const processedImages = await Promise.all(
@@ -228,7 +232,7 @@ const HomeScreen = () => {
                             80,       // quality (0-100)
                             0,        // rotation
                             null,     // outputPath (null uses cache folder)
-                            false,    // keepMeta
+                            true,    // keepMeta
                             {}        // options
                         )
                         return {
@@ -271,7 +275,8 @@ const HomeScreen = () => {
                     projectId: "",
                     progress: "",
                     latitude: "",
-                    longitude: ""
+                    longitude: "",
+                    locationAddress: ""
                 })
             } else {
                 ToastAndroid.show("Sending details with photo error.", ToastAndroid.SHORT)
@@ -329,7 +334,8 @@ const HomeScreen = () => {
                 projectId: "",
                 progress: "",
                 latitude: "",
-                longitude: ""
+                longitude: "",
+                locationAddress: ""
             });
         } catch (err) {
             console.log("Error saving locally:", err);
