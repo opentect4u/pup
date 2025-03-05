@@ -4,4 +4,5 @@ export type ProjectStoreModel = {
     "progress_pic[]": string[],
     lat: number
     lng: number
+    locationAddress: string
 }

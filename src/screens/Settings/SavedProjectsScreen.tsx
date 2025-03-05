@@ -65,6 +65,7 @@ const SavedProjectsScreen = () => {
                                 <Text variant='bodyMedium'>Progress: {project.progress}</Text>
                                 <Text variant='bodyMedium'>Latitude: {project.lat}</Text>
                                 <Text variant='bodyMedium'>Longitude: {project.lng}</Text>
+                                <Text variant='bodyMedium'>Address: {project.locationAddress}</Text>
                                 <ScrollView horizontal style={styles.imagesContainer}>
                                     {project["progress_pic[]"].map((uri: string, idx: number) => (
                                         <TouchableRipple key={idx} onPress={() => handleImagePress(uri)}>
@@ -107,6 +108,6 @@ const styles = StyleSheet.create({
         marginRight: 10,
         borderWidth: 1,
         borderColor: '#ccc',
-        borderRadius: 10,
+        borderRadius: 15,
     },
 });

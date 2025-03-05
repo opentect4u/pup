@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react'
-import { Alert, Image, ScrollView, StyleSheet, ToastAndroid, View, TouchableOpacity } from 'react-native'
+import { Alert, Image, ScrollView, StyleSheet, ToastAndroid, View, TouchableOpacity, RefreshControl, Linking } from 'react-native'
 import { Icon, Text } from 'react-native-paper'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { usePaperColorScheme } from '../../theme/theme'
@@ -14,7 +14,7 @@ import { fileStorage, loginStorage, projectStorage } from '../../storage/appStor
 import { AUTH_KEY } from "@env"
 import { ADDRESSES } from '../../config/api_list'
 import axios from 'axios'
-import { useNavigation } from '@react-navigation/native'
+import { CommonActions, useNavigation } from '@react-navigation/native'
 import {
     Asset,
     ImageLibraryOptions,
@@ -32,11 +32,13 @@ const strings = homeScreenStrings.getStrings()
 const HomeScreen = () => {
     const navigation = useNavigation()
     const theme = usePaperColorScheme()
-    const { location } = useGeoLocation()
+    const { location, error } = useGeoLocation()
+    const [geolocationFetchedAddress, setGeolocationFetchedAddress] = useState(() => "")
 
     // Memoize loginStore so it doesn't change on every render
     const loginStore = useMemo(() => JSON.parse(loginStorage?.getString("login-data") ?? "{}"), [])
 
+    const [refreshing, setRefreshing] = useState(() => false)
     const [imgData, setImgData] = useState<Asset[]>([])
     const [projectsList, setProjectsList] = useState<any[]>([])
     const [loading, setLoading] = useState(false)
@@ -56,6 +58,28 @@ const HomeScreen = () => {
             [field]: value,
         }))
     }, [])
+
+    useEffect(() => {
+        if (error) {
+            Alert.alert("Turn on Location", "Give access to Location or Turn on GPS from app settings.", [{
+                text: "Go to Settings",
+                onPress: () => { navigation.dispatch(CommonActions.goBack()); Linking.openSettings() }
+            }])
+        }
+    }, [error])
+
+    const fetchGeoLocaltionAddress = async () => {
+        console.log("REVERSE GEO ENCODING API CALLING...")
+        await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${location?.latitude},${location?.longitude}&key=AIzaSyAhSuw5-ThQnJTZCGC4e_oBsL1iIUbJxts`).then(res => {
+            setGeolocationFetchedAddress(res?.data?.results[0]?.formatted_address)
+        })
+    }
+
+    useEffect(() => {
+        if (location?.latitude && location.longitude) {
+            fetchGeoLocaltionAddress()
+        }
+    }, [location])
 
     const fetchProjectsList = useCallback(async () => {
         setLoading(true)
@@ -290,7 +314,8 @@ const HomeScreen = () => {
                 progress: +formData1.progress,
                 "progress_pic[]": permanentUris,
                 lat: location?.latitude!,
-                lng: location.longitude!
+                lng: location.longitude!,
+                locationAddress: geolocationFetchedAddress
             };
 
             storedProjects.push(newProject);
@@ -298,7 +323,7 @@ const HomeScreen = () => {
             // Save the updated projects list to projectStorage
             await projectStorage.set("projects", JSON.stringify(storedProjects));
 
-            ToastAndroid.show("Project saved locally.", ToastAndroid.SHORT);
+            ToastAndroid.show("Project saved in device.", ToastAndroid.SHORT);
             removeAllImages();
             setFormData1({
                 projectId: "",
@@ -312,9 +337,23 @@ const HomeScreen = () => {
         }
     }, [formData1, imgData, removeAllImages])
 
+    const onRefresh = () => {
+        setRefreshing(true)
+
+        fetchProjectsList()
+        setImgData([])
+        fileStorage.delete("file-data")
+        fileStorage.delete("file-uri")
+
+        setTimeout(() => {
+            setRefreshing(false)
+            ToastAndroid.show("Home Refreshed.", ToastAndroid.SHORT)
+        }, 2000)
+    }
+
     return (
         <SafeAreaView style={{ flex: 1 }}>
-            <ScrollView keyboardShouldPersistTaps='handled' style={{ backgroundColor: theme.colors.background }}>
+            <ScrollView keyboardShouldPersistTaps='handled' style={{ backgroundColor: theme.colors.background }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
                 <Header />
                 <View style={{ padding: 30, gap: 5, flex: 1 }}>
                     <Text variant='titleLarge' style={{ color: theme.colors.secondary }}>
@@ -421,6 +460,14 @@ const HomeScreen = () => {
                             ])
                         }}
                         style={{ marginTop: 15, paddingVertical: 8 }}
+                        disabled={
+                            imgData?.length === 0
+                            || !formData1.progress
+                            || !formData1.projectId
+                            || !location.latitude
+                            || !location.longitude
+                            || !geolocationFetchedAddress
+                        }
                     >
                         Save
                     </ButtonPaper>
