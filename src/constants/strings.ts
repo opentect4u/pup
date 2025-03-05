@@ -5,7 +5,8 @@ class GlobalTemplateStrings {
         fontName: `Product Sans Regular`,
         yesTxt: "YES",
         noTxt: "NO",
-        submitText: "SUBMIT"
+        submitText: "SUBMIT",
+        saveText: `Save`
     }
     public getStrings() {
         return this.globalStrings;
@@ -30,7 +31,7 @@ class HomeScreenTemplateStrings extends GlobalTemplateStrings {
     private homeScreenStrings = {
         projectDropdownLabel: `Choose Desired Project`,
         uploadPhotoBtnLabel: `Upload Photo(s)`,
-        uploadPhotoBtnSubText: `Maximum 4 Photos.`,
+        uploadPhotoBtnSubText: `Maximum 4 Photos. (Each 2MB max)`,
         fontItalic: `Product Sans Italic`,
         fetchProgress: `Fetch Progress`
     }

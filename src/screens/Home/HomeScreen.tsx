@@ -42,6 +42,7 @@ const HomeScreen = () => {
     const [imgData, setImgData] = useState<Asset[]>([])
     const [projectsList, setProjectsList] = useState<any[]>([])
     const [loading, setLoading] = useState(false)
+    const [fetchedProjectDetails, setFetchedProjectDetails] = useState(() => "")
     // Set projectId to null instead of "" to indicate no selection
     const [formData1, setFormData1] = useState({
         projectId: null as string | null,
@@ -76,11 +77,12 @@ const HomeScreen = () => {
         })
     }
 
-    useEffect(() => {
-        if (location?.latitude && location.longitude) {
-            fetchGeoLocaltionAddress()
-        }
-    }, [location])
+    // to be enabled later...
+    // useEffect(() => {
+    //     if (location?.latitude && location.longitude) {
+    //         fetchGeoLocaltionAddress()
+    //     }
+    // }, [location])
 
     const fetchProjectsList = useCallback(async () => {
         setLoading(true)
@@ -97,7 +99,7 @@ const HomeScreen = () => {
             if (res?.data?.status === 1) {
                 console.log("PROJECTS : ", res?.data)
                 const newProjectsList = res?.data?.message?.map((item: any) => ({
-                    label: `${item?.project_id}\n${item?.scheme_name}`,
+                    label: `${item?.project_id} / ${item?.approval_no}\n${item?.scheme_name}`,
                     value: item?.approval_no
                 }))
                 setProjectsList(newProjectsList)
@@ -114,6 +116,36 @@ const HomeScreen = () => {
     useEffect(() => {
         fetchProjectsList()
     }, [fetchProjectsList])
+
+    const fetchProjectDetails = async () => {
+        setLoading(true)
+        const formData = new FormData()
+        formData.append('approval_no', formData1?.projectId)
+
+        try {
+            const res = await axios.post(`${ADDRESSES.FETCH_PROJECT_PROCESS}`, formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                    "auth_key": AUTH_KEY
+                }
+            })
+            if (res?.data?.status === 1) {
+                console.log("PROJECT DTLS : ", res?.data)
+                // const newProjectsList = res?.data?.message?.map((item: any) => ({
+                //     label: `${item?.project_id} / ${item?.approval_no}\n${item?.scheme_name}`,
+                //     value: item?.approval_no
+                // }))
+                // setProjectsList(newProjectsList)
+                setFetchedProjectDetails(JSON.stringify(res?.data))
+            } else {
+                ToastAndroid.show("Project details fetch error.", ToastAndroid.SHORT)
+            }
+        } catch (err) {
+            console.log("ERR PROJ DTLS", err)
+            ToastAndroid.show("Some error occurred while fetching project details.", ToastAndroid.SHORT)
+        }
+        setLoading(false)
+    }
 
     const openGallery = useCallback(() => {
         const options: ImageLibraryOptions = {
@@ -391,12 +423,128 @@ const HomeScreen = () => {
                     <ButtonPaper
                         icon={"cloud-search-outline"}
                         mode='contained'
-                        onPress={() => null}
+                        onPress={async () => await fetchProjectDetails()}
                         style={{ marginTop: 15, paddingVertical: 8 }}
-                        disabled={!formData1.projectId}
+                        disabled={!formData1.projectId || loading}
+                        loading={loading}
                     >
                         {strings.fetchProgress}
                     </ButtonPaper>
+
+
+                    {fetchedProjectDetails &&
+                        <View style={{
+                            paddingVertical: 5
+                        }}>
+                            <Text variant='titleLarge'>Project Details</Text>
+                            <InputPaper
+                                label="District"
+                                leftIcon='map-marker-radius-outline'
+                                keyboardType="default"
+                                value={fetchedProjectDetails && JSON.parse(fetchedProjectDetails)?.message[0]?.dist_name}
+                                onChangeText={(txt: any) => handleFormChange("dist_name", txt)}
+                                customStyle={{ backgroundColor: theme.colors.background, marginTop: 10 }}
+                                disabled
+                            />
+                            <InputPaper
+                                label="Block"
+                                leftIcon='map-legend'
+                                keyboardType="default"
+                                value={fetchedProjectDetails && JSON.parse(fetchedProjectDetails)?.message[0]?.block_name}
+                                onChangeText={(txt: any) => handleFormChange("block_name", txt)}
+                                customStyle={{ backgroundColor: theme.colors.background, marginTop: 10 }}
+                                disabled
+                            />
+                            <InputPaper
+                                label="Scheme"
+                                leftIcon='file-document-outline'
+                                keyboardType="default"
+                                value={fetchedProjectDetails && JSON.parse(fetchedProjectDetails)?.message[0]?.scheme_name}
+                                onChangeText={(txt: any) => handleFormChange("scheme_name", txt)}
+                                customStyle={{ backgroundColor: theme.colors.background, marginTop: 10 }}
+                                disabled
+                            />
+                            <InputPaper
+                                label="Sector"
+                                leftIcon='developer-board'
+                                keyboardType="default"
+                                value={fetchedProjectDetails && JSON.parse(fetchedProjectDetails)?.message[0]?.sector_name}
+                                onChangeText={(txt: any) => handleFormChange("sector_name", txt)}
+                                customStyle={{ backgroundColor: theme.colors.background, marginTop: 10 }}
+                                disabled
+                            />
+
+                            {/* {
+                                fetchedProjectDetails && JSON.parse(fetchedProjectDetails)?.prog_img?.map((item: any, idx: any) => (
+                                    <View key={idx} style={{
+                                        padding: 10,
+                                        borderWidth: 0.8,
+                                        borderRadius: 10,
+                                        borderColor: theme.colors.onBackground,
+                                        marginTop: 15,
+                                        borderStyle: "dashed"
+                                    }}>
+                                        <Text>Visit No.: {item?.visit_no}</Text>
+                                        <Text>Approval No.: {item?.approval_no}</Text>
+                                        <Text>Progress Percent: {item?.progress_percent}%</Text>
+                                    </View>
+                                ))
+                            } */}
+
+                            {
+                                fetchedProjectDetails && (() => {
+                                    // Parse the whole response once
+                                    const projectData = JSON.parse(fetchedProjectDetails);
+                                    const baseURL = "https://pup.opentech4u.co.in/pup/";
+
+                                    return projectData.prog_img.map((item: any, idx: number) => {
+                                        // Convert the pic_path string into an array (or empty array if none)
+                                        const images = item.pic_path ? JSON.parse(item.pic_path) : [];
+
+                                        return (
+                                            <View
+                                                key={idx}
+                                                style={{
+                                                    flexDirection: "row", // arrange content in a row
+                                                    alignItems: "center", // vertically center items
+                                                    padding: 10,
+                                                    borderWidth: 0.8,
+                                                    borderRadius: 10,
+                                                    borderColor: theme.colors.onBackground,
+                                                    marginTop: 15,
+                                                    borderStyle: "dashed",
+                                                }}
+                                            >
+                                                {/* Left Side: Text Details */}
+                                                <View style={{ flex: 1 }}>
+                                                    <Text>Visit No.: {item?.visit_no}</Text>
+                                                    <Text>Approval No.: {item?.approval_no}</Text>
+                                                    <Text>Progress Percent: {item?.progress_percent}%</Text>
+                                                </View>
+
+                                                {/* Right Side: Render Images */}
+                                                {images.length > 0 && (
+                                                    <View style={{ flexDirection: "row" }}>
+                                                        {images.map((img: any, index: number) => (
+                                                            <Image
+                                                                key={index}
+                                                                source={{
+                                                                    uri: `${baseURL}${projectData.folder_name}${img}`,
+                                                                }}
+                                                                style={{ width: 50, height: 50, marginLeft: 5 }}
+                                                                resizeMode="cover"
+                                                            />
+                                                        ))}
+                                                    </View>
+                                                )}
+                                            </View>
+                                        );
+                                    });
+                                })()
+                            }
+
+                        </View>}
+
 
                     {formData1.projectId && (
                         <InputPaper
@@ -475,7 +623,7 @@ const HomeScreen = () => {
                             || !geolocationFetchedAddress
                         }
                     >
-                        Save
+                        {strings.saveText}
                     </ButtonPaper>
                 </View>
             </ScrollView>
