@@ -25,6 +25,7 @@ import {
 } from "react-native-image-picker"
 import ImageResizer from '@bam.tech/react-native-image-resizer';
 import RNFS from 'react-native-fs';
+import { ProjectStoreModel } from '../../models/global_models'
 
 const strings = homeScreenStrings.getStrings()
 
@@ -46,6 +47,8 @@ const HomeScreen = () => {
         latitude: "",
         longitude: ""
     })
+
+    console.log("LOCATION: ", location)
 
     const handleFormChange = useCallback((field: string, value: any) => {
         setFormData1(prev => ({
@@ -282,12 +285,12 @@ const HomeScreen = () => {
             }
 
             // Create a new project object with permanent image URIs
-            const newProject = {
+            const newProject: ProjectStoreModel = {
                 projectId: formData1.projectId,
-                progress: formData1.progress,
+                progress: +formData1.progress,
                 "progress_pic[]": permanentUris,
-                lat: location?.latitude,
-                lng: location.longitude
+                lat: location?.latitude!,
+                lng: location.longitude!
             };
 
             storedProjects.push(newProject);
@@ -419,7 +422,7 @@ const HomeScreen = () => {
                         }}
                         style={{ marginTop: 15, paddingVertical: 8 }}
                     >
-                        Save Locally
+                        Save
                     </ButtonPaper>
                 </View>
             </ScrollView>

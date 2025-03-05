@@ -37,7 +37,7 @@ const SettingsScreen = () => {
                     ])} style={{
                         paddingVertical: 8,
                     }}>{strings.logOutText}</ButtonPaper>
-                    <ButtonPaper icon={"content-save-move-outline"} mode='contained' onPress={() => navigation.dispatch(CommonActions.navigate({
+                    <ButtonPaper icon={"content-save-move-outline"} buttonColor={theme.colors.secondary} mode='contained' onPress={() => navigation.dispatch(CommonActions.navigate({
                         name: navigationRoutes.savedProjectsScreen
                     }))} style={{
                         marginTop: 15,

@@ -30,13 +30,13 @@ export const usePaperColorScheme = () => {
         titleLarge: {
             fontFamily: "Product Sans Regular"
         },
-        headingLarge: {
+        headlineLarge: {
             fontFamily: "Product Sans Regular"
         },
-        headingMedium: {
+        headlineMedium: {
             fontFamily: "Product Sans Regular"
         },
-        headingSmall: {
+        headlineSmall: {
             fontFamily: "Product Sans Regular"
         }
     }
