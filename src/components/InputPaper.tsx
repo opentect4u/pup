@@ -25,6 +25,7 @@ type InputPaperProps = {
     onPressRight?: () => void
     password?: boolean
     underlineColor?: string
+    error?: boolean
 }
 
 const InputPaper = ({
@@ -48,11 +49,13 @@ const InputPaper = ({
     onKeyPress,
     onPressRight,
     password = false,
-    underlineColor
+    underlineColor,
+    error = false
 }: InputPaperProps) => {
     const theme = usePaperColorScheme()
     return (
         <TextInput
+            error={error}
             onKeyPress={onKeyPress}
             onFocus={onFocus}
             selectTextOnFocus={selectTextOnFocus}

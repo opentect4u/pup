@@ -26,6 +26,7 @@ import {
 import ImageResizer from '@bam.tech/react-native-image-resizer';
 import RNFS from 'react-native-fs';
 import { ProjectStoreModel } from '../../models/global_models'
+import ProjectGrid from '../../components/complex/ProjectGrid'
 
 const strings = homeScreenStrings.getStrings()
 
@@ -51,6 +52,8 @@ const HomeScreen = () => {
         longitude: "",
         locationAddress: "",
     })
+    const [projectRangeCaps, setProjectRangeCaps] = useState<any[]>(() => [])
+    const [checkErr, setCheckErr] = useState(() => false)
 
     console.log("LOCATION: ", location)
 
@@ -100,7 +103,7 @@ const HomeScreen = () => {
                 console.log("PROJECTS : ", res?.data)
                 const newProjectsList = res?.data?.message?.map((item: any) => ({
                     label: `${item?.project_id} / ${item?.approval_no}\n${item?.scheme_name}`,
-                    value: item?.approval_no
+                    value: `${item?.approval_no},${item?.project_id}`
                 }))
                 setProjectsList(newProjectsList)
             } else {
@@ -120,7 +123,7 @@ const HomeScreen = () => {
     const fetchProjectDetails = async () => {
         setLoading(true)
         const formData = new FormData()
-        formData.append('approval_no', formData1?.projectId)
+        formData.append('approval_no', formData1?.projectId?.split(",")[0])
 
         try {
             const res = await axios.post(`${ADDRESSES.FETCH_PROJECT_PROCESS}`, formData, {
@@ -217,7 +220,7 @@ const HomeScreen = () => {
         })
     }, [])
 
-    const selectLogo = useCallback(() => {
+    const selectPhoto = useCallback(() => {
         Alert.alert(
             "Upload Photo",
             "Select an option",
@@ -239,10 +242,38 @@ const HomeScreen = () => {
         fileStorage.delete("file-uri")
     }, [])
 
+    const fetchProgressRangeCap = async () => {
+        const formData = new FormData()
+
+        formData.append("project_id", formData1.projectId?.split(",")[1])
+
+        await axios.post(ADDRESSES.FETCH_PROJECT_RANGE, formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+                "auth_key": AUTH_KEY
+            }
+        }).then(res => {
+            console.log("Project Ranges CAP === ", res?.data)
+            if (res?.data?.status === 1) {
+                setProjectRangeCaps(res?.data?.message)
+                const [a, b] = getWorkRange(res?.data?.message) ?? [];
+                console.log("AAAAAAAAAAa, BBBBBBBBBB", a, b)
+                setCheckErr(formData1.progress < a || formData1.progress > b);
+            }
+        }).catch(err => {
+            console.log("Project Ranges CAP ERRRR === ", err)
+            ToastAndroid.show("Some error occurred while fetching Project Ranges.", ToastAndroid.SHORT)
+        })
+    }
+
+    useEffect(() => {
+        fetchProgressRangeCap()
+    }, [formData1.projectId, formData1.progress])
+
     const updateProjectProgressDetails = useCallback(async () => {
         setLoading(true)
         const formData = new FormData()
-        formData.append('approval_no', formData1.projectId || '')
+        formData.append('approval_no', formData1.projectId?.split(",")[0] || '')
         formData.append('progress_percent', formData1.progress)
         formData.append('lat', location?.latitude!)
         formData.append('long', location.longitude!)
@@ -350,7 +381,7 @@ const HomeScreen = () => {
 
             // Create a new project object with permanent image URIs
             const newProject: ProjectStoreModel = {
-                projectId: formData1.projectId,
+                projectId: formData1.projectId?.split(",")[0],
                 progress: +formData1.progress,
                 "progress_pic[]": permanentUris,
                 lat: location?.latitude!,
@@ -393,6 +424,19 @@ const HomeScreen = () => {
             ToastAndroid.show("Home Refreshed.", ToastAndroid.SHORT)
         }, 2000)
     }
+
+    const getWorkRange = (projectRangeCaps: any[]) => {
+        if (!fetchedProjectDetails) return null;
+
+        const projectDetails = JSON.parse(fetchedProjectDetails);
+        const progImgLength = projectDetails?.prog_img?.length || 0;
+        const nextVisitNo = (progImgLength + 1).toString();
+        const rangeObj = projectRangeCaps?.find(item => +item?.visit_no === +nextVisitNo);
+
+        if (!rangeObj) return null;
+        const { work_per_st, work_per_end } = rangeObj;
+        return [work_per_st, work_per_end];
+    };
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
@@ -437,7 +481,8 @@ const HomeScreen = () => {
                     </ButtonPaper>
 
 
-                    {fetchedProjectDetails &&
+                    {
+                        fetchedProjectDetails &&
                         <View style={{
                             paddingVertical: 5
                         }}>
@@ -468,6 +513,7 @@ const HomeScreen = () => {
                                 onChangeText={(txt: any) => handleFormChange("scheme_name", txt)}
                                 customStyle={{ backgroundColor: theme.colors.background, marginTop: 10 }}
                                 disabled
+                                multiline
                             />
                             <InputPaper
                                 label="Sector"
@@ -479,101 +525,30 @@ const HomeScreen = () => {
                                 disabled
                             />
 
-                            {/* {
-                                fetchedProjectDetails && JSON.parse(fetchedProjectDetails)?.prog_img?.map((item: any, idx: any) => (
-                                    <View key={idx} style={{
-                                        padding: 10,
-                                        borderWidth: 0.8,
-                                        borderRadius: 10,
-                                        borderColor: theme.colors.onBackground,
-                                        marginTop: 15,
-                                        borderStyle: "dashed"
-                                    }}>
-                                        <Text>Visit No.: {item?.visit_no}</Text>
-                                        <Text>Approval No.: {item?.approval_no}</Text>
-                                        <Text>Progress Percent: {item?.progress_percent}%</Text>
-                                    </View>
-                                ))
-                            } */}
-
-                            {
-                                fetchedProjectDetails && (() => {
-                                    const projectData = JSON.parse(fetchedProjectDetails);
-                                    const baseURL = "https://pup.opentech4u.co.in/pup/";
-
-                                    return projectData.prog_img.map((item: any, idx: number) => {
-                                        // Parse the pic_path string into an array of image filenames.
-                                        let images = [];
-                                        try {
-                                            images = JSON.parse(item.pic_path);
-                                        } catch (error) {
-                                            console.error("Error parsing pic_path for item:", item, error);
-                                        }
-
-                                        return (
-                                            <View
-                                                key={idx}
-                                                style={{
-                                                    flexDirection: "row",
-                                                    alignItems: "center",
-                                                    padding: 10,
-                                                    borderWidth: 0.8,
-                                                    borderRadius: 10,
-                                                    borderColor: theme.colors.onBackground,
-                                                    marginTop: 15,
-                                                    borderStyle: "dashed",
-                                                }}
-                                            >
-                                                {/* Left Side: Text Details */}
-                                                <View style={{ flex: 1 }}>
-                                                    <Text>Visit No.: {item?.visit_no}</Text>
-                                                    <Text>Approval No.: {item?.approval_no}</Text>
-                                                    <Text>Progress Percent: {item?.progress_percent}%</Text>
-                                                </View>
-
-                                                {/* Right Side: Horizontal ScrollView for Images */}
-                                                {images.length > 0 && (
-                                                    <ScrollView horizontal showsHorizontalScrollIndicator={true}>
-                                                        {images.map((img: any, index: number) => {
-                                                            const imageUrl = `${baseURL}${projectData.folder_name}${img}`;
-                                                            console.log("IMAGE URL ====", imageUrl)
-                                                            return (
-                                                                <Image
-                                                                    key={index}
-                                                                    source={{ uri: imageUrl }}
-                                                                    style={{ width: 15, height: 15, marginLeft: 5 }}
-                                                                    resizeMode="cover"
-                                                                />
-                                                            );
-                                                        })}
-                                                    </ScrollView>
-                                                )}
-                                            </View>
-                                        );
-                                    });
-                                })()
-                            }
-
-                        </View>}
+                            <ProjectGrid fetchedProjectDetails={fetchedProjectDetails} />
+                        </View>
+                    }
 
 
                     {formData1.projectId && (
                         <InputPaper
+                            error={checkErr}
                             label="Project Progress..."
                             maxLength={10}
                             leftIcon='progress-clock'
                             keyboardType="number-pad"
                             value={formData1.progress}
                             onChangeText={(txt: any) => handleFormChange("progress", txt)}
-                            customStyle={{ backgroundColor: theme.colors.background, marginTop: 10 }}
+                            customStyle={{ backgroundColor: theme.colors.background }}
                         />
                     )}
 
                     <ButtonPaper
                         icon={"camera"}
                         mode='contained'
-                        onPress={selectLogo}
+                        onPress={selectPhoto}
                         style={{ marginTop: 15, paddingVertical: 8 }}
+                        disabled={!formData1.projectId}
                     >
                         {strings.uploadPhotoBtnLabel}
                     </ButtonPaper>
@@ -589,9 +564,9 @@ const HomeScreen = () => {
                                     <Image source={{ uri: asset.uri! }} style={styles.image} resizeMode="contain" />
                                     <TouchableOpacity
                                         onPress={() => removeImage(index)}
-                                        style={styles.removeIconContainer}
+                                        style={[styles.removeIconContainer, { backgroundColor: theme.colors.errorContainer }]}
                                     >
-                                        <Icon size={20} color={theme.colors.error} source={"trash-can-outline"} />
+                                        <Icon size={20} color={theme.colors.onErrorContainer} source={"trash-can-outline"} />
                                     </TouchableOpacity>
                                 </View>
                             ))}
@@ -613,7 +588,7 @@ const HomeScreen = () => {
                         }}
                         style={{ marginTop: 15, paddingVertical: 8 }}
                         loading={loading}
-                        disabled={!formData1.progress || !formData1.projectId || loading}
+                        disabled={!formData1.progress || !formData1.projectId || loading || checkErr}
                     >
                         Update Progress
                     </ButtonPaper>
@@ -650,8 +625,8 @@ export default HomeScreen
 
 const styles = StyleSheet.create({
     dropdown: {
-        minHeight: 70,
-        maxHeight: 70,
+        minHeight: 100,
+        maxHeight: 100,
         alignSelf: "center",
         paddingHorizontal: 30,
         borderRadius: 20,
