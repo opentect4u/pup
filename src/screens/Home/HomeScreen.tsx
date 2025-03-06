@@ -78,11 +78,11 @@ const HomeScreen = () => {
     }
 
     // to be enabled later...
-    // useEffect(() => {
-    //     if (location?.latitude && location.longitude) {
-    //         fetchGeoLocaltionAddress()
-    //     }
-    // }, [location])
+    useEffect(() => {
+        if (location?.latitude && location.longitude) {
+            fetchGeoLocaltionAddress()
+        }
+    }, [location])
 
     const fetchProjectsList = useCallback(async () => {
         setLoading(true)
@@ -244,9 +244,11 @@ const HomeScreen = () => {
         const formData = new FormData()
         formData.append('approval_no', formData1.projectId || '')
         formData.append('progress_percent', formData1.progress)
-        formData.append('lat', formData1.latitude)
-        formData.append('long', formData1.longitude)
-        formData.append('address', formData1.locationAddress)
+        formData.append('lat', location?.latitude!)
+        formData.append('long', location.longitude!)
+        formData.append('address', geolocationFetchedAddress)
+
+        console.log("FORM DATA UPDATE ", formData)
 
         // Process each image to ensure its size is under 2MB (2 * 1024 * 1024 bytes)
         const processedImages = await Promise.all(
@@ -310,6 +312,7 @@ const HomeScreen = () => {
                     longitude: "",
                     locationAddress: ""
                 })
+                setFetchedProjectDetails(() => "")
             } else {
                 ToastAndroid.show("Sending details with photo error.", ToastAndroid.SHORT)
             }
@@ -369,6 +372,7 @@ const HomeScreen = () => {
                 longitude: "",
                 locationAddress: ""
             });
+            setFetchedProjectDetails(() => "");
         } catch (err) {
             console.log("Error saving locally:", err);
             ToastAndroid.show("Error saving project locally.", ToastAndroid.SHORT);
@@ -382,6 +386,7 @@ const HomeScreen = () => {
         setImgData([])
         fileStorage.delete("file-data")
         fileStorage.delete("file-uri")
+        setFetchedProjectDetails(() => "")
 
         setTimeout(() => {
             setRefreshing(false)
@@ -496,7 +501,7 @@ const HomeScreen = () => {
                                     const projectData = JSON.parse(fetchedProjectDetails);
                                     const baseURL = "https://pup.opentech4u.co.in/pup/";
 
-                                    return projectData.prog_img.map((item, idx) => {
+                                    return projectData.prog_img.map((item: any, idx: number) => {
                                         // Parse the pic_path string into an array of image filenames.
                                         let images = [];
                                         try {
@@ -529,7 +534,7 @@ const HomeScreen = () => {
                                                 {/* Right Side: Horizontal ScrollView for Images */}
                                                 {images.length > 0 && (
                                                     <ScrollView horizontal showsHorizontalScrollIndicator={true}>
-                                                        {images.map((img, index) => {
+                                                        {images.map((img: any, index: number) => {
                                                             const imageUrl = `${baseURL}${projectData.folder_name}${img}`;
                                                             console.log("IMAGE URL ====", imageUrl)
                                                             return (
@@ -599,7 +604,11 @@ const HomeScreen = () => {
                         onPress={() => {
                             Alert.alert("Alert", "Are you sure you want to submit the details?", [
                                 { "text": strings.noTxt, onPress: () => null },
-                                { "text": strings.yesTxt, onPress: () => updateProjectProgressDetails() }
+                                {
+                                    "text": strings.yesTxt, onPress: async () => {
+                                        await updateProjectProgressDetails()
+                                    }
+                                }
                             ])
                         }}
                         style={{ marginTop: 15, paddingVertical: 8 }}
