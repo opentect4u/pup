@@ -46,64 +46,17 @@ class Api extends CI_Controller {
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
     }
+	public function projectrange() {
+		$result_data = $this->Master->f_select('td_progress_range', array('project_id','visit_no','work_per_st','work_per_end'), array('project_id'=>$this->input->post('project_id')), NULL);
 
-// 	public function progress_update() {
-		
-// 	    $app_res_data = $this->Master->f_select('td_progress','IFNULL(MAX(visit_no), 0) + 1 AS visit_no',array('approval_no'=>$this->input->post('approval_no')),1);
-// 		$file_fields = $this->input->post('progress_pic');
+		$response = (!empty($result_data)) 
+			? ['status' => 1, 'message' => $result_data] 
+			: ['status' => 0, 'message' => 'No data found'];
 	
-// 		foreach ($file_fields as $field) {
-// 		if (!empty($_FILES[$field]['name'])) {
-// 			// Load the upload library if not already loaded
-// 			$this->load->library('upload');
-// 			// Set upload configuration
-// 			$config['upload_path']   = './uploads/progress_image/'; // Ensure folder exists & has correct permissions
-// 			$config['allowed_types'] = 'jpg|jpeg|png';
-// 			$config['max_size']      = 2048; // Max file size (2MB)
-// 			$config['encrypt_name']  = TRUE; // Encrypt filename for security
-		
-// 			$this->upload->initialize($config); // Initialize config
-// 			// Perform upload
-// 			if (!$this->upload->do_upload($field)) {
-// 				echo json_encode([
-// 					'status' => false,
-// 					'message' => "Error uploading progress_pic: " . strip_tags($this->upload->display_errors())
-// 				]);
-// 				return;
-// 			}
-// 			// Store uploaded file path
-// 			$fileData = $this->upload->data();
-// 			$upload_paths[$field] = $fileData['file_name'];
-// 		} else {
-// 			$upload_paths[$field] = null; // No file uploaded
-// 		}
-// 	    }
-// 		// Insert into database
-// 		$data = [
-// 			'approval_no' => $this->input->post('approval_no'),
-// 			'visit_no' => $app_res_data->visit_no,
-// 			'progress_percent' => $this->input->post('progress_percent'),
-// 			'pic_path' => $upload_paths['progress_pic'],
-// 			'created_by' => $this->input->post('created_by'),
-// 			'created_at' => date('Y-m-d h:i:s'),
-// 		];
-	
-// 		$id = $this->db->insert('td_progress', $data);
-// 	    if($id){
-// 			echo json_encode([
-// 				'status' => 1,
-// 				'data' => 'Files uploaded successfully!',
-// 				'file_paths' => $upload_paths
-// 			]);
-// 		}else{
-// 			echo json_encode([
-// 				'status' => 0,
-// 				'data' => 'Something Went Wrong',
-// 				'file_paths' => $upload_paths
-// 			]);
-// 		}
-		
-//    }
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
+    }
 
     public function progress_update(){
 

@@ -181,7 +181,20 @@ class Tender extends CI_Controller {
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
 	}
+	public function tender_list_proj() {
+		$where = [];
+		$approval_no = $this->input->post('approval_no');
 	
+		$where['approval_no'] = $approval_no;
+		$result_data = $this->Master->f_select('td_tender', '*', $where, 0);
+		$response = (!empty($result_data)) 
+			? ['status' => 1, 'message' => $result_data] 
+			: ['status' => 0, 'message' => 'No data found'];
+	
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
+	}
 
 	public function tend_edit() {
 		$upload_paths = []; // Store file paths

@@ -34,49 +34,6 @@ class Admapi extends CI_Controller {
             exit; // Stop execution
         }
     }
-    
-
-	public function upload_pdf() {
-	
-		// Load the Upload library
-		$config['upload_path']   = './uploads/'; // Folder to store files
-		$config['allowed_types'] = 'pdf'; // Allow only PDFs
-		$config['max_size']      = 2048; // Max file size (2MB)
-		$config['encrypt_name']  = TRUE; // Encrypt filename for security
-	
-		$this->load->library('upload', $config);
-	
-		if (!$this->upload->do_upload('pdf_file')) {
-			echo json_encode([
-				'status' => false,
-				'message' => $this->upload->display_errors()
-			]);
-			return;
-		}
-	
-		// Get uploaded file data
-		$fileData = $this->upload->data();
-		$filePath = 'uploads/' . $fileData['file_name']; // Store path in DB
-	
-		// Get other form data
-		$name = $this->input->post('name');
-		$email = $this->input->post('email');
-	
-		// Insert into database
-		$data = [
-			'name' => $name,
-			'email' => $email,
-			'pdf_path' => $filePath
-		];
-		
-		$this->db->insert('test_table', $data); // Replace with your table name
-	
-		echo json_encode([
-			'status' => true,
-			'message' => 'File uploaded successfully!',
-			'file_path' => base_url($filePath) // Return the uploaded file path
-		]);
-	}
 
 	public function adm_appr_add() {
 	
@@ -85,8 +42,11 @@ class Admapi extends CI_Controller {
 		$this->load->library('upload');
 		// File fields to process
 		$file_fields = ['admin_approval', 'vetted_dpr'];
+
+		$query = $this->db->get_where('td_admin_approval', ['project_id' => $this->input->post('project_id')]);
+		if($query->num_rows() == 0) {
+
 	    $app_res_data = $this->Master->f_select('td_admin_approval','IFNULL(MAX(approval_no), 0) + 1 AS approval_no',NULL,1);
-	
 		
 		foreach ($file_fields as $field) {
 			if (!empty($_FILES[$field]['name'])) {
@@ -139,10 +99,15 @@ class Admapi extends CI_Controller {
 		$this->db->insert('td_admin_approval', $data);
 	
 		echo json_encode([
-			'status' => true,
-			'message' => 'Files uploaded successfully!',
-			'file_paths' => $upload_paths
+			'status' => 1,
+			'message' => 'successfully!'
 		]);
+	   }else{
+			echo json_encode([
+				'status' => 0,
+				'message' => 'Project ID Already Exist'
+			]);
+	   }
 	}
 
 	
@@ -153,7 +118,8 @@ class Admapi extends CI_Controller {
 	
 		// File fields to process
 		$file_fields = ['admin_approval', 'vetted_dpr'];
-	
+		$query = $this->db->get_where('td_admin_approval', ['project_id' => $this->input->post('project_id')]);
+		if($query->num_rows() == 0) {
 		foreach ($file_fields as $field) {
 			if (!empty($_FILES[$field]['name'])) {
 				$config['upload_path']   = './uploads/'; // Folder to store files
@@ -208,22 +174,27 @@ class Admapi extends CI_Controller {
 	
 		// Update data in the database
 		$this->Master->f_edit('td_admin_approval', $data, $where);
-		echo $this->db->last_query();
-		if ($this->db->affected_rows() > 0) {
-	
-		echo json_encode([
-			'status' => 1,
-			'message' => 'Edited successfully!',
-			'file_names' => $upload_paths // Return filenames in response
-		]);
+			if ($this->db->affected_rows() > 0) {
+		
+			echo json_encode([
+				'status' => 1,
+				'message' => 'Edited successfully!',
+				'file_names' => $upload_paths // Return filenames in response
+			]);
+			}else{
+				
+			echo json_encode([
+				'status' => 0,
+				'message' => 'Some Thing Went Wrong!',
+			]);
+			}
+		
 	    }else{
-			
-		echo json_encode([
-			'status' => 0,
-			'message' => 'Some Thing Went Wrong!',
-			'file_names' => $upload_paths // Return filenames in response
-		]);
-		}
+			echo json_encode([
+				'status' => 0,
+				'message' => 'Project ID Already Exist'
+			]);
+	    }
 	}
 		
 
