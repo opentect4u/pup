@@ -86,7 +86,7 @@ function Sidebar() {
       aria-label="Sidebar"
     >
       <a
-        href="https://flowbite.com"
+        href="#"
         class="flex items-center justify-center mb-6 mt-3"
       >
         <img src={LOGO} class="mr-3 sm:h-16" alt="Logo" />

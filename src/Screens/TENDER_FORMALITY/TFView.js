@@ -14,7 +14,6 @@ function TFView() {
   const [tableDataList, setTableDataList] = useState(() => []);
   const [folderName, setFolderName] = useState('');
   const params = useParams()
-  const [OPERATION_STATUS, setOPERATION_STATUS] = useState('');
   const [loading, setLoading] = useState(false)
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -35,11 +34,20 @@ function TFView() {
         }
       );
 
-      console.log("Response Data Table:", response.data); // Log the actual response data
-      setTableDataList(response.data.message)
-      setFolderName(response.data.folder_name)
-      setOPERATION_STATUS(response.data.OPERATION_STATUS);
+      
+
+      if(response?.data?.status > 0) {
+        setTableDataList(response.data.message)
+        setFolderName(response.data.folder_name)
+        setLoading(false);
+      }
+
+      if(response?.data?.status < 1) {
       setLoading(false);
+      setTableDataList([]);
+      setFolderName('');
+      }
+
     } catch (error) {
       setLoading(false);
       console.error("Error fetching data:", error); // Handle errors properly
@@ -127,7 +135,7 @@ function TFView() {
                     navigate(`/home/tender_formality/tfcrud/${data?.approval_no}`, {
                     state: {
                     ...data, // Spread existing rowData
-                    operation_status: OPERATION_STATUS, // Explicitly include approval_status
+                    operation_status: 'edit', // Explicitly include approval_status
                     sl_no: data?.sl_no
                     },
                     });

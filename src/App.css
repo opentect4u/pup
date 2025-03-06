@@ -60,7 +60,11 @@ tbody.p-datatable-tbody tr.p-selectable-row td{padding: 10px;}
 tfoot.p-datatable-tfoot tr td{padding: 10px;}
 textarea.bg-white {border: #ccc solid 1px;}
 
-
+.ant-modal-content .ant-modal-footer button.ant-btn-default{border: #3EB8BD solid 1px;}
+.ant-modal-content .ant-modal-footer button.ant-btn-default:hover{border: #3EB8BD solid 1px; background-color: #3EB8BD; color: #fff;}
+.ant-modal-content .ant-modal-footer button.ant-btn-primary{background-color: #3EB8BD;}
+.ant-modal-content .ant-modal-footer button.ant-btn-primary:hover{background-color: #3EB8BD;}
+.ant-modal-content .ant-modal-title{color: #3EB8BD;}
 
 @keyframes App-logo-spin {
   from {

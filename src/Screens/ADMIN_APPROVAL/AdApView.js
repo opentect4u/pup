@@ -31,10 +31,21 @@ function AdApView() {
       const response = await axios.post(url + 'index.php/webApi/Admapi/adm_approv_list', cread, {
         headers: { 'auth_key': auth_key },
       });
+
+      if(response?.data?.status > 0) {
       setLoading(false);
-      console.log("Response Data Table:", response.data.message);
-      setTableDataList(response.data.message);
-      setFilteredDataList(response.data.message);
+      console.log("Response Data Table:", response?.data?.status);
+      setTableDataList(response?.data?.message);
+      setFilteredDataList(response?.data?.message);
+      }
+
+      if(response?.data?.status < 1) {
+        setLoading(false);
+        setTableDataList([]);
+        setFilteredDataList([]);
+      }
+      
+
     } catch (error) {
       setLoading(false);
       console.error("Error fetching data:", error);
@@ -112,7 +123,7 @@ function AdApView() {
                   </tr>
                 </thead>
                 <tbody>
-                  {currentTableData.map((data, index) => (
+                  {currentTableData?.map((data, index) => (
                     <tr key={index} className="border-b dark:border-gray-700">
                       <td className="px-4 py-3">{(currentPage - 1) * rowsPerPage + index + 1}</td>
                       <td className="px-4 py-3">{data?.project_id}</td>
