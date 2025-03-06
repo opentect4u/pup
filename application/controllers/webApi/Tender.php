@@ -292,7 +292,25 @@ class Tender extends CI_Controller {
 			$where3 = array_merge($where3, ['a.approval_no' => $approval_no]);
 		}
 		
-		$result_data = $this->Master->f_select('td_progress a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f,md_proj_imp_agency g,td_tender h', 'b.admin_approval_dt,b.scheme_name,c.sector_desc as sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no,g.agency_name', array_merge($where, ['1 limit 1' => NULL]), NULL);
+		//$result_data = $this->Master->f_select('td_admin_approval b,td_progress a,md_sector c,md_fin_year d,md_district e,md_block f,md_proj_imp_agency g,td_tender h', 'b.admin_approval_dt,b.scheme_name,c.sector_desc as sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no,g.agency_name', array_merge($where, ['1 limit 1' => NULL]), NULL);
+		$result_data = $this->db->query('SELECT 
+									b.admin_approval_dt, 
+									b.scheme_name, 
+									c.sector_desc AS sector_name, 
+									d.fin_year, 
+									b.project_id, 
+									e.dist_name, 
+									f.block_name, 
+									a.approval_no, 
+									g.agency_name
+								FROM td_admin_approval b 
+								LEFT JOIN td_progress a ON a.approval_no = b.approval_no 
+								INNER JOIN md_sector c ON b.sector_id = c.sl_no 
+								INNER JOIN md_fin_year d ON b.fin_year = d.sl_no 
+								INNER JOIN md_district e ON b.district_id = e.dist_code 
+								INNER JOIN md_block f ON b.block_id = f.block_id 
+								INNER JOIN md_proj_imp_agency g ON b.impl_agency = g.id 
+								WHERE b.approval_no = "'.$approval_no.'" LIMIT 1')->result();
 		$image_data = $this->Master->f_select('td_progress a,td_admin_approval b', 'a.approval_no,a.visit_no,a.progress_percent,a.pic_path,a.created_by as visit_by,a.created_at as visit_dt,a.address', array_merge($where2, ['1 limit 6' => NULL]), NULL);
 		$wo_date = $this->Master->f_select('td_admin_approval a,td_tender b', 'b.wo_date', array_merge($where3,['1 order by b.tender_date desc limit 1'=>NULL]), NULL);
 		

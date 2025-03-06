@@ -34,7 +34,20 @@ class Admapi extends CI_Controller {
             exit; // Stop execution
         }
     }
-
+    public function check_pi() {
+		$query = $this->db->get_where('td_admin_approval', ['project_id' => $this->input->post('project_id')]);
+		if($query->num_rows() == 0) {
+			echo json_encode([
+				'status' => 1,
+				'message' => 'Project ID is available'
+			]);
+		} else {
+			echo json_encode([
+				'status' => 0,
+				'message' => 'Project ID already exists'
+			]);
+		}
+	}
 	public function adm_appr_add() {
 	
 		$upload_paths = []; // Store file paths
