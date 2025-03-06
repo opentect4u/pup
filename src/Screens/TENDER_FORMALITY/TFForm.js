@@ -135,10 +135,17 @@ function TFForm() {
             },
           }
         );
-  
-        console.log("Response Data:", response.data); // Log the actual response data
+        
+        if(response.data.status > 0){
+          console.log("Response Data:", response.data); // Log the actual response data
         setProjectId(response.data.message)
         setLoading(false);
+        }
+
+        if(response.data.status < 1){
+        setLoading(false);
+        }
+        
       } catch (error) {
         console.error("Error fetching data:", error); // Handle errors properly
         setLoading(false);

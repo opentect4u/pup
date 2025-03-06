@@ -65,7 +65,8 @@ const router = createBrowserRouter([
       children: [
         {
           path: "",
-          element: <HomeScreen />,
+          // element: <HomeScreen />,
+          element: <AdApView />,
         },
         {
           path: "admin_approval",
