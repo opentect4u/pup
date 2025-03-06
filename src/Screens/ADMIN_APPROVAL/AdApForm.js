@@ -59,7 +59,6 @@ const validationSchema = Yup.object({
   fin_yr: Yup.string().required('Financial Year is Required'),
   schm_amt: Yup.string().required('Schematic Amount is Required'),
   cont_amt: Yup.string().required('Contigency Amount is Required'),
-  // tot_amt: Yup.string().required('Total Amount is Required'),
   admin_appr_pdf: Yup.string().required('Administrative Approval(G.O) is Required'),
   proj_id: Yup.string().required('Project ID is Required'),
   head_acc: Yup.string().required('Head Account is Required'),
@@ -383,7 +382,8 @@ function AdApForm() {
     formData.append("fund_id", formik.values.src);
     formData.append("created_by", "SSS Name Created By");
   
-    console.log(formik.values.admin_appr_pdf, "FormData:", formik.values.vet_dpr_pdf);
+    // console.log(formik.values.admin_appr_pdf, "FormData:", formik.values.vet_dpr_pdf);
+    console.log(formik.values.block, "FormData:", formik.values.admin_appr_pdf.name);
 
     try {
       const response = await axios.post(
@@ -434,7 +434,7 @@ function AdApForm() {
     formData.append("modified_by", "SSS Name Modified By");
     formData.append("created_by", "SSS Name Created By");
   
-    console.log(formik.values.block, "FormData:", formData);
+    console.log(formik.values.block, "FormData:", formik.values.admin_appr_pdf);
 
     try {
       const response = await axios.post(
@@ -727,11 +727,12 @@ function AdApForm() {
               />
 
             {filePreview && (
-            <a href={filePreview_2} target="_blank" rel="noopener noreferrer" style={{position:'absolute', top:37, right:10}}>
+            <a href={filePreview} target="_blank" rel="noopener noreferrer" style={{position:'absolute', top:37, right:10}}>
             <FilePdfOutlined style={{ fontSize: 22, color: "red" }} />
             </a>
             )}
 
+            {JSON.stringify(filePreview, null, 2)} //  {JSON.stringify(formValues.admin_appr_pdf, null, 2)}
             {filePreview === null && (
             <a href={url + folder_admin + formValues.admin_appr_pdf} target='_blank' style={{position:'absolute', top:37, right:10}}>
             <FilePdfOutlined style={{fontSize:22, color:'red'}} /></a>

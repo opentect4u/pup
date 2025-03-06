@@ -60,7 +60,7 @@ const loginFnc = async () => {
     }
 
     if(response?.data?.status < 1){
-    Message("error", "There have some error...");
+    Message("error", "Login Credentials Wrong...");
     // setLoading(false);
     // formik.resetForm();
     }
@@ -69,7 +69,7 @@ const loginFnc = async () => {
     
   } catch (error) {
     setLoading(false);
-    Message("error", "Error Submitting Form: uu");
+    Message("error", "Error Submitting Form:");
     console.error("Error submitting form:", error);
   }
   

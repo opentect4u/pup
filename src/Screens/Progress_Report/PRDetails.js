@@ -287,7 +287,9 @@ function PRDetails() {
 
               <div class="sm:col-span-12">
 
-                {/* {JSON.stringify(getStatusData, null, 2)} // {JSON.stringify(folderName, null, 2)} */}
+               {/* {JSON.stringify(getStatusData, null, 2)}  */}
+                
+                 {/* // {JSON.stringify(folderName, null, 2)} */}
 
                 {getStatusData?.map((data, index) => (
                   <>
@@ -299,15 +301,24 @@ function PRDetails() {
                           <span className="text-xs bg-gray-700 text-white p-1 ml-5 rounded-md">Work Status {data?.progress_percent}%</span> </h5>
                         <Flex gap="small" vertical><Progress percent={data?.progress_percent} /></Flex>
                         <p class="mb-3 font-normal items-center text-sm text-gray-700 dark:text-gray-400 flex">
-                          <span className="flex items-center font-bold mr-1"><CalendarOutlined style={{ color: '#3EB8BD', marginRight: 5, marginLeft: 3 }} /> Visit Date:</span> 22/05/2025
-                          <span className="flex items-center font-bold mr-1"><FaMapMarker style={{ color: '#3EB8BD', marginRight: 5, marginLeft: 3 }} /> Visit By:</span> Rajesh Paul
-                          <span className="flex items-center font-bold mr-1"><FaMapMarker style={{ color: '#3EB8BD', marginRight: 5, marginLeft: 3 }} /> Site Location:</span> Kasba, Kolkata 700215
+                          <span className="flex items-center font-bold mr-1"><CalendarOutlined style={{ color: '#3EB8BD', marginRight: 5, marginLeft: 3 }} /> Visit Date:</span> {data?.visit_dt}
+                          <span className="flex items-center font-bold mr-1"><FaMapMarker style={{ color: '#3EB8BD', marginRight: 5, marginLeft: 3 }} /> Visit By:</span> {data?.visit_by}
+                          
+                          {data?.address ? (
+                          <>
+                          <span className="flex items-center font-bold mr-1">
+                          <FaMapMarker style={{ color: '#3EB8BD', marginRight: 5, marginLeft: 3 }} />
+                          Site Location:</span> {data.address}
+                          </>
+                          ) : (
+                          'No Data'
+                          )}
                         </p>
                         <div className="place-content-left flex items-left gap-4">
                           {/* {JSON.stringify(JSON.parse(data?.pic_path), null, 2)} */}
                           {JSON.parse(data?.pic_path)?.map((imgPath, index) => (
                             <>
-                              <Image width={80} className="rounded-full mr-3 lightBox_thum" src={url + folderName + imgPath} />
+                              <Image width={80} className="mr-3 lightBox_thum" src={url + folderName + imgPath} />
                             </>
                           ))}
                           {/* <Image width={80} className="rounded-full mr-3 lightBox_thum" src={demoimg} />
