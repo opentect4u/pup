@@ -136,7 +136,7 @@ function TFView() {
                     state: {
                     ...data, // Spread existing rowData
                     operation_status: 'edit', // Explicitly include approval_status
-                    sl_no: data?.sl_no
+                    // sl_no: data?.sl_no
                     },
                     });
 

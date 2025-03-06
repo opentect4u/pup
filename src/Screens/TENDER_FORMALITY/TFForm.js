@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import TDInputTemplate from '../../Components/TDInputTemplate'
 import BtnComp from '../../Components/BtnComp'
 import Heading from '../../Components/Heading'
@@ -9,8 +9,11 @@ import VError from '../../Components/VError';
 import axios from 'axios';
 import { auth_key, url, folder_tender } from '../../Assets/Addresses/BaseUrl';
 import { Message } from '../../Components/Message';
-import { FilePdfOutlined } from '@ant-design/icons';
-import { Select } from 'antd';
+import { FilePdfOutlined, LoadingOutlined } from '@ant-design/icons';
+import { Select, Spin } from 'antd';
+import { DataTable } from 'primereact/datatable';
+import Column from 'antd/es/table/Column';
+import { Toast } from "primereact/toast"
 
 
 const initialValues = {
@@ -28,7 +31,7 @@ const initialValues = {
 
 
 const validationSchema = Yup.object({
-  project_id: Yup.string().required('Project ID / Approval Number is Required'),
+  // project_id: Yup.string().required('Project ID / Approval Number is Required'),
   td_dt: Yup.string().required('Tender Invited On is Required'),
   td_pdf: Yup.string().required('Tender Notice is Required'),
   tia: Yup.string().required('Tender Inviting Authority is Required'),
@@ -60,107 +63,151 @@ function TFForm() {
   const [filePreview_1, setFilePreview_1] = useState(null);
   const [filePreview_2, setFilePreview_2] = useState(null);
   const [loading, setLoading] = useState(false)
+  // const [projectId, setProjectId] = useState([]);
+
   const [projectId, setProjectId] = useState([]);
+    // const [getStatusData, setGetStatusData] = useState([]);
+    const [getMsgData, setGetMsgData] = useState([]);
+    const [showForm, setShowForm] = useState(false);
+    const [approvalNo, setApprovalNo] = useState('');
+    const [fundStatus, setFundStatus] = useState(() => []);
+    const toast = useRef(null)
 
   useEffect(()=>{
     console.log(operation_status, 'loadFormData', sl_no, 'kkkk', params?.id);
     
   }, [])
 
-  const loadFormData = async () => {
-    // setLoading(true); // Set loading state
+
+  const fundAddedList = async (approvalNo_Para) => {
+    setLoading(true); // Set loading state
+    console.log(approvalNo, 'approvalNoapprovalNoapprovalNoapprovalNo');
+    
     
     const formData = new FormData();
-
-    formData.append("approval_no", params?.id);
-    formData.append("sl_no", sl_no);
-    
-    console.log("loadFormData", formData); 
+    formData.append("approval_no", approvalNo_Para);
 
     try {
       const response = await axios.post(
-        url + 'index.php/webApi/Tender/tender_single_data',
-        formData, 
+        `${url}index.php/webApi/Tender/tender_list_proj`,
+        formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
+            'auth_key': auth_key // Important for FormData
+          },
+        }
+      );
+
+      console.log("approvalNoapprovalNoapprovalNoapprovalNo", response?.data);
+
+      if(response.data.status > 0){
+        setFundStatus(response?.data?.message)
+        setLoading(false);
+      }
+
+      if(response.data.status < 1){
+        setFundStatus([])
+        setLoading(false);
+      }
+    } catch (error) {
+      setLoading(false);
+      Message("error", "Error Submitting Form:");
+      console.error("Error submitting form:", error);
+    }
+
+  };
+
+  const fetchProjectId = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        url + 'index.php/webApi/Admapi/get_approval_no',
+        {}, // Empty body
+        {
+          headers: {
             'auth_key': auth_key,
           },
         }
       );
 
+      if(response?.data?.status > 0){
+      // fundAddedList()
+      console.log("Response Data:", response?.data?.status); // Log the actual response data
+      setProjectId(response.data.message)
+      setLoading(false);
+      }
+
+      if(response?.data?.status < 1){
+        setLoading(false);
+      }
       
-      setValues({
-        project_id: response.data.message.approval_no,
-        td_dt: response.data.message.tender_date,
-        td_pdf: response.data.message.tender_notice,
-        tia: response.data.message.invite_auth,
-        td_mt_dt: response.data.message.mat_date,
-        wo_dt: response.data.message.wo_date,
-        wo_pdf: response.data.message.wo_copy,
-        wo_value: response.data.message.wo_value,
-        compl: response.data.message.comp_date_apprx,
-      })
-
-  
-
-    console.log("loadFormData", response.data.message); // Log the actual response data
     } catch (error) {
+      console.error("Error fetching data:", error); // Handle errors properly
+      setLoading(false);
+    }
+  };
+
+  const loadFormData = async (project_id) => {
+    // console.log(project_id, 'responsedata');
+    setLoading(true); // Set loading state
+
+    const formData = new FormData();
+
+    formData.append("approval_no", project_id);
+
+    try {
+      const response = await axios.post(
+        url + 'index.php/webApi/Tender/progress_list',
+        formData,
+        {
+          headers: {
+            'auth_key': auth_key,
+          },
+        }
+      );
+
+      console.log(response?.data, 'responsedata');
+      
+      if (response?.data.status > 0) {
+        setLoading(false);
+        setGetMsgData(response?.data?.message)
+        
+        // setGetStatusData(response?.data?.prog_img)
+        // setFolderProgres(response?.data?.folder_name)
+
+      }
+
+      if (response?.data.status < 1) {
+        setLoading(false);
+        // setGetStatusData([])
+        setGetMsgData([])
+        // setShowForm(false);
+      }
+
+    } catch (error) {
+      setLoading(false);
       console.error("Error fetching data:", error); // Handle errors properly
     }
 
   };
 
     useEffect(()=>{
-      console.log(operation_status, 'operation_status');
-      
-      if(operation_status == 'edit'){
-        loadFormData()
-      }
 
       fetchProjectId()
   
-  
     }, [])
 
-    const fetchProjectId = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.post(
-          url + 'index.php/webApi/Admapi/get_approval_no',
-          {}, // Empty body
-          {
-            headers: {
-              'auth_key': auth_key,
-            },
-          }
-        );
-        
-        if(response.data.status > 0){
-          console.log("Response Data:", response.data); // Log the actual response data
-        setProjectId(response.data.message)
-        setLoading(false);
-        }
-
-        if(response.data.status < 1){
-        setLoading(false);
-        }
-        
-      } catch (error) {
-        console.error("Error fetching data:", error); // Handle errors properly
-        setLoading(false);
-      }
-    };
 
 
   const saveFormData = async () => {
-    // setLoading(true); // Set loading state
+    setLoading(true); // Set loading state
   
     const formData = new FormData();
 
     // Append each field to FormData
     // formData.append("approval_no", params?.id);
-    formData.append("approval_no", formik.values.project_id);
+    formData.append("approval_no", approvalNo);
     formData.append("tender_date", formik.values.td_dt);
     formData.append("tender_notice", formik.values.td_pdf); // Ensure this is a file if applicable
     formData.append("invite_auth", formik.values.tia);
@@ -187,9 +234,11 @@ function TFForm() {
         }
       );
   
-      // setLoading(false);
-      Message("success", "Updated successfully.");
+      setLoading(false);
       formik.resetForm();
+      fundAddedList(approvalNo)
+      Message("success", "Updated successfully.");
+      
     } catch (error) {
       // setLoading(false);
       Message("error", "Error Submitting Form:");
@@ -245,19 +294,16 @@ function TFForm() {
 
   };
   
-  
-
-
 
   const onSubmit = (values) => {
     console.log(values, 'credcredcredcredcred', operation_status ==  'edit', 'lll', params?.id);
 
-    if(operation_status == 'edit'){
-      updateFormData()
-    } 
-    if(operation_status ==  'add'){
+    // if(operation_status == 'edit'){
+    //   updateFormData()
+    // } 
+    // if(operation_status ==  'add'){
       saveFormData()
-    }
+    // }
     
   };
 
@@ -270,18 +316,291 @@ function TFForm() {
       enableReinitialize: true,
       validateOnMount: true,
     });
+
+  useEffect(()=>{
+    if(params?.id > 0){
+      loadFormData(params?.id)
+      fundAddedList(params?.id)
+      setApprovalNo(params?.id)
+      setShowForm(true);
+    }
+  }, [])
+    
   
 
   return (
     <section class="bg-white p-5 dark:bg-gray-900">
       <div class="py-5 mx-auto w-full lg:py-5">
-      <Heading title={'Tender Formality Details'} button={'Y'}/>
 
-      
+
+      <Heading title={'Project Details'} button={'Y'} />
+        <Spin
+          indicator={<LoadingOutlined spin />}
+          size="large"
+          className="text-gray-500 dark:text-gray-400"
+          spinning={loading}
+        >
+
+          
+            <div class="grid gap-4 sm:grid-cols-12 sm:gap-6 mb-5">
+
+              <div class="sm:col-span-4">
+                
+
+              {params?.id < 1 &&(
+              <>
+              <label for="fin_yr" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Project ID / Approval Number</label>
+              <Select
+              placeholder="Choose Project ID"
+              onChange={(value) => {
+              loadFormData(value)
+              fundAddedList(value)
+              setApprovalNo(value)
+              setShowForm(true)
+              }}
+              style={{ width: "100%" }}
+              >
+              <Select.Option value="" disabled> Choose Project ID </Select.Option>
+              {projectId.map(data => (
+              <Select.Option key={data.approval_no} value={data.approval_no}>
+              {data.project_id} - {data.approval_no}
+              </Select.Option>
+              ))}
+              </Select>
+              </>
+
+              )}
+              {params?.id > 0 &&(
+              <>
+              {projectId.map((data) => (
+              <div key={data.approval_no}>
+              {data.approval_no === params?.id && (
+              <>
+              <TDInputTemplate
+              type="text"
+              label="Project ID / Approval Number"
+              formControlName={data.project_id +'-'+ data.approval_no}
+              mode={1}
+              disabled={true}
+              />
+              </>
+              )}
+              </div>
+              ))}
+
+              </>
+              )}
+
+              </div>
+
+
+              <div className="sm:col-span-12 text-blue-900 text-md font-bold mt-3 -mb-2">
+                {/* Progress Details */}
+              </div>
+
+              <div class="sm:col-span-4">
+                <TDInputTemplate
+                  type="date"
+                  label="Date of administrative approval"
+                  formControlName={getMsgData[0]?.admin_approval_dt ? getMsgData[0]?.admin_approval_dt : '0000-00-00'}
+                  mode={1}
+                  disabled={true}
+                />
+                
+
+              </div>
+
+              <div class="sm:col-span-4">
+                <TDInputTemplate
+                  type="text"
+                  label="Enter scheme name"
+                  formControlName={getMsgData[0]?.scheme_name ? getMsgData[0]?.scheme_name : 'No Data'}
+                  mode={1}
+                  disabled={true}
+                />
+
+              </div>
+              <div class="sm:col-span-4">
+
+
+                
+
+                <TDInputTemplate
+                  type="text"
+                  label="Enter Sector name"
+                  formControlName={getMsgData[0]?.sector_name ? getMsgData[0]?.sector_name : 'No Data'}
+                  mode={1}
+                  disabled={true}
+                />
+
+                {/* sectorDropList */}
+                {/* {JSON.stringify(sectorDropList, null, 2)} */}
+
+
+              </div>
+              <div class="sm:col-span-4">
+                
+
+                <TDInputTemplate
+                  type="text"
+                  label="Financial Year"
+                  formControlName={getMsgData[0]?.fin_year ? getMsgData[0]?.fin_year : '0000-00'}
+                  mode={1}
+                  disabled={true}
+                />
+
+              </div>
+
+              <div class="sm:col-span-4">
+                <TDInputTemplate
+                  type="text"
+                  label="Project implemented By"
+                  formControlName={getMsgData[0]?.agency_name ? getMsgData[0]?.agency_name : 'No Data'}
+                  mode={1}
+                  disabled={true}
+                />
+              </div>
+
+              <div class="sm:col-span-4">
+
+                
+                <TDInputTemplate
+                  type="text"
+                  label="District"
+                  formControlName={getMsgData[0]?.dist_name ? getMsgData[0]?.dist_name : 'No Data'}
+                  mode={1}
+                  disabled={true}
+                />
+
+              </div>
+              <div class="sm:col-span-4">
+                
+                <TDInputTemplate
+                  type="text"
+                  label="Block"
+                  formControlName={getMsgData[0]?.block_name ? getMsgData[0]?.block_name : 'No Data'}
+                  mode={1}
+                  disabled={true}
+                />
+
+              </div>
+
+              <div class="sm:col-span-4">
+                
+
+              <TDInputTemplate
+                  type="date"
+                  label="Work Order Issued On"
+                  formControlName={getMsgData[1]?.wo_date ? getMsgData[1]?.wo_date : '0000-00'}
+                  mode={1}
+                  disabled={true}
+              />
+
+              </div>
+              
+
+            </div>
+
+          
+        </Spin>
+
+        <Spin
+						indicator={<LoadingOutlined spin />}
+						size="large"
+						className="text-gray-500 dark:text-gray-400"
+						spinning={loading}
+					>
+
+        {fundStatus?.length > 0 &&(
+          <>
+          <Heading title={"Tender Formality History"} button={'N'}/>
+          <Toast ref={toast} />
+          <DataTable
+          value={fundStatus?.map((item, i) => [{ ...item, id: i }]).flat()}
+          // selectionMode="checkbox"
+          tableStyle={{ minWidth: "50rem" }}
+          dataKey="id"
+          tableClassName="w-full text-sm text-left rtl:text-right shadow-lg text-green-900dark:text-gray-400 table_Custome table_Custome_1st" // Apply row classes
+          >
+
+
+          <Column
+          field="sl_no"
+          header="Sl.No."
+          body={(rowData, { rowIndex }) => rowIndex + 1}
+          footer={
+            <span style={{ fontWeight: "bold", color: "#0694A2" }}>
+            Total: 
+            </span>
+            }
+          ></Column>
+
+          <Column
+          field="tender_date"
+          header="Tender Invited On"
+          ></Column>
+
+          <Column
+          // field="instl_amt"
+          header="Tender Notice"
+          body={(rowData) => (
+          <a href={url + folder_tender + rowData?.tender_notice} target='_blank'><FilePdfOutlined style={{fontSize:22, color:'red'}} /></a>
+          )}
+          ></Column>
+
+          <Column
+          field="invite_auth"
+          header="Tender Inviting Authority"
+          ></Column>
+
+          <Column
+          field="mat_date"
+          header="Tender Matured On"
+          ></Column>
+
+          <Column
+          field="wo_date"
+          header="Work Order Issued On"
+          ></Column>
+
+          <Column
+          // field="instl_amt"
+          header="Work Order Copy"
+          body={(rowData) => (
+          <a href={url + folder_tender + rowData?.wo_copy} target='_blank'><FilePdfOutlined style={{fontSize:22, color:'red'}} /></a>
+          )}
+          ></Column>
+
+
+          <Column
+          field="wo_value"
+          header="Work Order Value"
+          footer={
+            <span style={{ fontWeight: "bold", color: "#0694A2" }}>
+            {fundStatus?.reduce((sum, item) => sum + (parseFloat(item?.wo_value) || 0), 0).toFixed(2)}
+            </span>
+            }
+          ></Column>
+
+          <Column
+          field="comp_date_apprx"
+          header="Tentative Date of Completion"
+          ></Column>
+
+          
+
+          </DataTable>
+          </>
+        )}
+        </Spin>
+
+        {showForm  &&(
+        <>
+      <Heading title={'Tender Formality Details'} button={'N'}/>
         <form onSubmit={formik.handleSubmit}>
           <div class="grid gap-4 sm:grid-cols-12 sm:gap-6">
 
-          <div class="sm:col-span-4">
+          {/* <div class="sm:col-span-4">
               <label for="fin_yr" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Project ID / Approval Number</label>
               <Select
                 placeholder="Choose Project ID"
@@ -305,7 +624,7 @@ function TFForm() {
               {formik.errors.project_id && formik.touched.project_id && (
                 <VError title={formik.errors.project_id} />
               )}
-            </div>
+            </div> */}
 
             <div class="sm:col-span-4">
               <TDInputTemplate
@@ -351,9 +670,13 @@ function TFForm() {
             </a>
             )}
 
+            {formValues.td_pdf.length > 0 &&(
+            <>
             {filePreview_1 === null && (
             <a href={url + folder_tender + formValues.td_pdf} target='_blank' style={{position:'absolute', top:37, right:10}}>
             <FilePdfOutlined style={{fontSize:22, color:'red'}} /></a>
+            )}
+            </>
             )}
 
               
@@ -436,9 +759,13 @@ function TFForm() {
             </a>
             )}
 
+            {formValues.wo_pdf.length > 0 &&(
+            <>
             {filePreview_2 === null && (
             <a href={url + folder_tender + formValues.wo_pdf} target='_blank' style={{position:'absolute', top:37, right:10}}>
             <FilePdfOutlined style={{fontSize:22, color:'red'}} /></a>
+            )}
+            </>
             )}
 
               {formik.errors.wo_pdf && formik.touched.wo_pdf && (
@@ -488,6 +815,8 @@ function TFForm() {
           </div>
 
         </form>
+        </>
+        )}
 
 
       </div>

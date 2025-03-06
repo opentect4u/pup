@@ -11,7 +11,7 @@ import { Flex, Progress, Select, Spin } from "antd";
 import { Message } from "../../Components/Message";
 import { useNavigate, useParams } from "react-router"
 import { CalendarOutlined, FilePdfOutlined, LoadingOutlined } from "@ant-design/icons";
-import { FaMapMarker, FaWalking } from "react-icons/fa";
+import { FaMapMarker } from "react-icons/fa";
 import demoimg from "../../Assets/Images/demo.jpg";
 import { Image } from 'antd';
 
@@ -300,14 +300,14 @@ function PRDetails() {
                         <h5 class="mb-0 text-sm font-bold text-gray-900 dark:text-white">Progress Status Phase {data?.visit_no}
                           <span className="text-xs bg-gray-700 text-white p-1 ml-5 rounded-md">Work Status {data?.progress_percent}%</span> </h5>
                         <Flex gap="small" vertical><Progress percent={data?.progress_percent} /></Flex>
-                        <p class="mb-3 font-normal items-center text-base text-gray-700 dark:text-gray-400 flex">
-                          <span className="flex items-center font-bold mr-1"><CalendarOutlined style={{ color: '#3EB8BD', marginRight: 3, marginLeft: 3 }} /> Visit Date:</span> {data?.visit_dt}
-                          <span className="flex items-center font-bold mr-1"><FaWalking style={{ color: '#3EB8BD', marginRight: 3, marginLeft: 10 }} /> Visit By:</span> <span className="text-lg">{data?.visit_by}</span>
+                        <p class="mb-3 font-normal items-center text-sm text-gray-700 dark:text-gray-400 flex">
+                          <span className="flex items-center font-bold mr-1"><CalendarOutlined style={{ color: '#3EB8BD', marginRight: 5, marginLeft: 3 }} /> Visit Date:</span> {data?.visit_dt}
+                          <span className="flex items-center font-bold mr-1"><FaMapMarker style={{ color: '#3EB8BD', marginRight: 5, marginLeft: 3 }} /> Visit By:</span> {data?.visit_by}
                           
                           {data?.address ? (
                           <>
                           <span className="flex items-center font-bold mr-1">
-                          <FaMapMarker style={{ color: '#3EB8BD', marginRight: 3, marginLeft: 10 }} />
+                          <FaMapMarker style={{ color: '#3EB8BD', marginRight: 5, marginLeft: 3 }} />
                           Site Location:</span> {data.address}
                           </>
                           ) : (

@@ -97,6 +97,8 @@ function AdApForm() {
   const [filePreview, setFilePreview] = useState(null);
   const [filePreview_2, setFilePreview_2] = useState(null);
 
+  const [checkProjectId, setCheckProjectId] = useState(true);
+
 
   const fetchSectorDropdownOption = async () => {
     setLoading(true);
@@ -467,7 +469,10 @@ function AdApForm() {
     // console.log(values, 'credcredcredcredcred', formik.values.scheme_name);
     if(params?.id > 0){
       updateFormData()
-    } else {
+    }
+    
+    if(params?.id < 1 && checkProjectId){
+
       saveFormData()
     }
     
@@ -492,6 +497,46 @@ function AdApForm() {
     formik.setFieldValue("tot_amt", total);
   }, [formik.values.schm_amt, formik.values.cont_amt]);
 
+  const checkProjectId_fn = async (value)=>{
+    // setLoading(true);
+    console.log(value.target.value, 'valuevaluevaluevalue');
+    const formData = new FormData();
+  
+    formData.append("project_id", value.target.value);
+
+    try {
+      const response = await axios.post(
+        `${url}index.php/webApi/Admapi/check_pi`,
+        formData,
+        {
+          headers: {
+            // "Content-Type": "multipart/form-data",
+            'auth_key': auth_key // Important for FormData
+          },
+        }
+      );
+      
+      if(response?.data?.status > 0){
+        // formik.setFieldError('proj_id', '');
+        setCheckProjectId(true)
+      }
+
+      if(response?.data?.status < 1){
+        // formik.setFieldError('proj_id', 'Project ID is Required');
+        setCheckProjectId(false)
+      }
+      console.log(response?.data?.status, 'valuevaluevaluevalue');
+      
+      // setLoading(false);
+
+      // formik.resetForm();
+    } catch (error) {
+      setLoading(false);
+      Message("error", "Error Submitting Form:");
+      console.error("Error submitting form:", error);
+    }
+    
+  }
 
 
   return (
@@ -514,13 +559,25 @@ function AdApForm() {
                 label="Project ID"
                 name="proj_id"
                 formControlName={formik.values.proj_id}
-                handleChange={formik.handleChange}
+                // handleChange={formik.handleChange}
+                handleChange={(e) => {
+                  formik.handleChange(e);
+                  checkProjectId_fn(e)
+                  console.log('Project ID changed to:', e.target.value); // Additional action if needed
+                }}
                 handleBlur={formik.handleBlur}
                 mode={1}
               />
-              {formik.errors.proj_id && formik.touched.proj_id && (
+
+{/* {JSON.stringify(formik.errors.proj_id , null, 2)} /// {JSON.stringify(formik.errors.proj_id, null, 2)} /// {JSON.stringify(checkProjectId, null, 2)} */}
+{checkProjectId === false &&(
+  <VError title={'Project ID must be Unique'} />
+)}
+
+              {formik.errors.proj_id && formik.touched.proj_id &&(
                 <VError title={formik.errors.proj_id} />
               )}
+              
             </div>
 
             {params?.id > 0 &&(
@@ -732,11 +789,17 @@ function AdApForm() {
             </a>
             )}
 
-            {JSON.stringify(filePreview, null, 2)} //  {JSON.stringify(formValues.admin_appr_pdf, null, 2)}
-            {filePreview === null && (
-            <a href={url + folder_admin + formValues.admin_appr_pdf} target='_blank' style={{position:'absolute', top:37, right:10}}>
-            <FilePdfOutlined style={{fontSize:22, color:'red'}} /></a>
+            {/* {JSON.stringify(formValues.admin_appr_pdf, null, 2)} //  */}
+
+            {formValues.admin_appr_pdf.length > 0 &&(
+              <>
+              {filePreview === null && (
+                <a href={url + folder_admin + formValues.admin_appr_pdf} target='_blank' style={{position:'absolute', top:37, right:10}}>
+                <FilePdfOutlined style={{fontSize:22, color:'red'}} /></a>
+                )}
+              </>
             )}
+            
 
               {formik.errors.admin_appr_pdf && formik.touched.admin_appr_pdf && (
                 <VError title={formik.errors.admin_appr_pdf} />
@@ -906,10 +969,15 @@ function AdApForm() {
             </a>
             )}
 
+            {formValues.vet_dpr_pdf.length > 0 &&(
+            <>
             {filePreview_2 === null && (
             <a href={url + folder_admin + formValues.vet_dpr_pdf} target='_blank' style={{position:'absolute', top:37, right:10}}>
             <FilePdfOutlined style={{fontSize:22, color:'red'}} /></a>
             )}
+            </>
+            )}
+            
 
               {formik.errors.vet_dpr_pdf && formik.touched.vet_dpr_pdf && (
                 <VError title={formik.errors.vet_dpr_pdf} />

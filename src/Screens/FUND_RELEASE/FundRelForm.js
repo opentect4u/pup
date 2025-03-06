@@ -61,6 +61,7 @@ function FundRelForm() {
   const [showForm, setShowForm] = useState(false);
   const [approvalNo, setApprovalNo] = useState('');
   const toast = useRef(null)
+  const [filePreview_2, setFilePreview_2] = useState(null);
 
 
 
@@ -590,19 +591,41 @@ function FundRelForm() {
               )}
             </div>
           
-            <div class="sm:col-span-3">
+            <div class="sm:col-span-3" style={{position:'relative'}}>
               <TDInputTemplate
               type="file"
               name="al1_pdf"
               placeholder="Allotment Order No."
               label="Allotment Order No."
+              // handleChange={(event) => {
+              // formik.setFieldValue("al1_pdf", event.currentTarget.files[0]);
+              // }}
               handleChange={(event) => {
-              formik.setFieldValue("al1_pdf", event.currentTarget.files[0]);
+                const file = event.currentTarget.files[0];
+                if (file) {
+                formik.setFieldValue("al1_pdf", file);
+                setFilePreview_2(URL.createObjectURL(file)); // Create a preview URL
+                }
               }}
               handleBlur={formik.handleBlur}
               mode={1}
               />
 
+              {filePreview_2 && (
+              <a href={filePreview_2} target="_blank" rel="noopener noreferrer" style={{position:'absolute', top:37, right:10}}>
+              <FilePdfOutlined style={{ fontSize: 22, color: "red" }} />
+              </a>
+              )}
+
+              {formValues.al1_pdf.length > 0 &&(
+              <>
+              {filePreview_2 === null && (
+              <a href={url + folderName + formValues.al1_pdf} target='_blank' style={{position:'absolute', top:37, right:10}}>
+              <FilePdfOutlined style={{fontSize:22, color:'red'}} /></a>
+              )}
+              </>
+              )}
+              
               {formik.errors.al1_pdf && formik.touched.al1_pdf && (
                 <VError title={formik.errors.al1_pdf} />
               )}
