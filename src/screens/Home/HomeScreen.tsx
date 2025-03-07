@@ -52,7 +52,7 @@ const HomeScreen = () => {
         longitude: "",
         locationAddress: "",
     })
-    const [projectRangeCaps, setProjectRangeCaps] = useState<any[]>(() => [])
+    // const [projectRangeCaps, setProjectRangeCaps] = useState<any[]>(() => [])
     const [checkErr, setCheckErr] = useState(() => false)
 
     console.log("LOCATION: ", location)
@@ -255,7 +255,7 @@ const HomeScreen = () => {
         }).then(res => {
             console.log("Project Ranges CAP === ", res?.data)
             if (res?.data?.status === 1) {
-                setProjectRangeCaps(res?.data?.message)
+                // setProjectRangeCaps(res?.data?.message)
                 const [a, b] = getWorkRange(res?.data?.message) ?? [];
                 console.log("AAAAAAAAAAa, BBBBBBBBBB", a, b)
                 setCheckErr(formData1.progress < a || formData1.progress > b);
