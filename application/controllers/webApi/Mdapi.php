@@ -99,7 +99,296 @@ class Mdapi extends CI_Controller {
 		}
     }
 
-	
+	//////// *************    API FOR FUND MASTER  ************* ////////
+	public function fundAdd() {
+		$query = $this->db->get_where('md_fund', ['fund_type' => trim($this->input->post('fund_type'))]);
+		if($query->num_rows() == 0) {
+			if($this->input->post('fund_type') == '' || $this->input->post('created_by') == '') {
+				echo json_encode([
+					'status' => 0,
+					'message' => 'Fund Type,Created by is Required'
+				]);
+				return;
+			}
+			$data = [
+				'fund_type' => $this->input->post('fund_type'),
+				'created_by'=> $this->input->post('created_by'),
+				'created_at'=> date('Y-m-d h:i:s')
+			];
+		
+			$id = $this->Master->f_insert('md_fund', $data);
+			if($id > 0) {
+				echo json_encode([
+					'status' => 1,
+					'message' => 'successfully!'
+				]);
+			}else{
+					echo json_encode([
+						'status' => 0,
+						'message' => 'Something Went Wrong'
+					]);
+			}
+		}else{
+			echo json_encode([
+				'status' => 0,
+				'message' => 'Fund Type Already Exist'
+			]);
+		}
+	}
+	public function fundedit() {
+		$query = $this->db->get_where('md_fund', ['fund_type' => trim($this->input->post('fund_type'))]);
+		if($query->num_rows() == 0) {
+			if($this->input->post('fund_type') == '' || $this->input->post('modified_by') == '' || $this->input->post('sl_no') == '') {
+				echo json_encode([
+					'status' => 0,
+					'message' => 'Fund Type,modified_by, Sl no is Required'
+				]);
+				return;
+			}
+			$data = [
+				'fund_type' => $this->input->post('fund_type'),
+				'modified_by'=> $this->input->post('modified_by'),
+				'modified_at'=> date('Y-m-d h:i:s')
+			];
+			$where = ['sl_no' => $this->input->post('sl_no')];
+		
+			$id = $this->Master->f_edit('md_fund', $data ,$where);
+			if($id > 0) {
+				echo json_encode([
+					'status' => 1,
+					'message' => 'success!'
+				]);
+			}else{
+					echo json_encode([
+						'status' => 0,
+						'message' => 'Something Went Wrong'
+					]);
+			}
+		}else{
+			echo json_encode([
+				'status' => 0,
+				'message' => 'Already Exist'
+			]);
+		}
+	}
+    //////// *************    API FOR Implementing Agency  ************* ////////
+	public function impAdd() {
+		$query = $this->db->get_where('md_proj_imp_agency', ['agency_name' => trim($this->input->post('agency_name'))]);
+		if($query->num_rows() == 0) {
+			if($this->input->post('agency_name') == '' || $this->input->post('created_by') == '') {
+				echo json_encode([
+					'status' => 0,
+					'message' => 'Required Missing'
+				]);
+				return;
+			}
+			$data = [
+				'agency_name' => $this->input->post('agency_name'),
+				'created_by'=> $this->input->post('created_by'),
+				'created_at'=> date('Y-m-d h:i:s')
+			];
+		
+			$id = $this->Master->f_insert('md_proj_imp_agency', $data);
+			if($id > 0) {
+				echo json_encode([
+					'status' => 1,
+					'message' => 'successfully!'
+				]);
+			}else{
+					echo json_encode([
+						'status' => 0,
+						'message' => 'Something Went Wrong'
+					]);
+			}
+		}else{
+			echo json_encode([
+				'status' => 0,
+				'message' => 'Already Exist'
+			]);
+		}
+	}
+	public function impedit() {
+		$query = $this->db->get_where('md_proj_imp_agency', ['agency_name' => trim($this->input->post('agency_name'))]);
+		if($query->num_rows() == 0) {
+			if($this->input->post('agency_name') == '' || $this->input->post('modified_by') == '' || $this->input->post('id') == '') {
+				echo json_encode([
+					'status' => 0,
+					'message' => 'Required Missing'
+				]);
+				return;
+			}
+			$data = [
+				'agency_name' => $this->input->post('agency_name'),
+				'modified_by'=> $this->input->post('modified_by'),
+				'modified_at'=> date('Y-m-d h:i:s')
+			];
+			$where = ['id' => $this->input->post('id')];
+		
+			$id = $this->Master->f_edit('md_proj_imp_agency', $data ,$where);
+			if($id > 0) {
+				echo json_encode([
+					'status' => 1,
+					'message' => 'success!'
+				]);
+			}else{
+					echo json_encode([
+						'status' => 0,
+						'message' => 'Something Went Wrong'
+					]);
+			}
+		}else{
+			echo json_encode([
+				'status' => 0,
+				'message' => 'Already Exist'
+			]);
+		}
+	}
+	//////// *************    API FOR Sector  ************* ////////
+	public function secAdd() {
+		
+		$query = $this->db->get_where('md_sector', ['sector_desc' => trim($this->input->post('sector_desc'))]);
+		if($query->num_rows() == 0) {
+			if($this->input->post('sector_desc') == '' || $this->input->post('created_by') == '') {
+				echo json_encode([
+					'status' => 0,
+					'message' => 'Required Missing'
+				]);
+				return;
+			}
+			$data = [
+				'sector_desc' => $this->input->post('sector_desc'),
+				'created_by'=> $this->input->post('created_by'),
+				'created_at'=> date('Y-m-d h:i:s')
+			];
+		
+			$id = $this->Master->f_insert('md_sector', $data);
+			if($id > 0) {
+				echo json_encode([
+					'status' => 1,
+					'message' => 'successfully!'
+				]);
+			}else{
+					echo json_encode([
+						'status' => 0,
+						'message' => 'Something Went Wrong'
+					]);
+			}
+		}else{
+			echo json_encode([
+				'status' => 0,
+				'message' => 'Already Exist'
+			]);
+		}
+	}
+	public function secedit() {
+		$query = $this->db->get_where('md_sector', ['sector_desc' => trim($this->input->post('sector_desc'))]);
+		if($query->num_rows() == 0) {
+			if($this->input->post('sector_desc') == '' || $this->input->post('modified_by') == '' || $this->input->post('sl_no') == '') {
+				echo json_encode([
+					'status' => 0,
+					'message' => 'Required Missing'
+				]);
+				return;
+			}
+			$data = [
+				'sector_desc' => $this->input->post('sector_desc'),
+				'modified_by'=> $this->input->post('modified_by'),
+				'modified_at'=> date('Y-m-d h:i:s')
+			];
+			$where = ['sl_no' => $this->input->post('sl_no')];
+		
+			$id = $this->Master->f_edit('md_sector', $data ,$where);
+			if($id > 0) {
+				echo json_encode([
+					'status' => 1,
+					'message' => 'success!'
+				]);
+			}else{
+					echo json_encode([
+						'status' => 0,
+						'message' => 'Something Went Wrong'
+					]);
+			}
+		}else{
+			echo json_encode([
+				'status' => 0,
+				'message' => 'Already Exist'
+			]);
+		}
+	}
+
+	//////// *************    API FOR Sector  ************* ////////
+	public function accAdd() {
+		$query = $this->db->get_where('md_account', ['account_head' => trim($this->input->post('account_head'))]);
+		if($query->num_rows() == 0) {
+			if($this->input->post('account_head') == '' || $this->input->post('created_by') == '') {
+				echo json_encode([
+					'status' => 0,
+					'message' => 'Required Missing'
+				]);
+				return;
+			}
+			$data = [
+				'account_head' => $this->input->post('account_head'),
+				'created_by'=> $this->input->post('created_by'),
+				'created_at'=> date('Y-m-d h:i:s')
+			];
+		
+			$id = $this->Master->f_insert('md_account', $data);
+			if($id > 0) {
+				echo json_encode([
+					'status' => 1,
+					'message' => 'successfully!'
+				]);
+			}else{
+					echo json_encode([
+						'status' => 0,
+						'message' => 'Something Went Wrong'
+					]);
+			}
+		}else{
+			echo json_encode([
+				'status' => 0,
+				'message' => 'Already Exist'
+			]);
+		}
+	}
+	public function accedit() {
+		$query = $this->db->get_where('md_account', ['account_head' => trim($this->input->post('account_head'))]);
+		if($query->num_rows() == 0) {
+			if($this->input->post('account_head') == '' || $this->input->post('modified_by') == '' || $this->input->post('sl_no') == '') {
+				echo json_encode([
+					'status' => 0,
+					'message' => 'Required Missing'
+				]);
+				return;
+			}
+			$data = [
+				'account_head' => $this->input->post('account_head'),
+				'modified_by'=> $this->input->post('modified_by'),
+				'modified_at'=> date('Y-m-d h:i:s')
+			];
+			$where = ['sl_no' => $this->input->post('sl_no')];
+		
+			$id = $this->Master->f_edit('md_account', $data ,$where);
+			if($id > 0) {
+				echo json_encode([
+					'status' => 1,
+					'message' => 'success!'
+				]);
+			}else{
+					echo json_encode([
+						'status' => 0,
+						'message' => 'Something Went Wrong'
+					]);
+			}
+		}else{
+			echo json_encode([
+				'status' => 0,
+				'message' => 'Already Exist'
+			]);
+		}
+	}
 
 	
 }

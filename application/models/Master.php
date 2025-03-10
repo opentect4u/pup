@@ -76,7 +76,7 @@ class Master extends CI_Model {
 
         $this->db->where($where);
         $this->db->update($table_name, $data_array);
-        return;
+        return $this->db->affected_rows();
     }
 
     //For Deliting row
