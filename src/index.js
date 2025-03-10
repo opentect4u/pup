@@ -6,7 +6,7 @@ import reportWebVitals from './reportWebVitals';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Home from './Screens/HomeScreen/Home';
 import HomeScreen from './Screens/HomeScreen/HomeScreen';
-import TFTenderList from './Screens/TENDER_FORMALITY/TFTenderList___bkp';
+// import TFTenderList from './Screens/TENDER_FORMALITY/TFTenderList___bkp';
 // import FundRelList from './Screens/FUND_RELEASE/FundRelList';
 // import FundExpList from './Screens/FUND_EXP/FundExpList___bkp';
 import FundRelListEditForm from './Screens/FUND_RELEASE/FundRelListEditForm';
@@ -16,6 +16,12 @@ import UCListEditForm from './Screens/UC/UCListEditForm';
 import PRView from './Screens/Progress_Report/PRView';
 import PRDetails from './Screens/Progress_Report/PRDetails';
 import PRComp from './Screens/Progress_Report/PRComp';
+import MASTERComp from './Screens/MASTER/MASTERComp';
+import SECTOR_ADD_EDITForm from './Screens/MASTER/SECTOR_ADD_EDITForm';
+import { Democontext } from './Context/Democontext';
+import SOUR_OF_FUN_Form from './Screens/MASTER/SOUR_OF_FUN_Form';
+import IMPL_AGEN_Form from './Screens/MASTER/IMPL_AGEN_Form';
+import ACC_HEAD_Form from './Screens/MASTER/ACC_HEAD_Form';
 const FundRelForm =lazy(()=>import('./Screens/FUND_RELEASE/FundRelForm'))
 const Sign_in =lazy(()=>import('./Screens/Auth/Sign_in'))
 const AdApForm =lazy(()=>import('./Screens/ADMIN_APPROVAL/AdApForm'))
@@ -180,6 +186,28 @@ const router = createBrowserRouter([
             },
           ]
         },
+        {
+          path: "master",
+          element: <MASTERComp />,
+          children: [
+            {
+                path: "add-edit-sector",
+                element: <SECTOR_ADD_EDITForm />,
+            },
+            {
+              path: "add-source-fund",
+              element: <SOUR_OF_FUN_Form />,
+            },
+            {
+              path: "implementing-agency",
+              element: <IMPL_AGEN_Form />,
+            },
+            {
+              path: "account-head-list",
+              element: <ACC_HEAD_Form />,
+            },
+          ]
+        },
         // {
         //   path: "progress_report",
         //   element: <PRView />,
@@ -198,11 +226,13 @@ const router = createBrowserRouter([
 ])
     
 root.render(
+  <Democontext>
   <React.StrictMode>
     {/* <App /> */}
     <RouterProvider router={router} />
 
   </React.StrictMode>
+  </Democontext>
 );
 
 // If you want to start measuring performance in your app, pass a function

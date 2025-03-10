@@ -6,8 +6,11 @@ import {
   FileFilled,
   HomeFilled,
 } from "@ant-design/icons";
-import { Menu } from "antd";
+import { Collapse, Menu } from "antd";
 import { Link } from "react-router-dom";
+// import Panel from "antd/es/splitter/Panel";
+
+const { Panel } = Collapse;
 
 const items = [
   // {
@@ -69,8 +72,29 @@ const items = [
     label: <Link to={"uc"}>Utilization Certificate </Link>,
     key: "UC",
     icon: <FileFilled />,
-  },
+  }
 ];
+
+const MasterAccordion = () => (
+  <Collapse accordion>
+    <Panel header="Master" key="1" >
+      <ul>
+        <li>
+          <Link to={"master/add-edit-sector"}>Add Sector</Link>
+        </li>
+        <li>
+          <Link to={"master/add-source-fund"}>Add Source Of Fund</Link>
+        </li>
+        <li>
+          <Link to={"master/implementing-agency"}>Add Implementing Agency</Link>
+        </li>
+        <li>
+          <Link to={"master/account-head-list"}>Add Account Head List</Link>
+        </li>
+      </ul>
+    </Panel>
+  </Collapse>
+);
 
 function Sidebar() {
   const [current, setCurrent] = useState("home");
@@ -91,13 +115,14 @@ function Sidebar() {
       >
         <img src={LOGO} class="mr-3 sm:h-16" alt="Logo" />
       </a>
-      <div className="h-full  bg-blue-900 sticky top-0 dark:bg-gray-800 ">
+      <div className="h-full  bg-blue-900 sticky top-0 dark:bg-gray-800 customeMenu">
         <Menu
           onClick={(e)=>onClick(e)}
           selectedKeys={[current]}
           mode="vertical"
           items={items}
         />
+        <MasterAccordion />
       </div>
     </aside>
   );

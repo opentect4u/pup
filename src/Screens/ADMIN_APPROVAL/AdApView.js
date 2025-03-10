@@ -58,6 +58,8 @@ function AdApView() {
   }, []);
 
   const handleSearch = (e) => {
+    
+    
     const value = e.target.value.toLowerCase();
     setSearchTerm(value);
 

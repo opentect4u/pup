@@ -66,6 +66,17 @@ textarea.bg-white {border: #ccc solid 1px;}
 .ant-modal-content .ant-modal-footer button.ant-btn-primary:hover{background-color: #3EB8BD;}
 .ant-modal-content .ant-modal-title{color: #3EB8BD;}
 
+.customeMenu .ant-collapse .ant-collapse-item .ant-collapse-header{border-radius: 7px; padding: 8px 15px;} 
+.customeMenu .ant-collapse .ant-collapse-item .ant-collapse-header:hover{background: #fff; color: #3EB8BD;} 
+.customeMenu .ant-collapse .ant-collapse-item-active .ant-collapse-header{background: #fff; color: #3EB8BD; border-radius: 7px; padding: 8px 15px;} 
+.customeMenu .ant-collapse{border: none; background: none; padding: 4px;}
+.customeMenu .ant-collapse .ant-collapse-header{color: #fff;}
+.customeMenu .ant-collapse .ant-collapse-content {color: #fff; background: none; border: none;}
+.customeMenu .ant-collapse .ant-collapse-content .ant-collapse-content-box {padding: 7px 16px;}
+
+.customeMenu .ant-collapse .ant-collapse-content .ant-collapse-content-box ul li{margin-bottom: 10px;}
+.customeMenu .ant-collapse .ant-collapse-content .ant-collapse-content-box ul li a:hover{color: #fff;}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
