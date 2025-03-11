@@ -101,6 +101,12 @@ class Tender extends CI_Controller {
 			'wo_copy' => $upload_paths['wo_copy'],
 			'wo_value' => $this->input->post('wo_value'),
 			'comp_date_apprx' => $this->input->post('comp_date_apprx'),
+			'tender_status' => $this->input->post('tender_status'),
+			'amt_put_to_tender' => $this->input->post('amt_put_to_tender'),
+			'dlp' => $this->input->post('dlp'),
+			'add_per_security' => $this->input->post('add_per_security'),
+			'emd' => $this->input->post('emd'),
+			'date_of_refund' => $this->input->post('date_of_refund'),
 			'created_by' => 'test',
 			'created_at' => date('Y-m-d h:i:s'),
 		];
@@ -245,6 +251,12 @@ class Tender extends CI_Controller {
 			'wo_date' => $this->input->post('wo_date'),
 			'wo_value' => $this->input->post('wo_value'),
 			'comp_date_apprx' => $this->input->post('comp_date_apprx'),
+			'tender_status' => $this->input->post('tender_status'),
+			'amt_put_to_tender' => $this->input->post('amt_put_to_tender'),
+			'dlp' => $this->input->post('dlp'),
+			'add_per_security' => $this->input->post('add_per_security'),
+			'emd' => $this->input->post('emd'),
+			'date_of_refund' => $this->input->post('date_of_refund'),
 			'modified_by' => $this->input->post('updated_by'),
 			'modified_at' => date('Y-m-d H:i:s')
 		];

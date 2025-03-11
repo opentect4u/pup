@@ -79,9 +79,16 @@ class Utilization extends CI_Controller {
 		
 		$approval_no = $this->input->post('approval_no') ;
 		$where = array('approval_no' => $approval_no); 
-		$result_data = $this->Master->f_select('td_utilization', 'approval_no,certificate_no,certificate_date,certificate_path,issued_by,issued_to,remarks', $where, NULL);
+		$result_data = $this->Master->f_select('td_utilization', 'approval_no,certificate_no,certificate_date,certificate_path,issued_by,issued_to,remarks,is_final', $where, NULL);
+		$final_pic = $this->Master->f_select('td_proj_final_pic', 'final_pic', $where, NULL);
+		$query = $this->db->get_where('td_utilization', ['approval_no' => $this->input->post('approval_no'),'is_final'=>'Y']);
+		if($query->num_rows() == 0) {
+              $project_status = 'OPEN';
+		}else{
+			$project_status = 'CLOSE';
+		}
 		$response = (!empty($result_data)) 
-			? ['status' => 1, 'message' => $result_data,'OPERATION_STATUS' => 'add','folder_name'=>'uploads/fund/'] 
+			? ['status' => 1, 'message' => $result_data,'final_pic'=>$final_pic,'project_status'=>$project_status,'OPERATION_STATUS' => 'add'] 
 			: ['status' => 0, 'message' => 'No data found'];
 	
 		$this->output
@@ -150,16 +157,53 @@ class Utilization extends CI_Controller {
 			'issued_by' => $this->input->post('issued_by'),
 			'issued_to' => $this->input->post('issued_to'),
 			'remarks'  => $this->input->post('remarks'),
+			'is_final' => $this->input->post('is_final'),
 			'created_by' => $this->input->post('created_by'),
 			'created_at' => date('Y-m-d h:i:s'),
 		];
 	
 		$this->db->insert('td_utilization', $data);
-	
+
+
+		if($this->input->post('is_final') == 'Y'){
+		$upload_path = [];
+			$file_fiel = ['final_pic'];
+		
+			foreach ($file_fiel as $field) {
+				if (!empty($_FILES[$field]['name'])) {
+					$config['upload_path']   = './uploads/proj_final_pic/'; // Folder to store files
+					$config['allowed_types'] = 'jpg|jpeg|png';  // Image only
+					$config['max_size']      = 2048; // Max file size (2MB)
+					$config['encrypt_name']  = TRUE; // Encrypt filename for security
+		
+					$this->upload->initialize($config); // Initialize config for each file
+					if (!$this->upload->do_upload($field)) {
+						echo json_encode([
+							'status' => false,
+							'message' => "Error uploading {$field}: " . $this->upload->display_errors()
+						]);
+						return;
+					}
+					// Store uploaded file path
+					$fileData = $this->upload->data();
+					$upload_path[$field] = $fileData['file_name'];
+				} else {
+					$upload_path[$field] = null; // No file uploaded
+				}
+			}
+			
+			// Insert into database
+			$data = [
+				'approval_no' => $this->input->post('approval_no'),
+				'certificate_no' => $app_res_data->certificate_no,
+				'final_pic' => $upload_path['final_pic'],
+			];
+			$this->db->insert('td_proj_final_pic', $data);
+	   }
 		echo json_encode([
 			'status' => 1,
 			'data' => 'Files uploaded successfully!',
-			'file_paths' => $upload_paths
+			'file_paths' => $upload_path
 		]);
 	}
 
@@ -245,6 +289,55 @@ class Utilization extends CI_Controller {
 			'message' => 'Utilization updated successfully!'
 		]);
 	}
+
+	// public function upload_final_pic() {
+	
+	// 	$upload_paths = []; // Store file paths
+	// 	// Load Upload Library
+	// 	$this->load->library('upload');
+	// 	// File fields to process
+	// 	$file_fields = ['final_pic'];
+		
+	// 	foreach ($file_fields as $field) {
+	// 		if (!empty($_FILES[$field]['name'])) {
+	// 			$config['upload_path']   = './uploads/final_pic/'; // Folder to store files
+	// 			$config['allowed_types'] = 'pdf'; // Allow only PDFs
+	// 			$config['max_size']      = 2048; // Max file size (2MB)
+	// 			$config['encrypt_name']  = TRUE; // Encrypt filename for security
+	
+	// 			$this->upload->initialize($config); // Initialize config for each file
+	
+	// 			if (!$this->upload->do_upload($field)) {
+	// 				echo json_encode([
+	// 					'status' => false,
+	// 					'message' => "Error uploading {$field}: " . $this->upload->display_errors()
+	// 				]);
+	// 				return;
+	// 			}
+	
+	// 			// Store uploaded file path
+	// 			$fileData = $this->upload->data();
+	// 			$upload_paths[$field] = $fileData['file_name'];
+	// 			//$upload_paths[$field] = 'uploads/' . $fileData['file_name'];
+	// 		} else {
+	// 			$upload_paths[$field] = null; // No file uploaded
+	// 		}
+	// 	}
+	    
+	// 	// Insert into database
+	// 	$data = [
+	// 		'approval_no' => $this->input->post('approval_no'),
+	// 		'final_pic' => $upload_paths['final_pic'],
+	// 	];
+	
+	// 	$this->db->insert('td_proj_final_pic', $data);
+	
+	// 	echo json_encode([
+	// 		'status' => 1,
+	// 		'data' => 'Files uploaded successfully!',
+	// 		'file_paths' => $upload_paths
+	// 	]);
+	// }
 
 	
 	

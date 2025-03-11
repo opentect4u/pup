@@ -23,7 +23,8 @@ class Expense extends CI_Controller {
     }
 
 	private function validate_auth_key() {
-        $auth_key = $this->input->get_request_header('auth_key'); // Get from header
+        $auth_key = $this->input->get_request_header('auth_key');
+		//$auth_key = $_SERVER['HTTP_AUTH_KEY']; // Get from header // Get from header
         $valid_key = AUTH_KEY; // Store securely in .env or database
         if ($auth_key !== $valid_key) {
             $response = array(
@@ -40,7 +41,7 @@ class Expense extends CI_Controller {
 		
 		$approval_no = $this->input->post('approval_no') ;
 		$where = array('approval_no' => $approval_no,'order by payment_no ASC'); 
-		$result_data = $this->Master->f_select('td_expenditure', 'payment_no,approval_no,payment_date,payment_to,sch_amt,cont_amt', $where, NULL);
+		$result_data = $this->Master->f_select('td_expenditure', 'payment_no,approval_no,payment_date,payment_to,sch_amt,cont_amt,sch_remark,cont_remark', $where, NULL);
 		$response = (!empty($result_data)) 
 			? ['status' => 1, 'message' => $result_data,'OPERATION_STATUS' => 'add'] 
 			: ['status' => 0, 'message' => 'No data found'];
@@ -76,6 +77,8 @@ class Expense extends CI_Controller {
 			'payment_to' => $this->input->post('payment_to'),
 			'sch_amt' => $this->input->post('sch_amt'),
 			'cont_amt' => $this->input->post('cont_amt'),
+			'sch_remark' => $this->input->post('sch_remark'),
+			'cont_remark' => $this->input->post('cont_remark'),
 			'created_by' => $this->input->post('created_by'),
 			'created_at' => date('Y-m-d h:i:s'),
 		];
@@ -119,6 +122,8 @@ class Expense extends CI_Controller {
 			'payment_date'=> $this->input->post('payment_date'),
 			'sch_amt' => $this->input->post('sch_amt'),
 			'cont_amt' => $this->input->post('cont_amt'),
+			'sch_remark' => $this->input->post('sch_remark'),
+			'cont_remark' => $this->input->post('cont_remark'),
 			'modified_by' => $this->input->post('modified_by'),
 			'modified_at' => date('Y-m-d H:i:s')
 		];

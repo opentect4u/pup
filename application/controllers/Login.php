@@ -42,7 +42,7 @@ class Login extends CI_Controller {
 			// echo password_hash($pass, PASSWORD_DEFAULT); die();
 			$user_id 	= $_POST['user_id'];
 			$user_pw 	= $_POST['user_pwd'];
-			$result     = $this->Master->f_select('td_user',array('user_status','pass'),array('user_id'=>$user_id),1);
+			$result     = $this->Master->f_select('td_user',array('user_status','pass'),array('user_id'=>$user_id,'user_status'=>'A'),1);
 			if($result){
 			if($result->user_status=='A'){
 			$match	 		= password_verify($user_pw,$result->pass);
