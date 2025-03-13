@@ -80,16 +80,53 @@ const MasterAccordion = () => (
     <Panel header="Master" key="1" >
       <ul>
         <li>
-          <Link to={"master/add-edit-sector"}>Add Sector</Link>
+          <Link to={"master/add-edit-sector"}>Sector</Link>
         </li>
         <li>
-          <Link to={"master/add-source-fund"}>Add Source Of Fund</Link>
+          <Link to={"master/add-source-fund"}>Source Of Fund</Link>
         </li>
         <li>
-          <Link to={"master/implementing-agency"}>Add Implementing Agency</Link>
+          <Link to={"master/implementing-agency"}>Implementing Agency</Link>
         </li>
         <li>
-          <Link to={"master/account-head-list"}>Add Account Head List</Link>
+          <Link to={"master/account-head-list"}>Account Head List</Link>
+        </li>
+      </ul>
+    </Panel>
+  </Collapse>
+);
+
+const ReportAccordion = () => (
+  <Collapse accordion>
+    <Panel header="Report" key="1" >
+      <ul>
+        <li>
+          <Link to={"report/financial-report"}>Financial Yearwise</Link>
+        </li>
+        <li>
+          <Link to={"report/"}>Head of Accountwise </Link>
+        </li>
+        <li>
+          <Link to={"report/implementing-agency"}>Projectwise</Link>
+        </li>
+        <li>
+          <Link to={"report/account-head-list"}>Sectorwise</Link>
+        </li>
+        <li>
+          <Link to={"report/account-head-list"}>Districtwise & Blockwise</Link>
+        </li>
+        <li>
+          <Link to={"report/account-head-list"}>Implementing Agencywise</Link>
+        </li>
+        
+        <li>
+          <Link to={"report/account-head-list"}>Release Orderwise</Link>
+        </li>
+        <li>
+          <Link to={"report/account-head-list"}>Status Report</Link>
+        </li>
+        <li>
+          <Link to={"report/account-head-list"}>Utilizationwise</Link>
         </li>
       </ul>
     </Panel>
@@ -123,6 +160,7 @@ function Sidebar() {
           items={items}
         />
         <MasterAccordion />
+        <ReportAccordion />
       </div>
     </aside>
   );

@@ -201,7 +201,7 @@ function SOUR_OF_FUN_Form() {
   return (
     <section className="bg-white p-5 dark:bg-gray-900">
       <div className="py-5 mx-auto w-full lg:py-5">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           <div className="col-span-1">
             <Heading title={editingFund ? "Edit Source Of Fund" : "Add Source Of Fund"} button="N" />
             <form onSubmit={formik.handleSubmit}>
@@ -221,7 +221,7 @@ function SOUR_OF_FUN_Form() {
                     <VError title={formik.errors.fund_type} />
                   )}
                 </div>
-                <div className="sm:col-span-12 flex justify-left gap-1 mt-4">
+                <div className="sm:col-span-8 flex justify-left gap-1 mt-6">
                   <BtnComp
                     type="submit"
                     title={editingFund ? "Update" : "Submit"}

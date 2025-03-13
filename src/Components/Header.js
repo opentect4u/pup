@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Avatar, Space } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import { Button, Dropdown } from "antd";
@@ -31,6 +31,19 @@ function Header() {
       ),
     },
   ];
+
+
+  const logoutFn = ()=>{
+navigate('/')
+// alert('loooooooo')
+
+  }
+
+  useEffect(()=>{
+    console.log(JSON.parse(localStorage.getItem("user_dt")), 'uuuuuuuuuuuuuuuuuuuuuu');
+  }, [])
+
+  
   return (
     <header className="sticky sm:ml-64 top-0 z-50 bg-white dark:bg-gray-800">
       <nav class="bg-white border-gray-200 px-4 lg:px-6 py-2.5 dark:bg-gray-800">
@@ -75,7 +88,9 @@ function Header() {
           </div>
         </div>
       </nav>
-      <DialogBox flag={flag}  isModalOpen={visible} handleOk={()=>navigate('/')} handleCancel={()=>setVisible(false)}/>
+      <DialogBox flag={flag}  isModalOpen={visible} handleOk={()=>{
+        logoutFn()
+      }} handleCancel={()=>setVisible(false)}/>
     </header>
   );
 }

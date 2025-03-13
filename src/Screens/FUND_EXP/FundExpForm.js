@@ -16,21 +16,26 @@ import Column from 'antd/es/table/Column';
 import { Toast } from "primereact/toast"
 
 const initialValues = {
-  exp_text: '',
+  // exp_text: '',
   // al1_pdf: '',
   sch_amt_one: '',
   cont_amt_one: '',
-  payment_date:''
+  payment_date:'',
+  sch_remark: '',
+  cont_remark: '',
 };
 
 
 
 const validationSchema = Yup.object({
-  exp_text: Yup.string().required('Remarks is Required'),
+  // exp_text: Yup.string().required('Remarks is Required'),
   // al1_pdf: Yup.string().required('Allotment Order No. is Required'),
   sch_amt_one: Yup.string().required('Schematic Amount is Required'),
   cont_amt_one: Yup.string().required('Contigency Amount is Required'),
   payment_date: Yup.string().required('Expenditure Date is Required'),
+  sch_remark: Yup.string().required('Schematic Remarks is Required'),
+  cont_remark: Yup.string().required('Contigency Remarks is Required'),
+
 
   // exp_text: Yup.string(),
   // al1_pdf: Yup.string(),
@@ -120,10 +125,12 @@ function FundExpForm() {
   
       // formData.append("approval_no", params?.id);
       formData.append("approval_no", approvalNo);
-      formData.append("payment_to", formik.values.exp_text);
+      formData.append("payment_to", '');
       formData.append("sch_amt", formik.values.sch_amt_one);
       formData.append("cont_amt", formik.values.cont_amt_one);
       formData.append("payment_date", formik.values.payment_date);
+      formData.append("sch_remark", formik.values.sch_remark);
+      formData.append("cont_remark", formik.values.cont_remark);
       formData.append("created_by", "SSS Name Created By");
 
   
@@ -518,8 +525,13 @@ function FundExpForm() {
           ></Column>
 
           <Column
-          field="payment_to"
-          header="Remarks"
+          field="sch_remark"
+          header="Schematic Remarks"
+          ></Column>
+
+          <Column
+          field="cont_remark"
+          header="Contigency Remarks"
           ></Column>
 
           
@@ -605,7 +617,7 @@ function FundExpForm() {
               )}
             </div>
 
-            <div class="sm:col-span-12">
+            {/* <div class="sm:col-span-12">
               <TDInputTemplate
                 type="text"
                 placeholder="Remarks Text.."
@@ -619,7 +631,40 @@ function FundExpForm() {
               {formik.errors.exp_text && formik.touched.exp_text && (
                 <VError title={formik.errors.exp_text} />
               )}
+            </div> */}
+
+            <div class="sm:col-span-6">
+              <TDInputTemplate
+                type="text"
+                placeholder="Schematic Remarks Text.."
+                label="Schematic Remarks"
+                name="sch_remark"
+                formControlName={formik.values.sch_remark}
+                handleChange={formik.handleChange}
+                handleBlur={formik.handleBlur}
+                mode={3}
+              />
+              {formik.errors.sch_remark && formik.touched.sch_remark && (
+                <VError title={formik.errors.sch_remark} />
+              )}
             </div>
+
+            <div class="sm:col-span-6">
+              <TDInputTemplate
+                type="text"
+                placeholder="Contigency Remarks Text.."
+                label="Contigency Remarks"
+                name="cont_remark"
+                formControlName={formik.values.cont_remark}
+                handleChange={formik.handleChange}
+                handleBlur={formik.handleBlur}
+                mode={3}
+              />
+              {formik.errors.cont_remark && formik.touched.cont_remark && (
+                <VError title={formik.errors.cont_remark} />
+              )}
+            </div>
+
             
 
             <div className="sm:col-span-12 flex justify-center gap-4 mt-4">

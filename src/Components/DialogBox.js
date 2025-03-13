@@ -1,6 +1,8 @@
 import React from 'react'
 import { Button, Modal } from 'antd';
 function DialogBox({isModalOpen,handleOk,handleCancel,flag}) {
+
+  
    
   return (
     <Modal title={flag==1?"Warning!":""} open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>

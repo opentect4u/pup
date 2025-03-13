@@ -51,12 +51,21 @@ const loginFnc = async () => {
       }
     );
 
-    console.log("Response", response?.data?.status);
+    console.log("Response", response?.data?.message);
     if(response?.data?.status > 0){
     Message("success", "Login successfully.");
     // setLoading(false);
     // formik.resetForm();
+
+    localStorage.setItem("user_dt", JSON.stringify({
+      name: response?.data?.message?.name, 
+      user_id: response?.data?.message?.user_id,
+      user_status: response?.data?.message?.user_status,
+      user_type: response?.data?.message?.user_type
+    }))
+
     navigate('home/')
+
     }
 
     if(response?.data?.status < 1){

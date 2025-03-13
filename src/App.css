@@ -32,9 +32,15 @@
   height: 40px;
 }
 
-table.table_Custome thead tr th{background-color: rgb(123, 169, 174) !important;
-  padding: 14px 12px;
-  color: #fff;}
+table.table_Custome thead tr th{
+  /* background-color: rgb(123, 169, 174) !important; */
+  background-color: rgb(63, 85, 87) !important;
+  /* padding: 14px 12px;*/
+  color: #fff; 
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 500;
+}
 
 table.table_Custome tbody tr{border-bottom: #FAD1E8 solid 2px;}
 table.table_Custome tbody tr.p-datatable-row-expansion > td{padding: 0;}
@@ -52,12 +58,14 @@ table.table_Custome_2nd tbody tr td{
   color: #000;
 }
 
-table.table_Custome_1st thead tr th:first-child{width: 160px;}
+table.table_Custome_1st thead tr th:first-child{
+  /* width: 160px; */
+}
 table.table_Custome_2nd thead tr th:first-child{width: auto;}
 /* table.table_Custome_1st thead tr th:last-child{width: 550px;} */
 
-tbody.p-datatable-tbody tr td{padding: 10px;}
-tfoot.p-datatable-tfoot tr td{padding: 10px;}
+tbody.p-datatable-tbody tr td{padding: 10px; font-size: 12px;}
+tfoot.p-datatable-tfoot tr td{padding: 10px; font-size: 12px;}
 textarea.bg-white {border: #ccc solid 1px;}
 
 .ant-modal-content .ant-modal-footer button.ant-btn-default{border: #3EB8BD solid 1px;}
@@ -76,6 +84,16 @@ textarea.bg-white {border: #ccc solid 1px;}
 
 .customeMenu .ant-collapse .ant-collapse-content .ant-collapse-content-box ul li{margin-bottom: 10px;}
 .customeMenu .ant-collapse .ant-collapse-content .ant-collapse-content-box ul li a:hover{color: #fff;}
+
+.table_cus table.table_Custome thead tr th{padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 500;}
+
+.table_cus table.table_Custome thead tr th.custom-scheme_name-header{width: 150px; text-wrap-mode: nowrap;}
+
+.table_cus tbody.p-datatable-tbody tr td{font-size: 12px;}
+
+.table_cus tbody.p-datatable-tbody tr td.custom-scheme_name-body{text-wrap-mode: nowrap;}
 
 @keyframes App-logo-spin {
   from {

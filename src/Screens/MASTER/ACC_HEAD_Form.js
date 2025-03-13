@@ -202,7 +202,7 @@ function ACC_HEAD_Form() {
   return (
     <section className="bg-white p-5 dark:bg-gray-900">
       <div className="py-5 mx-auto w-full lg:py-5">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           <div className="col-span-1">
             <Heading title={editingAccountHead ? "Edit Account Head" : "Add Account Head"} button="N" />
             <form onSubmit={formik.handleSubmit}>
@@ -222,7 +222,7 @@ function ACC_HEAD_Form() {
                     <VError title={formik.errors.account_head} />
                   )}
                 </div>
-                <div className="sm:col-span-12 flex justify-left gap-1 mt-4">
+                <div className="sm:col-span-8 flex justify-left gap-1 mt-6">
                   <BtnComp
                     type="submit"
                     title={editingAccountHead ? "Update" : "Submit"}

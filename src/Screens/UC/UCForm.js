@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import TDInputTemplate from '../../Components/TDInputTemplate'
 import BtnComp from '../../Components/BtnComp'
 import Heading from '../../Components/Heading'
@@ -7,13 +7,28 @@ import { useFormik } from "formik";
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import VError from '../../Components/VError';
 import axios from 'axios';
-import { auth_key, url, folder_certificate } from '../../Assets/Addresses/BaseUrl';
+import { auth_key, url, folder_certificate, folder_fund, proj_final_pic } from '../../Assets/Addresses/BaseUrl';
 import { Message } from '../../Components/Message';
 import { FilePdfOutlined, LoadingOutlined } from '@ant-design/icons';
 import { Select, Spin } from 'antd';
 import { DataTable } from 'primereact/datatable';
 import Column from 'antd/es/table/Column';
 import { Toast } from "primereact/toast"
+import Radiobtn from '../../Components/Radiobtn';
+import { Image } from 'antd';
+
+const options = [
+	{
+		label: "Yes",
+		value: "Y",
+	},
+	{
+		label: "No",
+		value: "N",
+	}
+	
+	
+]
 
 const initialValues = {
   issued_by: '',
@@ -21,24 +36,24 @@ const initialValues = {
   issued_to: '',
   cont_amt_one: '',
   exp_text: '',
-  certificate_date: ''
+  certificate_date: '',
+  photo_com_report: '',
 };
 
 
 
-const validationSchema = Yup.object({
-  issued_by: Yup.string().required('Issued By is Required'),
-  issued_to: Yup.string().required('Issued To is Required'),
-  certificate_path: Yup.string().required('Utilization Certificate is Required'),
-  certificate_date: Yup.string().required('Certificate Date is Required'),
-  exp_text: Yup.string().required('Remarks is Required'),
+// const validationSchema = Yup.object({
+//   issued_by: Yup.string().required('Issued By is Required'),
+//   issued_to: Yup.string().required('Issued To is Required'),
+//   certificate_path: Yup.string().required('Utilization Certificate is Required'),
+//   certificate_date: Yup.string().required('Certificate Date is Required'),
+//   photo_com_report: Yup.string().required('Photograph Of Completed Report is Required'),
+//   exp_text: Yup.string().required('Remarks is Required'),
+// });
 
-  // issued_by: Yup.string(),
-  // certificate_path: Yup.string(),
-  // issued_to: Yup.string(),
-  // cont_amt_one: Yup.string(),
 
-});
+
+
 
 
 function UCForm() {
@@ -58,10 +73,23 @@ function UCForm() {
   const [showForm, setShowForm] = useState(false);
   const [approvalNo, setApprovalNo] = useState('');
   const toast = useRef(null)
+  const [radioType, setRadioType] = useState("N")
+  const [finalPic, setFinalPic] = useState([]);
+  const [projectStatus, setProjectStatus] = useState('');
 
-  useEffect(()=>{
-      console.log(operation_status, 'loadFormData', 'kkkk', params?.id);
-    }, [])
+  const validationSchema = useMemo(() => 
+    Yup.object({
+      issued_by: Yup.string().required('Issued By is Required'),
+      issued_to: Yup.string().required('Issued To is Required'),
+      certificate_path: Yup.mixed().required('Utilization Certificate is Required'),
+      certificate_date: Yup.string().required('Certificate Date is Required'),
+      exp_text: Yup.string().required('Remarks is Required'),
+      photo_com_report: radioType === 'Y' 
+        ? Yup.mixed().required('Photograph Of Completed Report is Required') 
+        : Yup.mixed().notRequired(),
+    }), [radioType]
+  );
+
 
     
     const fundAddedList = async (approvalNo_Para) => {
@@ -84,16 +112,20 @@ function UCForm() {
           }
         );
 
-        console.log("FormData_____DONE", response?.data?.message);
+        console.log("FormData_____DONE", response?.data);
 
         if(response.data.status > 0){
           setFundStatus(response?.data?.message)
           setFolderName(response.data.folder_name)
+          setFinalPic(response?.data?.final_pic)
+          setProjectStatus(response?.data?.project_status)
           setLoading(false);
         }
 
         if(response.data.status < 1){
           setFundStatus([])
+          setFinalPic([])
+          setProjectStatus('')
           setLoading(false);
         }
         // setLoading(false);
@@ -119,6 +151,8 @@ function UCForm() {
       formData.append("issued_to", formik.values.issued_to);
       formData.append("certificate_date", formik.values.certificate_date);
       formData.append("remarks", formik.values.exp_text);
+      formData.append("is_final", radioType);
+      formData.append("final_pic", formik.values.photo_com_report);
       formData.append("created_by", "SSS Name Created By");
   
     
@@ -259,6 +293,9 @@ function UCForm() {
       validateOnMount: true,
     });
 
+    const onChange = (e) => {
+      setRadioType(e)
+    }
 
 
     
@@ -456,11 +493,11 @@ function UCForm() {
           <Column
           field="certificate_no"
           header="SL.No."
-          footer={
-            <span style={{ fontWeight: "bold", color: "#0694A2" }}>
-            Total: 
-            </span>
-            }
+          // footer={
+          //   <span style={{ fontWeight: "bold", color: "#0694A2" }}>
+          //   Total: 
+          //   </span>
+          //   }
           ></Column>
 
           <Column
@@ -478,6 +515,7 @@ function UCForm() {
           header="Issued To"
           ></Column>
 
+
           <Column
           // field="instl_amt"
           header="Allotment Order No."
@@ -485,6 +523,13 @@ function UCForm() {
           <a href={url + folder_certificate + rowData?.certificate_path} target='_blank'><FilePdfOutlined style={{fontSize:22, color:'red'}} /></a>
           )}
           ></Column>
+
+          <Column
+          field="is_final"
+          header="This Is Final Utilization Certificate?"
+          ></Column>
+
+
 
           <Column
           field="remarks"
@@ -500,114 +545,173 @@ function UCForm() {
         )}
         </Spin>
         {/* fundStatus.length < 6 */}
+
+
+      {projectStatus == 'CLOSE' &&(
+      <>
+      <div class="w-full p-4 text-left bg-white border border-gray-200 rounded-lg shadow-sm sm:p-0 dark:bg-gray-800 dark:border-gray-700 mb-5 shadow-xl">
+
+      <div class="flex flex-col justify-between p-4 leading-normal">
+      <h5 class="mb-3 text-lg font-bold text-gray-900 dark:text-white">Photograph Of Completed Report</h5>
+
+      <div className="place-content-left flex items-left gap-4">
+      {/* {JSON.stringify(JSON.parse(data?.pic_path), null, 2)} */}
+
+      {finalPic?.map((imgPath, index) => (
+      <>
+      <Image width={80} className="mr-3 lightBox_thum" src={url + proj_final_pic + imgPath.final_pic} />
+      </>
+      ))}
+
+      </div>
+      </div>
+      </div>
+      </>
+      )}
+
+
+
        {showForm &&(
         <>
-       <Heading title={"Utilization Certificate Details"} button={'N'}/>
-       <form onSubmit={formik.handleSubmit}>
-          <div class="grid gap-4 sm:grid-cols-12 sm:gap-6">
-            <div class="sm:col-span-3">
-              <TDInputTemplate
-                type="text"
-                placeholder="Issued By"
-                label="Issued By"
-                name="issued_by"
-                formControlName={formik.values.issued_by}
-                handleChange={formik.handleChange}
-                handleBlur={formik.handleBlur}
-                mode={1}
-              />
-              {formik.errors.issued_by && formik.touched.issued_by && (
-                <VError title={formik.errors.issued_by} />
-              )}
-            </div>
-
-            <div class="sm:col-span-3">
-              <TDInputTemplate
-                placeholder="Issued To"
-                type="text"
-                label="Issued To"
-                name="issued_to"
-                formControlName={formik.values.issued_to}
-                handleChange={formik.handleChange}
-                handleBlur={formik.handleBlur}
-                mode={1}
-              />
-              {formik.errors.issued_to && formik.touched.issued_to && (
-                <VError title={formik.errors.issued_to} />
-              )}
-            </div>
-          
-            <div class="sm:col-span-3">
-              <TDInputTemplate
-              type="file"
-              name="certificate_path"
-              placeholder="Utilization Certificate"
-              // label="Utilization Certificate"
-              label={fundStatus.length == 4? 'Project Completion Report' : fundStatus.length == 5? 'Photograph Of Completed Report' : 'Utilization Certificate'}
-              handleChange={(event) => {
-              formik.setFieldValue("certificate_path", event.currentTarget.files[0]);
-              }}
+       {projectStatus == 'OPEN' &&(
+        <>
+        <Heading title={"Utilization Certificate Details"} button={'N'}/>
+        <form onSubmit={formik.handleSubmit}>
+        <div class="grid gap-4 sm:grid-cols-12 sm:gap-6">
+          <div class="sm:col-span-3">
+            <TDInputTemplate
+              type="text"
+              placeholder="Issued By"
+              label="Issued By"
+              name="issued_by"
+              formControlName={formik.values.issued_by}
+              handleChange={formik.handleChange}
               handleBlur={formik.handleBlur}
               mode={1}
-              />
-
-              {formik.errors.certificate_path && formik.touched.certificate_path && (
-                <VError title={formik.errors.certificate_path} />
-              )}
-            </div>
-
-            <div class="sm:col-span-3">
-              <TDInputTemplate
-                type="date"
-                placeholder="Certificate Date goes here.."
-                label="Certificate Date"
-                name="certificate_date"
-                formControlName={formik.values.certificate_date}
-                handleChange={formik.handleChange}
-                handleBlur={formik.handleBlur}
-                mode={1}
-              />
-              {formik.errors.certificate_date && formik.touched.certificate_date && (
-                <VError title={formik.errors.certificate_date} />
-              )}
-            </div>
-
-            <div class="sm:col-span-12">
-              <TDInputTemplate
-                type="text"
-                placeholder="Remarks Text.."
-                label="Remarks"
-                name="exp_text"
-                formControlName={formik.values.exp_text}
-                handleChange={formik.handleChange}
-                handleBlur={formik.handleBlur}
-                mode={3}
-              />
-              {formik.errors.exp_text && formik.touched.exp_text && (
-                <VError title={formik.errors.exp_text} />
-              )}
-            </div>
-            
-            
-
-            <div className="sm:col-span-12 flex justify-center gap-4 mt-4">
-         {/* <BtnComp title={'Reset'} width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'}/>
-         <BtnComp title={'Submit'} width={'w-1/6'} bgColor={'bg-blue-900'}/> */}
-         <BtnComp title={'Reset'} type="reset" 
-        onClick={() => { 
-          formik.resetForm();
-        }}
-        width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
-        {/* <button type="submit">Search</button> */}
-        <BtnComp type={'submit'} title={operation_status ==  'edit' ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
-         </div>
-
-           
-           
-        
+            />
+            {formik.errors.issued_by && formik.touched.issued_by && (
+              <VError title={formik.errors.issued_by} />
+            )}
           </div>
 
-        </form>
+          <div class="sm:col-span-3">
+            <TDInputTemplate
+              placeholder="Issued To"
+              type="text"
+              label="Issued To"
+              name="issued_to"
+              formControlName={formik.values.issued_to}
+              handleChange={formik.handleChange}
+              handleBlur={formik.handleBlur}
+              mode={1}
+            />
+            {formik.errors.issued_to && formik.touched.issued_to && (
+              <VError title={formik.errors.issued_to} />
+            )}
+          </div>
+        
+          <div class="sm:col-span-3">
+            <TDInputTemplate
+            type="file"
+            name="certificate_path"
+            placeholder="Utilization Certificate"
+            label="Utilization Certificate"
+            // label={fundStatus.length == 4? 'Project Completion Report' : fundStatus.length == 5? 'Photograph Of Completed Report' : 'Utilization Certificate'}
+            handleChange={(event) => {
+            formik.setFieldValue("certificate_path", event.currentTarget.files[0]);
+            }}
+            handleBlur={formik.handleBlur}
+            mode={1}
+            />
+
+            {formik.errors.certificate_path && formik.touched.certificate_path && (
+              <VError title={formik.errors.certificate_path} />
+            )}
+          </div>
+
+          <div class="sm:col-span-3">
+            <TDInputTemplate
+              type="date"
+              placeholder="Certificate Date goes here.."
+              label="Certificate Date"
+              name="certificate_date"
+              formControlName={formik.values.certificate_date}
+              handleChange={formik.handleChange}
+              handleBlur={formik.handleBlur}
+              mode={1}
+            />
+            {formik.errors.certificate_date && formik.touched.certificate_date && (
+              <VError title={formik.errors.certificate_date} />
+            )}
+          </div>
+
+          <div class="sm:col-span-12">
+            <TDInputTemplate
+              type="text"
+              placeholder="Remarks Text.."
+              label="Remarks"
+              name="exp_text"
+              formControlName={formik.values.exp_text}
+              handleChange={formik.handleChange}
+              handleBlur={formik.handleBlur}
+              mode={3}
+            />
+            {formik.errors.exp_text && formik.touched.exp_text && (
+              <VError title={formik.errors.exp_text} />
+            )}
+          </div>
+
+          <div class="sm:col-span-4">
+          <label className="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">This Is Final Utilization Certificate?</label>
+          <Radiobtn
+          data={options}
+          val={radioType}
+          onChangeVal={(value) => {
+          onChange(value)
+          }}
+          />
+          </div>
+          {radioType == "Y" &&(
+            <div class="sm:col-span-4">
+            <TDInputTemplate
+            type="file"
+            name="photo_com_report"
+            label="Photograph Of Completed Report"
+            handleChange={(event) => {
+            formik.setFieldValue("photo_com_report", event.currentTarget.files[0]);
+            }}
+            handleBlur={formik.handleBlur}
+            mode={1}
+            />
+
+            {formik.errors.photo_com_report && formik.touched.photo_com_report && (
+              <VError title={formik.errors.photo_com_report} />
+            )}
+          </div>
+          )}
+          
+          
+          
+
+          <div className="sm:col-span-12 flex justify-center gap-4 mt-4">
+       <BtnComp title={'Reset'} type="reset" 
+      onClick={() => { 
+        formik.resetForm();
+      }}
+      width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
+      {/* <button type="submit">Search</button> */}
+      <BtnComp type={'submit'} title={operation_status ==  'edit' ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
+       </div>
+
+         
+         
+      
+        </div>
+
+      </form>
+      </>
+       )}
+       
         </>
        )}
       </div>

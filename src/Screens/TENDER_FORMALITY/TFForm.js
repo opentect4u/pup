@@ -14,7 +14,21 @@ import { Select, Spin } from 'antd';
 import { DataTable } from 'primereact/datatable';
 import Column from 'antd/es/table/Column';
 import { Toast } from "primereact/toast"
+import Radiobtn from '../../Components/Radiobtn';
 
+
+const options = [
+	{
+		label: "Yes",
+		value: "M",
+	},
+	{
+		label: "No",
+		value: "N",
+	}
+	
+	
+]
 
 const initialValues = {
   project_id: '',
@@ -26,6 +40,12 @@ const initialValues = {
   wo_pdf: '',
   wo_value: '',
   compl: '',
+
+  amt_put_tender: '',
+  dlp: '',
+  add_per_sec: '',
+  emd: '',
+  date_refund: '',
 };
 
 
@@ -41,14 +61,11 @@ const validationSchema = Yup.object({
   wo_value: Yup.string().required('Work Order Value is Required'),
   compl: Yup.string().required('Tentative Date of Completion is Required'),
 
-  // td_dt: Yup.string(),
-  // td_pdf: Yup.string(),
-  // tia: Yup.string(),
-  // td_mt_dt: Yup.string(),
-  // wo_dt: Yup.string(),
-  // wo_pdf: Yup.string(),
-  // wo_value: Yup.string(),
-  // compl: Yup.string(),
+  amt_put_tender: Yup.string().required('Amount Put to Tender is Required'),
+  dlp: Yup.string().required('DLP is Required'),
+  add_per_sec: Yup.string().required('Additional Performance Security is Required'),
+  emd: Yup.string().required('EMD is Required'),
+  date_refund: Yup.string().required('Date Of Refund is Required'),
 
 
 });
@@ -72,6 +89,7 @@ function TFForm() {
     const [approvalNo, setApprovalNo] = useState('');
     const [fundStatus, setFundStatus] = useState(() => []);
     const toast = useRef(null)
+    const [radioType, setRadioType] = useState("M")
 
   useEffect(()=>{
     console.log(operation_status, 'loadFormData', sl_no, 'kkkk', params?.id);
@@ -199,6 +217,9 @@ function TFForm() {
     }, [])
 
 
+    const onChange = (e) => {
+      setRadioType(e)
+    }
 
   const saveFormData = async () => {
     setLoading(true); // Set loading state
@@ -216,6 +237,15 @@ function TFForm() {
     formData.append("wo_copy", formik.values.wo_pdf);
     formData.append("wo_value", formik.values.wo_value);
     formData.append("comp_date_apprx", formik.values.compl);
+
+    formData.append("amt_put_to_tender", formik.values.amt_put_tender);
+    formData.append("tender_status", radioType);
+    formData.append("dlp", formik.values.dlp);
+    formData.append("add_per_security", formik.values.add_per_sec);
+    formData.append("emd", formik.values.emd);
+    formData.append("date_of_refund", formik.values.date_refund);
+    
+
     formData.append("created_by", "SSS Name Created By");
 
 
@@ -247,52 +277,52 @@ function TFForm() {
 
   };
 
-  const updateFormData = async () => {
-    // setLoading(true); // Set loading state
+  // const updateFormData = async () => {
+  //   // setLoading(true); // Set loading state
 
   
-    const formData = new FormData();
+  //   const formData = new FormData();
 
-    formData.append("approval_no", params?.id);
-    formData.append("sl_no", sl_no);
-    formData.append("tender_date", formik.values.td_dt);
-    formData.append("tender_notice", formik.values.td_pdf);  //////////
-    formData.append("invite_auth", formik.values.tia);
-    formData.append("mat_date", formik.values.td_mt_dt);
-    formData.append("wo_date", formik.values.wo_dt);
-    formData.append("wo_copy", formik.values.wo_pdf);
-    formData.append("wo_value", formik.values.wo_value);
-    formData.append("comp_date_apprx", formik.values.compl);
-    formData.append("updated_by", "SSS Name Updated By");
+  //   formData.append("approval_no", params?.id);
+  //   formData.append("sl_no", sl_no);
+  //   formData.append("tender_date", formik.values.td_dt);
+  //   formData.append("tender_notice", formik.values.td_pdf);  //////////
+  //   formData.append("invite_auth", formik.values.tia);
+  //   formData.append("mat_date", formik.values.td_mt_dt);
+  //   formData.append("wo_date", formik.values.wo_dt);
+  //   formData.append("wo_copy", formik.values.wo_pdf);
+  //   formData.append("wo_value", formik.values.wo_value);
+  //   formData.append("comp_date_apprx", formik.values.compl);
+  //   formData.append("updated_by", "SSS Name Updated By");
 
   
-    console.log(formik.values.td_pdf, "FormData:", formik.values.td_pdf);
+  //   console.log(formik.values.td_pdf, "FormData:", formik.values.td_pdf);
 
-    try {
-      const response = await axios.post(
-        `${url}index.php/webApi/Tender/tend_edit`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            'auth_key': auth_key // Important for FormData
-          },
-        }
-      );
-      console.log(response, 'response');
+  //   try {
+  //     const response = await axios.post(
+  //       `${url}index.php/webApi/Tender/tend_edit`,
+  //       formData,
+  //       {
+  //         headers: {
+  //           "Content-Type": "multipart/form-data",
+  //           'auth_key': auth_key // Important for FormData
+  //         },
+  //       }
+  //     );
+  //     console.log(response, 'response');
       
-      // setLoading(false);
-      Message("success", "Updated successfully.");
-      navigate(`/home/tender_formality/tftenderlist`);
+  //     // setLoading(false);
+  //     Message("success", "Updated successfully.");
+  //     navigate(`/home/tender_formality/tftenderlist`);
 
-      formik.resetForm();
-    } catch (error) {
-      // setLoading(false);
-      Message("error", "Error Submitting Form:");
-      console.error("Error submitting form:", error);
-    }
+  //     formik.resetForm();
+  //   } catch (error) {
+  //     // setLoading(false);
+  //     Message("error", "Error Submitting Form:");
+  //     console.error("Error submitting form:", error);
+  //   }
 
-  };
+  // };
   
 
   const onSubmit = (values) => {
@@ -554,6 +584,35 @@ function TFForm() {
           ></Column>
 
           <Column
+          field="amt_put_to_tender"
+          header="Amount Put to Tender"
+          ></Column>
+
+          <Column
+          field="tender_status"
+          header="Tender Status"
+          ></Column>
+
+<Column
+          field="dlp"
+          header="DLP"
+          ></Column>
+
+<Column
+          field="emd"
+          header="EMD"
+          ></Column>
+
+<Column
+          field="date_of_refund"
+          header="Date Of Refund"
+          ></Column>
+
+
+
+
+
+          <Column
           field="mat_date"
           header="Tender Matured On"
           ></Column>
@@ -574,7 +633,7 @@ function TFForm() {
 
           <Column
           field="wo_value"
-          header="Work Order Value"
+          header="Work Order Value/Tender Value"
           footer={
             <span style={{ fontWeight: "bold", color: "#0694A2" }}>
             {fundStatus?.reduce((sum, item) => sum + (parseFloat(item?.wo_value) || 0), 0).toFixed(2)}
@@ -600,31 +659,7 @@ function TFForm() {
         <form onSubmit={formik.handleSubmit}>
           <div class="grid gap-4 sm:grid-cols-12 sm:gap-6">
 
-          {/* <div class="sm:col-span-4">
-              <label for="fin_yr" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Project ID / Approval Number</label>
-              <Select
-                placeholder="Choose Project ID"
-                value={formik.values.project_id || undefined} // Ensure default empty state
-                onChange={(value) => {
-                  formik.setFieldValue("project_id", value)
-                  console.log(value, 'ggggggggggggggggggg');
-                }}
-                onBlur={formik.handleBlur}
-                style={{ width: "100%" }}
-                // disabled={params?.id > 0 ? true : false}
-              >
-                <Select.Option value="" disabled> Choose Project ID </Select.Option>
-                {projectId.map(data => (
-                  <Select.Option key={data.approval_no} value={data.approval_no}>
-                    {data.project_id} - {data.approval_no}
-                  </Select.Option>
-                ))}
-              </Select>
-
-              {formik.errors.project_id && formik.touched.project_id && (
-                <VError title={formik.errors.project_id} />
-              )}
-            </div> */}
+          
 
             <div class="sm:col-span-4">
               <TDInputTemplate
@@ -701,6 +736,98 @@ function TFForm() {
                 <VError title={formik.errors.tia} />
               )}
             </div>
+
+            <div class="sm:col-span-4">
+              <TDInputTemplate
+                placeholder="Amount Put to Tender..."
+                type="number"
+                label="Amount Put to Tender"
+                name="amt_put_tender"
+                formControlName={formik.values.amt_put_tender}
+                handleChange={formik.handleChange}
+                handleBlur={formik.handleBlur}
+                mode={1}
+              />
+              {formik.errors.amt_put_tender && formik.touched.amt_put_tender && (
+                <VError title={formik.errors.amt_put_tender} />
+              )}
+            </div>
+
+            <div class="sm:col-span-4">
+            <label className="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Before Tender Matured</label>
+            <Radiobtn
+						data={options}
+						val={radioType}
+						onChangeVal={(value) => {
+							onChange(value)
+						}}
+					/>
+          </div>
+
+          <div class="sm:col-span-4">
+              <TDInputTemplate
+                placeholder="DLP..."
+                type="number"
+                label="DLP"
+                name="dlp"
+                formControlName={formik.values.dlp}
+                handleChange={formik.handleChange}
+                handleBlur={formik.handleBlur}
+                mode={1}
+              />
+              {formik.errors.dlp && formik.touched.dlp && (
+                <VError title={formik.errors.dlp} />
+              )}
+            </div>
+
+            <div class="sm:col-span-4">
+              <TDInputTemplate
+                placeholder="Additional Performance Security..."
+                type="number"
+                label="Additional Performance Security"
+                name="add_per_sec"
+                formControlName={formik.values.add_per_sec}
+                handleChange={formik.handleChange}
+                handleBlur={formik.handleBlur}
+                mode={1}
+              />
+              {formik.errors.add_per_sec && formik.touched.add_per_sec && (
+                <VError title={formik.errors.add_per_sec} />
+              )}
+            </div>
+
+            <div class="sm:col-span-4">
+              <TDInputTemplate
+                placeholder="EMD..."
+                type="number"
+                label="EMD"
+                name="emd"
+                formControlName={formik.values.emd}
+                handleChange={formik.handleChange}
+                handleBlur={formik.handleBlur}
+                mode={1}
+              />
+              {formik.errors.emd && formik.touched.emd && (
+                <VError title={formik.errors.emd} />
+              )}
+            </div>
+
+            <div class="sm:col-span-4">
+              <TDInputTemplate
+                placeholder="Date Of Refund..."
+                type="date"
+                label="Date Of Refund"
+                name="date_refund"
+                formControlName={formik.values.date_refund}
+                handleChange={formik.handleChange}
+                handleBlur={formik.handleBlur}
+                mode={1}
+              />
+              {formik.errors.date_refund && formik.touched.date_refund && (
+                <VError title={formik.errors.date_refund} />
+              )}
+            </div>
+
             <div class="sm:col-span-4">
               <TDInputTemplate
                 placeholder="Tender Matured On"

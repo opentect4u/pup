@@ -243,7 +243,7 @@ function SECTOR_ADD_EDITForm() {
   return (
     <section className="bg-white p-5 dark:bg-gray-900">
       <div className="py-5 mx-auto w-full lg:py-5">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           <div className="col-span-1">
             <Heading title={editingSector ? "Edit Sector" : "Add Sector"} button="N" />
             <form onSubmit={formik.handleSubmit}>
@@ -263,7 +263,7 @@ function SECTOR_ADD_EDITForm() {
                     <VError title={formik.errors.add_sector} />
                   )}
                 </div>
-                <div className="sm:col-span-12 flex justify-left gap-1 mt-4">
+                <div className="sm:col-span-8 flex justify-left gap-1 mt-6">
                   <BtnComp
                     type="submit"
                     title={editingSector ? "Update" : "Submit"}

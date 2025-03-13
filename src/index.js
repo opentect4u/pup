@@ -22,6 +22,8 @@ import { Democontext } from './Context/Democontext';
 import SOUR_OF_FUN_Form from './Screens/MASTER/SOUR_OF_FUN_Form';
 import IMPL_AGEN_Form from './Screens/MASTER/IMPL_AGEN_Form';
 import ACC_HEAD_Form from './Screens/MASTER/ACC_HEAD_Form';
+import REPORTComp from './Screens/REPORTS/REPORTComp';
+import Financial_Report from './Screens/REPORTS/Financial_Report';
 const FundRelForm =lazy(()=>import('./Screens/FUND_RELEASE/FundRelForm'))
 const Sign_in =lazy(()=>import('./Screens/Auth/Sign_in'))
 const AdApForm =lazy(()=>import('./Screens/ADMIN_APPROVAL/AdApForm'))
@@ -206,6 +208,16 @@ const router = createBrowserRouter([
               path: "account-head-list",
               element: <ACC_HEAD_Form />,
             },
+          ]
+        },
+        {
+          path: "report",
+          element: <REPORTComp />,
+          children: [
+            {
+                path: "financial-report",
+                element: <Financial_Report />,
+            }
           ]
         },
         // {
