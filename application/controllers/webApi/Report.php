@@ -38,8 +38,11 @@ class Report extends CI_Controller {
 	public function proj_dtl_finyearwise() {
 		
 		$fin_year = $this->input->post('fin_year');
-		$sql = "SELECT a.approval_no,a.admin_approval_dt,a.scheme_name,c.sector_desc AS sector_name, d.fin_year, a.project_id,e.dist_name, 
-						f.block_name,g.agency_name,b.invite_auth,b.mat_date,b.wo_date,b.wo_copy,b.wo_value,b.comp_date_apprx,
+		$sql = "SELECT a.approval_no,a.admin_approval_dt,a.scheme_name,a.project_id,a.project_submit as project_submitted_by,
+		                b.invite_auth,b.mat_date,b.wo_date,b.wo_copy,b.wo_value,b.comp_date_apprx,
+						c.sector_desc AS sector_name,
+		                d.fin_year, e.dist_name, 
+						f.block_name,g.agency_name,
 						sum(fr.instl_amt) as fr_instl_amt,sum(fr.sch_amt) as fr_sch_amt,sum(fr.cont_amt) as fr_cont_amt,sum(exp.sch_amt) as exp_sch_amt,sum(exp.cont_amt) as exp_cont_amt
 						FROM td_admin_approval a 
 						JOIN md_sector c ON a.sector_id = c.sl_no 
@@ -75,8 +78,11 @@ class Report extends CI_Controller {
 	public function proj_dtl_accwise() {
 		
 		$account_head = $this->input->post('account_head_id');
-		$sql = "SELECT a.approval_no,a.admin_approval_dt,a.scheme_name,c.sector_desc AS sector_name, d.fin_year, a.project_id,e.dist_name, 
-						f.block_name,g.agency_name,b.invite_auth,b.mat_date,b.wo_date,b.wo_copy,b.wo_value,b.comp_date_apprx,
+		$sql = "SELECT a.approval_no,a.admin_approval_dt,a.scheme_name,a.project_id,a.project_submit as project_submitted_by,
+		                b.invite_auth,b.mat_date,b.wo_date,b.wo_copy,b.wo_value,b.comp_date_apprx,
+						c.sector_desc AS sector_name,
+		                d.fin_year, e.dist_name, 
+						f.block_name,g.agency_name,
 						sum(fr.instl_amt) as fr_instl_amt,sum(fr.sch_amt) as fr_sch_amt,sum(fr.cont_amt) as fr_cont_amt,sum(exp.sch_amt) as exp_sch_amt,sum(exp.cont_amt) as exp_cont_amt
 						FROM td_admin_approval a 
 						INNER JOIN md_sector c ON a.sector_id = c.sl_no 
@@ -111,8 +117,11 @@ class Report extends CI_Controller {
 	public function proj_dtl_sectorwise() {
 		
 		$sector_id = $this->input->post('sector_id');
-		$sql = "SELECT a.approval_no,a.admin_approval_dt,a.scheme_name,c.sector_desc AS sector_name, d.fin_year, a.project_id,e.dist_name, 
-						f.block_name,g.agency_name,b.invite_auth,b.mat_date,b.wo_date,b.wo_copy,b.wo_value,b.comp_date_apprx,
+		$sql = "SELECT a.approval_no,a.admin_approval_dt,a.scheme_name,a.project_id,a.project_submit as project_submitted_by,
+		                b.invite_auth,b.mat_date,b.wo_date,b.wo_copy,b.wo_value,b.comp_date_apprx,
+						c.sector_desc AS sector_name,
+		                d.fin_year, e.dist_name, 
+						f.block_name,g.agency_name,
 						sum(fr.instl_amt) as fr_instl_amt,sum(fr.sch_amt) as fr_sch_amt,sum(fr.cont_amt) as fr_cont_amt,sum(exp.sch_amt) as exp_sch_amt,sum(exp.cont_amt) as exp_cont_amt
 						FROM td_admin_approval a 
 						INNER JOIN md_sector c ON a.sector_id = c.sl_no 
@@ -148,8 +157,11 @@ class Report extends CI_Controller {
 		
 		$dist = $this->input->post('dist_id');
 		$block = $this->input->post('block_id');
-		$sql = "SELECT a.approval_no,a.admin_approval_dt,a.scheme_name,c.sector_desc AS sector_name, d.fin_year, a.project_id,e.dist_name, 
-						f.block_name,g.agency_name,b.invite_auth,b.mat_date,b.wo_date,b.wo_copy,b.wo_value,b.comp_date_apprx,
+		$sql = "SELECT a.approval_no,a.admin_approval_dt,a.scheme_name,a.project_id,a.project_submit as project_submitted_by,
+		                b.invite_auth,b.mat_date,b.wo_date,b.wo_copy,b.wo_value,b.comp_date_apprx,
+						c.sector_desc AS sector_name,
+		                d.fin_year, e.dist_name, 
+						f.block_name,g.agency_name,
 						sum(fr.instl_amt) as fr_instl_amt,sum(fr.sch_amt) as fr_sch_amt,sum(fr.cont_amt) as fr_cont_amt,sum(exp.sch_amt) as exp_sch_amt,sum(exp.cont_amt) as exp_cont_amt
 						FROM td_admin_approval a 
 						INNER JOIN md_sector c ON a.sector_id = c.sl_no 
@@ -185,8 +197,11 @@ class Report extends CI_Controller {
 	public function proj_dtl_impagency() {
 		
 		$impl_agency = $this->input->post('impl_agency');
-		$sql = "SELECT a.approval_no,a.admin_approval_dt,a.scheme_name,c.sector_desc AS sector_name, d.fin_year, a.project_id,e.dist_name, 
-						f.block_name,g.agency_name,b.invite_auth,b.mat_date,b.wo_date,b.wo_copy,b.wo_value,b.comp_date_apprx,
+		$sql = "SELECT a.approval_no,a.admin_approval_dt,a.scheme_name,a.project_id,a.project_submit as project_submitted_by,
+		                b.invite_auth,b.mat_date,b.wo_date,b.wo_copy,b.wo_value,b.comp_date_apprx,
+						c.sector_desc AS sector_name,
+		                d.fin_year, e.dist_name, 
+						f.block_name,g.agency_name,
 						sum(fr.instl_amt) as fr_instl_amt,sum(fr.sch_amt) as fr_sch_amt,sum(fr.cont_amt) as fr_cont_amt,sum(exp.sch_amt) as exp_sch_amt,sum(exp.cont_amt) as exp_cont_amt
 						FROM td_admin_approval a 
 						INNER JOIN md_sector c ON a.sector_id = c.sl_no 
