@@ -85,15 +85,19 @@ textarea.bg-white {border: #ccc solid 1px;}
 .customeMenu .ant-collapse .ant-collapse-content .ant-collapse-content-box ul li{margin-bottom: 10px;}
 .customeMenu .ant-collapse .ant-collapse-content .ant-collapse-content-box ul li a:hover{color: #fff;}
 
-.table_cus table.table_Custome thead tr th{padding: 5px 10px;
+.table_cus table.table_Custome thead tr th {
+  padding: 5px 10px;
   font-size: 12px;
-  font-weight: 500;}
+  font-weight: 500;
+  line-height: 16px;
+}
 
 .table_cus table.table_Custome thead tr th.custom-scheme_name-header{width: 150px; text-wrap-mode: nowrap;}
 
 .table_cus tbody.p-datatable-tbody tr td{font-size: 12px;}
 
-.table_cus tbody.p-datatable-tbody tr td.custom-scheme_name-body{text-wrap-mode: nowrap;}
+.table_cus tbody.p-datatable-tbody tr td.custom-scheme_name-body{text-wrap-mode: wrap; vertical-align: top;}
+.table_cus tbody.p-datatable-tbody tr td{vertical-align: top;}
 
 @keyframes App-logo-spin {
   from {
