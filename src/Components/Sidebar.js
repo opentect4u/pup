@@ -104,7 +104,7 @@ const ReportAccordion = () => (
           <Link to={"report/financial-report"}>Financial Yearwise</Link>
         </li>
         <li>
-          <Link to={"report/"}>Head of Accountwise </Link>
+          <Link to={"report/head-accountwise-report"}>Head of Accountwise </Link>
         </li>
         <li>
           <Link to={"report/implementing-agency"}>Projectwise</Link>

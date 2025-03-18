@@ -24,6 +24,8 @@ import IMPL_AGEN_Form from './Screens/MASTER/IMPL_AGEN_Form';
 import ACC_HEAD_Form from './Screens/MASTER/ACC_HEAD_Form';
 import REPORTComp from './Screens/REPORTS/REPORTComp';
 import Financial_Report from './Screens/REPORTS/Financial_Report';
+import HeadAccountwise_Report from './Screens/REPORTS/HeadAccountwise_Report';
+import Financial_Report_Graph from './Screens/REPORTS/Financial_Report_Graph';
 const FundRelForm =lazy(()=>import('./Screens/FUND_RELEASE/FundRelForm'))
 const Sign_in =lazy(()=>import('./Screens/Auth/Sign_in'))
 const AdApForm =lazy(()=>import('./Screens/ADMIN_APPROVAL/AdApForm'))
@@ -217,7 +219,17 @@ const router = createBrowserRouter([
             {
                 path: "financial-report",
                 element: <Financial_Report />,
+            },
+            {
+                path: "financial-report-graph",
+                element: <Financial_Report_Graph />,
+            },
+            {
+                path: "head-accountwise-report",
+                element: <HeadAccountwise_Report />,
             }
+
+
           ]
         },
         // {

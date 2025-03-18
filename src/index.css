@@ -89,3 +89,10 @@ h2.text-white {color: #fff;}
   width: 80px !important;}
 
   .ant-progress .ant-progress-inner {background-color: rgba(170, 163, 163, 0.32);}
+
+
+  .graph_box{text-align: left;
+    box-shadow: 0 0px 9px 4px #d5d5d5;
+    border-radius: 10px;
+    padding: 15px;
+    border: #d5d5d5 solid 1px;}

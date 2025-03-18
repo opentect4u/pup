@@ -5,7 +5,7 @@ import Heading from "../../Components/Heading";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import { Message } from "../../Components/Message";
-import { BarChartOutlined, EditOutlined, EyeOutlined, FilePdfOutlined, LoadingOutlined } from "@ant-design/icons";
+import { EditOutlined, EyeOutlined, FilePdfOutlined, LoadingOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { auth_key, folder_admin, folder_certificate, folder_fund, folder_progresImg, folder_tender, proj_final_pic, url } from "../../Assets/Addresses/BaseUrl";
 import VError from "../../Components/VError";
@@ -17,7 +17,6 @@ import { Toast } from "primereact/toast"
 import { Tooltip as ReactTooltip } from "react-tooltip";
 import { Dialog } from "primereact/dialog";
 import { Image } from 'antd';
-import { useNavigate } from 'react-router-dom'
 
 const initialValues = {
   fin_yr: '',
@@ -30,7 +29,7 @@ const validationSchema = Yup.object({
 });
 
 
-function Financial_Report() {
+function HeadAccountwise_Report() {
   const [loading, setLoading] = useState(false);
   const [editingAccountHead, setEditingAccountHead] = useState(null); // New state for editing
   const [fundStatus, setFundStatus] = useState(() => []);
@@ -60,7 +59,6 @@ function Financial_Report() {
   const [pdfUrl, setPdfUrl] = useState("");
   const [modalTitle, setModalTitle] = useState("");
   const [modalTitleTable, setModalTitleTable] = useState("");
-  const navigate = useNavigate()
 
   const openModal = (file, foldername,  title) => {
     setPdfUrl(url + foldername + file);
@@ -438,8 +436,7 @@ const onPageChange = (event) => {
       <div className="py-5 mx-auto w-full lg:py-5">
         <div className="grid grid-cols-1 gap-4">
           {/* <div className="col-span-1"> */}
-          {/* <Heading title={editingAccountHead ? "Edit Account Head" : "Add Account Head"} button="N" /> */}
-            <Heading title={"Financial Yearwise Report"} button="N" />
+            <Heading title={editingAccountHead ? "Edit Account Head" : "Add Account Head"} button="N" />
 
             <form onSubmit={formik.handleSubmit}>
           <div class="grid gap-4 sm:grid-cols-12 sm:gap-6">
@@ -451,7 +448,7 @@ const onPageChange = (event) => {
                 value={formik.values.fin_yr || undefined} // Ensure default empty state
                 onChange={(value) => {
                   formik.setFieldValue("fin_yr", value)
-                  // console.log(value, 'ggggggggggggggggggg');
+                  console.log(value, 'ggggggggggggggggggg');
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}
@@ -471,21 +468,12 @@ const onPageChange = (event) => {
 
             <div className="sm:col-span-8 flex justify-left gap-4 mt-6">
             <BtnComp type={'submit'} title={'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
-            <BtnComp title={'Reset'} type="reset" 
-            onClick={() => { 
-            formik.resetForm();
-            }}
-            width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
-
-          
-
-          <button type="button" class="text-blue-700 bg-blue-900 hover:text-white border border-blue-700 hover:bg-blue-800 
-              font-medium rounded-lg text-sm px-3 py-1.8 text-center 
-              me-2 mb-0 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 
-              dark:focus:ring-blue-800 ml-auto"
-              onClick={() => { navigate(`/home/report/financial-report-graph/`); }} 
-              > <BarChartOutlined /> Graphical View</button>
-            
+              <BtnComp title={'Reset'} type="reset" 
+              onClick={() => { 
+                formik.resetForm();
+              }}
+              width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
+              {/* <button type="submit">Search</button> */}
              
             </div>
           </div>
@@ -642,21 +630,18 @@ const onPageChange = (event) => {
 
           <Column
           // field="fr_cont_amt"
-          header="Total"
+          header="Schematic & Contigency Total"
           body={(rowData) => {
             const total =
               (parseFloat(rowData?.fr_sch_amt) || 0) + (parseFloat(rowData?.fr_cont_amt) || 0);
             return total.toFixed(2);
           }}
 
-          footer={
-            <span style={{ fontWeight: "bold", color: "#0694A2" }}>
-              {reportData
-                ?.reduce((sum, item) => sum + ((parseFloat(item?.fr_sch_amt) || 0) + (parseFloat(item?.fr_cont_amt) || 0)), 0)
-                .toFixed(2)}
-            </span>
-          }
-
+          // footer={
+          // <span style={{ fontWeight: "bold", color: "#0694A2" }}>
+          // {reportData?.reduce((sum, item) => sum + (parseFloat(item?.fr_cont_amt) || 0), 0).toFixed(2)}
+          // </span>
+          // }
           ></Column>
 
           <Column
@@ -1286,4 +1271,4 @@ const onPageChange = (event) => {
   );
 }
 
-export default Financial_Report;
+export default HeadAccountwise_Report;
