@@ -164,6 +164,53 @@ class Report extends CI_Controller {
 			->set_output(json_encode($response));
 	}
 
+	public function graphical_data_finyearwise(){
+		$fin_year = $this->input->post('fin_year');
+		$sql = "select count(*) as number_of_project ,b.sector_desc as sector_name from td_admin_approval a,md_sector b where a.sector_id = b.sl_no and a.fin_year = '".$fin_year."' group by a.sector_id";
+		$result_data = $this->db->query($sql)->result();
+		$sql_acchead = "select count(*) as number_of_project ,b.account_head as account_head from td_admin_approval a,md_account b where a.account_head = b.sl_no and a.fin_year = '".$fin_year."' group by a.account_head";
+		$resacc_data = $this->db->query($sql_acchead)->result();
+		$sql_dist = "select count(*) as number_of_project ,b.dist_name as dist_name from td_admin_approval a,md_district b where a.district_id = b.dist_code and a.fin_year = '".$fin_year."' group by a.district_id";
+		$resdist_data = $this->db->query($sql_dist)->result();
+		$sql_impagency = "select count(*) as number_of_project ,b.agency_name as agency_name from td_admin_approval a,md_proj_imp_agency b where a.impl_agency = b.id and a.fin_year = '".$fin_year."' group by a.impl_agency";
+		$resimpagency_data = $this->db->query($sql_impagency)->result();
+		$sql_expenditure = "select sum(a.sch_amt) + sum(a.cont_amt) as total_amt,b.project_id from td_expenditure a,td_admin_approval b where a.approval_no = b.approval_no and b.fin_year = '".$fin_year."' group by b.project_id";
+		$res_expenditure = $this->db->query($sql_expenditure)->result();
+		$sql_progress = "select sum(a.progress_percent) as progress_percent,b.project_id from td_progress a,td_admin_approval b where a.approval_no = b.approval_no and b.fin_year = '".$fin_year."' group by b.project_id";
+		$res_progress = $this->db->query($sql_progress)->result();
+		$sql_fund = "select sum(a.instl_amt) as instl_amt , sum(a.sch_amt) as sch_amt,sum(a.cont_amt) as cont_amt,b.project_id from td_fund_receive a,td_admin_approval b where a.approval_no = b.approval_no and b.fin_year = '".$fin_year."' group by b.project_id";
+		$res_fund = $this->db->query($sql_fund)->result();
+		
+		$response = (!empty($result_data)) 
+			? ['status' => 1, 'sectorwise' => $result_data,'accountwise' => $resacc_data,'distwise' => $resdist_data,'impagencywise' => $resimpagency_data,'progress' => $res_progress,'fund' => $res_fund,'expenditure' => $res_expenditure] 
+			: ['status' => 0, 'message' => 'No data found'];
+			$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
+	}
+	public function graphical_data_finyearwise1(){
+		$fin_year = $this->input->post('fin_year');
+		$sql = "select count(*) as number_of_project ,b.sector_desc as sector_name from td_admin_approval a,md_sector b where a.sector_id = b.sl_no and a.fin_year = '".$fin_year."' group by a.sector_id";
+		$result_data = $this->db->query($sql)->result();
+		$sql_acchead = "select count(*) as number_of_project ,b.account_head as account_head from td_admin_approval a,md_account b where a.account_head = b.sl_no and a.fin_year = '".$fin_year."' group by a.account_head";
+		$resacc_data = $this->db->query($sql_acchead)->result();
+		$sql_dist = "select count(*) as number_of_project ,b.dist_name as dist_name from td_admin_approval a,md_district b where a.district_id = b.dist_code and a.fin_year = '".$fin_year."' group by a.district_id";
+		$resdist_data = $this->db->query($sql_dist)->result();
+		$sql_impagency = "select count(*) as number_of_project ,b.agency_name as agency_name from td_admin_approval a,md_proj_imp_agency b where a.impl_agency = b.id and a.fin_year = '".$fin_year."' group by a.impl_agency";
+		$resimpagency_data = $this->db->query($sql_impagency)->result();
+		$sql_expenditure = "select sum(a.sch_amt) as sch_amt,sum(a.cont_amt) as cont_amt,b.project_id from td_expenditure a,td_admin_approval b where a.approval_no = b.approval_no and b.fin_year = '".$fin_year."' group by b.project_id";
+		$res_expenditure = $this->db->query($sql_expenditure)->result();
+		$sql_progress = "select sum(a.progress_percent) as progress_percent,b.project_id from td_progress a,td_admin_approval b where a.approval_no = b.approval_no and b.fin_year = '".$fin_year."' group by b.project_id";
+		$res_progress = $this->db->query($sql_progress)->result();
+		
+		$response = (!empty($result_data)) 
+			? ['status' => 1, 'sectorwise' => $result_data,'accountwise' => $resacc_data,'distwise' => $resdist_data,'impagencywise' => $resimpagency_data,'expenditure' => $res_expenditure,'progress' => $res_progress] 
+			: ['status' => 0, 'message' => 'No data found'];
+			$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
+	}
+
 	public function proj_dtl_accwise() {
 		
 		$account_head = $this->input->post('account_head_id');
@@ -199,6 +246,8 @@ class Report extends CI_Controller {
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
     }
+
+	
 	public function proj_dtl_sectorwise() {
 		
 		$sector_id = $this->input->post('sector_id');
