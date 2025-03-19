@@ -26,6 +26,7 @@ import REPORTComp from './Screens/REPORTS/REPORTComp';
 import Financial_Report from './Screens/REPORTS/Financial_Report';
 import HeadAccountwise_Report from './Screens/REPORTS/HeadAccountwise_Report';
 import Financial_Report_Graph from './Screens/REPORTS/Financial_Report_Graph';
+import HeadAccountwise_Report_Graph from './Screens/REPORTS/HeadAccountwise_Report_Graph';
 const FundRelForm =lazy(()=>import('./Screens/FUND_RELEASE/FundRelForm'))
 const Sign_in =lazy(()=>import('./Screens/Auth/Sign_in'))
 const AdApForm =lazy(()=>import('./Screens/ADMIN_APPROVAL/AdApForm'))
@@ -221,12 +222,32 @@ const router = createBrowserRouter([
                 element: <Financial_Report />,
             },
             {
+              path: "financial-report/:id",
+              element: <Financial_Report />,
+            },
+            {
                 path: "financial-report-graph",
                 element: <Financial_Report_Graph />,
             },
             {
+              path: "financial-report-graph/:id",
+              element: <Financial_Report_Graph />,
+            },
+            {
                 path: "head-accountwise-report",
                 element: <HeadAccountwise_Report />,
+            },
+            {
+                path: "head-accountwise-report/:id",
+                element: <HeadAccountwise_Report />,
+            },
+            {
+                path: "head-accountwise-report-graph",
+                element: <HeadAccountwise_Report_Graph />,
+            },
+            {
+                path: "head-accountwise-report-graph/:id",
+                element: <HeadAccountwise_Report_Graph />,
             }
 
 

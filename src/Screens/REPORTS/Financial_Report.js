@@ -5,11 +5,11 @@ import Heading from "../../Components/Heading";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import { Message } from "../../Components/Message";
-import { BarChartOutlined, EditOutlined, EyeOutlined, FilePdfOutlined, LoadingOutlined } from "@ant-design/icons";
+import { BarChartOutlined, EditOutlined, EyeOutlined, FilePdfOutlined, LoadingOutlined, MenuOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { auth_key, folder_admin, folder_certificate, folder_fund, folder_progresImg, folder_tender, proj_final_pic, url } from "../../Assets/Addresses/BaseUrl";
 import VError from "../../Components/VError";
-import { Select, Spin } from "antd";
+import { Checkbox, Select, Spin } from "antd";
 import { DataTable } from 'primereact/datatable';
 import Column from 'antd/es/table/Column';
 import { Toast } from "primereact/toast"
@@ -18,6 +18,8 @@ import { Tooltip as ReactTooltip } from "react-tooltip";
 import { Dialog } from "primereact/dialog";
 import { Image } from 'antd';
 import { useNavigate } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom';
+
 
 const initialValues = {
   fin_yr: '',
@@ -43,14 +45,30 @@ function Financial_Report() {
   const [currentPage, setCurrentPage] = useState(0)
 	const [rowsPerPage, setRowsPerPage] = useState(10)
 
-  // const [showBlockName, setShowBlockName] = useState(false);
-  // const [showSourceOfFund, setShowSourceOfFund] = useState(false);
-  // const [showProjectSubmit, setShowProjectSubmit] = useState(false);
-  // const [showProjectImplemented, setShowProjectImplemented] = useState(false);
+  
 
-  // const [showAll, setShowAll] = useState(false);
+  const [showHeadAcc, setShowHeadAcc] = useState(false);
+  const [showProSubBy, setShowProSubBy] = useState(false);
+  const [showProImpleBy, setShowProImpleBy] = useState(false);
+  const [showAdmiApprovPdf, setAdmiApprovPdf] = useState(false);
+  const [showVettedDPR, setVettedDPR] = useState(false);
+  const [showScheAmt, setScheAmt] = useState(false);
+  const [showContiAmt, setContiAmt] = useState(false);
+  const [showTenderDtl, setTenderDtl] = useState(false);
+  const [showProgresDtl, setProgresDtl] = useState(false);
+  const [showFundDtl, setFundDtl] = useState(false);
+  const [showExpendDtl, setExpendDtl] = useState(false);
+  const [showUtilizationDtl, setUtilizationDtl] = useState(false);
+
+  const [showBlockName, setShowBlockName] = useState(false);
+  const [showSourceOfFund, setShowSourceOfFund] = useState(false);
+  const [showProjectSubmit, setShowProjectSubmit] = useState(false);
+  const [showProjectImplemented, setShowProjectImplemented] = useState(false);
+
+  const [showAll, setShowAll] = useState(false);
 
   const [visible, setVisible] = useState(false);
+  const [visibleMenu, setVisibleMenu] = useState(false);
   const [visibleTender, setVisibleTender] = useState(false);
   const [visibleProgress, setVisibleProgress] = useState(false);
   const [visibleFund, setVisibleFund] = useState(false);
@@ -60,12 +78,20 @@ function Financial_Report() {
   const [pdfUrl, setPdfUrl] = useState("");
   const [modalTitle, setModalTitle] = useState("");
   const [modalTitleTable, setModalTitleTable] = useState("");
+  const [financeYear_submit, setFinanceYear_submit] = useState("");
   const navigate = useNavigate()
+  const params = useParams();
+  const [selectedYear, setSelectedYear] = useState("");
 
   const openModal = (file, foldername,  title) => {
     setPdfUrl(url + foldername + file);
     setModalTitle(title);
     setVisible(true);
+  };
+
+  const openModal_Menu = (title) => {
+    setModalTitle(title);
+    setVisibleMenu(true);
   };
 
 
@@ -302,6 +328,11 @@ function Financial_Report() {
 
       // console.log("Response Data:", response.data.message); // Log the actual response data
       setFinancialYearDropList(response.data.message)
+
+      if (params?.id > 0) {
+        setSelectedYear(params?.id); // Set first year as default (modify if needed)
+      }
+
       setLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error); // Handle errors properly
@@ -354,8 +385,8 @@ function Financial_Report() {
   };
 
   useEffect(()=>{
-        fundAddedList()
-        fetchFinancialYeardownOption()
+    fundAddedList()
+    fetchFinancialYeardownOption()
     }, [])
 
 
@@ -364,13 +395,14 @@ const onPageChange = (event) => {
 		setRowsPerPage(event.rows)
 	}
 
-  const showReport = async ()=>{
+  const showReport = async (params)=>{
     setLoading(true);
     const formData = new FormData();
   
     // Append each field to FormData
-    formData.append("fin_year", formik.values.fin_yr);
-    console.log(formData, 'formData');
+    formData.append("fin_year", params > 0 ? params : formik.values.fin_yr);
+    // console.log(formik.values.fin_yr, 'formData______________');
+    setFinanceYear_submit(formik.values.fin_yr)
 
     try {
       const response = await axios.post(
@@ -405,6 +437,14 @@ const onPageChange = (event) => {
 
   }
 
+    useEffect(()=>{
+      // console.log(params?.id.length, 'locaaaaaaaaaaaaaaaaa');
+      
+      if(params?.id > 0){
+        showReport(params?.id)
+      }
+    }, [])
+
   const onSubmit = (values) => {
       // console.log(values, 'credcredcredcredcred', formik.values.scheme_name);
       showReport()
@@ -414,22 +454,36 @@ const onPageChange = (event) => {
     const formik = useFormik({
       // initialValues:formValues,
       // initialValues,
-      initialValues,
+      initialValues: { fin_yr: selectedYear },
       onSubmit,
       validationSchema,
       enableReinitialize: true,
       validateOnMount: true,
     });
 
-    // const handleShowAllChange = () => {
-    //   const newValue = !showAll;
-    //   setShowAll(newValue);
-    //   setShowBlockName(newValue);
-    //   setShowSourceOfFund(newValue);
+    const handleShowAllChange = () => {
+      const newValue = !showAll;
+      setShowAll(newValue);
+      setShowBlockName(newValue);
+      setShowSourceOfFund(newValue);
+      setShowProjectSubmit(newValue);
+      setShowProjectImplemented(newValue);
 
-    //   setShowProjectSubmit(newValue);
-    //   setShowProjectImplemented(newValue);
-    // };
+
+      setShowHeadAcc(newValue);
+      setShowProSubBy(newValue);
+      setShowProImpleBy(newValue);
+      setAdmiApprovPdf(newValue);
+      setVettedDPR(newValue);
+      setScheAmt(newValue);
+      setContiAmt(newValue);
+      setTenderDtl(newValue);
+      setProgresDtl(newValue);
+      setFundDtl(newValue);
+      setExpendDtl(newValue);
+      setUtilizationDtl(newValue);
+
+    };
   
 
 
@@ -481,9 +535,9 @@ const onPageChange = (event) => {
 
           <button type="button" class="text-blue-700 bg-blue-900 hover:text-white border border-blue-700 hover:bg-blue-800 
               font-medium rounded-lg text-sm px-3 py-1.8 text-center 
-              me-2 mb-0 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 
+              me-0 mb-0 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 
               dark:focus:ring-blue-800 ml-auto"
-              onClick={() => { navigate(`/home/report/financial-report-graph/`); }} 
+              onClick={() => { navigate(`/home/report/financial-report-graph/${financeYear_submit == "" ? params?.id : financeYear_submit}`) }} 
               > <BarChartOutlined /> Graphical View</button>
             
              
@@ -491,7 +545,7 @@ const onPageChange = (event) => {
           </div>
 
         </form>
-        {/* {JSON.stringify(reportData[0], null, 2)} */}
+        {/* {JSON.stringify(financeYear_submit, null, 2)} /// {JSON.stringify(params?.id, null, 2)} */}
            <Spin
                       indicator={<LoadingOutlined spin />}
                       size="large"
@@ -501,49 +555,26 @@ const onPageChange = (event) => {
                     {/*  */}
                       <>
                       <Toast ref={toast} />
+{reportData.length > 0 &&(
+  <div className="grid gap-4 sm:grid-cols-12 sm:gap-6 mb-3">
+          <div className="sm:col-span-12 ml-auto">
+          <a href="#" onClick={(e) => {
+          e.preventDefault();
+          openModal_Menu('Select Column');
+          }}
+          style={{ cursor: "pointer", background:"#3EB8BD", paddingLeft:8, paddingRight:8, paddingTop:5, paddingBottom:5, borderRadius:5}}
+          >
+          <UnorderedListOutlined style={{ fontSize: 20, color: "#fff", fontWeight:700 }} />
+          </a>
+          </div>
+          </div>
+          )}
+
            <div className="table_cus">
-            {/* {reportData.length > 0 &&(
-            <div className="mb-4">
-            <label>
-            <input 
-            type="checkbox" 
-            checked={showAll} 
-            onChange={handleShowAllChange} 
-            /> Show All
-            </label>
-            <label>
-            <input 
-            type="checkbox" 
-            checked={showBlockName} 
-            onChange={() => setShowBlockName(!showBlockName)} 
-            /> Show Block
-            </label>
-            <label className="ml-4">
-            <input 
-            type="checkbox" 
-            checked={showSourceOfFund} 
-            onChange={() => setShowSourceOfFund(!showSourceOfFund)} 
-            /> Show Source of Fund
-            </label>
 
-            <label className="ml-4">
-            <input 
-            type="checkbox" 
-            checked={showProjectSubmit} 
-            onChange={() => setShowProjectSubmit(!showProjectSubmit)} 
-            /> Project Submitted by
-            </label>
+           
 
-            <label className="ml-4">
-            <input 
-            type="checkbox" 
-            checked={showProjectImplemented} 
-            onChange={() => setShowProjectImplemented(!showProjectImplemented)} 
-            /> Project Implemented by
-            </label>
-
-            </div>
-            )} */}
+            
 
           <DataTable
           value={reportData?.map((item, i) => [{ ...item, id: i }]).flat()}
@@ -591,27 +622,6 @@ const onPageChange = (event) => {
           headerClassName="custom-scheme_name-header"
           bodyClassName="custom-scheme_name-body"
           headerStyle={{ width: '350em', textAlign: 'left', wordWrap: 'break-word'  }}
-          // style={{ width: '350px', textAlign: 'left', wordWrap: 'break-word'  }}
-          // body={(rowData) => {
-          //   const maxWords = 4; // Set the word limit
-          //   const words = rowData.scheme_name?.split(" ") || [];
-          //   const truncatedText = words.length > maxWords ? words.slice(0, maxWords).join(" ") + "..." : rowData.scheme_name;
-        
-          //   return (
-          //     <>
-          //       <span
-          //         data-tooltip-id={`tooltip-${rowData.scheme_name}`} // Unique ID for tooltip
-          //         data-tooltip-content={rowData.scheme_name}
-          //         style={{ cursor: "pointer" }}
-          //       >
-          //         {truncatedText}
-          //       </span>
-          //       <ReactTooltip id={`tooltip-${rowData.scheme_name}`} place="bottom" />
-          //     </>
-          //   );
-          // }}
-
-          
           ></Column>
 
 
@@ -620,6 +630,7 @@ const onPageChange = (event) => {
           header="Sector"
           ></Column>
 
+{showScheAmt && 
           <Column
           field="fr_sch_amt"
           header="Schematic Amount"
@@ -629,7 +640,9 @@ const onPageChange = (event) => {
           </span>
           }
           ></Column>
+        }
 
+{showContiAmt && 
           <Column
           field="fr_cont_amt"
           header="Contigency Amount"
@@ -639,6 +652,7 @@ const onPageChange = (event) => {
           </span>
           }
           ></Column>
+        }
 
           <Column
           // field="fr_cont_amt"
@@ -658,20 +672,21 @@ const onPageChange = (event) => {
           }
 
           ></Column>
-
+{showHeadAcc && 
           <Column
           field="account_head_name"
           header="Head Account"
           ></Column>
+}
 
           <Column
           field="dist_name"
           header="District"
           ></Column>
 
-{/* {showBlockName &&  */}
+{showBlockName && 
 <Column field="block_name" header="Block" />
-{/* } */}
+} 
         {/* {showSourceOfFund &&  */}
         <Column field="source_of_fund" header="Source of Fund" />
         {/*  } */}
@@ -680,30 +695,27 @@ const onPageChange = (event) => {
 
 
                       
-        {/* {showProjectSubmit &&  */}
+        {showProSubBy && 
         <Column
           field="project_submitted_by"
           header="Project Submitted by"
           ></Column>
-           {/* } */}
+           }
 
 
 
 
-        {/* {showProjectImplemented &&  */}
+        {showProImpleBy && 
         <Column
           field="agency_name"
           header="Project Implemented by"
           ></Column>
-          {/* } */}
+        }
 
+{showAdmiApprovPdf && 
           <Column
           field="admin_approval"
           header="Administrative Approval(G.O)"
-          // body={(rowData) => (
-          // <a href={url + folder_admin + rowData?.admin_approval} target='_blank'><FilePdfOutlined style={{fontSize:22, color:'red'}} /></a>
-          // )}
-
           body={(rowData) => (
             <a
               href="#"
@@ -718,7 +730,9 @@ const onPageChange = (event) => {
           )}
 
           ></Column>
+        }
 
+{showVettedDPR && 
           <Column
           field="vetted_dpr"
           header="Vetted DPR"
@@ -738,7 +752,9 @@ const onPageChange = (event) => {
             </a>
           )}
           ></Column>
+        }
 
+{showTenderDtl && 
           <Column
           // field="invite_auth"
           header="Tender Details"
@@ -755,8 +771,9 @@ const onPageChange = (event) => {
             </button>
           )}
           ></Column>
+        }
 
-
+{showProgresDtl && 
           <Column
           // field="invite_auth"
           header="Progress Details"
@@ -773,7 +790,9 @@ const onPageChange = (event) => {
             </button>
           )}
           ></Column>
+        }
 
+{showFundDtl && 
           <Column
           // field="invite_auth"
           header="Fund Details"
@@ -790,7 +809,9 @@ const onPageChange = (event) => {
             </button>
           )}
           ></Column>
+        }
 
+{showExpendDtl && 
           <Column
           // field="invite_auth"
           header="Expenditure Details"
@@ -807,7 +828,9 @@ const onPageChange = (event) => {
             </button>
           )}
           ></Column>
+        }
           
+          {showUtilizationDtl && 
           <Column
           // field="invite_auth"
           header="Utilization Certificate Details"
@@ -824,8 +847,112 @@ const onPageChange = (event) => {
             </button>
           )}
           ></Column>
+        }
 
           </DataTable>
+
+          <Dialog
+        header={modalTitle}
+        visible={visibleMenu}
+        style={{ width: "70vw", maxWidth: "800px" }}
+        onHide={() => setVisibleMenu(false)}
+        dismissableMask={true}
+      >
+        {reportData.length > 0 &&(
+            <div className="mb-4 checkBox">
+            
+
+            <Checkbox 
+          checked={showAll} 
+          onChange={handleShowAllChange} 
+          > Show All
+          </Checkbox>
+
+            <Checkbox 
+          checked={showHeadAcc} 
+          onChange={(e) => setShowHeadAcc(e.target.checked)}
+          > Show Head Of Account
+          </Checkbox>
+
+            <Checkbox 
+          checked={showProSubBy} 
+          onChange={(e) => setShowProSubBy(e.target.checked)}
+          > Show Project Submitted by
+          </Checkbox>
+
+            <Checkbox 
+          checked={showProImpleBy} 
+          onChange={(e) => setShowProImpleBy(e.target.checked)}
+          > Show Project Implemented by
+          </Checkbox>
+
+            <Checkbox 
+          checked={showAdmiApprovPdf} 
+          onChange={(e) => setAdmiApprovPdf(e.target.checked)}
+          > Show Administrative Approval(G.O)
+          </Checkbox>
+
+            <Checkbox 
+          checked={showVettedDPR} 
+          onChange={(e) => setVettedDPR(e.target.checked)}
+          > Show Vetted DPR
+          </Checkbox>
+
+            
+            <Checkbox 
+          checked={showScheAmt} 
+          onChange={(e) => setScheAmt(e.target.checked)}
+          > Show Schematic Amount
+          </Checkbox>
+            
+            <Checkbox 
+          checked={showContiAmt} 
+          onChange={(e) => setContiAmt(e.target.checked)}
+          > Show Contigency Amount
+          </Checkbox>
+
+            <Checkbox 
+          checked={showTenderDtl} 
+          onChange={(e) => setTenderDtl(e.target.checked)}
+          > Show Tender Details
+          </Checkbox>
+
+            
+            <Checkbox 
+          checked={showProgresDtl} 
+          onChange={(e) => setProgresDtl(e.target.checked)}
+          > Show Progress Details
+          </Checkbox>
+            
+          <Checkbox 
+          checked={showFundDtl} 
+          onChange={(e) => setFundDtl(e.target.checked)}
+          > Show Fund Details
+          </Checkbox>
+            
+
+          <Checkbox 
+          checked={showExpendDtl} 
+          onChange={(e) => setExpendDtl(e.target.checked)}
+          > Show Expenditure Details
+          </Checkbox>
+
+          <Checkbox 
+          checked={showUtilizationDtl} 
+          onChange={(e) => setUtilizationDtl(e.target.checked)}
+          > Show Utilization Certificate Details
+          </Checkbox>
+
+          
+          
+
+
+            
+            
+
+            </div>
+            )}
+      </Dialog>
 
           <Dialog
         header={modalTitle}

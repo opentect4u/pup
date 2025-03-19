@@ -96,8 +96,19 @@ textarea.bg-white {border: #ccc solid 1px;}
 
 .table_cus tbody.p-datatable-tbody tr td{font-size: 12px;}
 
-.table_cus tbody.p-datatable-tbody tr td.custom-scheme_name-body{text-wrap-mode: wrap; vertical-align: top;}
+
 .table_cus tbody.p-datatable-tbody tr td{vertical-align: top;}
+
+.table_cus tbody.p-datatable-tbody tr td.custom-scheme_name-body{text-wrap-mode: nowrap; vertical-align: top;}
+.table_cus table.table_Custome thead tr th.custom-scheme_name-header {text-wrap-mode: nowrap;}
+.table_cus table.table_Custome thead tr th, .table_cus tbody.p-datatable-tbody tr td{text-wrap-mode: nowrap;}
+
+.checkBox .ant-checkbox-wrapper{padding-right: 15px; margin-bottom: 6px;}
+.checkBox .ant-checkbox-wrapper span{font-weight: 600;
+  font-size: 13px;
+  color: #3EB8BD;}
+  .checkBox .ant-checkbox-wrapper span.ant-checkbox{border: #8e8e8e solid 1px;}
+
 
 @keyframes App-logo-spin {
   from {

@@ -39,7 +39,7 @@ const validationSchema = Yup.object({
 });
 
 
-function Financial_Report_Graph() {
+function HeadAccountwise_Report_Graph() {
   const [loading, setLoading] = useState(false);
   const [reportData, setReportData] = useState(() => []);
   const [financialYearDropList, setFinancialYearDropList] = useState([]);
@@ -52,9 +52,14 @@ function Financial_Report_Graph() {
   const [fundwiseData, setFundwiseData] = useState(() => []);
   const [progresswiseData, setProgresswiseData] = useState(() => []);
   const [financeYear_submit, setFinanceYear_submit] = useState("");
+  const [secoundField_submit, setSecoundField_submit] = useState("");
   const params = useParams();
   const navigate = useNavigate()
   const [selectedYear, setSelectedYear] = useState("");
+  const [headAccountDropList, setHeadAccountDropList] = useState([]);
+
+  const location = useLocation();
+  const secoundValue = location.state?.secoundValue || "";
 
 
 
@@ -84,9 +89,32 @@ function Financial_Report_Graph() {
     }
   };
 
+  const fetchHeadAccountdownOption = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.post(
+          url + 'index.php/webApi/Mdapi/head_of_acc',
+          {}, // Empty body
+          {
+            headers: {
+              'auth_key': auth_key,
+            },
+          }
+        );
+  
+        // console.log("Response Data:", response.data.message); // Log the actual response data
+        setHeadAccountDropList(response.data.message)
+        setLoading(false);
+      } catch (error) {
+        setLoading(false);
+        console.error("Error fetching data:", error); // Handle errors properly
+      }
+    };
+
 
   useEffect(()=>{
         fetchFinancialYeardownOption()
+        fetchHeadAccountdownOption()
   }, [])
 
 
@@ -112,12 +140,19 @@ function Financial_Report_Graph() {
   
     // Append each field to FormData
     formData.append("fin_year", params > 0 ? params : formik.values.fin_yr);
+    formData.append("account_head_id", secoundValue.length > 0 ? secoundValue : formik.values.head_acc);
+    formData.append("sector_id", 0);
+    formData.append("dist_id", 0);
+    formData.append("block_id", 0);
+    formData.append("impl_agency", 0);
     console.log(formData, 'formData');
     setFinanceYear_submit(formik.values.fin_yr)
+    setSecoundField_submit(formik.values.head_acc)
+
 
     try {
       const response = await axios.post(
-        `${url}index.php/webApi/Report/graphical_data_finyearwise`,
+        `${url}index.php/webApi/Report/graphical_data_finawith`,
         formData,
         {
           headers: {
@@ -127,7 +162,7 @@ function Financial_Report_Graph() {
         }
       );
 
-      console.log(response?.data, 'xxxxxxxxxxxxxxxx', formData);
+      console.log(response?.data, 'xxxxxxxxxxxxxxxx_tttttttttttt', formData);
       
       if(response?.data?.status > 0){
         setLoading(false);
@@ -205,7 +240,7 @@ function Financial_Report_Graph() {
         <div className="grid grid-cols-1 gap-4">
           {/* <div className="col-span-1"> */}
           {/* <Heading title={editingAccountHead ? "Edit Account Head" : "Add Account Head"} button="N" /> */}
-            <Heading title={"Financial Yearwise Report"} button="N" />
+            <Heading title={"Head of Accountwise Report"} button="N" />
 
             <form onSubmit={formik.handleSubmit}>
           <div class="grid gap-4 sm:grid-cols-12 sm:gap-6">
@@ -235,7 +270,34 @@ function Financial_Report_Graph() {
               )}
             </div>
 
-            <div className="sm:col-span-8 flex justify-left gap-4 mt-6">
+            <div class="sm:col-span-4">
+                          
+            
+                          <label for="head_acc" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Head Account</label>
+                          <Select
+                            placeholder="Choose Head Account"
+                            value={formik.values.head_acc || undefined} // Ensure default empty state
+                            onChange={(value) => {
+                              formik.setFieldValue("head_acc", value)
+                              console.log(value, 'ggggggggggggggggggg');
+                            }}
+                            onBlur={formik.handleBlur}
+                            style={{ width: "100%" }}
+                          >
+                            <Select.Option value="" disabled> Choose Head Account </Select.Option>
+                            {headAccountDropList?.map(data => (
+                              <Select.Option key={data.sl_no} value={data.sl_no}>
+                                {data.account_head}
+                              </Select.Option>
+                            ))}
+                          </Select>
+            
+                          {formik.errors.head_acc && formik.touched.head_acc && (
+                            <VError title={formik.errors.head_acc} />
+                          )}
+                        </div>
+
+            <div className="sm:col-span-4 flex justify-left gap-4 mt-6">
             <BtnComp type={'submit'} title={'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
               <BtnComp title={'Reset'} type="reset" 
               onClick={() => { 
@@ -248,14 +310,19 @@ function Financial_Report_Graph() {
               font-medium rounded-lg text-sm px-3 py-1.8 text-center 
               me-2 mb-0 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 
               dark:focus:ring-blue-800 ml-auto"
-    onClick={() => { navigate(`/home/report/financial-report/${financeYear_submit == "" ? params?.id: financeYear_submit || params?.id}`); }} 
+          onClick={() => { navigate(`/home/report/head-accountwise-report/${financeYear_submit == "" ? params?.id: financeYear_submit || params?.id}`, {
+          state: {
+          // ...data, // Spread existing rowData
+          secoundValue: secoundField_submit == "" ? secoundField_submit : secoundValue || secoundField_submit, // Explicitly include approval_status
+          },
+      }); }} 
     > <DatabaseOutlined /> Data View </button>
              
             </div>
           </div>
 
         </form>
-        {/* {JSON.stringify(financeYear_submit, null, 2)} /// {JSON.stringify(params?.id, null, 2)} */}
+        {/* {JSON.stringify(secoundValue, null, 2)} /// {JSON.stringify(params?.id, null, 2)} */}
            
                     {/*  */}
                       <>
@@ -332,4 +399,4 @@ function Financial_Report_Graph() {
   );
 }
 
-export default Financial_Report_Graph;
+export default HeadAccountwise_Report_Graph;
