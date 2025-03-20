@@ -27,6 +27,16 @@ import Financial_Report from './Screens/REPORTS/Financial_Report';
 import HeadAccountwise_Report from './Screens/REPORTS/HeadAccountwise_Report';
 import Financial_Report_Graph from './Screens/REPORTS/Financial_Report_Graph';
 import HeadAccountwise_Report_Graph from './Screens/REPORTS/HeadAccountwise_Report_Graph';
+import USERComp from './Screens/USER_MANAGE/USERComp';
+import UserManage from './Screens/USER_MANAGE/UserManage';
+import ProfileComp from './Screens/PROFILE_MANAGE/ProfileComp';
+import ChangePass from './Screens/PROFILE_MANAGE/ChangePass';
+import Sector_Report from './Screens/REPORTS/Sector_Report';
+import Sector_Report_Graph from './Screens/REPORTS/Sector_Report_Graph';
+import District_Report from './Screens/REPORTS/District_Report';
+import District_Report_Graph from './Screens/REPORTS/District_Report_Graph';
+import Implement_Report from './Screens/REPORTS/Implement_Report';
+import Implement_Report_Graph from './Screens/REPORTS/Implement_Report_Graph';
 const FundRelForm =lazy(()=>import('./Screens/FUND_RELEASE/FundRelForm'))
 const Sign_in =lazy(()=>import('./Screens/Auth/Sign_in'))
 const AdApForm =lazy(()=>import('./Screens/ADMIN_APPROVAL/AdApForm'))
@@ -214,40 +224,70 @@ const router = createBrowserRouter([
           ]
         },
         {
+          path: "user",
+          element: <USERComp />,
+          children: [
+            {
+                path: "manage-user",
+                element: <UserManage />,
+            }
+          
+          ]
+        },
+        {
+          path: "user-profile",
+          element: <ProfileComp />,
+          children: [
+            {
+                path: "change-password",
+                element: <ChangePass />,
+            }
+          
+          ]
+        },
+        {
           path: "report",
           element: <REPORTComp />,
           children: [
             {
-                path: "financial-report",
-                element: <Financial_Report />,
-            },
-            {
               path: "financial-report/:id",
               element: <Financial_Report />,
-            },
-            {
-                path: "financial-report-graph",
-                element: <Financial_Report_Graph />,
             },
             {
               path: "financial-report-graph/:id",
               element: <Financial_Report_Graph />,
             },
             {
-                path: "head-accountwise-report",
-                element: <HeadAccountwise_Report />,
-            },
-            {
                 path: "head-accountwise-report/:id",
                 element: <HeadAccountwise_Report />,
             },
             {
-                path: "head-accountwise-report-graph",
+                path: "head-accountwise-report-graph/:id",
                 element: <HeadAccountwise_Report_Graph />,
             },
             {
-                path: "head-accountwise-report-graph/:id",
-                element: <HeadAccountwise_Report_Graph />,
+                path: "sector-report/:id",
+                element: <Sector_Report />,
+            },
+            {
+                path: "sector-report-graph/:id",
+                element: <Sector_Report_Graph />,
+            },
+            {
+                path: "district-report/:id",
+                element: <District_Report />,
+            },
+            {
+                path: "district-report-graph/:id",
+                element: <District_Report_Graph />,
+            },
+            {
+                path: "implement-report/:id",
+                element: <Implement_Report />,
+            },
+            {
+                path: "implement-report-graph/:id",
+                element: <Implement_Report_Graph />,
             }
 
 

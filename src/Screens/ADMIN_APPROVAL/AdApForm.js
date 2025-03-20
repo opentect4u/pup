@@ -811,6 +811,7 @@ function AdApForm() {
               
 
               <label for="head_acc" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Head Account</label>
+              {/* {JSON.stringify(headAccountDropList, null, 2)} */}
               <Select
                 placeholder="Choose Head Account"
                 value={formik.values.head_acc || undefined} // Ensure default empty state

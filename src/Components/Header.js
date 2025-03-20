@@ -22,6 +22,17 @@ function Header() {
     {
       key: "2",
       label: (
+        <p onClick={() => {
+            navigate("user-profile/change-password");
+          }}
+          style={{ cursor: "pointer" }}>
+          Change Password
+        </p>
+      ),
+    },
+    {
+      key: "3",
+      label: (
         <p onClick = {() => {
          setVisible(true)
         }}

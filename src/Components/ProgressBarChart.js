@@ -30,7 +30,7 @@ const ProgressBarChart = ({ data, title_page, title_Barchart, key_name_1, key_na
   return (
     <div className="w-full text-left graph_box">
     <h3 className="text-lg font-semibold mb-4" style={{ fontWeight: "bold", color: "#333", fontSize: 18,  }}>{title_page}</h3>
-    {JSON.stringify(key_name_3, null, 2)}
+    {/* {JSON.stringify(key_name_3, null, 2)} */}
 {/* <ResponsiveContainer width="100%" height={300}>
   <BarChart data={data} layout="vertical" margin={{ left: 50 }}>
     <XAxis type="number" domain={[0, 100]} />

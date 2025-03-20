@@ -52,10 +52,10 @@ function HeadAccountwise_Report_Graph() {
   const [fundwiseData, setFundwiseData] = useState(() => []);
   const [progresswiseData, setProgresswiseData] = useState(() => []);
   const [financeYear_submit, setFinanceYear_submit] = useState("");
-  const [secoundField_submit, setSecoundField_submit] = useState("");
   const params = useParams();
   const navigate = useNavigate()
   const [selectedYear, setSelectedYear] = useState("");
+  const [secoundField_submit, setSecoundField_submit] = useState("");
   const [headAccountDropList, setHeadAccountDropList] = useState([]);
 
   const location = useLocation();
@@ -80,6 +80,8 @@ function HeadAccountwise_Report_Graph() {
       setFinancialYearDropList(response.data.message)
       if (params?.id > 0) {
         setSelectedYear(params?.id); // Set first year as default (modify if needed)
+        setSecoundField_submit(secoundValue)
+
       }
 
       setLoading(false);
@@ -214,7 +216,7 @@ function HeadAccountwise_Report_Graph() {
     const formik = useFormik({
       // initialValues:formValues,
       // initialValues,
-      initialValues: { fin_yr: selectedYear },
+      initialValues: { fin_yr: selectedYear, head_acc: selectedYear },
       onSubmit,
       validationSchema,
       enableReinitialize: true,
