@@ -37,35 +37,7 @@ class Report extends CI_Controller {
 
 	public function proj_dtl_finyearwise() {
 		
-		$fin_year = $this->input->post('fin_year');
-	// 	$sql = "SELECT a.approval_no,a.admin_approval_dt,a.scheme_name,a.project_id,a.project_submit as project_submitted_by,a.admin_approval,a.vetted_dpr,
-	// 	                b.invite_auth,
-	// 					b.tender_date,b.tender_notice,b.mat_date,b.wo_date,b.wo_copy,b.wo_value,b.comp_date_apprx,
-	// 					c.sector_desc AS sector_name,
-	// 	                d.fin_year, e.dist_name, 
-	// 					f.block_name,g.agency_name,
-	// 					h.account_head as account_head_name,
-	// 					i.fund_type as source_of_fund,
-	// 					sum(fr.instl_amt) as fr_instl_amt,sum(fr.sch_amt) as fr_sch_amt,sum(fr.cont_amt) as fr_cont_amt,sum(exp.sch_amt) as exp_sch_amt,sum(exp.cont_amt) as exp_cont_amt
-	// 					FROM td_admin_approval a 
-	// 					JOIN md_sector c ON a.sector_id = c.sl_no 
-	// 					JOIN md_fin_year d ON a.fin_year = d.sl_no 
-	// 					JOIN md_district e ON a.district_id = e.dist_code 
-	// 					JOIN md_block f ON a.block_id = f.block_id 
-	// 					JOIN md_proj_imp_agency g ON a.impl_agency = g.id
-	// 					LEFT JOIN td_fund_receive fr ON fr.approval_no = a.approval_no
-	// 					LEFT JOIN td_expenditure exp ON exp.approval_no = a.approval_no 
-	// 					JOIN md_account h ON h.sl_no = a.account_head 
-	// 					JOIN md_fund i ON i.sl_no = a.fund_id
-	// 					LEFT JOIN td_tender b ON b.approval_no = a.approval_no 
-	// 					AND b.tender_date = (
-	// 						SELECT MAX(t2.tender_date) 
-	// 						FROM td_tender t2 
-	// 						WHERE t2.approval_no = a.approval_no
-	// 					)
-	// 				    WHERE a.fin_year = '".$fin_year."'  GROUP BY 
-    // a.approval_no, a.admin_approval_dt, a.scheme_name,a.project_submit,b.tender_date,b.tender_notice,c.sector_desc,d.fin_year, a.project_id, e.dist_name,f.block_name,g.agency_name,h.account_head,b.invite_auth,b.mat_date,b.wo_date,b.wo_copy,b.wo_value,b.comp_date_apprx";
-
+	$fin_year = $this->input->post('fin_year');
 	$sql = "SELECT a.approval_no,a.admin_approval_dt,a.scheme_name,a.project_id,a.project_submit as project_submitted_by,a.admin_approval,a.vetted_dpr,
 						c.sector_desc AS sector_name,
 		                d.fin_year, e.dist_name, 
@@ -166,34 +138,85 @@ class Report extends CI_Controller {
 
 	public function graphical_data_finyearwise(){
 		$fin_year = $this->input->post('fin_year');
-		$sql = "select count(*) as number_of_project ,b.sector_desc as sector_name from td_admin_approval a,md_sector b where a.sector_id = b.sl_no and a.fin_year = '".$fin_year."' group by a.sector_id";
+		$sql = "select count(*) as number_of_project,b.sector_desc as sector_name from td_admin_approval a,md_sector b where a.sector_id = b.sl_no and a.fin_year = '".$fin_year."' group by a.sector_id";
 		$result_data = $this->db->query($sql)->result();
-		$sql_acchead = "select count(*) as number_of_project ,b.account_head as account_head from td_admin_approval a,md_account b where a.account_head = b.sl_no and a.fin_year = '".$fin_year."' group by a.account_head";
+		$sql_acchead = "select count(*) as number_of_project ,a.scheme_name,b.account_head as account_head from td_admin_approval a,md_account b where a.account_head = b.sl_no and a.fin_year = '".$fin_year."' group by a.account_head,a.scheme_name";
 		$resacc_data = $this->db->query($sql_acchead)->result();
 		$sql_dist = "select count(*) as number_of_project ,b.dist_name as dist_name from td_admin_approval a,md_district b where a.district_id = b.dist_code and a.fin_year = '".$fin_year."' group by a.district_id";
 		$resdist_data = $this->db->query($sql_dist)->result();
 		$sql_impagency = "select count(*) as number_of_project ,b.agency_name as agency_name from td_admin_approval a,md_proj_imp_agency b where a.impl_agency = b.id and a.fin_year = '".$fin_year."' group by a.impl_agency";
 		$resimpagency_data = $this->db->query($sql_impagency)->result();
-		$sql_expenditure = "select sum(a.sch_amt) + sum(a.cont_amt) as total_amt,b.project_id from td_expenditure a,td_admin_approval b where a.approval_no = b.approval_no and b.fin_year = '".$fin_year."' group by b.project_id";
+		$sql_expenditure = "select sum(a.sch_amt) + sum(a.cont_amt) as total_amt,b.scheme_name,b.project_id from td_expenditure a,td_admin_approval b where a.approval_no = b.approval_no and b.fin_year = '".$fin_year."' group by b.project_id,b.scheme_name";
 		$res_expenditure = $this->db->query($sql_expenditure)->result();
-		$sql_progress = "select sum(a.progress_percent) as progress_percent,b.project_id from td_progress a,td_admin_approval b where a.approval_no = b.approval_no and b.fin_year = '".$fin_year."' group by b.project_id";
+		$sql_progress = "select sum(a.progress_percent) as progress_percent,b.scheme_name,b.project_id from td_progress a,td_admin_approval b where a.approval_no = b.approval_no and b.fin_year = '".$fin_year."' group by b.project_id,b.scheme_name";
 		$res_progress = $this->db->query($sql_progress)->result();
-		$sql_fund = "select sum(a.instl_amt) as instl_amt , sum(a.sch_amt) as sch_amt,sum(a.cont_amt) as cont_amt,b.project_id from td_fund_receive a,td_admin_approval b where a.approval_no = b.approval_no and b.fin_year = '".$fin_year."' group by b.project_id";
+		$sql_fund = "select sum(a.instl_amt) as instl_amt , sum(a.sch_amt) as sch_amt,sum(a.cont_amt) as cont_amt,b.scheme_name,b.project_id from td_fund_receive a,td_admin_approval b where a.approval_no = b.approval_no and b.fin_year = '".$fin_year."' group by b.project_id,b.scheme_name";
 		$res_fund = $this->db->query($sql_fund)->result();
+
+		$sql_fund_release_espense = "SELECT 
+						f.project_id,
+						f.scheme_name,
+						IFNULL(f.fund_release, 0) AS fund_release,
+						IFNULL(e.fund_expense, 0) AS fund_expense
+					FROM 
+						(SELECT 
+							b.project_id,
+							b.scheme_name,
+							SUM(a.sch_amt) + SUM(a.cont_amt) AS fund_release
+						FROM td_fund_receive a
+						JOIN td_admin_approval b ON a.approval_no = b.approval_no
+						WHERE b.fin_year = '".$fin_year."'
+						GROUP BY b.project_id, b.scheme_name) f
+					LEFT JOIN 
+						(SELECT 
+							b.project_id,
+							b.scheme_name,
+							SUM(a.sch_amt) + SUM(a.cont_amt) AS fund_expense
+						FROM td_expenditure a
+						JOIN td_admin_approval b ON a.approval_no = b.approval_no
+						WHERE b.fin_year = '".$fin_year."'
+						GROUP BY b.project_id, b.scheme_name) e
+					ON f.project_id = e.project_id AND f.scheme_name = e.scheme_name";
+
+        $res_fund_release_espense = $this->db->query($sql_fund_release_espense)->result();
 		
 		$response = (!empty($result_data)) 
-			? ['status' => 1, 'sectorwise' => $result_data,'accountwise' => $resacc_data,'distwise' => $resdist_data,'impagencywise' => $resimpagency_data,'progress' => $res_progress,'fund' => $res_fund,'expenditure' => $res_expenditure] 
+			? ['status' => 1, 'sectorwise' => $result_data,'accountwise' => $resacc_data,'distwise' => $resdist_data,'impagencywise' => $resimpagency_data,'progress' => $res_progress,'fund_expenditure'=>$res_fund_release_espense,'fund' => $res_fund,'expenditure' => $res_expenditure] 
 			: ['status' => 0, 'message' => 'No data found'];
 			$this->output
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
 	}
-	
-
-	public function proj_dtl_accwise() {
-		
+    /////       ***** Project Detail Report Accountwise *****     /////
+	public function proj_dtl_finawith() {
+		$con = '';
+		$fin_year = $this->input->post('fin_year');
 		$account_head = $this->input->post('account_head_id');
-		$sql = "SELECT a.approval_no,a.admin_approval_dt,a.scheme_name,a.project_id,a.project_submit as project_submitted_by,a.admin_approval,a.vetted_dpr,
+		$sector_id = $this->input->post('sector_id');
+		$dist = $this->input->post('dist_id');
+		$block = $this->input->post('block_id');
+		$impl_agency = $this->input->post('impl_agency');
+
+		if ($account_head > 0) {
+			$con .= " AND a.account_head = '".$account_head."'";
+		}
+
+		if ($sector_id > 0) {
+			$con .= " AND a.sector_id = '".$sector_id."'";
+		}
+		if ($dist > 0) {
+			$con .= " AND a.district_id = '".$dist."'";
+		}
+
+		if ($block > 0) {
+			$con .= " AND a.block_id = '".$block."'";	
+		}
+
+		if ($impl_agency > 0) {
+			$con .= " AND a.impl_agency = '".$impl_agency."'";	
+		}
+        if($account_head > 0  || $sector_id > 0 || $dist > 0 || $block > 0 || $impl_agency > 0){
+	    $sql = "SELECT a.approval_no,a.admin_approval_dt,a.scheme_name,a.project_id,a.project_submit as project_submitted_by,a.admin_approval,a.vetted_dpr,
 						c.sector_desc AS sector_name,
 		                d.fin_year, e.dist_name, 
 						f.block_name,g.agency_name,
@@ -210,143 +233,104 @@ class Report extends CI_Controller {
 						LEFT JOIN td_expenditure exp ON exp.approval_no = a.approval_no 
 						JOIN md_account h ON h.sl_no = a.account_head 
 						JOIN md_fund i ON i.sl_no = a.fund_id
-					    WHERE a.account_head = '".$account_head."'  GROUP BY 
+					    WHERE a.fin_year = '".$fin_year."' $con GROUP BY 
     a.approval_no, a.admin_approval_dt, a.scheme_name,a.project_submit,c.sector_desc,d.fin_year, a.project_id, e.dist_name,f.block_name,g.agency_name,h.account_head";
+	   // echo $sql;
 	    $result_data = $this->db->query($sql)->result();
-		if($account_head == ''){
-			$response = ['status' => 0, 'message' => 'Required Field Missing'];
-		}else{
-			$response = (!empty($result_data)) 
-			? ['status' => 1, 'message' => $result_data] 
-			: ['status' => 0, 'message' => 'No data found'];
+				if($fin_year == ''){
+					$response = ['status' => 0, 'message' => 'Please provide Required Field'];
+					
+				}else{
+					$response = (!empty($result_data)) 
+					? ['status' => 1, 'message' => $result_data] 
+					: ['status' => 0, 'message' => 'No data found'];
+				}
+		}else{	
+			$response = ['status' => 0, 'message' => 'Please provide Required Field'];
 		}
+		
 	
 		$this->output
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
     }
 
-	
-	public function proj_dtl_sectorwise() {
+	public function graphical_data_finawith(){
 		
+		$con = '';
+		$fin_year = $this->input->post('fin_year');
+		$account_head = $this->input->post('account_head_id');
 		$sector_id = $this->input->post('sector_id');
-		$sql = "SELECT a.approval_no,a.admin_approval_dt,a.scheme_name,a.project_id,a.project_submit as project_submitted_by,
-		                b.invite_auth,b.mat_date,b.wo_date,b.wo_copy,b.wo_value,b.comp_date_apprx,
-						c.sector_desc AS sector_name,
-		                d.fin_year, e.dist_name, 
-						f.block_name,g.agency_name,
-						sum(fr.instl_amt) as fr_instl_amt,sum(fr.sch_amt) as fr_sch_amt,sum(fr.cont_amt) as fr_cont_amt,sum(exp.sch_amt) as exp_sch_amt,sum(exp.cont_amt) as exp_cont_amt
-						FROM td_admin_approval a 
-						INNER JOIN md_sector c ON a.sector_id = c.sl_no 
-						INNER JOIN md_fin_year d ON a.fin_year = d.sl_no 
-						INNER JOIN md_district e ON a.district_id = e.dist_code 
-						INNER JOIN md_block f ON a.block_id = f.block_id 
-						INNER JOIN md_proj_imp_agency g ON a.impl_agency = g.id
-						LEFT JOIN td_fund_receive fr ON fr.approval_no = a.approval_no
-						LEFT JOIN td_expenditure exp ON exp.approval_no = a.approval_no 
-						LEFT JOIN td_tender b ON b.approval_no = a.approval_no 
-						AND b.tender_date = (
-							SELECT MAX(t2.tender_date) 
-							FROM td_tender t2 
-							WHERE t2.approval_no = a.approval_no
-						)
-					    WHERE a.sector_id = '".$sector_id."'  GROUP BY 
-    a.approval_no, a.admin_approval_dt, a.scheme_name, c.sector_desc,d.fin_year, a.project_id, e.dist_name,f.block_name,g.agency_name,b.invite_auth,b.mat_date,b.wo_date,b.wo_copy,b.wo_value,b.comp_date_apprx";
-	    $result_data = $this->db->query($sql)->result();
-		if($sector_id == ''){
-			$response = ['status' => 0, 'message' => 'Required Field Missing'];
-			
-		}else{
-			$response = (!empty($result_data)) 
-			? ['status' => 1, 'message' => $result_data] 
-			: ['status' => 0, 'message' => 'No data found'];
-		}
-	
-		$this->output
-			->set_content_type('application/json')
-			->set_output(json_encode($response));
-    }
-	public function proj_dtl_distblock() {
-		
 		$dist = $this->input->post('dist_id');
 		$block = $this->input->post('block_id');
-		$sql = "SELECT a.approval_no,a.admin_approval_dt,a.scheme_name,a.project_id,a.project_submit as project_submitted_by,
-		                b.invite_auth,b.mat_date,b.wo_date,b.wo_copy,b.wo_value,b.comp_date_apprx,
-						c.sector_desc AS sector_name,
-		                d.fin_year, e.dist_name, 
-						f.block_name,g.agency_name,
-						sum(fr.instl_amt) as fr_instl_amt,sum(fr.sch_amt) as fr_sch_amt,sum(fr.cont_amt) as fr_cont_amt,sum(exp.sch_amt) as exp_sch_amt,sum(exp.cont_amt) as exp_cont_amt
-						FROM td_admin_approval a 
-						INNER JOIN md_sector c ON a.sector_id = c.sl_no 
-						INNER JOIN md_fin_year d ON a.fin_year = d.sl_no 
-						INNER JOIN md_district e ON a.district_id = e.dist_code 
-						INNER JOIN md_block f ON a.block_id = f.block_id 
-						INNER JOIN md_proj_imp_agency g ON a.impl_agency = g.id
-						LEFT JOIN td_fund_receive fr ON fr.approval_no = a.approval_no
-						LEFT JOIN td_expenditure exp ON exp.approval_no = a.approval_no 
-						LEFT JOIN td_tender b ON b.approval_no = a.approval_no 
-						AND b.tender_date = (
-							SELECT MAX(t2.tender_date) 
-							FROM td_tender t2 
-							WHERE t2.approval_no = a.approval_no
-						)
-					    WHERE a.district_id = '".$dist."' AND a.block_id = '".$block."' GROUP BY 
-    a.approval_no, a.admin_approval_dt, a.scheme_name, c.sector_desc,d.fin_year, a.project_id, e.dist_name,f.block_name,g.agency_name,b.invite_auth,b.mat_date,b.wo_date,b.wo_copy,b.wo_value,b.comp_date_apprx";
-	    $result_data = $this->db->query($sql)->result();
-		if($dist == '' || $block == ''){
-			$response = ['status' => 0, 'message' => 'Required Field Missing'];
-			
-		}else{
-			$response = (!empty($result_data)) 
-			? ['status' => 1, 'message' => $result_data] 
-			: ['status' => 0, 'message' => 'No data found'];
-		}
-	
-		$this->output
-			->set_content_type('application/json')
-			->set_output(json_encode($response));
-    }
-
-	public function proj_dtl_impagency() {
-		
 		$impl_agency = $this->input->post('impl_agency');
-		$sql = "SELECT a.approval_no,a.admin_approval_dt,a.scheme_name,a.project_id,a.project_submit as project_submitted_by,
-		                b.invite_auth,b.mat_date,b.wo_date,b.wo_copy,b.wo_value,b.comp_date_apprx,
-						c.sector_desc AS sector_name,
-		                d.fin_year, e.dist_name, 
-						f.block_name,g.agency_name,
-						sum(fr.instl_amt) as fr_instl_amt,sum(fr.sch_amt) as fr_sch_amt,sum(fr.cont_amt) as fr_cont_amt,sum(exp.sch_amt) as exp_sch_amt,sum(exp.cont_amt) as exp_cont_amt
-						FROM td_admin_approval a 
-						INNER JOIN md_sector c ON a.sector_id = c.sl_no 
-						INNER JOIN md_fin_year d ON a.fin_year = d.sl_no 
-						INNER JOIN md_district e ON a.district_id = e.dist_code 
-						INNER JOIN md_block f ON a.block_id = f.block_id 
-						INNER JOIN md_proj_imp_agency g ON a.impl_agency = g.id
-						INNER JOIN td_fund_receive fr ON fr.approval_no = a.approval_no
-						INNER JOIN td_expenditure exp ON exp.approval_no = a.approval_no 
-						LEFT JOIN td_tender b ON b.approval_no = a.approval_no 
-						AND b.tender_date = (
-							SELECT MAX(t2.tender_date) 
-							FROM td_tender t2 
-							WHERE t2.approval_no = a.approval_no
-						)
-					    WHERE a.impl_agency = '".$impl_agency."' GROUP BY 
-    a.approval_no, a.admin_approval_dt, a.scheme_name, c.sector_desc,d.fin_year, a.project_id, e.dist_name,f.block_name,g.agency_name,b.invite_auth,b.mat_date,b.wo_date,b.wo_copy,b.wo_value,b.comp_date_apprx";
-	    $result_data = $this->db->query($sql)->result();
-		if($impl_agency == ''){
-			$response = ['status' => 0, 'message' => 'Required Field Missing'];
-			
-		}else{
-			$response = (!empty($result_data)) 
-			? ['status' => 1, 'message' => $result_data] 
-			: ['status' => 0, 'message' => 'No data found'];
+
+		if ($account_head > 0) {
+			$con .= " AND a.account_head = '".$account_head."'";
 		}
-	
-		$this->output
+
+		if ($sector_id > 0) {
+			$con .= " AND a.sector_id = '".$sector_id."'";
+		}
+		if ($dist > 0) {
+			$con .= " AND a.district_id = '".$dist."'";
+		}
+
+		if ($block > 0) {
+			$con .= " AND a.block_id = '".$block."'";	
+		}
+
+		if ($impl_agency > 0) {
+			$con .= " AND a.impl_agency = '".$impl_agency."'";	
+		}
+		if($account_head > 0  || $sector_id > 0 || $dist > 0 || $block > 0 || $impl_agency > 0){
+		$sql = "select count(*) as number_of_project,b.sector_desc as sector_name from td_admin_approval a,md_sector b where a.sector_id = b.sl_no and a.fin_year = '".$fin_year."' $con group by a.sector_id";
+		$result_data = $this->db->query($sql)->result();
+		$sql_acchead = "select count(*) as number_of_project ,b.account_head as account_head from td_admin_approval a,md_account b where a.account_head = b.sl_no and a.fin_year = '".$fin_year."' $con group by a.account_head";
+		$resacc_data = $this->db->query($sql_acchead)->result();
+		$sql_dist = "select count(*) as number_of_project ,b.dist_name as dist_name from td_admin_approval a,md_district b where a.district_id = b.dist_code and a.fin_year = '".$fin_year."' $con group by a.district_id";
+		$resdist_data = $this->db->query($sql_dist)->result();
+		$sql_impagency = "select count(*) as number_of_project ,b.agency_name as agency_name from td_admin_approval a,md_proj_imp_agency b where a.impl_agency = b.id and a.fin_year = '".$fin_year."' $con group by a.impl_agency";
+		$resimpagency_data = $this->db->query($sql_impagency)->result();
+		$sql_progress = "select sum(b.progress_percent) as progress_percent,a.scheme_name,a.project_id from td_progress b,td_admin_approval a where a.approval_no = b.approval_no and a.fin_year = '".$fin_year."' $con group by a.project_id,a.scheme_name";
+		$res_progress = $this->db->query($sql_progress)->result();
+		
+		$sql_fund_release_espense = "SELECT 
+						f.project_id,
+						f.scheme_name,
+						IFNULL(f.fund_release, 0) AS fund_release,
+						IFNULL(e.fund_expense, 0) AS fund_expense
+					FROM 
+						(SELECT 
+							a.project_id,
+							a.scheme_name,
+							SUM(b.sch_amt) + SUM(b.cont_amt) AS fund_release
+						FROM td_fund_receive b
+						JOIN td_admin_approval a ON a.approval_no = b.approval_no
+						WHERE a.fin_year = '".$fin_year."'
+						GROUP BY a.project_id, a.scheme_name) f
+					LEFT JOIN 
+						(SELECT 
+							a.project_id,
+							a.scheme_name,
+							SUM(b.sch_amt) + SUM(b.cont_amt) AS fund_expense
+						FROM td_expenditure b
+						JOIN td_admin_approval a ON a.approval_no = b.approval_no
+						WHERE a.fin_year = '".$fin_year."' $con
+						GROUP BY a.project_id, a.scheme_name) e
+					ON f.project_id = e.project_id AND f.scheme_name = e.scheme_name";
+
+        $res_fund_release_espense = $this->db->query($sql_fund_release_espense)->result();
+		
+		$response = (!empty($result_data)) 
+			? ['status' => 1, 'sectorwise' => $result_data,'accountwise' => $resacc_data,'distwise' => $resdist_data,'impagencywise' => $resimpagency_data,'progress' => $res_progress,'fund_expenditure'=>$res_fund_release_espense] 
+			: ['status' => 0, 'message' => 'No data found'];
+		}else{	
+			$response = ['status' => 0, 'message' => 'Please provide Required Field'];
+		}
+			$this->output
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
-    }
-
-	
+	}
 	
 }

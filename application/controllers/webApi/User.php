@@ -7,8 +7,9 @@ class User extends CI_Controller {
         parent::__construct();
 		header("Access-Control-Allow-Origin: *"); // Allow all domains
         header("Access-Control-Allow-Methods: POST, OPTIONS"); // Allow specific methods
-        header("Access-Control-Allow-Headers: Content-Type");
+        header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
 		if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+			http_response_code(200);
 			exit;
 		} 
 		if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -36,7 +37,7 @@ class User extends CI_Controller {
     }
 
 	public function userlist() {
-		$data = $this->Master->f_select('td_user', array('user_id','user_type','name','user_status'), NULL, NULL);
+		$data = $this->Master->f_select('td_user a,md_department b,md_designation c,md_district d', array('a.user_id','a.user_type','a.name','a.user_status','b.dept_name','c.desig_name','d.dist_name'), array('a.dept_id=b.sl_no'=>NULL,'a.desig_id=c.sl_no'=>NULL,'a.dist_id=d.dist_code'=>NULL), NULL);
 		if (!empty($data)) {
 			echo json_encode(['status' => 1, 'message' => $data]);
 		} else {
@@ -46,10 +47,14 @@ class User extends CI_Controller {
 
 	//////// *************    API FOR User Add  ************* ////////
 	public function userAdd() {
-		$this->form_validation->set_rules('name', 'Name', 'required|min_length[3]|max_length[50]');
+		$this->form_validation->set_rules('name', 'Name', 'required|min_length[2]|max_length[100]');
 		$this->form_validation->set_rules('user_type', 'User Type', 'required');
 		$this->form_validation->set_rules('created_by', 'created_by', 'required');
 		$this->form_validation->set_rules('user_id', 'user_id', 'required|min_length[3]');
+		$this->form_validation->set_rules('dept_id', 'Department', 'required');
+		$this->form_validation->set_rules('desig_id', 'Designation', 'required');
+		$this->form_validation->set_rules('dist_id', 'District', 'required');
+		$this->form_validation->set_rules('mobile', 'Phone', 'required');
 		
 		if ($this->form_validation->run() == FALSE) {
 			echo json_encode([
@@ -64,6 +69,11 @@ class User extends CI_Controller {
 					'pass' => password_hash(1234, PASSWORD_DEFAULT),
 					'user_type' => $this->input->post('user_type'),
 					'name' => $this->input->post('name'),
+					'dept_id' => $this->input->post('dept_id'),
+					'desig_id' => $this->input->post('desig_id'),
+					'dist_id' => $this->input->post('dist_id'),
+					'mobile' => $this->input->post('mobile'),
+					'email_id' => $this->input->post('email_id'),
 					'user_status' => 'A',
 					'created_by'=> $this->input->post('created_by'),
 					'created_at'=> date('Y-m-d h:i:s')
@@ -84,19 +94,22 @@ class User extends CI_Controller {
 			}else{
 				echo json_encode([
 					'status' => 0,
-					'message' => 'Email Already Exist'
+					'message' => 'Already Exist'
 				]);
 			}
 		}
 	
 	}
 	public function userEdit() {
-		$this->form_validation->set_rules('name', 'Name', 'required|min_length[3]|max_length[50]');
+		$this->form_validation->set_rules('name', 'Name', 'required|min_length[2]|max_length[50]');
 		$this->form_validation->set_rules('user_type', 'User Type', 'required');
 		$this->form_validation->set_rules('reset_pass', 'Reset Pass Flag', 'required');
 		$this->form_validation->set_rules('user_status', 'User Status', 'required');
-		
-		$this->form_validation->set_rules('modified_by', 'created_by', 'required');
+		$this->form_validation->set_rules('dept_id', 'Department', 'required');
+		$this->form_validation->set_rules('desig_id', 'Designation', 'required');
+		$this->form_validation->set_rules('dist_id', 'District', 'required');
+		$this->form_validation->set_rules('mobile', 'Phone', 'required');
+		$this->form_validation->set_rules('modified_by', 'modified_by', 'required');
 		$this->form_validation->set_rules('user_id', 'user_id', 'required|min_length[3]');
 		
 		if ($this->form_validation->run() == FALSE) {
@@ -111,6 +124,11 @@ class User extends CI_Controller {
 				$data = [
 					'user_type' => $this->input->post('user_type'),
 					'name' => $this->input->post('name'),
+					'dept_id' => $this->input->post('dept_id'),
+					'desig_id' => $this->input->post('desig_id'),
+					'dist_id' => $this->input->post('dist_id'),
+					'mobile' => $this->input->post('mobile'),
+					'email_id' => $this->input->post('email_id'),
 					'user_status' => $this->input->post('user_status'),
 					'modified_by'=> $this->input->post('modified_by'),
 					'modified_at'=> date('Y-m-d h:i:s')
@@ -204,7 +222,7 @@ class User extends CI_Controller {
 				'message' => validation_errors()
 			]);
 		} else {
-			$result     = $this->Master->f_select('td_user',array('user_id','user_type','name','user_status'),array('user_id'=>trim($this->input->post('user_id')),'user_status'=>'A'),1);
+			$result     = $this->Master->f_select('td_user',array('*'),array('user_id'=>trim($this->input->post('user_id')),'user_status'=>'A'),1);
 			if($result){
 				echo json_encode([
 					'status' => 1,

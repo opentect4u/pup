@@ -390,5 +390,168 @@ class Mdapi extends CI_Controller {
 		}
 	}
 
+	//////// *************    API FOR Department  ************* ////////
+	public function department() {
+		$data = $this->Master->f_select('md_department', array('sl_no','dept_name'), NULL, NULL);
+		if (!empty($data)) {
+			echo json_encode(['status' => 1, 'message' => $data]);
+		} else {
+			echo json_encode(['status' => 0, 'message' => 'No data found']);
+		}
+    }
+	public function deptAdd() {
+		$query = $this->db->get_where('md_department', ['dept_name' => trim($this->input->post('dept_name'))]);
+		if($query->num_rows() == 0) {
+			if($this->input->post('dept_name') == '' || $this->input->post('created_by') == '') {
+				echo json_encode([
+					'status' => 0,
+					'message' => 'Required Missing'
+				]);
+				return;
+			}
+			$data = [
+				'dept_name' => $this->input->post('dept_name'),
+				'created_by'=> $this->input->post('created_by'),
+				'created_at'=> date('Y-m-d h:i:s')
+			];
+		
+			$id = $this->Master->f_insert('md_department', $data);
+			if($id > 0) {
+				echo json_encode([
+					'status' => 1,
+					'message' => 'successfully!'
+				]);
+			}else{
+					echo json_encode([
+						'status' => 0,
+						'message' => 'Something Went Wrong'
+					]);
+			}
+		}else{
+			echo json_encode([
+				'status' => 0,
+				'message' => 'Already Exist'
+			]);
+		}
+	}
+	public function deptedit() {
+		$query = $this->db->get_where('md_department', ['dept_name' => trim($this->input->post('dept_name'))]);
+		if($query->num_rows() == 0) {
+			if($this->input->post('dept_name') == '' || $this->input->post('modified_by') == '' || $this->input->post('sl_no') == '') {
+				echo json_encode([
+					'status' => 0,
+					'message' => 'Required Missing'
+				]);
+				return;
+			}
+			$data = [
+				'dept_name' => $this->input->post('dept_name'),
+				'modified_by'=> $this->input->post('modified_by'),
+				'modified_at'=> date('Y-m-d h:i:s')
+			];
+			$where = ['sl_no' => $this->input->post('sl_no')];
+		
+			$id = $this->Master->f_edit('md_department', $data ,$where);
+			if($id > 0) {
+				echo json_encode([
+					'status' => 1,
+					'message' => 'success!'
+				]);
+			}else{
+					echo json_encode([
+						'status' => 0,
+						'message' => 'Something Went Wrong'
+					]);
+			}
+		}else{
+			echo json_encode([
+				'status' => 0,
+				'message' => 'Already Exist'
+			]);
+		}
+	}
+
+	
+	public function designation() {
+		$data = $this->Master->f_select('md_designation', array('sl_no','desig_name'), NULL, NULL);
+		if (!empty($data)) {
+			echo json_encode(['status' => 1, 'message' => $data]);
+		} else {
+			echo json_encode(['status' => 0, 'message' => 'No data found']);
+		}
+    }
+
+	public function desigAdd() {
+		$query = $this->db->get_where('md_designation', ['desig_name' => trim($this->input->post('desig_name'))]);
+		if($query->num_rows() == 0) {
+			if($this->input->post('desig_name') == '' || $this->input->post('created_by') == '') {
+				echo json_encode([
+					'status' => 0,
+					'message' => 'Required Missing'
+				]);
+				return;
+			}
+			$data = [
+				'desig_name' => $this->input->post('desig_name'),
+				'created_by'=> $this->input->post('created_by'),
+				'created_at'=> date('Y-m-d h:i:s')
+			];
+		
+			$id = $this->Master->f_insert('md_designation', $data);
+			if($id > 0) {
+				echo json_encode([
+					'status' => 1,
+					'message' => 'successfully!'
+				]);
+			}else{
+					echo json_encode([
+						'status' => 0,
+						'message' => 'Something Went Wrong'
+					]);
+			}
+		}else{
+			echo json_encode([
+				'status' => 0,
+				'message' => 'Already Exist'
+			]);
+		}
+	}
+	public function desigedit() {
+		$query = $this->db->get_where('md_designation', ['desig_name' => trim($this->input->post('desig_name'))]);
+		if($query->num_rows() == 0) {
+			if($this->input->post('desig_name') == '' || $this->input->post('modified_by') == '' || $this->input->post('sl_no') == '') {
+				echo json_encode([
+					'status' => 0,
+					'message' => 'Required Missing'
+				]);
+				return;
+			}
+			$data = [
+				'desig_name' => $this->input->post('desig_name'),
+				'modified_by'=> $this->input->post('modified_by'),
+				'modified_at'=> date('Y-m-d h:i:s')
+			];
+			$where = ['sl_no' => $this->input->post('sl_no')];
+		
+			$id = $this->Master->f_edit('md_designation', $data ,$where);
+			if($id > 0) {
+				echo json_encode([
+					'status' => 1,
+					'message' => 'success!'
+				]);
+			}else{
+					echo json_encode([
+						'status' => 0,
+						'message' => 'Something Went Wrong'
+					]);
+			}
+		}else{
+			echo json_encode([
+				'status' => 0,
+				'message' => 'Already Exist'
+			]);
+		}
+	}
+
 	
 }
