@@ -9,7 +9,7 @@ import VError from '../../Components/VError';
 import axios from 'axios';
 import { auth_key, url } from '../../Assets/Addresses/BaseUrl';
 import { Message } from '../../Components/Message';
-import { FilePdfOutlined, LoadingOutlined, CalendarOutlined } from '@ant-design/icons';
+import { FilePdfOutlined, LoadingOutlined, CalendarOutlined, EditOutlined } from '@ant-design/icons';
 import { Select, Spin, Flex, Progress } from 'antd';
 import { FaMapMarker } from "react-icons/fa";
 import { Image } from 'antd';
@@ -48,8 +48,13 @@ function FundRelForm() {
   const params = useParams();
   const [formValues, setValues] = useState(initialValues);
   const location = useLocation();
-  const operation_status = location.state?.operation_status || "add";
-  // const sl_no = location.state?.sl_no || "";
+  // const operation_status = location.state?.operation_status || "add";
+  // const receive_no = location.state?.receive_no || "";
+  // const receive_date = location.state?.receive_date || "";
+  const [operation_status, setOperation_status] = useState('');
+  const [receive_no, setreceive_no] = useState('');
+  const [receive_date, setreceive_date] = useState('');
+
   const navigate = useNavigate()
   const [fundStatus, setFundStatus] = useState(() => []);
   const [folderName, setFolderName] = useState('');
@@ -62,6 +67,7 @@ function FundRelForm() {
   const [approvalNo, setApprovalNo] = useState('');
   const toast = useRef(null)
   const [filePreview_2, setFilePreview_2] = useState(null);
+  const [userDataLocalStore, setUserDataLocalStore] = useState([]);
 
 
 
@@ -159,11 +165,82 @@ function FundRelForm() {
   
     };
 
+    const updateFormData = async () => {
+      // setLoading(true); // Set loading state
+  
+    
+      const formData = new FormData();
+  
+      
+      formData.append("instl_amt", formik.values.receipt_first);
+      formData.append("allotment_no", formik.values.al1_pdf);  //////////
+      formData.append("sch_amt", formik.values.sch_amt_one);
+      formData.append("cont_amt", formik.values.cont_amt_one);
+      // formData.append("isntl_date", formik.values.isntl_date);
+      formData.append("isntl_date", receive_date);
+
+      formData.append("approval_no", params?.id);
+      formData.append("receive_date", receive_date);
+      formData.append("receive_no", receive_no);
+      formData.append("modified_by", userDataLocalStore.user_id);
+
+        // approval_no,
+        // receive_no,
+        // receive_date
+        // modified_by
+
+// instl_amt,
+// isntl_date,
+// allotment_no,
+// sch_amt,
+// cont_amt,
+
+
+      // receipt_first: response?.data?.message?.instl_amt,
+      // al1_pdf: response.data.message.allotment_no,
+      // sch_amt_one: response.data.message.sch_amt,
+      // cont_amt_one: response.data.message.cont_amt,
+      // tot_amt: response.data.message.tender_notice,
+      // isntl_date: response.data.message.receive_date,
+  
+    
+      console.log("formDataformData", formData);
+  
+      try {
+        const response = await axios.post(
+          `${url}index.php/webApi/Fund/fund_edit`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              'auth_key': auth_key // Important for FormData
+            },
+          }
+        );
+        console.log(response, 'response');
+        
+        // setLoading(false);
+        Message("success", "Updated successfully.");
+        loadFormEditData(params?.id, receive_no, receive_date)
+        // navigate(`/home/tender_formality`);
+        fundAddedList(params?.id)
+  
+        formik.resetForm();
+      } catch (error) {
+        // setLoading(false);
+        Message("error", "Error Submitting Form:");
+        console.error("Error submitting form:", error);
+      }
+  
+    };
+
  const onSubmit = (values) => {
-    // console.log(values, 'credcredcredcredcred', operation_status ==  'edit', 'lll', params?.id);
-    // if(operation_status ==  'add'){
+
+    if(params?.id > 0){
+      updateFormData()
+    } else {
       saveFormData()
-    // }
+    }
     
   };
 
@@ -242,9 +319,72 @@ function FundRelForm() {
 
   };
 
+  const loadFormEditData = async (approval_no, receive_no, receive_date) => {
+    // console.log(project_id, 'responsedata');
+    setLoading(true); // Set loading state
+
+    setOperation_status('edit');
+    setreceive_no(receive_no)
+    setreceive_date(receive_date)
+
+    const formData = new FormData();
+
+    formData.append("approval_no", approval_no);
+    formData.append("receive_no", receive_no);
+    formData.append("receive_date", receive_date);
+
+    try {
+      const response = await axios.post(
+        url + 'index.php/webApi/Fund/fund_single_data',
+        formData,
+        {
+          headers: {
+            'auth_key': auth_key,
+          },
+        }
+      );
+
+      console.log(response?.data?.message, 'ffffffffffffffffff', formData);
+      
+      if (response?.data.status > 0) {
+        setLoading(false);
+        setValues({
+          receipt_first: response?.data?.message?.instl_amt,
+          al1_pdf: response.data.message.allotment_no,
+          sch_amt_one: response.data.message.sch_amt,
+          cont_amt_one: response.data.message.cont_amt,
+          tot_amt: response.data.message.tender_notice,
+          isntl_date: response.data.message.receive_date,
+        })
+      }
+
+      if (response?.data.status < 1) {
+        setLoading(false);
+      }
+
+    } catch (error) {
+      setLoading(false);
+      console.error("Error fetching data:", error); // Handle errors properly
+    }
+
+  };
+
+
   useEffect(()=>{
+
+    const userData = localStorage.getItem("user_dt");
+    if (userData) {
+    setUserDataLocalStore(JSON.parse(userData))
+    } else {
+    setUserDataLocalStore([])
+    }
+
+    
     fetchProjectId()
+
   }, [])
+
+
 
   const formik = useFormik({
       // initialValues:formValues,
@@ -266,6 +406,7 @@ function FundRelForm() {
 
   useEffect(()=>{
     if(params?.id > 0){
+      // loadFormEditData(params?.id, receive_no, receive_date)
       loadFormData(params?.id)
       fundAddedList(params?.id)
       setApprovalNo(params?.id)
@@ -459,7 +600,7 @@ function FundRelForm() {
             {/* {JSON.stringify(fundStatus, null, 2)} */}
 
             
-
+            
 
         {fundStatus?.length > 0 &&(
           <>
@@ -552,6 +693,14 @@ function FundRelForm() {
           )}
           ></Column>
 
+<Column
+          field="comp_date_apprx"
+          header="Action"
+          body={(rowData) => (
+            <a onClick={() => { loadFormEditData(params?.id, rowData.receive_no, rowData.isntl_date)}}><EditOutlined style={{fontSize:22, }} /></a>
+            )}
+          ></Column>
+
           </DataTable>
 
         
@@ -617,7 +766,7 @@ function FundRelForm() {
               </a>
               )}
 
-              {formValues.al1_pdf.length > 0 &&(
+              {formValues.al1_pdf != null &&(
               <>
               {filePreview_2 === null && (
               <a href={url + folderName + formValues.al1_pdf} target='_blank' style={{position:'absolute', top:37, right:10}}>
@@ -688,6 +837,7 @@ function FundRelForm() {
                 handleChange={formik.handleChange}
                 handleBlur={formik.handleBlur}
                 mode={1}
+                disabled= {operation_status ==  'edit'? true : false}
               />
               {formik.errors.isntl_date && formik.touched.isntl_date && (
                 <VError title={formik.errors.isntl_date} />
@@ -697,11 +847,13 @@ function FundRelForm() {
             <div className="sm:col-span-12 flex justify-center gap-4 mt-4">
          {/* <BtnComp title={'Reset'} width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'}/>
          <BtnComp title={'Submit'} width={'w-1/6'} bgColor={'bg-blue-900'}/> */}
-         <BtnComp title={'Reset'} type="reset" 
+          {operation_status !=  'edit'&&(
+          <BtnComp title={operation_status ==  'edit' ? 'Reload' : 'Reset'} type="reset" 
         onClick={() => { 
           formik.resetForm();
         }}
         width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
+        )}
         {/* <button type="submit">Search</button> */}
         <BtnComp type={'submit'} title={operation_status ==  'edit' ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
          </div>

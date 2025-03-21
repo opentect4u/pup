@@ -339,6 +339,7 @@ function HeadAccountwise_Report() {
 
       if (params?.id > 0) {
         setSelectedYear(params?.id); // Set first year as default (modify if needed)
+        // setSecoundField_submit(secoundValue)
       }
 
       setLoading(false);
@@ -363,6 +364,9 @@ function HeadAccountwise_Report() {
 
       // console.log("Response Data:", response.data.message); // Log the actual response data
       setHeadAccountDropList(response.data.message)
+      if (params?.id > 0) {
+        setSecoundField_submit(secoundValue)
+      }
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -495,7 +499,8 @@ const onPageChange = (event) => {
     const formik = useFormik({
       // initialValues:formValues,
       // initialValues,
-      initialValues: { fin_yr: selectedYear },
+      // initialValues: { fin_yr: selectedYear, head_acc: selectedYear },
+      initialValues: { fin_yr: selectedYear, head_acc: secoundField_submit || secoundValue },
       onSubmit,
       validationSchema,
       enableReinitialize: true,
@@ -608,7 +613,8 @@ const onPageChange = (event) => {
               onClick={() => { navigate(`/home/report/head-accountwise-report-graph/${financeYear_submit == "" ? params?.id : financeYear_submit}`, {
                 state: {
                 // ...data, // Spread existing rowData
-                secoundValue: secoundField_submit == "" ? secoundField_submit : secoundValue || secoundField_submit, // Explicitly include approval_status
+                // secoundValue: secoundField_submit == "" ? secoundField_submit : secoundValue || secoundField_submit, // Explicitly include approval_status
+                secoundValue: secoundField_submit > 0 ? secoundField_submit : '',
                 },
                 }) }} 
               > <BarChartOutlined /> Graphical View</button>
@@ -618,7 +624,7 @@ const onPageChange = (event) => {
           </div>
 
         </form>
-        {/* {JSON.stringify(secoundValue, null, 2)} /// {JSON.stringify(params?.id, null, 2)} */}
+        {/* {JSON.stringify(secoundField_submit, null, 2)} /// {JSON.stringify(secoundValue, null, 2)} /// {JSON.stringify(params?.id, null, 2)} */}
            <Spin
                       indicator={<LoadingOutlined spin />}
                       size="large"

@@ -9,7 +9,7 @@ import VError from '../../Components/VError';
 import axios from 'axios';
 import { auth_key, url, folder_tender } from '../../Assets/Addresses/BaseUrl';
 import { Message } from '../../Components/Message';
-import { FilePdfOutlined, LoadingOutlined } from '@ant-design/icons';
+import { EditOutlined, FilePdfOutlined, LoadingOutlined } from '@ant-design/icons';
 import { Select, Spin } from 'antd';
 import { DataTable } from 'primereact/datatable';
 import Column from 'antd/es/table/Column';
@@ -74,8 +74,8 @@ function TFForm() {
   const params = useParams();
   const [formValues, setValues] = useState(initialValues);
   const location = useLocation();
-  const operation_status = location.state?.operation_status || "add";
-  const sl_no = location.state?.sl_no || "";
+  // const operation_status = location.state?.operation_status || "add";
+  // const sl_no = location.state?.sl_no || "";
   const navigate = useNavigate()
   const [filePreview_1, setFilePreview_1] = useState(null);
   const [filePreview_2, setFilePreview_2] = useState(null);
@@ -83,13 +83,16 @@ function TFForm() {
   // const [projectId, setProjectId] = useState([]);
 
   const [projectId, setProjectId] = useState([]);
-    // const [getStatusData, setGetStatusData] = useState([]);
-    const [getMsgData, setGetMsgData] = useState([]);
-    const [showForm, setShowForm] = useState(false);
-    const [approvalNo, setApprovalNo] = useState('');
-    const [fundStatus, setFundStatus] = useState(() => []);
-    const toast = useRef(null)
-    const [radioType, setRadioType] = useState("M")
+  // const [getStatusData, setGetStatusData] = useState([]);
+  const [getMsgData, setGetMsgData] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [approvalNo, setApprovalNo] = useState('');
+  const [fundStatus, setFundStatus] = useState(() => []);
+  const toast = useRef(null)
+  const [radioType, setRadioType] = useState("M")
+  const [userDataLocalStore, setUserDataLocalStore] = useState([]);
+  const [operation_status, setOperation_status] = useState('');
+  const [sl_no, setSl_no] = useState('');
 
   useEffect(()=>{
     console.log(operation_status, 'loadFormData', sl_no, 'kkkk', params?.id);
@@ -210,6 +213,65 @@ function TFForm() {
 
   };
 
+  const loadFormEditData = async (approval_no, sl_no) => {
+
+    setOperation_status('edit');
+    setSl_no(sl_no)
+
+    console.log(approval_no, 'responsedata', sl_no);
+    setLoading(true); // Set loading state
+
+    const formData = new FormData();
+
+    formData.append("approval_no", approval_no);
+    formData.append("sl_no", sl_no);
+
+    try {
+      const response = await axios.post(
+        url + 'index.php/webApi/Tender/tender_single_data',
+        formData,
+        {
+          headers: {
+            'auth_key': auth_key,
+          },
+        }
+      );
+
+      console.log(response?.data?.message, 'responsedataTender');
+      
+      if (response?.data.status > 0) {
+        setLoading(false);
+        // setGetMsgData(response?.data?.message)
+        setValues({
+          td_dt: response?.data?.message?.tender_date,
+          tia: response.data.message.invite_auth,
+          amt_put_tender: response.data.message.amt_put_to_tender,
+          options:  setRadioType(response.data.message.tender_status),
+          dlp: response.data.message.dlp,
+          add_per_sec: response.data.message.add_per_security,
+          emd: response.data.message.emd,
+          date_refund: response.data.message.date_of_refund,
+          td_mt_dt: response.data.message.mat_date,
+          wo_dt: response.data.message.wo_date,
+          wo_value: response.data.message.wo_value,
+          compl: response.data.message.comp_date_apprx,
+          td_pdf: response.data.message.tender_notice,
+          wo_pdf: response.data.message.wo_copy,
+        })
+      }
+
+      if (response?.data.status < 1) {
+        setLoading(false);
+        setGetMsgData([])
+      }
+
+    } catch (error) {
+      setLoading(false);
+      console.error("Error fetching data:", error); // Handle errors properly
+    }
+
+  };
+
     useEffect(()=>{
 
       fetchProjectId()
@@ -277,62 +339,78 @@ function TFForm() {
 
   };
 
-  // const updateFormData = async () => {
-  //   // setLoading(true); // Set loading state
+  const updateFormData = async () => {
+    // setLoading(true); // Set loading state
 
   
-  //   const formData = new FormData();
+    const formData = new FormData();
 
-  //   formData.append("approval_no", params?.id);
-  //   formData.append("sl_no", sl_no);
-  //   formData.append("tender_date", formik.values.td_dt);
-  //   formData.append("tender_notice", formik.values.td_pdf);  //////////
-  //   formData.append("invite_auth", formik.values.tia);
-  //   formData.append("mat_date", formik.values.td_mt_dt);
-  //   formData.append("wo_date", formik.values.wo_dt);
-  //   formData.append("wo_copy", formik.values.wo_pdf);
-  //   formData.append("wo_value", formik.values.wo_value);
-  //   formData.append("comp_date_apprx", formik.values.compl);
-  //   formData.append("updated_by", "SSS Name Updated By");
+    
+    formData.append("tender_date", formik.values.td_dt);
+    formData.append("tender_notice", formik.values.td_pdf);  //////////
+    formData.append("invite_auth", formik.values.tia);
+    formData.append("mat_date", formik.values.td_mt_dt);
+    formData.append("wo_date", formik.values.wo_dt);
+    formData.append("wo_copy", formik.values.wo_pdf);
+    formData.append("wo_value", formik.values.wo_value);
+    formData.append("comp_date_apprx", formik.values.compl);
+
+    formData.append("tender_status", radioType);
+    formData.append("amt_put_to_tender", formik.values.amt_put_tender);
+    formData.append("dlp", formik.values.dlp);
+    formData.append("add_per_security", formik.values.add_per_sec);
+    formData.append("emd", formik.values.emd);
+    formData.append("date_of_refund", formik.values.date_refund);
+
+    formData.append("approval_no", params?.id);
+    formData.append("sl_no", sl_no);
+    formData.append("modified_by", userDataLocalStore.user_id);
 
   
-  //   console.log(formik.values.td_pdf, "FormData:", formik.values.td_pdf);
+    console.log("formDataformData", formData);
 
-  //   try {
-  //     const response = await axios.post(
-  //       `${url}index.php/webApi/Tender/tend_edit`,
-  //       formData,
-  //       {
-  //         headers: {
-  //           "Content-Type": "multipart/form-data",
-  //           'auth_key': auth_key // Important for FormData
-  //         },
-  //       }
-  //     );
-  //     console.log(response, 'response');
+    try {
+      const response = await axios.post(
+        `${url}index.php/webApi/Tender/tend_edit`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            'auth_key': auth_key // Important for FormData
+          },
+        }
+      );
+      console.log(response, 'response');
       
-  //     // setLoading(false);
-  //     Message("success", "Updated successfully.");
-  //     navigate(`/home/tender_formality/tftenderlist`);
+      // setLoading(false);
+      Message("success", "Updated successfully.");
+      loadFormEditData(params?.id, sl_no)
+      // navigate(`/home/tender_formality`);
+      fundAddedList(params?.id)
 
-  //     formik.resetForm();
-  //   } catch (error) {
-  //     // setLoading(false);
-  //     Message("error", "Error Submitting Form:");
-  //     console.error("Error submitting form:", error);
-  //   }
+      formik.resetForm();
+    } catch (error) {
+      // setLoading(false);
+      Message("error", "Error Submitting Form:");
+      console.error("Error submitting form:", error);
+    }
 
-  // };
+  };
   
 
   const onSubmit = (values) => {
     console.log(values, 'credcredcredcredcred', operation_status ==  'edit', 'lll', params?.id);
+    if(params?.id > 0){
+      updateFormData()
+    } else {
+      saveFormData()
+    }
 
     // if(operation_status == 'edit'){
     //   updateFormData()
     // } 
     // if(operation_status ==  'add'){
-      saveFormData()
+      // saveFormData()
     // }
     
   };
@@ -348,13 +426,27 @@ function TFForm() {
     });
 
   useEffect(()=>{
+    // if(operation_status == 'edit'){
+      
+    // }
     if(params?.id > 0){
+      // loadFormEditData(params?.id, sl_no)
       loadFormData(params?.id)
       fundAddedList(params?.id)
       setApprovalNo(params?.id)
       setShowForm(true);
     }
+
+    const userData = localStorage.getItem("user_dt");
+    if (userData) {
+    setUserDataLocalStore(JSON.parse(userData))
+    } else {
+    setUserDataLocalStore([])
+    }
+
   }, [])
+
+
     
   
 
@@ -540,6 +632,8 @@ function TFForm() {
 						className="text-gray-500 dark:text-gray-400"
 						spinning={loading}
 					>
+{/* {JSON.stringify(fundStatus, null, 2)} //// {JSON.stringify(operation_status, null, 2)} */}
+
 
         {fundStatus?.length > 0 &&(
           <>
@@ -646,6 +740,14 @@ function TFForm() {
           header="Tentative Date of Completion"
           ></Column>
 
+          <Column
+          field="comp_date_apprx"
+          header="Action"
+          body={(rowData) => (
+            <a onClick={() => { loadFormEditData(params?.id, rowData.sl_no)}}><EditOutlined style={{fontSize:22}} /></a>
+            )}
+          ></Column>
+
           
 
           </DataTable>
@@ -685,9 +787,6 @@ function TFForm() {
               name="td_pdf"
               placeholder="Tender Notice"
               label="Tender Notice"
-              // handleChange={(event) => {
-              // formik.setFieldValue("td_pdf", event.currentTarget.files[0]);
-              // }}
               handleChange={(event) => {
                 const file = event.currentTarget.files[0];
                 if (file) {
@@ -866,9 +965,6 @@ function TFForm() {
               name="wo_pdf"
               placeholder="Work Order Copy"
               label="Work Order Copy"
-              // handleChange={(event) => {
-              // formik.setFieldValue("wo_pdf", event.currentTarget.files[0]);
-              // }}
               handleChange={(event) => {
                 const file = event.currentTarget.files[0];
                 if (file) {
@@ -931,11 +1027,14 @@ function TFForm() {
               )}
             </div>
         <div className="sm:col-span-12 flex justify-center gap-4 mt-4">
-        <BtnComp title={operation_status ==  'edit' ? 'Reload' : 'Reset'} type="reset" 
+        {operation_status !=  'edit'&&(
+          <BtnComp title={operation_status ==  'edit' ? 'Reload' : 'Reset'} type="reset" 
         onClick={() => { 
           formik.resetForm();
         }}
         width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
+        )}
+        
         {/* <button type="submit">Search</button> */}
         <BtnComp type={'submit'} title={operation_status ==  'edit' ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
          </div>

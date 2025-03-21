@@ -99,6 +99,8 @@ function AdApForm() {
 
   const [checkProjectId, setCheckProjectId] = useState(true);
 
+  const [userDataLocalStore, setUserDataLocalStore] = useState([]);
+
 
   const fetchSectorDropdownOption = async () => {
     setLoading(true);
@@ -250,6 +252,15 @@ function AdApForm() {
   };
 
 
+  useEffect(() => {
+  const userData = localStorage.getItem("user_dt");
+  if (userData) {
+  setUserDataLocalStore(JSON.parse(userData))
+  } else {
+  setUserDataLocalStore([])
+  }
+
+  }, []);
 
  
 
@@ -307,14 +318,6 @@ function AdApForm() {
 
 
   const loadFormData = async () => {
-    // setLoading(true); // Set loading state
-
-    
-
-    // const defaultBlock = blockDropList.find(item => item.block_id === 65);
-
-    // console.log(defaultBlock, 'defaultBlock', blockDropList);
-    
   
     const cread = {
       approval_no: params?.id
@@ -433,10 +436,27 @@ function AdApForm() {
     formData.append("vetted_dpr", formik.values.vet_dpr_pdf); // Ensure this is a file if applicable
     formData.append("fund_id", formik.values.src);
     formData.append("approval_no", params?.id);
-    formData.append("modified_by", "SSS Name Modified By");
-    formData.append("created_by", "SSS Name Created By");
+    formData.append("modified_by", userDataLocalStore.user_id);
+    
+
+  // 'scheme_name' __,
+  // 'sector_id' __,
+  // 'fin_year' __,
+  // 'sch_amt' __,
+  // 'cont_amt' __,
+  // 'admin_approval' __,
+  // 'vetted_dpr' __,
+  // 'project_id' __,
+  // 'account_head' __,
+  // 'admin_approval_dt' __,
+  // 'project_submit' __,
+  // 'impl_agency' __,
+  // 'district_id' __,
+  // 'block_id' __,
+  // 'fund_id' __,
+  // 'modified_by'
   
-    console.log(formik.values.block, "FormData:", formik.values.admin_appr_pdf);
+    console.log(formData, "FormData:", formik.values.admin_appr_pdf);
 
     try {
       const response = await axios.post(
@@ -497,46 +517,46 @@ function AdApForm() {
     formik.setFieldValue("tot_amt", total);
   }, [formik.values.schm_amt, formik.values.cont_amt]);
 
-  const checkProjectId_fn = async (value)=>{
-    // setLoading(true);
-    console.log(value.target.value, 'valuevaluevaluevalue');
-    const formData = new FormData();
+  // const checkProjectId_fn = async (value)=>{
+  //   // setLoading(true);
+  //   console.log(value.target.value, 'valuevaluevaluevalue');
+  //   const formData = new FormData();
   
-    formData.append("project_id", value.target.value);
+  //   formData.append("project_id", value.target.value);
 
-    try {
-      const response = await axios.post(
-        `${url}index.php/webApi/Admapi/check_pi`,
-        formData,
-        {
-          headers: {
-            // "Content-Type": "multipart/form-data",
-            'auth_key': auth_key // Important for FormData
-          },
-        }
-      );
+  //   try {
+  //     const response = await axios.post(
+  //       `${url}index.php/webApi/Admapi/check_pi`,
+  //       formData,
+  //       {
+  //         headers: {
+  //           // "Content-Type": "multipart/form-data",
+  //           'auth_key': auth_key // Important for FormData
+  //         },
+  //       }
+  //     );
       
-      if(response?.data?.status > 0){
-        // formik.setFieldError('proj_id', '');
-        setCheckProjectId(true)
-      }
+  //     if(response?.data?.status > 0){
+  //       // formik.setFieldError('proj_id', '');
+  //       setCheckProjectId(true)
+  //     }
 
-      if(response?.data?.status < 1){
-        // formik.setFieldError('proj_id', 'Project ID is Required');
-        setCheckProjectId(false)
-      }
-      console.log(response?.data?.status, 'valuevaluevaluevalue');
+  //     if(response?.data?.status < 1){
+  //       // formik.setFieldError('proj_id', 'Project ID is Required');
+  //       setCheckProjectId(false)
+  //     }
+  //     console.log(response?.data?.status, 'valuevaluevaluevalue');
       
-      // setLoading(false);
+  //     // setLoading(false);
 
-      // formik.resetForm();
-    } catch (error) {
-      setLoading(false);
-      Message("error", "Error Submitting Form:");
-      console.error("Error submitting form:", error);
-    }
+  //     // formik.resetForm();
+  //   } catch (error) {
+  //     setLoading(false);
+  //     Message("error", "Error Submitting Form:");
+  //     console.error("Error submitting form:", error);
+  //   }
     
-  }
+  // }
 
 
   return (
@@ -562,7 +582,7 @@ function AdApForm() {
                 // handleChange={formik.handleChange}
                 handleChange={(e) => {
                   formik.handleChange(e);
-                  checkProjectId_fn(e)
+                  // checkProjectId_fn(e)
                   console.log('Project ID changed to:', e.target.value); // Additional action if needed
                 }}
                 handleBlur={formik.handleBlur}
@@ -570,9 +590,9 @@ function AdApForm() {
               />
 
 {/* {JSON.stringify(formik.errors.proj_id , null, 2)} /// {JSON.stringify(formik.errors.proj_id, null, 2)} /// {JSON.stringify(checkProjectId, null, 2)} */}
-{checkProjectId === false &&(
+{/* {checkProjectId === false &&(
   <VError title={'Project ID must be Unique'} />
-)}
+)} */}
 
               {formik.errors.proj_id && formik.touched.proj_id &&(
                 <VError title={formik.errors.proj_id} />
@@ -811,6 +831,7 @@ function AdApForm() {
               
 
               <label for="head_acc" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Head Account</label>
+              {/* {JSON.stringify(headAccountDropList, null, 2)} */}
               <Select
                 placeholder="Choose Head Account"
                 value={formik.values.head_acc || undefined} // Ensure default empty state

@@ -7,9 +7,9 @@ import { useFormik } from "formik";
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import VError from '../../Components/VError';
 import axios from 'axios';
-import { auth_key, url, folder_certificate, folder_fund, proj_final_pic } from '../../Assets/Addresses/BaseUrl';
+import { auth_key, url, folder_certificate, folder_fund, proj_final_pic, folder_tender } from '../../Assets/Addresses/BaseUrl';
 import { Message } from '../../Components/Message';
-import { FilePdfOutlined, LoadingOutlined } from '@ant-design/icons';
+import { EditOutlined, FilePdfOutlined, LoadingOutlined } from '@ant-design/icons';
 import { Select, Spin } from 'antd';
 import { DataTable } from 'primereact/datatable';
 import Column from 'antd/es/table/Column';
@@ -60,8 +60,10 @@ function UCForm() {
   const params = useParams();
   const [formValues, setValues] = useState(initialValues);
   const location = useLocation();
-  const operation_status = location.state?.operation_status || "add";
-  // const sl_no = location.state?.sl_no || "";
+  // const operation_status = location.state?.operation_status || "add";
+  // const certificate_no = location.state?.certificate_no || "";
+  const [operation_status, setOperation_status] = useState('');
+  const [certificate_no, setcertificate_no] = useState('');
   const navigate = useNavigate()
   const [fundStatus, setFundStatus] = useState(() => []);
   const [folderName, setFolderName] = useState('');
@@ -76,6 +78,8 @@ function UCForm() {
   const [radioType, setRadioType] = useState("N")
   const [finalPic, setFinalPic] = useState([]);
   const [projectStatus, setProjectStatus] = useState('');
+  const [userDataLocalStore, setUserDataLocalStore] = useState([]);
+  const [filePreview_1, setFilePreview_1] = useState(null);
 
   const validationSchema = useMemo(() => 
     Yup.object({
@@ -183,13 +187,76 @@ function UCForm() {
   
     };
 
+
+    const updateFormData = async () => {
+      // setLoading(true); // Set loading state
+  
+    
+      const formData = new FormData();
+  
+      
+      formData.append("issued_by", formik.values.issued_by);
+      formData.append("issued_to", formik.values.issued_to);  //////////
+      formData.append("certificate_path", formik.values.certificate_path);
+      formData.append("certificate_date", formik.values.certificate_date);
+      formData.append("exp_text", formik.values.exp_text);
+  
+  
+      formData.append("approval_no", params?.id);
+      formData.append("certificate_no", certificate_no);
+      formData.append("modified_by", userDataLocalStore.user_id);
+
+// approval_no, //
+// certificate_no, //
+// modified_by //
+
+// certificate_date,
+// certificate_path,
+// issued_by,
+// issued_to,
+// remarks,
+
+  
+    
+      console.log("formDataformData", formData);
+  
+      try {
+        const response = await axios.post(
+          `${url}index.php/webApi/Utilization/utlization_edit`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              'auth_key': auth_key // Important for FormData
+            },
+          }
+        );
+        console.log(response, 'response___________');
+        
+        // setLoading(false);
+        Message("success", "Updated successfully.");
+        loadFormEditData(params?.id, certificate_no)
+        // navigate(`/home/tender_formality`);
+        fundAddedList(params?.id)
+  
+        formik.resetForm();
+      } catch (error) {
+        // setLoading(false);
+        Message("error", "Error Submitting Form:");
+        console.error("Error submitting form:", error);
+      }
+  
+    };
+    
+
  const onSubmit = (values) => {
     console.log(values, 'credcredcredcredcred', operation_status ==  'edit', 'lll', params?.id);
 
-   
-    // if(operation_status ==  'add'){
+    if(params?.id > 0){
+      updateFormData()
+    } else {
       saveFormData()
-    // }
+    }
     
   };
 
@@ -267,13 +334,70 @@ function UCForm() {
 
   };
 
+  const loadFormEditData = async (approval_no, certificate_no) => {
+    setLoading(true); // Set loading state
+
+    setOperation_status('edit');
+    setcertificate_no(certificate_no)
+
+    const formData = new FormData();
+
+    formData.append("approval_no", approval_no);
+    formData.append("certificate_no", certificate_no);
+
+    try {
+      const response = await axios.post(
+        url + 'index.php/webApi/Utilization/utlization_single_data',
+        formData,
+        {
+          headers: {
+            'auth_key': auth_key,
+          },
+        }
+      );
+
+      console.log(response?.data?.message, 'fffffffffjjhkuuuuuuuuuuuuuujhjk');
+      
+      if (response?.data.status > 0) {
+        setLoading(false);
+        setValues({
+          issued_by: response?.data?.message?.issued_by,
+          issued_to: response?.data?.message?.issued_to,
+          certificate_path: response?.data?.message?.certificate_path,
+          certificate_date:  response?.data?.message?.certificate_date,
+          exp_text: response?.data?.message?.remarks,
+        })
+
+      }
+
+      if (response?.data.status < 1) {
+        setLoading(false);
+      }
+
+    } catch (error) {
+      setLoading(false);
+      console.error("Error fetching data:", error); // Handle errors properly
+    }
+
+  };
+
+
   useEffect(()=>{
     fetchProjectId()
     fundAddedList()
   }, [])
   
   useEffect(()=>{
+
+    const userData = localStorage.getItem("user_dt");
+    if (userData) {
+    setUserDataLocalStore(JSON.parse(userData))
+    } else {
+    setUserDataLocalStore([])
+    }
+
     if(params?.id > 0){
+      // loadFormEditData(params?.id, certificate_no)
       loadFormData(params?.id)
       fundAddedList(params?.id)
       setApprovalNo(params?.id)
@@ -475,7 +599,7 @@ function UCForm() {
 						className="text-gray-500 dark:text-gray-400"
 						spinning={loading}
 					>
-            
+            {/* {JSON.stringify(fundStatus, null, 2)} */}
         {fundStatus?.length > 0 &&(
           <>
           <Heading title={"Utilization Certificate History"} button={'N'}/>
@@ -527,6 +651,11 @@ function UCForm() {
           <Column
           field="is_final"
           header="This Is Final Utilization Certificate?"
+          body={(rowData) => (
+            <>
+            {rowData.is_final == 'Y'? 'Yes': 'No'}
+            </>
+            )}
           ></Column>
 
 
@@ -534,6 +663,14 @@ function UCForm() {
           <Column
           field="remarks"
           header="Remarks"
+          ></Column>
+
+<Column
+          field="comp_date_apprx"
+          header="Action"
+          body={(rowData) => (
+            <a onClick={() => { loadFormEditData(params?.id, rowData.certificate_no)}}><EditOutlined style={{fontSize:22, }} /></a>
+            )}
           ></Column>
 
           
@@ -610,8 +747,8 @@ function UCForm() {
             )}
           </div>
         
-          <div class="sm:col-span-3">
-            <TDInputTemplate
+          <div class="sm:col-span-3" style={{position:'relative'}}>
+            {/* <TDInputTemplate
             type="file"
             name="certificate_path"
             placeholder="Utilization Certificate"
@@ -622,7 +759,39 @@ function UCForm() {
             }}
             handleBlur={formik.handleBlur}
             mode={1}
-            />
+            /> */}
+
+            <TDInputTemplate
+              type="file"
+              name="certificate_path"
+              placeholder="Utilization Certificate"
+              label="Utilization Certificate"
+              handleChange={(event) => {
+                const file = event.currentTarget.files[0];
+                if (file) {
+                formik.setFieldValue("certificate_path", file);
+                setFilePreview_1(URL.createObjectURL(file)); // Create a preview URL
+                }
+              }}
+              handleBlur={formik.handleBlur}
+              mode={1}
+              />
+
+            {filePreview_1 && (
+            <a href={filePreview_1} target="_blank" rel="noopener noreferrer" style={{position:'absolute', top:37, right:10}}>
+            <FilePdfOutlined style={{ fontSize: 22, color: "red" }} />
+            </a>
+            )}
+
+            {formValues.certificate_path.length > 0 &&(
+            <>
+            {filePreview_1 === null && (
+            <a href={url + folder_certificate + formValues.certificate_path} target='_blank' style={{position:'absolute', top:37, right:10}}>
+            <FilePdfOutlined style={{fontSize:22, color:'red'}} /></a>
+            )}
+            </>
+            )}
+
 
             {formik.errors.certificate_path && formik.touched.certificate_path && (
               <VError title={formik.errors.certificate_path} />
@@ -661,6 +830,7 @@ function UCForm() {
             )}
           </div>
 
+          {operation_status != 'edit' &&(
           <div class="sm:col-span-4">
           <label className="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">This Is Final Utilization Certificate?</label>
           <Radiobtn
@@ -671,6 +841,8 @@ function UCForm() {
           }}
           />
           </div>
+          )}
+          
           {radioType == "Y" &&(
             <div class="sm:col-span-4">
             <TDInputTemplate
@@ -694,11 +866,13 @@ function UCForm() {
           
 
           <div className="sm:col-span-12 flex justify-center gap-4 mt-4">
-       <BtnComp title={'Reset'} type="reset" 
-      onClick={() => { 
-        formik.resetForm();
-      }}
-      width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
+          {operation_status !=  'edit'&&(
+          <BtnComp title={operation_status ==  'edit' ? 'Reload' : 'Reset'} type="reset" 
+        onClick={() => { 
+          formik.resetForm();
+        }}
+        width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
+        )}
       {/* <button type="submit">Search</button> */}
       <BtnComp type={'submit'} title={operation_status ==  'edit' ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
        </div>

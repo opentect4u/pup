@@ -91,6 +91,33 @@ const MasterAccordion = () => (
         <li>
           <Link to={"master/account-head-list"}>Account Head List</Link>
         </li>
+        <li>
+          <Link to={"master/depertment"}>Department</Link>
+        </li>
+        <li>
+          <Link to={"master/designation"}>Designation</Link>
+        </li>
+      </ul>
+    </Panel>
+  </Collapse>
+);
+
+const UserAccordion = () => (
+  <Collapse accordion>
+    <Panel header="Manage User" key="1" >
+      <ul>
+        <li>
+          <Link to={"user/manage-user"}>Add/Edit User</Link>
+        </li>
+        {/* <li>
+          <Link to={"master/add-source-fund"}>Source Of Fund</Link>
+        </li>
+        <li>
+          <Link to={"master/implementing-agency"}>Implementing Agency</Link>
+        </li>
+        <li>
+          <Link to={"master/account-head-list"}>Account Head List</Link>
+        </li> */}
       </ul>
     </Panel>
   </Collapse>
@@ -101,22 +128,24 @@ const ReportAccordion = () => (
     <Panel header="Report" key="1" >
       <ul>
         <li>
-          <Link to={"report/financial-report"}>Financial Yearwise</Link>
+          <Link to={"report/financial-report/0"}>Financial Yearwise</Link>
         </li>
         <li>
-          <Link to={"report/head-accountwise-report"}>Head of Accountwise </Link>
+          <Link to={"report/head-accountwise-report/0"}>Head of Accountwise </Link>
         </li>
         <li>
+          <Link to={"report/sector-report/0"}>Sectorwise</Link>
+        </li>
+        <li>
+          <Link to={"report/district-report/0"}>Districtwise & Blockwise</Link>
+        </li>
+
+        <li>
+          <Link to={"report/implement-report/0"}>Implementing Agencywise</Link>
+        </li>
+
+        {/* <li>
           <Link to={"report/implementing-agency"}>Projectwise</Link>
-        </li>
-        <li>
-          <Link to={"report/account-head-list"}>Sectorwise</Link>
-        </li>
-        <li>
-          <Link to={"report/account-head-list"}>Districtwise & Blockwise</Link>
-        </li>
-        <li>
-          <Link to={"report/account-head-list"}>Implementing Agencywise</Link>
         </li>
         
         <li>
@@ -127,7 +156,7 @@ const ReportAccordion = () => (
         </li>
         <li>
           <Link to={"report/account-head-list"}>Utilizationwise</Link>
-        </li>
+        </li> */}
       </ul>
     </Panel>
   </Collapse>
@@ -160,6 +189,7 @@ function Sidebar() {
           items={items}
         />
         <MasterAccordion />
+        <UserAccordion />
         <ReportAccordion />
       </div>
     </aside>

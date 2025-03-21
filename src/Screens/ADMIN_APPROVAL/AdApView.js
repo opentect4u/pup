@@ -3,7 +3,7 @@ import BtnComp from '../../Components/BtnComp';
 import { useNavigate } from 'react-router-dom';
 import { auth_key, url } from '../../Assets/Addresses/BaseUrl';
 import axios from 'axios';
-import { EditOutlined, LoadingOutlined } from '@ant-design/icons';
+import { EditOutlined, EyeOutlined, LoadingOutlined } from '@ant-design/icons';
 import { useParams } from "react-router";
 import { Spin } from 'antd';
 
@@ -65,7 +65,7 @@ function AdApView() {
 
     const filteredData = tableDataList.filter((data) => 
       data?.scheme_name?.toLowerCase().includes(value) || 
-      data?.sector_name?.toLowerCase().includes(value)
+    data?.project_id?.toString().toLowerCase().includes(value)
     );
 
     setFilteredDataList(filteredData);
@@ -139,7 +139,7 @@ function AdApView() {
                           className="text-blue-700 border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1.5"
                           onClick={() => navigate(`/home/admin_approval/AdApcrud/${data?.approval_no}`)}
                         >
-                          <EditOutlined />
+                         <EyeOutlined />
                         </button>
                       </td>
                     </tr>

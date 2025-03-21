@@ -9,7 +9,7 @@ import VError from '../../Components/VError';
 import axios from 'axios';
 import { auth_key, url } from '../../Assets/Addresses/BaseUrl';
 import { Message } from '../../Components/Message';
-import { FilePdfOutlined, LoadingOutlined } from '@ant-design/icons';
+import { EditOutlined, FilePdfOutlined, LoadingOutlined } from '@ant-design/icons';
 import { Select, Spin } from 'antd';
 import { DataTable } from 'primereact/datatable';
 import Column from 'antd/es/table/Column';
@@ -49,8 +49,14 @@ function FundExpForm() {
   const params = useParams();
   const [formValues, setValues] = useState(initialValues);
   const location = useLocation();
-  const operation_status = location.state?.operation_status || "add";
-  // const sl_no = location.state?.sl_no || "";
+  // const operation_status = location.state?.operation_status || "add";
+  // const payment_no = location.state?.payment_no || "";
+  // const payment_date = location.state?.payment_date || "";
+
+  const [operation_status, setOperation_status] = useState('');
+  const [payment_no, setpayment_no] = useState('');
+  const [payment_date, setpayment_date] = useState('');
+
   const navigate = useNavigate()
   const [fundStatus, setFundStatus] = useState(() => []);
   const [folderName, setFolderName] = useState('');
@@ -64,6 +70,7 @@ function FundExpForm() {
   const [showForm, setShowForm] = useState(false);
   const [approvalNo, setApprovalNo] = useState('');
   const toast = useRef(null)
+  const [userDataLocalStore, setUserDataLocalStore] = useState([]);
 
 
 
@@ -163,14 +170,65 @@ function FundExpForm() {
   
     };
 
+
+    const updateFormData = async () => {
+      // setLoading(true); // Set loading state
+  
+    
+      const formData = new FormData();
+  
+      
+      formData.append("payment_to", '');
+      formData.append("sch_amt", formik.values.sch_amt_one);  //////////
+      formData.append("cont_amt", formik.values.cont_amt_one);
+      formData.append("sch_remark", formik.values.sch_remark);
+      formData.append("cont_remark", formik.values.cont_remark);
+  
+      formData.append("approval_no", params?.id);
+      formData.append("payment_no", payment_no);
+      formData.append("payment_date", payment_date);
+      formData.append("modified_by", userDataLocalStore.user_id);
+
+  
+    
+      console.log("formDataformData", formData);
+  
+      try {
+        const response = await axios.post(
+          `${url}index.php/webApi/Expense/expense_edit`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              'auth_key': auth_key // Important for FormData
+            },
+          }
+        );
+        console.log(response, 'response');
+        
+        // setLoading(false);
+        Message("success", "Updated successfully.");
+        loadFormEditData(params?.id, payment_no, payment_date)
+        fundAddedList(params?.id)
+        // navigate(`/home/tender_formality`);
+  
+        formik.resetForm();
+      } catch (error) {
+        // setLoading(false);
+        Message("error", "Error Submitting Form:");
+        console.error("Error submitting form:", error);
+      }
+  
+    };
+
  const onSubmit = (values) => {
     console.log(values, 'credcredcredcredcred', operation_status ==  'edit', 'lll', params?.id);
 
-   
-    // if(operation_status ==  'add'){
+    if(params?.id > 0){
+      updateFormData()
+    } else {
       saveFormData()
-      
-    // }
+    }
     
   };
 
@@ -248,6 +306,56 @@ function FundExpForm() {
 
   };
 
+
+  const loadFormEditData = async (approval_no, payment_no, payment_date) => {
+    setLoading(true); // Set loading state
+
+    setOperation_status('edit');
+    setpayment_no(payment_no)
+    setpayment_date(payment_date)
+
+    const formData = new FormData();
+
+    formData.append("approval_no", approval_no);
+    formData.append("payment_no", payment_no);
+    formData.append("payment_date", payment_date);
+
+    try {
+      const response = await axios.post(
+        url + 'index.php/webApi/Expense/expense_single_data',
+        formData,
+        {
+          headers: {
+            'auth_key': auth_key,
+          },
+        }
+      );
+
+      // console.log(response?.data?.message, 'fffffffffjjhkjhjk');
+      
+      if (response?.data.status > 0) {
+        setLoading(false);
+        setValues({
+          payment_date: response?.data?.message?.payment_date,
+          sch_amt_one: response.data.message.sch_amt,
+          cont_amt_one: response.data.message.cont_amt,
+          sch_remark:  response.data.message.sch_remark,
+          cont_remark: response.data.message.cont_remark,
+        })
+
+      }
+
+      if (response?.data.status < 1) {
+        setLoading(false);
+      }
+
+    } catch (error) {
+      setLoading(false);
+      console.error("Error fetching data:", error); // Handle errors properly
+    }
+
+  };
+
   useEffect(()=>{
     fetchProjectId()
 
@@ -273,7 +381,17 @@ function FundExpForm() {
     }, [formik.values.sch_amt_one, formik.values.cont_amt_one]);
 
     useEffect(()=>{
+
+    const userData = localStorage.getItem("user_dt");
+    if (userData) {
+    setUserDataLocalStore(JSON.parse(userData))
+    } else {
+    setUserDataLocalStore([])
+    }
+
+
     if(params?.id > 0){
+    // loadFormEditData(params?.id, payment_no, payment_date)
     loadFormData(params?.id)
     fundAddedList(params?.id)
     setApprovalNo(params?.id)
@@ -454,6 +572,9 @@ function FundExpForm() {
 						className="text-gray-500 dark:text-gray-400"
 						spinning={loading}
 					>
+
+{/* {JSON.stringify(fundStatus, null, 2)} */}
+
         {fundStatus?.length > 0 && (
           <>
             <Heading title={"Expenditure History"} button={'N'} />
@@ -534,6 +655,14 @@ function FundExpForm() {
           header="Contigency Remarks"
           ></Column>
 
+<Column
+          field="comp_date_apprx"
+          header="Action"
+          body={(rowData) => (
+            <a onClick={() => { loadFormEditData(params?.id, rowData.payment_no, rowData.payment_date)}}><EditOutlined style={{fontSize:22, }} /></a>
+            )}
+          ></Column>
+
           
 
           </DataTable>
@@ -560,6 +689,7 @@ function FundExpForm() {
                 handleChange={formik.handleChange}
                 handleBlur={formik.handleBlur}
                 mode={1}
+                disabled={params?.id > 0? true : false}
               />
               {formik.errors.payment_date && formik.touched.payment_date && (
                 <VError title={formik.errors.payment_date} />
@@ -670,11 +800,13 @@ function FundExpForm() {
             <div className="sm:col-span-12 flex justify-center gap-4 mt-4">
          {/* <BtnComp title={'Reset'} width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'}/>
          <BtnComp title={'Submit'} width={'w-1/6'} bgColor={'bg-blue-900'}/> */}
-         <BtnComp title={'Reset'} type="reset" 
+          {operation_status !=  'edit'&&(
+          <BtnComp title={operation_status ==  'edit' ? 'Reload' : 'Reset'} type="reset" 
         onClick={() => { 
           formik.resetForm();
         }}
         width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
+        )}
         {/* <button type="submit">Search</button> */}
         <BtnComp type={'submit'} title={operation_status ==  'edit' ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
          </div>
