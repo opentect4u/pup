@@ -39,9 +39,9 @@ class Tender extends CI_Controller {
 		
 		$where = array('a.approval_no = b.approval_no' => NULL,'b.sector_id = c.sl_no' => NULL,
 		               'b.fin_year = d.sl_no' => NULL,'b.district_id = e.dist_code' => NULL,
-					   'b.block_id = f.block_id' => NULL,'1 group by b.admin_approval_dt,b.scheme_name,sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no,a.sl_no'=>NULL);
+					   'b.block_id = f.block_id' => NULL,'1 group by b.admin_approval_dt,b.scheme_name,sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no'=>NULL);
 		
-		$result_data = $this->Master->f_select('td_tender a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f', 'b.admin_approval_dt,b.scheme_name,c.sector_desc as sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no,a.sl_no', $where, NULL);
+		$result_data = $this->Master->f_select('td_tender a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f', 'b.admin_approval_dt,b.scheme_name,c.sector_desc as sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no', $where, NULL);
 
 		if (!empty($result_data)) {
 			echo json_encode(['status' => 1, 'message' => $result_data,'folder_name'=>'uploads/fund/']);
@@ -67,7 +67,7 @@ class Tender extends CI_Controller {
 			if (!empty($_FILES[$field]['name'])) {
 				$config['upload_path']   = './uploads/tender/'; // Folder to store files
 				$config['allowed_types'] = 'pdf'; // Allow only PDFs
-				$config['max_size']      = 8048; // Max file size (2MB)
+				$config['max_size']      = 20480; // Max file size (2MB)
 				$config['encrypt_name']  = TRUE; // Encrypt filename for security
 	
 				$this->upload->initialize($config); // Initialize config for each file
@@ -209,79 +209,85 @@ class Tender extends CI_Controller {
 		$this->load->library('upload');
 		// File fields to process
 		$file_fields = ['tender_notice', 'wo_copy'];
+		$this->form_validation->set_rules('approval_no', 'Approval No', 'required');
+		$this->form_validation->set_rules('modified_by', 'created_by', 'required');
+		$this->form_validation->set_rules('sl_no', 'Sl No', 'required');
+		$this->form_validation->set_rules('tender_date', 'Tender', 'required');
+		
+		if ($this->form_validation->run() == FALSE) {
+			echo json_encode([
+				'status' => 0,
+				'message' => validation_errors()
+			]);
+		}else{
 	
-		// Fetch the existing record (to retain old file names if no new file is uploaded)
-		$app_res_data = $this->Master->f_select('td_tender', '*', [
-			'approval_no' => $this->input->post('approval_no'),
-			'sl_no' => $this->input->post('sl_no')
-		], 1);
-	
-		foreach ($file_fields as $field) {
-			if (!empty($_FILES[$field]['name'])) {
-				$config['upload_path']   = './uploads/tender/'; // Folder to store files
-				$config['allowed_types'] = 'pdf'; // Allow only PDFs
-				$config['max_size']      = 8048; // Max file size (2MB)
-				$config['encrypt_name']  = TRUE; // Encrypt filename for security
-	
-				$this->upload->initialize($config); // Initialize config for each file
-	
-				if (!$this->upload->do_upload($field)) {
-					echo json_encode([
-						'status' => false,
-						'message' => "Error uploading {$field}: " . $this->upload->display_errors()
-					]);
-					return;
+			foreach ($file_fields as $field) {
+				if (!empty($_FILES[$field]['name'])) {
+					$config['upload_path']   = './uploads/tender/'; // Folder to store files
+					$config['allowed_types'] = 'pdf'; // Allow only PDFs
+					$config['max_size']      = 20480; // Max file size (2MB)
+					$config['encrypt_name']  = TRUE; // Encrypt filename for security
+		
+					$this->upload->initialize($config); // Initialize config for each file
+		
+					if (!$this->upload->do_upload($field)) {
+						echo json_encode([
+							'status' => false,
+							'message' => "Error uploading {$field}: " . $this->upload->display_errors()
+						]);
+						return;
+					}
+		
+					// Store new file name
+					$fileData = $this->upload->data();
+					$upload_paths[$field] = $fileData['file_name'];
+				} else {
+					// Keep the existing filename if no new file is uploaded
+					//$upload_paths[$field] = $this->input->post($field . '_name') ?? $app_res_data->$field;
 				}
-	
-				// Store new file name
-				$fileData = $this->upload->data();
-				$upload_paths[$field] = $fileData['file_name'];
-			} else {
-				// Keep the existing filename if no new file is uploaded
-				//$upload_paths[$field] = $this->input->post($field . '_name') ?? $app_res_data->$field;
 			}
-		}
 	
-		// Prepare data array for update
-		$data = [
-			'tender_date' => $this->input->post('tender_date'),
-			'invite_auth' => $this->input->post('invite_auth'),
-			'mat_date' => $this->input->post('mat_date'),
-			'wo_date' => $this->input->post('wo_date'),
-			'wo_value' => $this->input->post('wo_value'),
-			'comp_date_apprx' => $this->input->post('comp_date_apprx'),
-			'tender_status' => $this->input->post('tender_status'),
-			'amt_put_to_tender' => $this->input->post('amt_put_to_tender'),
-			'dlp' => $this->input->post('dlp'),
-			'add_per_security' => $this->input->post('add_per_security'),
-			'emd' => $this->input->post('emd'),
-			'date_of_refund' => $this->input->post('date_of_refund'),
-			'modified_by' => $this->input->post('modified_by'),
-			'modified_at' => date('Y-m-d H:i:s')
-		];
+			// Prepare data array for update
+			$data = [
+				'tender_date' => $this->input->post('tender_date'),
+				'invite_auth' => $this->input->post('invite_auth'),
+				'mat_date' => $this->input->post('mat_date'),
+				'wo_date' => $this->input->post('wo_date'),
+				'wo_value' => $this->input->post('wo_value'),
+				'comp_date_apprx' => $this->input->post('comp_date_apprx'),
+				'tender_status' => $this->input->post('tender_status'),
+				'amt_put_to_tender' => $this->input->post('amt_put_to_tender'),
+				'dlp' => $this->input->post('dlp'),
+				'add_per_security' => $this->input->post('add_per_security'),
+				'emd' => $this->input->post('emd'),
+				'date_of_refund' => $this->input->post('date_of_refund'),
+				'modified_by' => $this->input->post('modified_by'),
+				'modified_at' => date('Y-m-d H:i:s')
+			];
 	
-		// Conditionally add file fields if they exist in $upload_paths
-		if (!empty($upload_paths['tender_notice'])) {
-			$data['tender_notice'] = $upload_paths['tender_notice'];
-		}
-		if (!empty($upload_paths['wo_copy'])) {
-			$data['wo_copy'] = $upload_paths['wo_copy'];
-		}
-	
-		// Define where condition for update
-		$where = [
-			'approval_no' => $this->input->post('approval_no'),
-			'sl_no' => $this->input->post('sl_no')
-		];
-	
-		// Update data in the database
-		$this->Master->f_edit('td_tender', $data, $where);
-	
-		echo json_encode([
-			'status' => true,
-			'message' => 'Tender updated successfully!',
-			'file_names' => $upload_paths
-		]);
+			// Conditionally add file fields if they exist in $upload_paths
+			if (!empty($upload_paths['tender_notice'])) {
+				$data['tender_notice'] = $upload_paths['tender_notice'];
+			}
+			if (!empty($upload_paths['wo_copy'])) {
+				$data['wo_copy'] = $upload_paths['wo_copy'];
+			}
+		
+			// Define where condition for update
+			$where = [
+				'approval_no' => $this->input->post('approval_no'),
+				'sl_no' => $this->input->post('sl_no')
+			];
+		
+			// Update data in the database
+			$this->Master->f_edit('td_tender', $data, $where);
+		
+			echo json_encode([
+				'status' => true,
+				'message' => 'Tender updated successfully!',
+				'file_names' => $upload_paths
+			]);
+	   }
 	}
 
 	public function progress_list() {

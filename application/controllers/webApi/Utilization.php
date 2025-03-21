@@ -100,9 +100,9 @@ class Utilization extends CI_Controller {
 		
 		$where = array('a.approval_no = b.approval_no' => NULL,'b.sector_id = c.sl_no' => NULL,
 		               'b.fin_year = d.sl_no' => NULL,'b.district_id = e.dist_code' => NULL,
-					   'b.block_id = f.block_id' => NULL,'1 group by b.admin_approval_dt,b.scheme_name,sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no,a.certificate_no,a.certificate_date'=>NULL);
+					   'b.block_id = f.block_id' => NULL,'1 group by b.admin_approval_dt,b.scheme_name,sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no'=>NULL);
 		
-		$result_data = $this->Master->f_select('td_utilization a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f', 'b.admin_approval_dt,b.scheme_name,c.sector_desc as sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no,a.certificate_no,a.certificate_date', $where, NULL);
+		$result_data = $this->Master->f_select('td_utilization a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f', 'b.admin_approval_dt,b.scheme_name,c.sector_desc as sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no', $where, NULL);
 
 		if (!empty($result_data)) {
 			echo json_encode(['status' => 1, 'message' => $result_data,'folder_name'=>'uploads/fund/']);
@@ -126,7 +126,7 @@ class Utilization extends CI_Controller {
 			if (!empty($_FILES[$field]['name'])) {
 				$config['upload_path']   = './uploads/certificate/'; // Folder to store files
 				$config['allowed_types'] = 'pdf'; // Allow only PDFs
-				$config['max_size']      = 2048; // Max file size (2MB)
+				$config['max_size']      = 20480; // Max file size (2MB)
 				$config['encrypt_name']  = TRUE; // Encrypt filename for security
 	
 				$this->upload->initialize($config); // Initialize config for each file
@@ -173,7 +173,7 @@ class Utilization extends CI_Controller {
 				if (!empty($_FILES[$field]['name'])) {
 					$config['upload_path']   = './uploads/proj_final_pic/'; // Folder to store files
 					$config['allowed_types'] = 'jpg|jpeg|png';  // Image only
-					$config['max_size']      = 2048; // Max file size (2MB)
+					$config['max_size']      = 20480; // Max file size (2MB)
 					$config['encrypt_name']  = TRUE; // Encrypt filename for security
 		
 					$this->upload->initialize($config); // Initialize config for each file
@@ -216,7 +216,7 @@ class Utilization extends CI_Controller {
 		$where['approval_no'] = $approval_no;
 		$where['certificate_no'] = $certificate_no;
 	
-		$result_data = $this->Master->f_select('td_utilization', '*', $where, 1);
+		$result_data = $this->Master->f_select('td_utilization', 'approval_no,certificate_no,certificate_date,certificate_path,issued_by,issued_to,remarks,is_final', $where, 1);
 	
 		$response = (!empty($result_data)) 
 			? ['status' => 1, 'message' => $result_data] 
@@ -235,12 +235,24 @@ class Utilization extends CI_Controller {
 	
 		// File fields to process
 		$file_fields = ['certificate_path'];
+		$this->form_validation->set_rules('approval_no', 'Approval No', 'required');
+		$this->form_validation->set_rules('modified_by', 'Modified By', 'required');
+		$this->form_validation->set_rules('issued_by', 'Issued By', 'required');
+		$this->form_validation->set_rules('issued_to', 'Issued To', 'required');
+		$this->form_validation->set_rules('certificate_date', 'Certificate date', 'required');
+		
+		if ($this->form_validation->run() == FALSE) {
+			echo json_encode([
+				'status' => 0,
+				'message' => validation_errors()
+			]);
+		}else{
 	
 		foreach ($file_fields as $field) {
 			if (!empty($_FILES[$field]['name'])) {
 				$config['upload_path']   = './uploads/certificate/'; // Folder to store files
 				$config['allowed_types'] = 'pdf'; // Allow only PDFs
-				$config['max_size']      = 2048; // Max file size (2MB)
+				$config['max_size']      = 20480; // Max file size (2MB)
 				$config['encrypt_name']  = TRUE; // Encrypt filename for security
 	
 				$this->upload->initialize($config); // Initialize config for each file
@@ -255,10 +267,7 @@ class Utilization extends CI_Controller {
 				// Store new file name
 				$fileData = $this->upload->data();
 				$upload_paths[$field] = $fileData['file_name'];
-			} else {
-				// Keep the existing filename if no new file is uploaded
-				//$upload_paths[$field] = $this->input->post($field . '_name') ?? $app_res_data->$field;
-			}
+			} 
 		}
 		// Prepare data array for update
 		$data = [
@@ -288,57 +297,8 @@ class Utilization extends CI_Controller {
 			'status' => true,
 			'message' => 'Utilization updated successfully!'
 		]);
+	  }
 	}
-
-	// public function upload_final_pic() {
-	
-	// 	$upload_paths = []; // Store file paths
-	// 	// Load Upload Library
-	// 	$this->load->library('upload');
-	// 	// File fields to process
-	// 	$file_fields = ['final_pic'];
-		
-	// 	foreach ($file_fields as $field) {
-	// 		if (!empty($_FILES[$field]['name'])) {
-	// 			$config['upload_path']   = './uploads/final_pic/'; // Folder to store files
-	// 			$config['allowed_types'] = 'pdf'; // Allow only PDFs
-	// 			$config['max_size']      = 2048; // Max file size (2MB)
-	// 			$config['encrypt_name']  = TRUE; // Encrypt filename for security
-	
-	// 			$this->upload->initialize($config); // Initialize config for each file
-	
-	// 			if (!$this->upload->do_upload($field)) {
-	// 				echo json_encode([
-	// 					'status' => false,
-	// 					'message' => "Error uploading {$field}: " . $this->upload->display_errors()
-	// 				]);
-	// 				return;
-	// 			}
-	
-	// 			// Store uploaded file path
-	// 			$fileData = $this->upload->data();
-	// 			$upload_paths[$field] = $fileData['file_name'];
-	// 			//$upload_paths[$field] = 'uploads/' . $fileData['file_name'];
-	// 		} else {
-	// 			$upload_paths[$field] = null; // No file uploaded
-	// 		}
-	// 	}
-	    
-	// 	// Insert into database
-	// 	$data = [
-	// 		'approval_no' => $this->input->post('approval_no'),
-	// 		'final_pic' => $upload_paths['final_pic'],
-	// 	];
-	
-	// 	$this->db->insert('td_proj_final_pic', $data);
-	
-	// 	echo json_encode([
-	// 		'status' => 1,
-	// 		'data' => 'Files uploaded successfully!',
-	// 		'file_paths' => $upload_paths
-	// 	]);
-	// }
-
 	
 	
 }

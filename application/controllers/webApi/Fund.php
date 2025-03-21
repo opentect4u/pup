@@ -152,7 +152,7 @@ class Fund extends CI_Controller {
 			if (!empty($_FILES[$field]['name'])) {
 				$config['upload_path']   = './uploads/fund/'; // Folder to store files
 				$config['allowed_types'] = 'pdf'; // Allow only PDFs
-				$config['max_size']      = 2048; // Max file size (2MB)
+				$config['max_size']      = 20480; // Max file size (2MB)
 				$config['encrypt_name']  = TRUE; // Encrypt filename for security
 	
 				$this->upload->initialize($config); // Initialize config for each file
@@ -213,7 +213,6 @@ class Fund extends CI_Controller {
 		$where['receive_date'] = $receive_date;
 	
 		$result_data = $this->Master->f_select('td_fund_receive', '*', $where, 1);
-	
 		$response = (!empty($result_data)) 
 			? ['status' => 1, 'message' => $result_data] 
 			: ['status' => 0, 'message' => 'No data found'];
@@ -236,7 +235,7 @@ class Fund extends CI_Controller {
 			if (!empty($_FILES[$field]['name'])) {
 				$config['upload_path']   = './uploads/fund/'; // Folder to store files
 				$config['allowed_types'] = 'pdf'; // Allow only PDFs
-				$config['max_size']      = 5048; // Max file size (2MB)
+				$config['max_size']      = 20480; // Max file size (2MB)
 				$config['encrypt_name']  = TRUE; // Encrypt filename for security
 	
 				$this->upload->initialize($config); // Initialize config for each file

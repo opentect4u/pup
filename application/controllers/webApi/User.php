@@ -236,5 +236,58 @@ class User extends CI_Controller {
 			}
 		}
 	}
+
+	public function profileEdit() {
+		$this->form_validation->set_rules('name', 'Name', 'required|min_length[2]|max_length[100]');
+		$this->form_validation->set_rules('dept_id', 'Department', 'required');
+		$this->form_validation->set_rules('desig_id', 'Designation', 'required');
+		$this->form_validation->set_rules('dist_id', 'District', 'required');
+		$this->form_validation->set_rules('mobile', 'Phone', 'required|min_length[5]');
+		$this->form_validation->set_rules('modified_by', 'modified_by', 'required');
+		$this->form_validation->set_rules('user_id', 'user_id', 'required|min_length[3]');
+		
+		if ($this->form_validation->run() == FALSE) {
+			echo json_encode([
+				'status' => 0,
+				'message' => validation_errors()
+			]);
+		} else {
+			$query = $this->db->get_where('td_user', ['user_id' => trim($this->input->post('user_id'))]);
+		
+			if($query->num_rows() == 1) {
+				$data = [
+					'name' => $this->input->post('name'),
+					'dept_id' => $this->input->post('dept_id'),
+					'desig_id' => $this->input->post('desig_id'),
+					'dist_id' => $this->input->post('dist_id'),
+					'mobile' => $this->input->post('mobile'),
+					'email_id' => $this->input->post('email_id'),
+					'modified_by'=> $this->input->post('modified_by'),
+					'modified_at'=> date('Y-m-d h:i:s')
+				];
+			    $where = ['user_id' => $this->input->post('user_id')];
+				
+				$id = $this->Master->f_edit('td_user', $data,$where);
+				
+				if($id > 0) {
+					echo json_encode([
+						'status' => 1,
+						'message' => 'successfully!'
+					]);
+				}else{
+						echo json_encode([
+							'status' => 0,
+							'message' => 'Something Went Wrong'
+						]);
+				}
+			}else{
+				echo json_encode([
+					'status' => 0,
+					'message' => 'User Not Exist'
+				]);
+			}
+		}
+	
+	}
 	
 }
