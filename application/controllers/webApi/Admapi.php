@@ -48,6 +48,9 @@ class Admapi extends CI_Controller {
 			]);
 		}
 	}
+	public function check_in() {
+		$test_val = $this->input->post('test_val');
+	}
 	public function adm_appr_add() {
 	
 		$upload_paths = []; // Store file paths
@@ -131,8 +134,8 @@ class Admapi extends CI_Controller {
 	
 		// File fields to process
 		$file_fields = ['admin_approval', 'vetted_dpr'];
-		$query = $this->db->get_where('td_admin_approval', ['project_id' => $this->input->post('project_id')]);
-		if($query->num_rows() == 0) {
+		// $query = $this->db->get_where('td_admin_approval', ['project_id' => $this->input->post('project_id')]);
+		// if($query->num_rows() == 0) {
 		foreach ($file_fields as $field) {
 			if (!empty($_FILES[$field]['name'])) {
 				$config['upload_path']   = './uploads/'; // Folder to store files
@@ -202,12 +205,12 @@ class Admapi extends CI_Controller {
 			]);
 			}
 		
-	    }else{
-			echo json_encode([
-				'status' => 0,
-				'message' => 'Project ID Already Exist'
-			]);
-	    }
+	    // }else{
+		// 	echo json_encode([
+		// 		'status' => 0,
+		// 		'message' => 'Project ID Already Exist'
+		// 	]);
+	    // }
 	}
 		
 

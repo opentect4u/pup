@@ -39,9 +39,9 @@ class Tender extends CI_Controller {
 		
 		$where = array('a.approval_no = b.approval_no' => NULL,'b.sector_id = c.sl_no' => NULL,
 		               'b.fin_year = d.sl_no' => NULL,'b.district_id = e.dist_code' => NULL,
-					   'b.block_id = f.block_id' => NULL,'1 group by b.admin_approval_dt,b.scheme_name,sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no'=>NULL);
+					   'b.block_id = f.block_id' => NULL,'1 group by b.admin_approval_dt,b.scheme_name,sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no,a.sl_no'=>NULL);
 		
-		$result_data = $this->Master->f_select('td_tender a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f', 'b.admin_approval_dt,b.scheme_name,c.sector_desc as sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no', $where, NULL);
+		$result_data = $this->Master->f_select('td_tender a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f', 'b.admin_approval_dt,b.scheme_name,c.sector_desc as sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no,a.sl_no', $where, NULL);
 
 		if (!empty($result_data)) {
 			echo json_encode(['status' => 1, 'message' => $result_data,'folder_name'=>'uploads/fund/']);
@@ -207,7 +207,6 @@ class Tender extends CI_Controller {
 	
 		// Load Upload Library
 		$this->load->library('upload');
-	
 		// File fields to process
 		$file_fields = ['tender_notice', 'wo_copy'];
 	
@@ -257,7 +256,7 @@ class Tender extends CI_Controller {
 			'add_per_security' => $this->input->post('add_per_security'),
 			'emd' => $this->input->post('emd'),
 			'date_of_refund' => $this->input->post('date_of_refund'),
-			'modified_by' => $this->input->post('updated_by'),
+			'modified_by' => $this->input->post('modified_by'),
 			'modified_at' => date('Y-m-d H:i:s')
 		];
 	

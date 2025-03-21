@@ -54,7 +54,7 @@ class User extends CI_Controller {
 		$this->form_validation->set_rules('dept_id', 'Department', 'required');
 		$this->form_validation->set_rules('desig_id', 'Designation', 'required');
 		$this->form_validation->set_rules('dist_id', 'District', 'required');
-		$this->form_validation->set_rules('mobile', 'Phone', 'required');
+		$this->form_validation->set_rules('mobile', 'Phone', 'required|min_length[5]');
 		
 		if ($this->form_validation->run() == FALSE) {
 			echo json_encode([
@@ -101,14 +101,14 @@ class User extends CI_Controller {
 	
 	}
 	public function userEdit() {
-		$this->form_validation->set_rules('name', 'Name', 'required|min_length[2]|max_length[50]');
+		$this->form_validation->set_rules('name', 'Name', 'required|min_length[2]|max_length[100]');
 		$this->form_validation->set_rules('user_type', 'User Type', 'required');
 		$this->form_validation->set_rules('reset_pass', 'Reset Pass Flag', 'required');
 		$this->form_validation->set_rules('user_status', 'User Status', 'required');
 		$this->form_validation->set_rules('dept_id', 'Department', 'required');
 		$this->form_validation->set_rules('desig_id', 'Designation', 'required');
 		$this->form_validation->set_rules('dist_id', 'District', 'required');
-		$this->form_validation->set_rules('mobile', 'Phone', 'required');
+		$this->form_validation->set_rules('mobile', 'Phone', 'required|min_length[5]');
 		$this->form_validation->set_rules('modified_by', 'modified_by', 'required');
 		$this->form_validation->set_rules('user_id', 'user_id', 'required|min_length[3]');
 		
