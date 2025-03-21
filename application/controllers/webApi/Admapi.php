@@ -186,8 +186,8 @@ class Admapi extends CI_Controller {
 		$where = ['approval_no' => $this->input->post('approval_no')]; // Ensure correct record update
 	
 		// Update data in the database
-		$this->Master->f_edit('td_admin_approval', $data, $where);
-			if ($this->db->affected_rows() > 0) {
+		$res = $this->Master->f_edit('td_admin_approval', $data, $where);
+			if($res > 0) {
 		
 			echo json_encode([
 				'status' => 1,
