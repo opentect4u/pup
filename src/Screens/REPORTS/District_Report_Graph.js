@@ -88,8 +88,10 @@ function District_Report_Graph() {
       setFinancialYearDropList(response.data.message)
       if (params?.id > 0) {
         setSelectedYear(params?.id); // Set first year as default (modify if needed)
+
         // setSecoundField_submit(secoundValue)
         // setThirdField_submit(thirdValue)
+
 
       }
 
@@ -115,9 +117,11 @@ function District_Report_Graph() {
   
         console.log("ffffffffffffffff", response.data.message); // Log the actual response data
         setHeadAccountDropList(response.data.message)
+
         if (params?.id > 0) {
           setSecoundField_submit(secoundValue)
         }
+
         setLoading(false);
       } catch (error) {
         setLoading(false);
@@ -139,9 +143,11 @@ function District_Report_Graph() {
   
         console.log("Response Data__Block:", response.data.message); // Log the actual response data
         setBlockDropList(response.data.message)
+
         if (params?.id > 0) {
           setThirdField_submit(thirdValue)
         }
+
       } catch (error) {
         console.error("Error fetching data:", error); // Handle errors properly
       }
@@ -271,8 +277,10 @@ function District_Report_Graph() {
     const formik = useFormik({
       // initialValues:formValues,
       // initialValues,
+
       // initialValues: { fin_yr: selectedYear, head_acc: secoundField_submit, block: thirdField_submit },
       initialValues: { fin_yr: selectedYear, head_acc: secoundField_submit || secoundValue, block: thirdField_submit || thirdValue },
+
       onSubmit,
       validationSchema,
       enableReinitialize: true,
@@ -406,10 +414,12 @@ function District_Report_Graph() {
           onClick={() => { navigate(`/home/report/district-report/${financeYear_submit == "" ? params?.id: financeYear_submit || params?.id}`, {
           state: {
           // ...data, // Spread existing rowData
+
           // secoundValue: secoundField_submit == "" ? secoundField_submit : secoundValue || secoundField_submit,
           // thirdValue: thirdField_submit == "" ? thirdField_submit : thirdValue || thirdField_submit, // Explicitly include approval_status
           secoundValue: secoundField_submit > 0 ? secoundField_submit : '',
           thirdValue: thirdField_submit > 0 ? thirdField_submit : '',
+
           },
       }); }} 
     > <DatabaseOutlined /> Data View </button>
@@ -418,7 +428,9 @@ function District_Report_Graph() {
           </div>
 
         </form>
+
         {/* {JSON.stringify(thirdValue, null, 2)} /// {JSON.stringify(thirdField_submit, null, 2)} */}
+
            
                     {/*  */}
                       <>

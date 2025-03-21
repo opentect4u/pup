@@ -37,9 +37,11 @@ import District_Report from './Screens/REPORTS/District_Report';
 import District_Report_Graph from './Screens/REPORTS/District_Report_Graph';
 import Implement_Report from './Screens/REPORTS/Implement_Report';
 import Implement_Report_Graph from './Screens/REPORTS/Implement_Report_Graph';
+
 import DERTMENT_ADD from './Screens/MASTER/DERTMENT_ADD';
 import DESIGNATION_ADD from './Screens/MASTER/DESIGNATION_ADD';
 import UserProfile from './Screens/PROFILE_MANAGE/UserProfile';
+
 const FundRelForm =lazy(()=>import('./Screens/FUND_RELEASE/FundRelForm'))
 const Sign_in =lazy(()=>import('./Screens/Auth/Sign_in'))
 const AdApForm =lazy(()=>import('./Screens/ADMIN_APPROVAL/AdApForm'))
@@ -258,6 +260,28 @@ const router = createBrowserRouter([
               path: "profile",
               element: <UserProfile />,
           }
+          
+          ]
+        },
+        {
+          path: "user",
+          element: <USERComp />,
+          children: [
+            {
+                path: "manage-user",
+                element: <UserManage />,
+            }
+          
+          ]
+        },
+        {
+          path: "user-profile",
+          element: <ProfileComp />,
+          children: [
+            {
+                path: "change-password",
+                element: <ChangePass />,
+            }
           
           ]
         },

@@ -744,7 +744,7 @@ function UserManage() {
                         <td className="px-4 py-3">
                           {data?.user_type === 'U' ? userTypes.U : 
                           data?.user_type === 'S' ? userTypes.S : 
-                          data?.user_type === 'F' ? userTypes.F : 
+                          data?.user_type === 'F' ? userTypes.S : 
                           data?.user_type === 'A' ? userTypes.A : 'Unknown'}
                         </td>
                         <td className="px-4 py-3">

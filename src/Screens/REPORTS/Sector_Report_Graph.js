@@ -204,8 +204,10 @@ function Sector_Report_Graph() {
     const formik = useFormik({
       // initialValues:formValues,
       // initialValues,
+
       // initialValues: { fin_yr: selectedYear, head_acc: secoundField_submit },
       initialValues: { fin_yr: selectedYear, head_acc: secoundField_submit || secoundValue },
+
       onSubmit,
       validationSchema,
       enableReinitialize: true,
@@ -304,8 +306,10 @@ function Sector_Report_Graph() {
           onClick={() => { navigate(`/home/report/sector-report/${financeYear_submit == "" ? params?.id: financeYear_submit || params?.id}`, {
           state: {
           // ...data, // Spread existing rowData
+
           // secoundValue: secoundField_submit == "" ? secoundField_submit : secoundValue || secoundField_submit, // Explicitly include approval_status
           secoundValue: secoundField_submit > 0 ? secoundField_submit : '',
+
           },
       }); }} 
     > <DatabaseOutlined /> Data View </button>

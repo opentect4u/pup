@@ -339,7 +339,9 @@ function HeadAccountwise_Report() {
 
       if (params?.id > 0) {
         setSelectedYear(params?.id); // Set first year as default (modify if needed)
+
         // setSecoundField_submit(secoundValue)
+
       }
 
       setLoading(false);
@@ -499,8 +501,10 @@ const onPageChange = (event) => {
     const formik = useFormik({
       // initialValues:formValues,
       // initialValues,
+
       // initialValues: { fin_yr: selectedYear, head_acc: selectedYear },
       initialValues: { fin_yr: selectedYear, head_acc: secoundField_submit || secoundValue },
+
       onSubmit,
       validationSchema,
       enableReinitialize: true,

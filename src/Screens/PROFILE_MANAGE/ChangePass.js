@@ -12,7 +12,9 @@ import { useNavigate } from "react-router-dom";
 
 
 const initialValues = { 
+
   // user_id: "",
+
   pass: "",
   pass_con: "",
  };
@@ -24,7 +26,9 @@ const initialValues = {
 // });
 
 const validationSchema = Yup.object({
+
   // user_id: Yup.string().required("Email ID is Required"),
+
   pass: Yup.string().required("Password is Required"),
   pass_con: Yup.string()
     .required("Confirm Password is Required")
@@ -56,7 +60,9 @@ function ChangePass() {
       
     const formData = new FormData();
     // Append each field to FormData
+
     formData.append("user_id", userDataLocalStore.user_id);
+
     formData.append("pass", formik.values.pass);
     formData.append("modified_by", userDataLocalStore.user_id);
     
@@ -130,7 +136,9 @@ function ChangePass() {
             <Heading title={"Change Password"} button="N" />
             <form onSubmit={formik.handleSubmit}>
               <div className="grid gap-4 sm:grid-cols-12 sm:gap-6">
+
                 {/* <div className="sm:col-span-4">
+
                   <TDInputTemplate
                     placeholder="User ID"
                     type="text"
@@ -144,7 +152,10 @@ function ChangePass() {
                   {formik.errors.user_id && formik.touched.user_id && (
                     <VError title={formik.errors.user_id} />
                   )}
+
                 </div> */}
+
+
 
 
                 <div className="sm:col-span-4">
