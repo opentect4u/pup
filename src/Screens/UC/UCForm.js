@@ -80,6 +80,7 @@ function UCForm() {
   const [projectStatus, setProjectStatus] = useState('');
   const [userDataLocalStore, setUserDataLocalStore] = useState([]);
   const [filePreview_1, setFilePreview_1] = useState(null);
+  const [errorpdf_1, setErrorpdf_1] = useState("");
 
   const validationSchema = useMemo(() => 
     Yup.object({
@@ -250,13 +251,13 @@ function UCForm() {
     
 
  const onSubmit = (values) => {
-    console.log(values, 'credcredcredcredcred', operation_status ==  'edit', 'lll', params?.id);
-
+  if(errorpdf_1.length < 1){
     if(params?.id > 0){
       updateFormData()
     } else {
       saveFormData()
     }
+  }
     
   };
 
@@ -421,7 +422,33 @@ function UCForm() {
       setRadioType(e)
     }
 
+    const handleFileChange_pdf_1 = (event) => {
 
+      const file = event.target.files[0]; // Get the selected file
+  
+      if (file) {
+        const fileSizeMB = file.size / (1024 * 1024); // Convert bytes to MB
+        const fileType = file.type; // Get file MIME type
+  
+        // Check if file is a PDF
+        if (fileType !== "application/pdf") {
+          setErrorpdf_1("Only PDF files are allowed.");
+          return;
+        }
+  
+        // Check if file size exceeds 20MB
+        if (fileSizeMB > 20) {
+          setErrorpdf_1("File size should not exceed 20MB.");
+          return;
+        }
+  
+        setErrorpdf_1("");
+        console.log("File is valid:", file.name);
+        formik.setFieldValue("certificate_path", file);
+        setFilePreview_1(URL.createObjectURL(file)); // Create a preview URL
+        // Proceed with file upload or further processing
+      }
+    };
     
   return (
     <section class="bg-white p-5 dark:bg-gray-900">
@@ -600,7 +627,7 @@ function UCForm() {
 						spinning={loading}
 					>
             {/* {JSON.stringify(fundStatus, null, 2)} */}
-        {fundStatus?.length > 0 &&(
+        {/* {fundStatus?.length > 0 &&( */}
           <>
           <Heading title={"Utilization Certificate History"} button={'N'}/>
 
@@ -679,7 +706,7 @@ function UCForm() {
 
           
           </>
-        )}
+        {/* )} */}
         </Spin>
         {/* fundStatus.length < 6 */}
 
@@ -766,12 +793,15 @@ function UCForm() {
               name="certificate_path"
               placeholder="Utilization Certificate"
               label="Utilization Certificate"
+              // handleChange={(event) => {
+              //   const file = event.currentTarget.files[0];
+              //   if (file) {
+              //   formik.setFieldValue("certificate_path", file);
+              //   setFilePreview_1(URL.createObjectURL(file)); // Create a preview URL
+              //   }
+              // }}
               handleChange={(event) => {
-                const file = event.currentTarget.files[0];
-                if (file) {
-                formik.setFieldValue("certificate_path", file);
-                setFilePreview_1(URL.createObjectURL(file)); // Create a preview URL
-                }
+                handleFileChange_pdf_1(event)
               }}
               handleBlur={formik.handleBlur}
               mode={1}
@@ -796,6 +826,7 @@ function UCForm() {
             {formik.errors.certificate_path && formik.touched.certificate_path && (
               <VError title={formik.errors.certificate_path} />
             )}
+             {errorpdf_1 && <p style={{ color: "red", fontSize:12 }}>{errorpdf_1}</p>}
           </div>
 
           <div class="sm:col-span-3">

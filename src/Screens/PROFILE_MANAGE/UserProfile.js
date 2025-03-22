@@ -5,7 +5,7 @@ import Heading from "../../Components/Heading";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import { Message } from "../../Components/Message";
-import { EditOutlined, LoadingOutlined } from "@ant-design/icons";
+import { EditOutlined, EyeOutlined, LoadingOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { auth_key, url } from "../../Assets/Addresses/BaseUrl";
 import VError from "../../Components/VError";
@@ -95,8 +95,9 @@ function UserProfile() {
   const [modalTitle, setModalTitle] = useState("");
   const [radiReset_pass, setRadiReset_pass] = useState("N")
   const [user_status, setUser_status] = useState("A")
+  // const [editSec, setEditSec] = useState(false)
 
-  const fetchSectorDropdownOption = async () => {
+  const fetchAllData = async () => {
     setLoading(true);
 
     const formData = new FormData();
@@ -124,6 +125,7 @@ function UserProfile() {
           depert: response.data.message.dept_id,
           desig: response.data.message.desig_id,
         })
+        // fetchDistrictdownOption()
       } else {
         setTableDataList([]);
         setSectorDropList([]);
@@ -207,21 +209,24 @@ function UserProfile() {
     if (userData) {
       setUserDataLocalStore(JSON.parse(userData))
     console.log("User Data Found:", userData);
+    fetchDepertment();
+    fetchDesignation();
+    
+    fetchDistrictdownOption();
     } else {
       setUserDataLocalStore([])
     console.log("No User Data Found");
     }
+
     
-    fetchDistrictdownOption();
-    // fetchSectorDropdownOption();
-    fetchDepertment();
-    fetchDesignation();
+    // fetchAllData();
+    
   }, []);
 
 
   useEffect(() => {
     
-    fetchSectorDropdownOption();
+    fetchAllData();
   }, [userDataLocalStore]);
 
   const addUser = async () => {
@@ -261,7 +266,7 @@ function UserProfile() {
             Message("success", "Updated successfully.");
             setLoading(false);
             formik.resetForm();
-            fetchSectorDropdownOption()
+            fetchAllData()
           }
   
           if(response?.data?.status < 1) {
@@ -281,89 +286,28 @@ function UserProfile() {
 
   };
 
-  const generateEditList = async (user_id) => {
-    setLoading(true);
-      
-    const formData = new FormData();
-    formData.append("user_id", user_id);
-
-
-
-    formData.append("created_by", userDataLocalStore.user_id);
-    
-        try {
-    
-          const response = await axios.post( `${url}index.php/webApi/User/userdata`, 
-          formData,
-            {
-              headers: {
-                "Content-Type": "multipart/form-data",
-                'auth_key': auth_key // Important for FormData
-              },
-            }
-          );
-
-          console.log(response?.data?.message, 'gggggtttttttttttttgggggg', formData);
-          
   
-          if(response?.data?.status > 0) {
-            // Message("success", "Updated successfully.");
-            // await fetchDistrictdownOption();
-
-            // Then, update the form field with the district ID from API response
-            formik.setFieldValue("dis", response?.data?.message.dist_id);
-            formik.setFieldValue("depert", response?.data?.message.dept_id);
-            formik.setFieldValue("desig", response?.data?.message.desig_id);
-
-            formik.setFieldValue("user_id", response?.data?.message.user_id);
-            formik.setFieldValue("user_type", response?.data?.message.user_type);
-            formik.setFieldValue("user_name", response?.data?.message.name);
-            formik.setFieldValue("email", response?.data?.message.email_id);
-            formik.setFieldValue("phon", response?.data?.message.mobile);
-            setLoading(false);
-          }
-  
-          if(response?.data?.status < 1) {
-          setLoading(false);
-          // Message("error", response?.data?.message);
-          }
-
-        
-  
-          
-          
-        } catch (error) {
-          setLoading(false);
-          Message("error", "Error Submitting Form:");
-          console.error("Error submitting form:", error);
-        }
-
-  };
 
   const updateUser = async () => {
     setLoading(true);
       
     const formData = new FormData();
     // Append each field to FormData
-    formData.append("user_id", formik.values.user_id);
-    formData.append("user_type", formik.values.user_type);
-    formData.append("name", formik.values.user_name);
+   
 
+    formData.append("name", formik.values.user_name);
     formData.append("dept_id", formik.values.depert);
     formData.append("desig_id", formik.values.desig);
     formData.append("dist_id", formik.values.dis);
     formData.append("email_id", formik.values.email);
     formData.append("mobile", formik.values.phon);
-
-    formData.append("user_status", user_status);
-    formData.append("reset_pass", radiReset_pass);
-
-
+    formData.append("user_id", userDataLocalStore.user_id);
     formData.append("modified_by", userDataLocalStore.user_id);
+
     
         try {
     
-          const response = await axios.post( `${url}index.php/webApi/User/userEdit`, 
+          const response = await axios.post( `${url}index.php/webApi/User/profileEdit`, 
           formData,
             {
               headers: {
@@ -380,7 +324,7 @@ function UserProfile() {
             Message("success", "Updated successfully.");
             setLoading(false);
             formik.resetForm();
-            fetchSectorDropdownOption()
+            fetchAllData()
           }
   
           if(response?.data?.status < 1) {
@@ -424,41 +368,14 @@ function UserProfile() {
     validateOnMount: true,
   });
 
-  const handleSearch = (e) => {
-    const value = e.target.value.toLowerCase();
-    setSearchTerm(value);
-    const filteredData = tableDataList.filter((data) =>
-      data?.name?.toLowerCase().includes(value)
-    );
-    setSectorDropList(filteredData);
-    setCurrentPage(1);
-  };
 
-  const totalPages = Math.ceil(sectorDropList.length / rowsPerPage);
-  const currentTableData = sectorDropList.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
-  );
 
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
 
-  const handleEdit = (data) => {
-    // console.log(data, 'sector');
-    setModalTitle(data?.name)
-    setEditingSector(true);
-    generateEditList(data?.user_id)
-    
-  };
 
-  const onChange_status = (e) => {
-   setUser_status(e)
-  }
 
-  const onChange_reset = (e) => {
-    setRadiReset_pass(e)
-  }
+
+
+
   
 
 
@@ -475,13 +392,14 @@ function UserProfile() {
           
             <>
             <Heading title={editingSector === false ? "User Profile" : "Edit User Profile " + modalTitle} button="N" />
+           
             <form onSubmit={formik.handleSubmit}>
               <div className="grid gap-4 sm:grid-cols-12 sm:gap-6">
                 <div className="sm:col-span-3">
                   <TDInputTemplate
                     placeholder="User ID"
                     type="text"
-                    label="User ID"
+                    label="User ID (Not Editable)"
                     name="user_id"
                     formControlName={formik.values.user_id}
                     handleChange={formik.handleChange}
@@ -501,7 +419,7 @@ function UserProfile() {
 <TDInputTemplate
                     placeholder="User Typr"
                     type="text"
-                    label="User Type"
+                    label="User Type (Not Editable)"
                     name="user_type"
                     // formControlName={formik.values.user_type }
                     formControlName={formik.values.user_type === 'U' ? userTypes.U : formik.values.user_type === 'S' ? userTypes.S : formik.values.user_type === 'F' ? userTypes.F : formik.values.user_type === 'A' ? userTypes.A : 'Unknown'}
@@ -523,6 +441,7 @@ function UserProfile() {
                     handleChange={formik.handleChange}
                     handleBlur={formik.handleBlur}
                     mode={1}
+                    disabled={editingSector === true ? false : true}
                   />
                   
                 </div>
@@ -538,6 +457,7 @@ function UserProfile() {
                     handleChange={formik.handleChange}
                     handleBlur={formik.handleBlur}
                     mode={1}
+                    disabled={editingSector === true ? false : true}
                   />
                   
                 </div>
@@ -552,6 +472,7 @@ function UserProfile() {
                     handleChange={formik.handleChange}
                     handleBlur={formik.handleBlur}
                     mode={1}
+                    disabled={editingSector === true ? false : true}
                   />
                   
                 </div>
@@ -569,11 +490,12 @@ function UserProfile() {
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}
+                disabled={editingSector === true ? false : true}
               >
                 <Select.Option value="" disabled> Choose District </Select.Option>
                 {districtDropList?.map(data => (
                   <Select.Option key={data.dist_code} value={data.dist_code}>
-                    {data.dist_name} {data.dist_code}
+                    {data.dist_name}
                   </Select.Option>
                 ))}
               </Select>
@@ -595,6 +517,7 @@ function UserProfile() {
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}
+                disabled={editingSector === true ? false : true}
               >
                 <Select.Option value="" disabled> Choose Depertment ID </Select.Option>
                 {depertment?.map(data => (
@@ -621,6 +544,7 @@ function UserProfile() {
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}
+                disabled={editingSector === true ? false : true}
               >
                 <Select.Option value="" disabled> Choose Depertment ID </Select.Option>
                 {designation?.map(data => (
@@ -657,6 +581,30 @@ function UserProfile() {
                     color="text-blue-900"
                     border="border-2 border-blue-900"
                   />
+                {editingSector === false &&(
+                <button
+                type="button"
+                className="text-blue-700 border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1.5"
+                onClick={() => {
+                  setEditingSector(true)
+                }}
+                >
+                <EditOutlined />
+                </button>
+                 ) }
+{editingSector === true &&(
+                <button
+                type="button"
+                className="text-blue-700 border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1.5"
+                onClick={() => {
+                  formik.resetForm();
+                  // setEditingSector(null);
+                  setEditingSector(false)
+                }}
+                >
+                <EyeOutlined />
+                </button>
+                 ) }
 
                 {/* <BtnComp type={'submit'} title={'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
                 <BtnComp title={'Reset'} type="reset" 

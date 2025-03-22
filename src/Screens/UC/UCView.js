@@ -123,7 +123,7 @@ function UCView() {
                         <button type="button" className="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 
                         font-medium rounded-lg text-sm px-3 py-1.5"
                           onClick={() => navigate(`/home/uc/uccrud/${data?.approval_no}`, {
-                            state: { ...data, operation_status: 'edit' }
+                            // state: { ...data, operation_status: 'edit' }
                           })}
                         >
                           <EyeOutlined />

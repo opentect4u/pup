@@ -68,6 +68,7 @@ function FundRelForm() {
   const toast = useRef(null)
   const [filePreview_2, setFilePreview_2] = useState(null);
   const [userDataLocalStore, setUserDataLocalStore] = useState([]);
+  const [errorpdf_1, setErrorpdf_1] = useState("");
 
 
 
@@ -127,15 +128,16 @@ function FundRelForm() {
       const formData = new FormData();
   
       // // Append each field to FormData
-      formData.append("approval_no", approvalNo);
+      
       formData.append("instl_amt", formik.values.receipt_first);
       formData.append("allotment_no", formik.values.al1_pdf); // Ensure this is a file if applicable
       formData.append("sch_amt", formik.values.sch_amt_one);
       formData.append("cont_amt", formik.values.cont_amt_one);
       formData.append("isntl_date", formik.values.isntl_date);
-      formData.append("created_by", "SSS Name Created By");
 
-  
+      formData.append("approval_no", approvalNo); //
+      formData.append("created_by", userDataLocalStore.user_id);
+
     
       console.log("FormData:", formData);
   
@@ -235,12 +237,13 @@ function FundRelForm() {
     };
 
  const onSubmit = (values) => {
-
+  if(errorpdf_1.length < 1){
     if(params?.id > 0){
       updateFormData()
     } else {
       saveFormData()
     }
+  }
     
   };
 
@@ -414,6 +417,36 @@ function FundRelForm() {
     }
   }, [])
 
+  
+  
+                const handleFileChange_pdf_1 = (event) => {
+
+                  const file = event.target.files[0]; // Get the selected file
+              
+                  if (file) {
+                    const fileSizeMB = file.size / (1024 * 1024); // Convert bytes to MB
+                    const fileType = file.type; // Get file MIME type
+              
+                    // Check if file is a PDF
+                    if (fileType !== "application/pdf") {
+                      setErrorpdf_1("Only PDF files are allowed.");
+                      return;
+                    }
+              
+                    // Check if file size exceeds 20MB
+                    if (fileSizeMB > 20) {
+                      setErrorpdf_1("File size should not exceed 20MB.");
+                      return;
+                    }
+              
+                    setErrorpdf_1("");
+                    console.log("File is valid:", file.name);
+                    formik.setFieldValue("al1_pdf", file);
+                    setFilePreview_2(URL.createObjectURL(file)); // Create a preview URL
+                    // Proceed with file upload or further processing
+                  }
+                };
+                            
     
   return (
     <section class="bg-white p-5 dark:bg-gray-900">
@@ -749,12 +782,15 @@ function FundRelForm() {
               // handleChange={(event) => {
               // formik.setFieldValue("al1_pdf", event.currentTarget.files[0]);
               // }}
+              // handleChange={(event) => {
+              //   const file = event.currentTarget.files[0];
+              //   if (file) {
+              //   formik.setFieldValue("al1_pdf", file);
+              //   setFilePreview_2(URL.createObjectURL(file)); // Create a preview URL
+              //   }
+              // }}
               handleChange={(event) => {
-                const file = event.currentTarget.files[0];
-                if (file) {
-                formik.setFieldValue("al1_pdf", file);
-                setFilePreview_2(URL.createObjectURL(file)); // Create a preview URL
-                }
+                handleFileChange_pdf_1(event)
               }}
               handleBlur={formik.handleBlur}
               mode={1}
@@ -778,6 +814,7 @@ function FundRelForm() {
               {formik.errors.al1_pdf && formik.touched.al1_pdf && (
                 <VError title={formik.errors.al1_pdf} />
               )}
+               {errorpdf_1 && <p style={{ color: "red", fontSize:12 }}>{errorpdf_1}</p>}
             </div>
             <div class="sm:col-span-3">
               <TDInputTemplate

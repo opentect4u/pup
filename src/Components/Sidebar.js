@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import LOGO from "../Assets/Images/logo.png";
 import {
   CheckCircleFilled,
@@ -164,6 +164,19 @@ const ReportAccordion = () => (
 
 function Sidebar() {
   const [current, setCurrent] = useState("home");
+  const [userDataLocalStore, setUserDataLocalStore] = useState([]);
+
+
+  useEffect(() => {
+    const userData = localStorage.getItem("user_dt");
+    if (userData) {
+    setUserDataLocalStore(JSON.parse(userData))
+    } else {
+    setUserDataLocalStore([])
+    }
+  
+    }, []);
+
 
   const onClick = (e) => {
     console.log("click ", e);
@@ -182,15 +195,24 @@ function Sidebar() {
         <img src={LOGO} class="mr-3 sm:h-16" alt="Logo" />
       </a>
       <div className="h-full  bg-blue-900 sticky top-0 dark:bg-gray-800 customeMenu">
+      {/* {JSON.stringify(userDataLocalStore.user_type , null, 2)} */}
+      {(userDataLocalStore.user_type === "A" || userDataLocalStore.user_type === "U") && (
+        <>
         <Menu
           onClick={(e)=>onClick(e)}
           selectedKeys={[current]}
           mode="vertical"
           items={items}
         />
+        {userDataLocalStore.user_type != "U" && (
+        <>
         <MasterAccordion />
         <UserAccordion />
+        </>
+        )}
         <ReportAccordion />
+        </>
+        )}
       </div>
     </aside>
   );

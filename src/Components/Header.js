@@ -8,6 +8,20 @@ function Header() {
     const navigate = useNavigate()
     const [visible,setVisible] = useState(false)
     const [flag,setFlag] = useState(1)
+    const [userDataLocalStore, setUserDataLocalStore] = useState([]);
+
+
+    useEffect(() => {
+      const userData = localStorage.getItem("user_dt");
+      if (userData) {
+      setUserDataLocalStore(JSON.parse(userData))
+      } else {
+        navigate("/");
+      setUserDataLocalStore([])
+      }
+    
+      }, []);
+
   const items = [
    
     {
@@ -48,6 +62,7 @@ function Header() {
 
 
   const logoutFn = ()=>{
+    localStorage.removeItem("user_dt");
 navigate('/')
 // alert('loooooooo')
 

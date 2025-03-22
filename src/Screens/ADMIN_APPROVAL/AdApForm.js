@@ -100,6 +100,8 @@ function AdApForm() {
   const [checkProjectId, setCheckProjectId] = useState(true);
 
   const [userDataLocalStore, setUserDataLocalStore] = useState([]);
+  const [errorpdf_1, setErrorpdf_1] = useState("");
+  const [errorpdf_2, setErrorpdf_2] = useState("");
 
 
   const fetchSectorDropdownOption = async () => {
@@ -487,13 +489,14 @@ function AdApForm() {
 
   const onSubmit = (values) => {
     // console.log(values, 'credcredcredcredcred', formik.values.scheme_name);
-    if(params?.id > 0){
-      updateFormData()
-    }
-    
-    if(params?.id < 1 && checkProjectId){
-
-      saveFormData()
+    if(errorpdf_1.length < 1 && errorpdf_2.length < 1){
+      if(params?.id > 0){
+        updateFormData()
+      }
+      
+      if(params?.id < 1 && checkProjectId){
+        saveFormData()
+      }
     }
     
   };
@@ -517,46 +520,61 @@ function AdApForm() {
     formik.setFieldValue("tot_amt", total);
   }, [formik.values.schm_amt, formik.values.cont_amt]);
 
-  // const checkProjectId_fn = async (value)=>{
-  //   // setLoading(true);
-  //   console.log(value.target.value, 'valuevaluevaluevalue');
-  //   const formData = new FormData();
-  
-  //   formData.append("project_id", value.target.value);
+  const handleFileChange_pdf_1 = (event) => {
 
-  //   try {
-  //     const response = await axios.post(
-  //       `${url}index.php/webApi/Admapi/check_pi`,
-  //       formData,
-  //       {
-  //         headers: {
-  //           // "Content-Type": "multipart/form-data",
-  //           'auth_key': auth_key // Important for FormData
-  //         },
-  //       }
-  //     );
-      
-  //     if(response?.data?.status > 0){
-  //       // formik.setFieldError('proj_id', '');
-  //       setCheckProjectId(true)
-  //     }
+    const file = event.target.files[0]; // Get the selected file
 
-  //     if(response?.data?.status < 1){
-  //       // formik.setFieldError('proj_id', 'Project ID is Required');
-  //       setCheckProjectId(false)
-  //     }
-  //     console.log(response?.data?.status, 'valuevaluevaluevalue');
-      
-  //     // setLoading(false);
+    if (file) {
+      const fileSizeMB = file.size / (1024 * 1024); // Convert bytes to MB
+      const fileType = file.type; // Get file MIME type
 
-  //     // formik.resetForm();
-  //   } catch (error) {
-  //     setLoading(false);
-  //     Message("error", "Error Submitting Form:");
-  //     console.error("Error submitting form:", error);
-  //   }
-    
-  // }
+      // Check if file is a PDF
+      if (fileType !== "application/pdf") {
+        setErrorpdf_1("Only PDF files are allowed.");
+        return;
+      }
+
+      // Check if file size exceeds 20MB
+      if (fileSizeMB > 20) {
+        setErrorpdf_1("File size should not exceed 20MB.");
+        return;
+      }
+
+      setErrorpdf_1("");
+      console.log("File is valid:", file.name);
+      formik.setFieldValue("admin_appr_pdf", file);
+      setFilePreview(URL.createObjectURL(file)); // Create a preview URL
+      // Proceed with file upload or further processing
+    }
+  };
+
+  const handleFileChange_pdf_2 = (event) => {
+
+    const file = event.target.files[0]; // Get the selected file
+
+    if (file) {
+      const fileSizeMB = file.size / (1024 * 1024); // Convert bytes to MB
+      const fileType = file.type; // Get file MIME type
+
+      // Check if file is a PDF
+      if (fileType !== "application/pdf") {
+        setErrorpdf_2("Only PDF files are allowed.");
+        return;
+      }
+
+      // Check if file size exceeds 20MB
+      if (fileSizeMB > 20) {
+        setErrorpdf_2("File size should not exceed 20MB.");
+        return;
+      }
+
+      setErrorpdf_2("");
+      console.log("File is valid:", file.name);
+      formik.setFieldValue("vet_dpr_pdf", file);
+      setFilePreview_2(URL.createObjectURL(file)); // Create a preview URL
+      // Proceed with file upload or further processing
+    }
+  };
 
 
   return (
@@ -783,7 +801,7 @@ function AdApForm() {
               
 
 {/* {JSON.stringify(filePreview, null, 2)} */}
-
+{/* {JSON.stringify(errorpdf_1 , null, 2)} */}
               <TDInputTemplate
               type="file"
               name="admin_appr_pdf"
@@ -793,11 +811,7 @@ function AdApForm() {
               // formik.setFieldValue("vet_dpr_pdf", event.currentTarget.files[0]);
               // }}
               handleChange={(event) => {
-                const file = event.currentTarget.files[0];
-                if (file) {
-                formik.setFieldValue("admin_appr_pdf", file);
-                setFilePreview(URL.createObjectURL(file)); // Create a preview URL
-                }
+                handleFileChange_pdf_1(event)
               }}
               handleBlur={formik.handleBlur}
               mode={1}
@@ -820,10 +834,11 @@ function AdApForm() {
               </>
             )}
             
-
+            
               {formik.errors.admin_appr_pdf && formik.touched.admin_appr_pdf && (
                 <VError title={formik.errors.admin_appr_pdf} />
               )}
+              {errorpdf_1 && <p style={{ color: "red", fontSize:12 }}>{errorpdf_1}</p>}
 
             </div>
             
@@ -964,21 +979,21 @@ function AdApForm() {
             </div>
 
             <div class="sm:col-span-4" style={{position:'relative'}}>
-
+            {/* {JSON.stringify(errorpdf_2 , null, 2)} */}
               <TDInputTemplate
               type="file"
               name="vet_dpr_pdf"
               placeholder="Vetted DPR"
               label="Vetted DPR"
               // handleChange={(event) => {
-              // formik.setFieldValue("vet_dpr_pdf", event.currentTarget.files[0]);
+              //   const file = event.currentTarget.files[0];
+              //   if (file) {
+              //   formik.setFieldValue("vet_dpr_pdf", file);
+              //   setFilePreview_2(URL.createObjectURL(file)); // Create a preview URL
+              //   }
               // }}
               handleChange={(event) => {
-                const file = event.currentTarget.files[0];
-                if (file) {
-                formik.setFieldValue("vet_dpr_pdf", file);
-                setFilePreview_2(URL.createObjectURL(file)); // Create a preview URL
-                }
+                handleFileChange_pdf_2(event)
               }}
               handleBlur={formik.handleBlur}
               mode={1}
@@ -998,11 +1013,14 @@ function AdApForm() {
             )}
             </>
             )}
-            
 
+            
+            
+            
               {formik.errors.vet_dpr_pdf && formik.touched.vet_dpr_pdf && (
                 <VError title={formik.errors.vet_dpr_pdf} />
               )}
+              {errorpdf_2 && <p style={{ color: "red", fontSize:12 }}>{errorpdf_2}</p>}
             </div>
             <div class="sm:col-span-4">
               {/* <TDInputTemplate
@@ -1047,7 +1065,9 @@ function AdApForm() {
               }}
               width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
               {/* <button type="submit">Search</button> */}
-              <BtnComp type={'submit'} title={params?.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
+              <BtnComp type={'submit'} title={params?.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} 
+              bgColor={'bg-blue-900'} 
+               />
             </div>
           </div>
 

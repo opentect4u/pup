@@ -93,6 +93,8 @@ function TFForm() {
   const [userDataLocalStore, setUserDataLocalStore] = useState([]);
   const [operation_status, setOperation_status] = useState('');
   const [sl_no, setSl_no] = useState('');
+  const [errorpdf_1, setErrorpdf_1] = useState("");
+  const [errorpdf_2, setErrorpdf_2] = useState("");
 
   useEffect(()=>{
     console.log(operation_status, 'loadFormData', sl_no, 'kkkk', params?.id);
@@ -399,19 +401,15 @@ function TFForm() {
   
 
   const onSubmit = (values) => {
-    console.log(values, 'credcredcredcredcred', operation_status ==  'edit', 'lll', params?.id);
-    if(params?.id > 0){
-      updateFormData()
-    } else {
-      saveFormData()
+    
+    
+    if(errorpdf_1.length < 1 && errorpdf_2.length < 1){
+      if(params?.id > 0){
+        updateFormData()
+      } else {
+        saveFormData()
+      }
     }
-
-    // if(operation_status == 'edit'){
-    //   updateFormData()
-    // } 
-    // if(operation_status ==  'add'){
-      // saveFormData()
-    // }
     
   };
 
@@ -446,7 +444,61 @@ function TFForm() {
 
   }, [])
 
+  const handleFileChange_pdf_1 = (event) => {
 
+    const file = event.target.files[0]; // Get the selected file
+
+    if (file) {
+      const fileSizeMB = file.size / (1024 * 1024); // Convert bytes to MB
+      const fileType = file.type; // Get file MIME type
+
+      // Check if file is a PDF
+      if (fileType !== "application/pdf") {
+        setErrorpdf_1("Only PDF files are allowed.");
+        return;
+      }
+
+      // Check if file size exceeds 20MB
+      if (fileSizeMB > 20) {
+        setErrorpdf_1("File size should not exceed 20MB.");
+        return;
+      }
+
+      setErrorpdf_1("");
+      console.log("File is valid:", file.name);
+      formik.setFieldValue("td_pdf", file);
+      setFilePreview_1(URL.createObjectURL(file)); // Create a preview URL
+      // Proceed with file upload or further processing
+    }
+  };
+
+  const handleFileChange_pdf_2 = (event) => {
+
+    const file = event.target.files[0]; // Get the selected file
+
+    if (file) {
+      const fileSizeMB = file.size / (1024 * 1024); // Convert bytes to MB
+      const fileType = file.type; // Get file MIME type
+
+      // Check if file is a PDF
+      if (fileType !== "application/pdf") {
+        setErrorpdf_2("Only PDF files are allowed.");
+        return;
+      }
+
+      // Check if file size exceeds 20MB
+      if (fileSizeMB > 20) {
+        setErrorpdf_2("File size should not exceed 20MB.");
+        return;
+      }
+
+      setErrorpdf_2("");
+      console.log("File is valid:", file.name);
+      formik.setFieldValue("wo_pdf", file);
+      setFilePreview_2(URL.createObjectURL(file)); // Create a preview URL
+      // Proceed with file upload or further processing
+    }
+  };
     
   
 
@@ -787,12 +839,15 @@ function TFForm() {
               name="td_pdf"
               placeholder="Tender Notice"
               label="Tender Notice"
+              // handleChange={(event) => {
+              //   const file = event.currentTarget.files[0];
+              //   if (file) {
+              //   formik.setFieldValue("td_pdf", file);
+              //   setFilePreview_1(URL.createObjectURL(file)); // Create a preview URL
+              //   }
+              // }}
               handleChange={(event) => {
-                const file = event.currentTarget.files[0];
-                if (file) {
-                formik.setFieldValue("td_pdf", file);
-                setFilePreview_1(URL.createObjectURL(file)); // Create a preview URL
-                }
+                handleFileChange_pdf_1(event)
               }}
               handleBlur={formik.handleBlur}
               mode={1}
@@ -818,6 +873,7 @@ function TFForm() {
               {formik.errors.td_pdf && formik.touched.td_pdf && (
                 <VError title={formik.errors.td_pdf} />
               )}
+              {errorpdf_1 && <p style={{ color: "red", fontSize:12 }}>{errorpdf_1}</p>}
 
             </div>
             <div class="sm:col-span-4">
@@ -965,13 +1021,17 @@ function TFForm() {
               name="wo_pdf"
               placeholder="Work Order Copy"
               label="Work Order Copy"
+              // handleChange={(event) => {
+              //   const file = event.currentTarget.files[0];
+              //   if (file) {
+              //   formik.setFieldValue("wo_pdf", file);
+              //   setFilePreview_2(URL.createObjectURL(file)); // Create a preview URL
+              //   }
+              // }}
               handleChange={(event) => {
-                const file = event.currentTarget.files[0];
-                if (file) {
-                formik.setFieldValue("wo_pdf", file);
-                setFilePreview_2(URL.createObjectURL(file)); // Create a preview URL
-                }
+                handleFileChange_pdf_2(event)
               }}
+
               handleBlur={formik.handleBlur}
               mode={1}
               />
@@ -994,6 +1054,7 @@ function TFForm() {
               {formik.errors.wo_pdf && formik.touched.wo_pdf && (
                 <VError title={formik.errors.wo_pdf} />
               )}
+              {errorpdf_2 && <p style={{ color: "red", fontSize:12 }}>{errorpdf_2}</p>}
 
             </div>
             <div class="sm:col-span-4">

@@ -66,7 +66,7 @@ const initialValues = {
  };
 
 const validationSchema = Yup.object({
-  user_id: Yup.string().required("Email ID is Required"),
+  user_id: Yup.string().required("User ID is Required"),
   user_type: Yup.string().required("User Type is Required"),
   user_name: Yup.string().required("User Type is Required"),
 
