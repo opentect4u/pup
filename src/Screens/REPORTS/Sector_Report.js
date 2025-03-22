@@ -553,6 +553,7 @@ const onPageChange = (event) => {
           <div class="sm:col-span-4">
               <label for="fin_yr" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Financial Year</label>
               <Select
+              showSearch
                 placeholder="Choose Financial Year"
                 value={formik.values.fin_yr || undefined} // Ensure default empty state
                 onChange={(value) => {
@@ -561,6 +562,10 @@ const onPageChange = (event) => {
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}
+                optionFilterProp="children"
+                filterOption={(input, option) => // Search
+                option?.children?.toLowerCase().includes(input.toLowerCase()) // Search
+                } // Search
               >
                 <Select.Option value="" disabled> Choose Financial Year </Select.Option>
                 {financialYearDropList?.map(data => (
@@ -580,6 +585,7 @@ const onPageChange = (event) => {
 
               <label for="head_acc" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Sector</label>
               <Select
+              showSearch
                 placeholder="Choose Sector"
                 value={formik.values.head_acc || undefined} // Ensure default empty state
                 onChange={(value) => {
@@ -588,6 +594,10 @@ const onPageChange = (event) => {
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}
+                optionFilterProp="children"
+                filterOption={(input, option) => // Search
+                option?.children?.toLowerCase().includes(input.toLowerCase()) // Search
+                } // Search
               >
                 <Select.Option value="" disabled> Choose Sector </Select.Option>
                 {headAccountDropList?.map(data => (

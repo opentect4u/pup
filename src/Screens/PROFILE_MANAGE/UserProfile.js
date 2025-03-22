@@ -481,6 +481,7 @@ function UserProfile() {
 
               <label for="dis" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Choose District</label>
               <Select
+              showSearch
                 placeholder="Choose District"
                 value={formik.values.dis || undefined} // Ensure default empty state
                 onChange={(value) => {
@@ -490,6 +491,10 @@ function UserProfile() {
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}
+                optionFilterProp="children"
+                filterOption={(input, option) => // Search
+                option?.children?.toLowerCase().includes(input.toLowerCase()) // Search
+                } // Search
                 disabled={editingSector === true ? false : true}
               >
                 <Select.Option value="" disabled> Choose District </Select.Option>
@@ -505,6 +510,7 @@ function UserProfile() {
             <div class="sm:col-span-3">
             <label for="depert" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Choose Depertment ID</label>
               <Select
+              showSearch
                 placeholder="Choose Depertment ID"
                 value={formik.values.depert || undefined} // Ensure default empty state
                 onChange={(value) => {
@@ -517,6 +523,10 @@ function UserProfile() {
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}
+                optionFilterProp="children"
+                filterOption={(input, option) => // Search
+                option?.children?.toLowerCase().includes(input.toLowerCase()) // Search
+                } // Search
                 disabled={editingSector === true ? false : true}
               >
                 <Select.Option value="" disabled> Choose Depertment ID </Select.Option>
@@ -532,6 +542,7 @@ function UserProfile() {
             <div class="sm:col-span-3">
             <label for="desig" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Choose Designation</label>
               <Select
+              showSearch
                 placeholder="Choose Designation"
                 value={formik.values.desig || undefined} // Ensure default empty state
                 onChange={(value) => {
@@ -544,6 +555,10 @@ function UserProfile() {
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}
+                optionFilterProp="children"
+                filterOption={(input, option) => // Search
+                option?.children?.toLowerCase().includes(input.toLowerCase()) // Search
+                } // Search
                 disabled={editingSector === true ? false : true}
               >
                 <Select.Option value="" disabled> Choose Depertment ID </Select.Option>

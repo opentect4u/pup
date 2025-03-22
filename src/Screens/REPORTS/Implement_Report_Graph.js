@@ -246,6 +246,7 @@ function Implement_Report_Graph() {
           <div class="sm:col-span-4">
               <label for="fin_yr" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Financial Year</label>
               <Select
+              showSearch
                 placeholder="Choose Financial Year"
                 value={formik.values.fin_yr || undefined} // Ensure default empty state
                 onChange={(value) => {
@@ -254,6 +255,10 @@ function Implement_Report_Graph() {
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}
+                optionFilterProp="children"
+                filterOption={(input, option) => // Search
+                option?.children?.toLowerCase().includes(input.toLowerCase()) // Search
+                } // Search
               >
                 <Select.Option value="" disabled> Choose Financial Year </Select.Option>
                 {financialYearDropList?.map(data => (
@@ -273,6 +278,7 @@ function Implement_Report_Graph() {
             
                           <label for="head_acc" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Implementing Agencywise</label>
                           <Select
+                          showSearch
                             placeholder="Choose Implementing Agencywise"
                             value={formik.values.head_acc || undefined} // Ensure default empty state
                             onChange={(value) => {
@@ -281,6 +287,10 @@ function Implement_Report_Graph() {
                             }}
                             onBlur={formik.handleBlur}
                             style={{ width: "100%" }}
+                            optionFilterProp="children"
+                filterOption={(input, option) => // Search
+                option?.children?.toLowerCase().includes(input.toLowerCase()) // Search
+                } // Search
                           >
                             <Select.Option value="" disabled> Choose Implementing Agencywise</Select.Option>
                             {headAccountDropList?.map(data => (

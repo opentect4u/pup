@@ -314,6 +314,7 @@ function District_Report_Graph() {
           <div class="sm:col-span-4">
               <label for="fin_yr" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Financial Year</label>
               <Select
+              showSearch
                 placeholder="Choose Financial Year"
                 value={formik.values.fin_yr || undefined} // Ensure default empty state
                 onChange={(value) => {
@@ -322,6 +323,10 @@ function District_Report_Graph() {
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}
+                optionFilterProp="children"
+                filterOption={(input, option) => // Search
+                option?.children?.toLowerCase().includes(input.toLowerCase()) // Search
+                } // Search
               >
                 <Select.Option value="" disabled> Choose Financial Year </Select.Option>
                 {financialYearDropList?.map(data => (
@@ -343,6 +348,7 @@ function District_Report_Graph() {
     
 
               <Select
+              showSearch
                 placeholder="Choose District"
                 value={formik.values.head_acc || undefined} // Ensure default empty state
                 onChange={(value) => {
@@ -355,6 +361,10 @@ function District_Report_Graph() {
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}
+                optionFilterProp="children"
+                filterOption={(input, option) => // Search
+                option?.children?.toLowerCase().includes(input.toLowerCase()) // Search
+                } // Search
               >
                 <Select.Option value="" disabled> Choose District </Select.Option>
                 {headAccountDropList?.map(data => (
@@ -374,6 +384,7 @@ function District_Report_Graph() {
 
               <label for="block" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Block</label>
               <Select
+              showSearch
                 placeholder="Choose Block"
                 // value={formik.values.block || undefined} // Ensure default empty state
                 value={blockDropList_Load[0]?.block_name ? blockDropList_Load[0]?.block_name : formik.values.block || thirdField_submit}
@@ -384,6 +395,10 @@ function District_Report_Graph() {
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}
+                optionFilterProp="children"
+                filterOption={(input, option) => // Search
+                option?.children?.toLowerCase().includes(input.toLowerCase()) // Search
+                } // Search
               >
                 <Select.Option value="" disabled> Choose Block </Select.Option>
                 {blockDropList.map(data => (

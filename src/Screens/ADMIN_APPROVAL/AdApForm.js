@@ -683,6 +683,7 @@ function AdApForm() {
 
               <label for="sector_name" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Sector</label>
               <Select
+              showSearch // Search
                 placeholder="Choose Sector"
                 value={formik.values.sector_name || undefined} // Ensure default empty state
                 onChange={(value) => {
@@ -691,6 +692,11 @@ function AdApForm() {
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}
+                optionFilterProp="children"
+
+                filterOption={(input, option) => // Search
+                option?.children?.toLowerCase().includes(input.toLowerCase()) // Search
+            } // Search
               >
                 <Select.Option value="" disabled> Choose Sector </Select.Option>
                 {sectorDropList?.map(data => (
@@ -710,6 +716,7 @@ function AdApForm() {
             <div class="sm:col-span-4">
               <label for="fin_yr" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Financial Year</label>
               <Select
+              showSearch // Search
                 placeholder="Choose Financial Year"
                 value={formik.values.fin_yr || undefined} // Ensure default empty state
                 onChange={(value) => {
@@ -718,6 +725,11 @@ function AdApForm() {
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}
+                optionFilterProp="children"
+
+                filterOption={(input, option) => // Search
+                option?.children?.toLowerCase().includes(input.toLowerCase()) // Search
+            } // Search
               >
                 <Select.Option value="" disabled> Choose Financial Year </Select.Option>
                 {financialYearDropList?.map(data => (
@@ -898,7 +910,7 @@ function AdApForm() {
               /> */}
 
               <label for="dis" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Project implemented By</label>
-              <Select
+              {/* <Select
                 placeholder="Choose Project implemented By"
                 value={formik.values.proj_imp_by || undefined} // Ensure default empty state
                 onChange={(value) => {
@@ -914,7 +926,32 @@ function AdApForm() {
                     {data.agency_name}
                   </Select.Option>
                 ))}
-              </Select>
+              </Select> */}
+
+<Select
+  showSearch
+  placeholder="Choose Project implemented By"
+  value={formik.values.proj_imp_by || undefined} // Ensure default empty state
+  onChange={(value) => {
+    formik.setFieldValue("proj_imp_by", value);
+    console.log(value, "ggggggggggggggggggg");
+  }}
+  onBlur={formik.handleBlur}
+  style={{ width: "100%" }}
+  optionFilterProp="children"
+  filterOption={(input, option) =>
+    option?.children?.toLowerCase().includes(input.toLowerCase())
+  }
+>
+  <Select.Option value="" disabled>
+    Choose Project implemented By
+  </Select.Option>
+  {projectImple?.map((data) => (
+    <Select.Option key={data.id} value={data.id}>
+      {data.agency_name}
+    </Select.Option>
+  ))}
+</Select>
 
               
               {formik.errors.proj_imp_by && formik.touched.proj_imp_by && (
@@ -923,28 +960,61 @@ function AdApForm() {
             </div>
             <div class="sm:col-span-4">
 
-              <label for="dis" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Choose District</label>
-              <Select
-                placeholder="Choose District"
-                value={formik.values.dis || undefined} // Ensure default empty state
-                onChange={(value) => {
-                  formik.setFieldValue("dis", value)
-                  setDistrict_ID(value)
-                  formik.setFieldValue("block", "");
-                  setBlockDropList([]);
-                  setBlockDropList_Load([]);
-                  console.log(value, 'disdisdis');
-                }}
-                onBlur={formik.handleBlur}
-                style={{ width: "100%" }}
-              >
-                <Select.Option value="" disabled> Choose District </Select.Option>
-                {districtDropList?.map(data => (
-                  <Select.Option key={data.dist_code} value={data.dist_code}>
-                    {data.dist_name}
-                  </Select.Option>
-                ))}
-              </Select>
+            <label for="dis" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Choose District</label>
+            <Select
+            showSearch // Search
+            placeholder="Choose District"
+            value={formik.values.dis || undefined} // Ensure default empty state
+            onChange={(value) => {
+            formik.setFieldValue("dis", value)
+            setDistrict_ID(value)
+            formik.setFieldValue("block", "");
+            setBlockDropList([]);
+            setBlockDropList_Load([]);
+            console.log(value, 'disdisdis');
+            }}
+            onBlur={formik.handleBlur}
+            style={{ width: "100%" }}
+            optionFilterProp="children"
+
+            filterOption={(input, option) => // Search
+            option?.children?.toLowerCase().includes(input.toLowerCase()) // Search
+            } // Search
+            >
+            <Select.Option value="" disabled> Choose District </Select.Option>
+            {districtDropList?.map(data => (
+            <Select.Option key={data.dist_code} value={data.dist_code}>
+            {data.dist_name}
+            </Select.Option>
+            ))}
+            </Select>
+
+{/* <Select
+  showSearch
+  placeholder="Choose District"
+  value={formik.values.dis || undefined} // Ensure default empty state
+  onChange={(value) => {
+    formik.setFieldValue("dis", value);
+    setDistrict_ID(value);
+    formik.setFieldValue("block", ""); // Reset block selection
+    setBlockDropList([]);
+    setBlockDropList_Load([]);
+    console.log(value, "disdisdis");
+  }}
+  onBlur={formik.handleBlur}
+  style={{ width: "100%" }}
+  optionFilterProp="children"
+  filterOption={(input, option) =>
+    option?.children?.toLowerCase().includes(input.toLowerCase())
+  }
+>
+  <Select.Option value="" disabled>Choose District</Select.Option>
+  {districtDropList?.map((data) => (
+    <Select.Option key={data.dist_code} value={data.dist_code}>
+      {data.dist_name}
+    </Select.Option>
+  ))}
+</Select>; */}
               {formik.errors.dis && formik.touched.dis && (
                 <VError title={formik.errors.dis} />
               )}
@@ -953,7 +1023,7 @@ function AdApForm() {
 
 
               <label for="block" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Block</label>
-              <Select
+              {/* <Select
                 placeholder="Choose Block"
                 // value={formik.values.block || undefined} // Ensure default empty state
                 value={blockDropList_Load[0]?.block_name ? blockDropList_Load[0]?.block_name : formik.values.block || undefined}
@@ -971,7 +1041,33 @@ function AdApForm() {
                     {data.block_name}
                   </Select.Option>
                 ))}
-              </Select>
+              </Select> */}
+              <Select
+  showSearch
+  placeholder="Choose Block"
+  value={
+    blockDropList_Load[0]?.block_name
+      ? blockDropList_Load[0]?.block_name
+      : formik.values.block || undefined
+  }
+  onChange={(value) => {
+    formik.setFieldValue("block", value);
+    console.log(value, "blockblockblock");
+  }}
+  onBlur={formik.handleBlur}
+  style={{ width: "100%" }}
+  optionFilterProp="children"
+  filterOption={(input, option) =>
+    option?.children?.toLowerCase().includes(input.toLowerCase())
+  }
+>
+  <Select.Option value="" disabled>Choose Block</Select.Option>
+  {blockDropList.map((data) => (
+    <Select.Option key={data.block_id} value={data.block_id}>
+      {data.block_name}
+    </Select.Option>
+  ))}
+</Select>
               {/* {JSON.stringify(blockDropList_Load[0]?.block_name, null, 2)} */}
               {formik.errors.block && formik.touched.block && (
                 <VError title={formik.errors.block} />

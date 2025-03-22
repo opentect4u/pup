@@ -473,6 +473,7 @@ function UserManage() {
 
               <label for="user_type" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">User Type</label>
               <Select
+              showSearch // Search
                 placeholder="User Type"
                 value={formik.values.user_type || undefined} // Ensure default empty state
                 onChange={(value) => {
@@ -481,6 +482,10 @@ function UserManage() {
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}
+                optionFilterProp="children"
+                filterOption={(input, option) => // Search
+                option?.children?.toLowerCase().includes(input.toLowerCase()) // Search
+                } // Search
               >
                 <Select.Option value="" disabled> Choose Head Account </Select.Option>
                 {userTypes_Form?.map(data => (
@@ -550,6 +555,7 @@ function UserManage() {
 
               <label for="dis" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Choose District</label>
               <Select
+              showSearch
                 placeholder="Choose District"
                 value={formik.values.dis || undefined} // Ensure default empty state
                 onChange={(value) => {
@@ -562,6 +568,10 @@ function UserManage() {
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}
+                optionFilterProp="children"
+                filterOption={(input, option) => // Search
+                option?.children?.toLowerCase().includes(input.toLowerCase()) // Search
+                } // Search
               >
                 <Select.Option value="" disabled> Choose District </Select.Option>
                 {districtDropList?.map(data => (
@@ -578,6 +588,7 @@ function UserManage() {
             <div class="sm:col-span-3">
             <label for="depert" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Choose Depertment ID</label>
               <Select
+              showSearch
                 placeholder="Choose Depertment ID"
                 value={formik.values.depert || undefined} // Ensure default empty state
                 onChange={(value) => {
@@ -590,6 +601,10 @@ function UserManage() {
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}
+                optionFilterProp="children"
+                filterOption={(input, option) => // Search
+                option?.children?.toLowerCase().includes(input.toLowerCase()) // Search
+                } // Search
               >
                 <Select.Option value="" disabled> Choose Depertment ID </Select.Option>
                 {depertment?.map(data => (
@@ -606,6 +621,7 @@ function UserManage() {
             <div class="sm:col-span-3">
             <label for="desig" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Choose Designation</label>
               <Select
+              showSearch
                 placeholder="Choose Designation"
                 value={formik.values.desig || undefined} // Ensure default empty state
                 onChange={(value) => {
@@ -618,6 +634,10 @@ function UserManage() {
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}
+                optionFilterProp="children"
+                filterOption={(input, option) => // Search
+                option?.children?.toLowerCase().includes(input.toLowerCase()) // Search
+                } // Search
               >
                 <Select.Option value="" disabled> Choose Depertment ID </Select.Option>
                 {designation?.map(data => (
