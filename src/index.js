@@ -41,6 +41,8 @@ import Implement_Report_Graph from './Screens/REPORTS/Implement_Report_Graph';
 import DERTMENT_ADD from './Screens/MASTER/DERTMENT_ADD';
 import DESIGNATION_ADD from './Screens/MASTER/DESIGNATION_ADD';
 import UserProfile from './Screens/PROFILE_MANAGE/UserProfile';
+import FundRelForm__test from './Screens/FUND_RELEASE/FundRelForm__test';
+import FundRelView__test from './Screens/FUND_RELEASE/FundRelView__test';
 
 const FundRelForm =lazy(()=>import('./Screens/FUND_RELEASE/FundRelForm'))
 const Sign_in =lazy(()=>import('./Screens/Auth/Sign_in'))
@@ -143,9 +145,14 @@ const router = createBrowserRouter([
               element: <FundRelListEditForm />,
             },
             // {
-            //   path: "frlist",
-            //   element: <FundRelList />,
+            //   path: "frcrud_test/:id",
+            //   element: <FundRelForm__test />,
             // },
+            {
+              path: "test",
+              element: <FundRelView__test />,
+            },
+            
           ]
         },
         {
