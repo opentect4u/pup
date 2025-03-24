@@ -86,7 +86,7 @@ class Admapi extends CI_Controller {
 				$upload_paths[$field] = $fileData['file_name'];
 				//$upload_paths[$field] = 'uploads/' . $fileData['file_name'];
 			} else {
-				$upload_paths[$field] = null; // No file uploaded
+				$upload_paths[$field] = ''; // No file uploaded
 			}
 		}
 	    

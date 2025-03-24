@@ -89,7 +89,7 @@ class Utilization extends CI_Controller {
 		}
 		$response = (!empty($result_data)) 
 			? ['status' => 1, 'message' => $result_data,'final_pic'=>$final_pic,'project_status'=>$project_status,'OPERATION_STATUS' => 'add'] 
-			: ['status' => 0, 'message' => 'No data found'];
+			: ['status' => 0, 'message' => 'No data found','project_status'=>'OPEN'];
 	
 		$this->output
 			->set_content_type('application/json')
