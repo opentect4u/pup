@@ -25,6 +25,7 @@ function SOUR_OF_FUN_Form() {
   const [editingFund, setEditingFund] = useState(null); // New state for editing
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 5;
+  const [userDataLocalStore, setUserDataLocalStore] = useState([]);
 
   const fetchFundDropdownOption = async () => {
     setLoading(true);
@@ -50,7 +51,12 @@ function SOUR_OF_FUN_Form() {
   };
 
   useEffect(() => {
-    
+    const userData = localStorage.getItem("user_dt");
+    if (userData) {
+    setUserDataLocalStore(JSON.parse(userData))
+    } else {
+    setUserDataLocalStore([])
+    }
     
     fetchFundDropdownOption();
   }, []);
@@ -61,7 +67,7 @@ function SOUR_OF_FUN_Form() {
     const formData = new FormData();
     // Append each field to FormData
     formData.append("fund_type", formik.values.fund_type);
-    formData.append("created_by", "SSS Name Created By");
+    formData.append("created_by", userDataLocalStore.user_id);
     
         try {
     
@@ -108,7 +114,7 @@ function SOUR_OF_FUN_Form() {
           // Append each field to FormData
           formData.append("fund_type", formik.values.fund_type);
           formData.append("sl_no", editingFund.sl_no);
-          formData.append("modified_by", "SSS Name Modified By");
+          formData.append("modified_by", userDataLocalStore.user_id);
 
           console.log(formData, 'ggggggggggg', editingFund, 'llll', formik.values.fund_type);
           

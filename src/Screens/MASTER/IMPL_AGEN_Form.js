@@ -25,6 +25,7 @@ function IMPL_AGEN_Form() {
   const [editingAgency, setEditingAgency] = useState(null); // New state for editing
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 5;
+  const [userDataLocalStore, setUserDataLocalStore] = useState([]);
 
   const fetchAgencyDropdownOption = async () => {
     setLoading(true);
@@ -57,7 +58,7 @@ function IMPL_AGEN_Form() {
     const formData = new FormData();
     // Append each field to FormData
     formData.append("agency_name", formik.values.agency_name);
-    formData.append("created_by", "SSS Name Created By");
+    formData.append("created_by", userDataLocalStore.user_id);
     
         try {
     
@@ -104,7 +105,7 @@ function IMPL_AGEN_Form() {
           // Append each field to FormData
           formData.append("agency_name", formik.values.agency_name);
           formData.append("id", editingAgency.id);
-          formData.append("modified_by", "SSS Name Modified By");
+          formData.append("modified_by", userDataLocalStore.user_id);
 
           console.log(formData, 'ggggggggggg', editingAgency, 'llll', formik.values.agency_name);
           
@@ -195,6 +196,13 @@ function IMPL_AGEN_Form() {
   };
 
   useEffect(() => {
+    const userData = localStorage.getItem("user_dt");
+    if (userData) {
+    setUserDataLocalStore(JSON.parse(userData))
+    } else {
+    setUserDataLocalStore([])
+    }
+
     fetchAgencyDropdownOption();
   }, []);
 

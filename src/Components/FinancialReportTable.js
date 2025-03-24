@@ -1,289 +1,140 @@
-import React, { useEffect, useRef, useState } from "react";
-import TDInputTemplate from "../../Components/TDInputTemplate";
-import BtnComp from "../../Components/BtnComp";
-import Heading from "../../Components/Heading";
-import * as Yup from "yup";
-import { useFormik } from "formik";
-import { Message } from "../../Components/Message";
-import { BarChartOutlined, EditOutlined, EyeOutlined, FileExcelOutlined, FilePdfOutlined, LoadingOutlined, MenuOutlined, UnorderedListOutlined } from "@ant-design/icons";
-import axios from "axios";
-import { auth_key, folder_admin, folder_certificate, folder_fund, folder_progresImg, folder_tender, proj_final_pic, url } from "../../Assets/Addresses/BaseUrl";
-import VError from "../../Components/VError";
-import { Checkbox, Select, Spin } from "antd";
+import React, { useRef, useState } from "react";
 import { DataTable } from 'primereact/datatable';
-import Column from 'antd/es/table/Column';
-import { Toast } from "primereact/toast"
-// import { Tooltip } from 'react-tooltip'
-import { Tooltip as ReactTooltip } from "react-tooltip";
+import { Column } from 'primereact/column';
+import { Checkbox, Spin, Image } from "antd";
+import { FilePdfOutlined, EyeOutlined, LoadingOutlined, FileExcelOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import { Dialog } from "primereact/dialog";
-import { Image } from 'antd';
-import { useNavigate } from 'react-router-dom'
-import { useLocation, useParams } from 'react-router-dom';
+import { Toast } from "primereact/toast";
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
-import excel from "../../Assets/Images/excel.png";
+import { auth_key, folder_admin, folder_certificate, folder_fund, folder_progresImg, folder_tender, proj_final_pic, url } from "../Assets/Addresses/BaseUrl";
+import axios from "axios";
 
+const FinancialReportTable = ({ 
+  loading, 
+  reportData,
+  financialYear,
+  showColumns,
+  onToggleColumn,
+  onShowAllColumns,
+  onOpenModal,
+  onOpenModalTable,
+  testAray
+}) => {
+  // const {
+  //   showHeadAcc,
+  //   showProSubBy,
+  //   showProImpleBy,
+  //   showAdmiApprovPdf,
+  //   showVettedDPR,
+  //   showScheAmt,
+  //   showContiAmt,
+  //   showTenderDtl,
+  //   showProgresDtl,
+  //   showFundDtl,
+  //   showExpendDtl,
+  //   showUtilizationDtl,
+  //   showBlockName
+  // } = showColumns;
 
-const initialValues = {
-  fin_yr: '',
-};
-
-
-
-const validationSchema = Yup.object({
-  fin_yr: Yup.string().required('Financial Year is Required'),
-});
-
-
-function Financial_Report() {
-  const [loading, setLoading] = useState(false);
-  const [editingAccountHead, setEditingAccountHead] = useState(null); // New state for editing
-  const [fundStatus, setFundStatus] = useState(() => []);
-  const [reportData, setReportData] = useState(() => []);
   const toast = useRef(null)
-  const [financialYearDropList, setFinancialYearDropList] = useState([]);
-  const [detailsReport, setDetailsReport] = useState([]);
-  const [final_pic, setFinal_pic] = useState([]);
-
+  const [modalTitle, setModalTitle] = useState("");
+  const [visibleMenu, setVisibleMenu] = useState(false);
   const [currentPage, setCurrentPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
-
-
-
-  const [showHeadAcc, setShowHeadAcc] = useState(false);
-  const [showProSubBy, setShowProSubBy] = useState(false);
-  const [showProImpleBy, setShowProImpleBy] = useState(false);
-  const [showAdmiApprovPdf, setAdmiApprovPdf] = useState(false);
-  const [showVettedDPR, setVettedDPR] = useState(false);
-  const [showScheAmt, setScheAmt] = useState(false);
-  const [showContiAmt, setContiAmt] = useState(false);
-  const [showTenderDtl, setTenderDtl] = useState(false);
-  const [showProgresDtl, setProgresDtl] = useState(false);
-  const [showFundDtl, setFundDtl] = useState(false);
-  const [showExpendDtl, setExpendDtl] = useState(false);
-  const [showUtilizationDtl, setUtilizationDtl] = useState(false);
-
-  const [showBlockName, setShowBlockName] = useState(false);
-  const [showSourceOfFund, setShowSourceOfFund] = useState(false);
-  const [showProjectSubmit, setShowProjectSubmit] = useState(false);
-  const [showProjectImplemented, setShowProjectImplemented] = useState(false);
-
-  const [showAll, setShowAll] = useState(false);
-
+  const [pdfUrl, setPdfUrl] = useState("");
   const [visible, setVisible] = useState(false);
-  const [visibleMenu, setVisibleMenu] = useState(false);
   const [visibleTender, setVisibleTender] = useState(false);
+  // const [loading, setLoading] = useState(false);
+  const [modalTitleTable, setModalTitleTable] = useState("");
+  const [detailsReport, setDetailsReport] = useState([]);
   const [visibleProgress, setVisibleProgress] = useState(false);
   const [visibleFund, setVisibleFund] = useState(false);
   const [visibleExpend, setVisibleExpend] = useState(false);
   const [visibleUtilization, setVisibleUtilization] = useState(false);
+  const [final_pic, setFinal_pic] = useState([]);
+  const [showAll, setShowAll] = useState(false);
 
-  const [pdfUrl, setPdfUrl] = useState("");
-  const [modalTitle, setModalTitle] = useState("");
-  const [modalTitleTable, setModalTitleTable] = useState("");
-  const [financeYear_submit, setFinanceYear_submit] = useState("");
-  const navigate = useNavigate()
-  const params = useParams();
-  const [selectedYear, setSelectedYear] = useState("");
+    const [showHeadAcc, setShowHeadAcc] = useState(false);
+    const [showProSubBy, setShowProSubBy] = useState(false);
+    const [showProImpleBy, setShowProImpleBy] = useState(false);
+    const [showAdmiApprovPdf, setAdmiApprovPdf] = useState(false);
+    const [showVettedDPR, setVettedDPR] = useState(false);
+    const [showScheAmt, setScheAmt] = useState(false);
+    const [showContiAmt, setContiAmt] = useState(false);
+    const [showTenderDtl, setTenderDtl] = useState(false);
+    const [showProgresDtl, setProgresDtl] = useState(false);
+    const [showFundDtl, setFundDtl] = useState(false);
+    const [showExpendDtl, setExpendDtl] = useState(false);
+    const [showUtilizationDtl, setUtilizationDtl] = useState(false);
+  
+    const [showBlockName, setShowBlockName] = useState(false);
 
-  const openModal = (file, foldername, title) => {
-    setPdfUrl(url + foldername + file);
-    setModalTitle(title);
-    setVisible(true);
-  };
 
-  const openModal_Menu = (title) => {
+
+
+    const excelData = reportData.map((item) => ({
+      'Project ID': item.project_id == '' ? '--' : item.project_id,
+      'Date of Administrative Approval': item.admin_approval_dt == '' ? '--' : item.admin_approval_dt,
+      'Scheme': item.scheme_name == '' ? '--' : item.scheme_name,
+      'Sector': item.sector_name == '' ? '--' : item.sector_name,
+      'Schematic Amount': item.fr_sch_amt == '' ? '--' : item.fr_sch_amt,
+      'Contigency Amount': item.fr_cont_amt == '' ? '--' : item.fr_cont_amt,
+      'Head Account': item.account_head_name == '' ? '--' : item.account_head_name,
+      'District': item.dist_name == '' ? '--' : item.dist_name,
+      'Block': item.block_name == '' ? '--' : item.block_name,
+      'Source of Fund': item.source_of_fund == '' ? '--' : item.source_of_fund,
+      'Project Submitted by': item.project_submitted_by == '' ? '--' : item.project_submitted_by,
+      'Project Implemented by': item.agency_name == '' ? '--' : item.agency_name,
+    }));
+  
+  
+  
+    const exportPdfHandler = () => {
+  
+      const ws = XLSX.utils.json_to_sheet(excelData);
+  
+      // // Apply bold style to the header row (row 1)
+      // ws['A1'].s = { font: { bold: true } };
+      // const wb = XLSX.utils.book_new();
+      // XLSX.utils.book_append_sheet(wb, ws, "Report");
+      // XLSX.writeFile(wb, "report.xlsx");
+  
+      // Create a new workbook and worksheet
+      const workbook = XLSX.utils.book_new();
+      const worksheet = XLSX.utils.json_to_sheet(excelData);
+  
+      // Append the worksheet to the workbook
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+  
+      // Generate a binary string representing the Excel file
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: 'xlsx',
+        type: 'array',
+      });
+  
+      // Use file-saver to trigger a download
+      const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+  
+  
+      saveAs(blob, 'Financial_Yearwise_Report.xlsx');
+    };
+
+    const onPageChange = (event) => {
+      setCurrentPage(event.first)
+      setRowsPerPage(event.rows)
+    }
+
+      const openModal = (file, foldername, title) => {
+        setPdfUrl(url + foldername + file);
+        setModalTitle(title);
+        setVisible(true);
+      };
+
+    const openModal_Menu = (title) => {
     setModalTitle(title);
     setVisibleMenu(true);
   };
-
-
-  const tenderDetails = async (file, title) => {
-    setLoading(true);
-    setModalTitleTable(title);
-
-    const formData = new FormData();
-    formData.append("approval_no", file);
-
-    try {
-      const response = await axios.post(
-        url + 'index.php/webApi/Report/tender_list',
-        formData, // Empty body
-        {
-          headers: {
-            'auth_key': auth_key,
-          },
-        }
-      );
-
-      if (response?.data?.status > 0) {
-        console.log(formData, "yyyyyyyyyyyyyyyyyy", response.data.message); // Log the actual response data
-        setVisibleTender(true);
-        setDetailsReport(response.data.message)
-        setLoading(false);
-      }
-
-      if (response?.data?.status < 1) {
-        setDetailsReport([])
-        setLoading(false);
-      }
-
-
-    } catch (error) {
-      console.error("Error fetching data:", error); // Handle errors properly
-      setLoading(false);
-    }
-  }
-
-  const progressDetails = async (file, title) => {
-    setLoading(true);
-    setModalTitleTable(title);
-
-    const formData = new FormData();
-    formData.append("approval_no", file);
-
-    try {
-      const response = await axios.post(
-        url + 'index.php/webApi/Report/progress_list',
-        formData, // Empty body
-        {
-          headers: {
-            'auth_key': auth_key,
-          },
-        }
-      );
-
-      if (response?.data?.status > 0) {
-        console.log(response?.data?.status, "progresssssssssss", response.data.message); // Log the actual response data
-        setVisibleProgress(true);
-        setDetailsReport(response.data.message)
-        setLoading(false);
-      }
-
-      if (response?.data?.status < 1) {
-        setDetailsReport([])
-        setLoading(false);
-      }
-
-
-    } catch (error) {
-      console.error("Error fetching data:", error); // Handle errors properly
-      setLoading(false);
-    }
-  }
-
-  const fundDetails = async (file, title) => {
-    setLoading(true);
-    setModalTitleTable(title);
-
-    const formData = new FormData();
-    formData.append("approval_no", file);
-
-    try {
-      const response = await axios.post(
-        url + 'index.php/webApi/Report/fundrelease',
-        formData, // Empty body
-        {
-          headers: {
-            'auth_key': auth_key,
-          },
-        }
-      );
-
-      if (response?.data?.status > 0) {
-        console.log(response?.data?.status, "fund", response.data.message); // Log the actual response data
-        setVisibleFund(true);
-        setDetailsReport(response.data.message)
-        setLoading(false);
-      }
-
-      if (response?.data?.status < 1) {
-        setDetailsReport([])
-        setLoading(false);
-      }
-
-
-    } catch (error) {
-      console.error("Error fetching data:", error); // Handle errors properly
-      setLoading(false);
-    }
-  }
-
-  const expendDetails = async (file, title) => {
-    setLoading(true);
-    setModalTitleTable(title);
-
-    const formData = new FormData();
-    formData.append("approval_no", file);
-
-    try {
-      const response = await axios.post(
-        url + 'index.php/webApi/Report/expenditure',
-        formData, // Empty body
-        {
-          headers: {
-            'auth_key': auth_key,
-          },
-        }
-      );
-
-      if (response?.data?.status > 0) {
-        console.log(response?.data?.status, "expenditure", response.data.message); // Log the actual response data
-        setVisibleExpend(true);
-        setDetailsReport(response.data.message)
-        setLoading(false);
-      }
-
-      if (response?.data?.status < 1) {
-        setDetailsReport([])
-        setLoading(false);
-      }
-
-
-    } catch (error) {
-      console.error("Error fetching data:", error); // Handle errors properly
-      setLoading(false);
-    }
-  }
-
-  const utilizationDetails = async (file, title) => {
-    setLoading(true);
-    setModalTitleTable(title);
-
-    const formData = new FormData();
-    formData.append("approval_no", file);
-
-    try {
-      const response = await axios.post(
-        url + 'index.php/webApi/Report/utilization',
-        formData, // Empty body
-        {
-          headers: {
-            'auth_key': auth_key,
-          },
-        }
-      );
-
-      if (response?.data?.status > 0) {
-        console.log(response?.data?.status, "utilization", response.data.final_pic); // Log the actual response data
-        setVisibleUtilization(true);
-        setDetailsReport(response?.data?.message)
-        setFinal_pic(response?.data?.final_pic)
-        setLoading(false);
-      }
-
-      if (response?.data?.status < 1) {
-        setDetailsReport([])
-        setLoading(false);
-      }
-
-
-    } catch (error) {
-      console.error("Error fetching data:", error); // Handle errors properly
-      setLoading(false);
-    }
-  }
-
 
   const openModalTable = (file, title, identy) => {
     // setPdfUrl(url + folder_admin + file);
@@ -308,299 +159,221 @@ function Financial_Report() {
       utilizationDetails(file, title)
     }
 
-
-
-
   };
 
-
-
-
-  const fetchFinancialYeardownOption = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.post(
-        url + 'index.php/webApi/Mdapi/fin_year',
-        {}, // Empty body
-        {
-          headers: {
-            'auth_key': auth_key,
-          },
+    const tenderDetails = async (file, title) => {
+      // setLoading(true);
+      setModalTitleTable(title);
+  
+      const formData = new FormData();
+      formData.append("approval_no", file);
+  
+      try {
+        const response = await axios.post(
+          url + 'index.php/webApi/Report/tender_list',
+          formData, // Empty body
+          {
+            headers: {
+              'auth_key': auth_key,
+            },
+          }
+        );
+  
+        if (response?.data?.status > 0) {
+          console.log(formData, "yyyyyyyyyyyyyyyyyy", response.data.message); // Log the actual response data
+          setVisibleTender(true);
+          setDetailsReport(response.data.message)
+          // setLoading(false);
         }
-      );
-
-      // console.log("Response Data:", response.data.message); // Log the actual response data
-      setFinancialYearDropList(response.data.message)
-
-      if (params?.id > 0) {
-        setSelectedYear(params?.id); // Set first year as default (modify if needed)
-      }
-
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching data:", error); // Handle errors properly
-      setLoading(false);
-    }
-  };
-
-  const fundAddedList = async () => {
-    setLoading(true); // Set loading state
-
-
-    const formData = new FormData();
-    formData.append("approval_no", 2);
-
-    try {
-      const response = await axios.post(
-        `${url}index.php/webApi/Fund/get_added_fund_list`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            'auth_key': auth_key // Important for FormData
-          },
+  
+        if (response?.data?.status < 1) {
+          setDetailsReport([])
+          // setLoading(false);
         }
-      );
-
-      console.log("approvalNoapprovalNoapprovalNoapprovalNo", response?.data);
-
-      if (response.data.status > 0) {
-        setFundStatus(response?.data?.message)
-        // setFolderName(response.data.folder_name)
-        setLoading(false);
-        // setShowForm(true);
+  
+  
+      } catch (error) {
+        console.error("Error fetching data:", error); // Handle errors properly
+        // setLoading(false);
       }
-
-      if (response.data.status < 1) {
-        setFundStatus([])
-        setLoading(false);
-        // setShowForm(false);
-      }
-      // setLoading(false);
-      // Message("success", "Updated successfully.");
-      // navigate(`/home/fund_release`);
-    } catch (error) {
-      setLoading(false);
-      Message("error", "Error Submitting Form:");
-      console.error("Error submitting form:", error);
     }
-
-  };
-
-  useEffect(() => {
-    fundAddedList()
-    fetchFinancialYeardownOption()
-  }, [])
-
-
-  const onPageChange = (event) => {
-    setCurrentPage(event.first)
-    setRowsPerPage(event.rows)
-  }
-
-  const showReport = async (params) => {
-    setLoading(true);
-    const formData = new FormData();
-
-    // Append each field to FormData
-    formData.append("fin_year", params > 0 ? params : formik.values.fin_yr);
-    // console.log(formik.values.fin_yr, 'formData______________');
-    setFinanceYear_submit(formik.values.fin_yr)
-
-    try {
-      const response = await axios.post(
-        `${url}index.php/webApi/Report/proj_dtl_finyearwise`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            'auth_key': auth_key // Important for FormData
-          },
+  
+    const progressDetails = async (file, title) => {
+      // setLoading(true);
+      setModalTitleTable(title);
+  
+      const formData = new FormData();
+      formData.append("approval_no", file);
+  
+      try {
+        const response = await axios.post(
+          url + 'index.php/webApi/Report/progress_list',
+          formData, // Empty body
+          {
+            headers: {
+              'auth_key': auth_key,
+            },
+          }
+        );
+  
+        if (response?.data?.status > 0) {
+          console.log(response?.data?.status, "progresssssssssss", response.data.message); // Log the actual response data
+          setVisibleProgress(true);
+          setDetailsReport(response.data.message)
+          // setLoading(false);
         }
-      );
-
-      console.log(response?.data?.message, 'xxxxxxxxxxxxxxxx', formData);
-
-      if (response?.data?.status > 0) {
-        setLoading(false);
-        setReportData(response?.data?.message)
-        // setShowForm(true);
+  
+        if (response?.data?.status < 1) {
+          setDetailsReport([])
+          // setLoading(false);
+        }
+  
+  
+      } catch (error) {
+        console.error("Error fetching data:", error); // Handle errors properly
+        // setLoading(false);
       }
-
-      if (response?.data?.status < 1) {
-        setLoading(false);
-        setReportData([])
+    }
+  
+    const fundDetails = async (file, title) => {
+      // setLoading(true);
+      setModalTitleTable(title);
+  
+      const formData = new FormData();
+      formData.append("approval_no", file);
+  
+      try {
+        const response = await axios.post(
+          url + 'index.php/webApi/Report/fundrelease',
+          formData, // Empty body
+          {
+            headers: {
+              'auth_key': auth_key,
+            },
+          }
+        );
+  
+        if (response?.data?.status > 0) {
+          console.log(response?.data?.status, "fund", response.data.message); // Log the actual response data
+          setVisibleFund(true);
+          setDetailsReport(response.data.message)
+          // setLoading(false);
+        }
+  
+        if (response?.data?.status < 1) {
+          setDetailsReport([])
+          // setLoading(false);
+        }
+  
+  
+      } catch (error) {
+        console.error("Error fetching data:", error); // Handle errors properly
+        // setLoading(false);
       }
-    } catch (error) {
-      setLoading(false);
-      Message("error", "Error Submitting Form:");
-      console.error("Error submitting form:", error);
+    }
+  
+    const expendDetails = async (file, title) => {
+      // setLoading(true);
+      setModalTitleTable(title);
+  
+      const formData = new FormData();
+      formData.append("approval_no", file);
+  
+      try {
+        const response = await axios.post(
+          url + 'index.php/webApi/Report/expenditure',
+          formData, // Empty body
+          {
+            headers: {
+              'auth_key': auth_key,
+            },
+          }
+        );
+  
+        if (response?.data?.status > 0) {
+          console.log(response?.data?.status, "expenditure", response.data.message); // Log the actual response data
+          setVisibleExpend(true);
+          setDetailsReport(response.data.message)
+          // setLoading(false);
+        }
+  
+        if (response?.data?.status < 1) {
+          setDetailsReport([])
+          // setLoading(false);
+        }
+  
+  
+      } catch (error) {
+        console.error("Error fetching data:", error); // Handle errors properly
+        // setLoading(false);
+      }
+    }
+  
+    const utilizationDetails = async (file, title) => {
+      // setLoading(true);
+      setModalTitleTable(title);
+  
+      const formData = new FormData();
+      formData.append("approval_no", file);
+  
+      try {
+        const response = await axios.post(
+          url + 'index.php/webApi/Report/utilization',
+          formData, // Empty body
+          {
+            headers: {
+              'auth_key': auth_key,
+            },
+          }
+        );
+  
+        if (response?.data?.status > 0) {
+          console.log(response?.data?.status, "utilization", response.data.final_pic); // Log the actual response data
+          setVisibleUtilization(true);
+          setDetailsReport(response?.data?.message)
+          setFinal_pic(response?.data?.final_pic)
+          // setLoading(false);
+        }
+  
+        if (response?.data?.status < 1) {
+          setDetailsReport([])
+          // setLoading(false);
+        }
+  
+  
+      } catch (error) {
+        console.error("Error fetching data:", error); // Handle errors properly
+        // setLoading(false);
+      }
     }
 
-
-  }
-
-  useEffect(() => {
-    // console.log(params?.id.length, 'locaaaaaaaaaaaaaaaaa');
-
-    if (params?.id > 0) {
-      showReport(params?.id)
-    }
-  }, [])
-
-  const onSubmit = (values) => {
-    // console.log(values, 'credcredcredcredcred', formik.values.scheme_name);
-    showReport()
-
-  };
-
-  const formik = useFormik({
-    // initialValues:formValues,
-    // initialValues,
-    initialValues: { fin_yr: selectedYear },
-    onSubmit,
-    validationSchema,
-    enableReinitialize: true,
-    validateOnMount: true,
-  });
-
-  const handleShowAllChange = () => {
-    const newValue = !showAll;
-    setShowAll(newValue);
-    setShowBlockName(newValue);
-    setShowSourceOfFund(newValue);
-    setShowProjectSubmit(newValue);
-    setShowProjectImplemented(newValue);
-
-
-    setShowHeadAcc(newValue);
-    setShowProSubBy(newValue);
-    setShowProImpleBy(newValue);
-    setAdmiApprovPdf(newValue);
-    setVettedDPR(newValue);
-    setScheAmt(newValue);
-    setContiAmt(newValue);
-    setTenderDtl(newValue);
-    setProgresDtl(newValue);
-    setFundDtl(newValue);
-    setExpendDtl(newValue);
-    setUtilizationDtl(newValue);
-
-  };
-
-
-  const excelData = reportData.map((item) => ({
-    'Project ID': item.project_id == '' ? '--' : item.project_id,
-    'Date of Administrative Approval': item.admin_approval_dt == '' ? '--' : item.admin_approval_dt,
-    'Scheme': item.scheme_name == '' ? '--' : item.scheme_name,
-    'Sector': item.sector_name == '' ? '--' : item.sector_name,
-    'Schematic Amount': item.fr_sch_amt == '' ? '--' : item.fr_sch_amt,
-    'Contigency Amount': item.fr_cont_amt == '' ? '--' : item.fr_cont_amt,
-    'Head Account': item.account_head_name == '' ? '--' : item.account_head_name,
-    'District': item.dist_name == '' ? '--' : item.dist_name,
-    'Block': item.block_name == '' ? '--' : item.block_name,
-    'Source of Fund': item.source_of_fund == '' ? '--' : item.source_of_fund,
-    'Project Submitted by': item.project_submitted_by == '' ? '--' : item.project_submitted_by,
-    'Project Implemented by': item.agency_name == '' ? '--' : item.agency_name,
-  }));
-
-
-
-  const exportPdfHandler = () => {
-
-    const ws = XLSX.utils.json_to_sheet(excelData);
-
-    // // Apply bold style to the header row (row 1)
-    // ws['A1'].s = { font: { bold: true } };
-    // const wb = XLSX.utils.book_new();
-    // XLSX.utils.book_append_sheet(wb, ws, "Report");
-    // XLSX.writeFile(wb, "report.xlsx");
-
-    // Create a new workbook and worksheet
-    const workbook = XLSX.utils.book_new();
-    const worksheet = XLSX.utils.json_to_sheet(excelData);
-
-    // Append the worksheet to the workbook
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-
-    // Generate a binary string representing the Excel file
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: 'xlsx',
-      type: 'array',
-    });
-
-    // Use file-saver to trigger a download
-    const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-
-
-    saveAs(blob, 'Financial_Yearwise_Report.xlsx');
-  };
+    const handleShowAllChange = () => {
+      const newValue = !showAll;
+      setShowAll(newValue);
+      setShowBlockName(newValue);
+      // setShowSourceOfFund(newValue);
+      // setShowProjectSubmit(newValue);
+      // setShowProjectImplemented(newValue);
+  
+  
+      setShowHeadAcc(newValue);
+      setShowProSubBy(newValue);
+      setShowProImpleBy(newValue);
+      setAdmiApprovPdf(newValue);
+      setVettedDPR(newValue);
+      setScheAmt(newValue);
+      setContiAmt(newValue);
+      setTenderDtl(newValue);
+      setProgresDtl(newValue);
+      setFundDtl(newValue);
+      setExpendDtl(newValue);
+      setUtilizationDtl(newValue);
+  
+    };
 
   return (
-    <section className="bg-white p-5 dark:bg-gray-900">
-      <div className="py-5 mx-auto w-full lg:py-5">
-        <div className="grid grid-cols-1 gap-4">
-          {/* <div className="col-span-1"> */}
-          {/* <Heading title={editingAccountHead ? "Edit Account Head" : "Add Account Head"} button="N" /> */}
-          <Heading title={"Financial Yearwise Report"} button="N" />
-
-          <form onSubmit={formik.handleSubmit}>
-            <div class="grid gap-4 sm:grid-cols-12 sm:gap-6">
-
-              <div class="sm:col-span-4">
-                <label for="fin_yr" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Financial Year</label>
-                <Select
-                  showSearch
-                  placeholder="Choose Financial Year"
-                  value={formik.values.fin_yr || undefined} // Ensure default empty state
-                  onChange={(value) => {
-                    formik.setFieldValue("fin_yr", value)
-                    // console.log(value, 'ggggggggggggggggggg');
-                  }}
-                  onBlur={formik.handleBlur}
-                  style={{ width: "100%" }}
-                  optionFilterProp="children"
-                  filterOption={(input, option) => // Search
-                    option?.children?.toLowerCase().includes(input.toLowerCase()) // Search
-                  } // Search
-                >
-                  <Select.Option value="" disabled> Choose Financial Year </Select.Option>
-                  {financialYearDropList?.map(data => (
-                    <Select.Option key={data.sl_no} value={data.sl_no}>
-                      {data.fin_year}
-                    </Select.Option>
-                  ))}
-                </Select>
-
-                {formik.errors.fin_yr && formik.touched.fin_yr && (
-                  <VError title={formik.errors.fin_yr} />
-                )}
-              </div>
-
-              <div className="sm:col-span-8 flex justify-left gap-4 mt-6">
-                <BtnComp type={'submit'} title={'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
-                <BtnComp title={'Reset'} type="reset"
-                  onClick={() => {
-                    formik.resetForm();
-                  }}
-                  width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
-
-
-
-                <button type="button" class="text-blue-700 bg-blue-900 hover:text-white border border-blue-700 hover:bg-blue-800 
-              font-medium rounded-lg text-sm px-3 py-1.8 text-center 
-              me-0 mb-0 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 
-              dark:focus:ring-blue-800 ml-auto"
-                  onClick={() => { navigate(`/home/report/financial-report-graph/${financeYear_submit == "" ? params?.id : financeYear_submit}`) }}
-                > <BarChartOutlined /> Graphical View</button>
-
-
-              </div>
-            </div>
-
-          </form>
-          {/* {JSON.stringify(financeYear_submit, null, 2)} /// {JSON.stringify(params?.id, null, 2)} */}
-          <Spin
+    <>
+      <Spin
             indicator={<LoadingOutlined spin />}
             size="large"
             className="text-gray-500 dark:text-gray-400"
@@ -612,7 +385,6 @@ function Financial_Report() {
               {reportData.length > 0 && (
 
                 <>
-
                   <div className="grid gap-4 sm:grid-cols-12 sm:gap-6 mb-3">
                     <div className="sm:col-span-12 ml-auto">
                       {/* <button onClick={exportPdfHandler} className='excelDownload'><img src={`${excel}`} alt="" /> </button> */}
@@ -634,7 +406,9 @@ function Financial_Report() {
               <div className="table_cus">
 
 
-
+{/* onShowAllColumns */}
+{/* {testAray.testAray} {onShowAllColumns}
+                {JSON.stringify(testAray , null, 2)} ffff {JSON.stringify(onShowAllColumns , null, 2)} */}
                 {/* {JSON.stringify(reportData, null, 2)} */}
 
                 <DataTable
@@ -1465,13 +1239,34 @@ function Financial_Report() {
             {/* )} */}
 
           </Spin>
-          {/* </div> */}
 
+      {/* Column Selection Dialog */}
+      {/* <Dialog
+        header="Select Columns to Display"
+        visible={showColumns.visibleMenu}
+        style={{ width: "70vw", maxWidth: "800px" }}
+        onHide={() => onToggleColumn('visibleMenu', false)}
+        dismissableMask={true}
+      >
+        <div className="mb-4 checkBox">
+          <Checkbox
+            checked={true}
+            onChange={onShowAllColumns}
+          > 
+            Show All
+          </Checkbox>
+
+          <Checkbox
+            checked={showHeadAcc}
+            onChange={(e) => onToggleColumn('showHeadAcc', e.target.checked)}
+          > 
+            Show Head Of Account
+          </Checkbox>
 
         </div>
-      </div>
-    </section>
+      </Dialog> */}
+    </>
   );
-}
+};
 
-export default Financial_Report;
+export default FinancialReportTable;

@@ -5,7 +5,7 @@ import Heading from "../../Components/Heading";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import { Message } from "../../Components/Message";
-import { BarChartOutlined, EditOutlined, EyeOutlined, FilePdfOutlined, LoadingOutlined, MenuOutlined, UnorderedListOutlined } from "@ant-design/icons";
+import { BarChartOutlined, EditOutlined, EyeOutlined, FileExcelOutlined, FilePdfOutlined, LoadingOutlined, MenuOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { auth_key, folder_admin, folder_certificate, folder_fund, folder_progresImg, folder_tender, proj_final_pic, url } from "../../Assets/Addresses/BaseUrl";
 import VError from "../../Components/VError";
@@ -19,6 +19,9 @@ import { Dialog } from "primereact/dialog";
 import { Image } from 'antd';
 import { useNavigate } from 'react-router-dom'
 import { useLocation, useParams } from 'react-router-dom';
+
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 
 const initialValues = {
@@ -536,6 +539,53 @@ const onPageChange = (event) => {
       setUtilizationDtl(newValue);
 
     };
+
+    const excelData = reportData.map((item) => ({
+      'Project ID': item.project_id == '' ? '--' : item.project_id,
+      'Date of Administrative Approval': item.admin_approval_dt == '' ? '--' : item.admin_approval_dt,
+      'Scheme': item.scheme_name == '' ? '--' : item.scheme_name,
+      'Sector': item.sector_name == '' ? '--' : item.sector_name,
+      'Schematic Amount': item.fr_sch_amt == '' ? '--' : item.fr_sch_amt,
+      'Contigency Amount': item.fr_cont_amt == '' ? '--' : item.fr_cont_amt,
+      'Head Account': item.account_head_name == '' ? '--' : item.account_head_name,
+      'District': item.dist_name == '' ? '--' : item.dist_name,
+      'Block': item.block_name == '' ? '--' : item.block_name,
+      'Source of Fund': item.source_of_fund == '' ? '--' : item.source_of_fund,
+      'Project Submitted by': item.project_submitted_by == '' ? '--' : item.project_submitted_by,
+      'Project Implemented by': item.agency_name == '' ? '--' : item.agency_name,
+    }));
+  
+  
+  
+    const exportPdfHandler = () => {
+  
+      const ws = XLSX.utils.json_to_sheet(excelData);
+  
+      // // Apply bold style to the header row (row 1)
+      // ws['A1'].s = { font: { bold: true } };
+      // const wb = XLSX.utils.book_new();
+      // XLSX.utils.book_append_sheet(wb, ws, "Report");
+      // XLSX.writeFile(wb, "report.xlsx");
+  
+      // Create a new workbook and worksheet
+      const workbook = XLSX.utils.book_new();
+      const worksheet = XLSX.utils.json_to_sheet(excelData);
+  
+      // Append the worksheet to the workbook
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+  
+      // Generate a binary string representing the Excel file
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: 'xlsx',
+        type: 'array',
+      });
+  
+      // Use file-saver to trigger a download
+      const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+  
+  
+      saveAs(blob, 'Sector_Report.xlsx');
+    };
   
 
 
@@ -655,6 +705,8 @@ const onPageChange = (event) => {
 {reportData.length > 0 &&(
   <div className="grid gap-4 sm:grid-cols-12 sm:gap-6 mb-3">
           <div className="sm:col-span-12 ml-auto">
+          <button onClick={exportPdfHandler} style={{ cursor: "pointer", color: '#fff', fontSize:14, background: "#3EB8BD", paddingLeft: 8, paddingRight: 8, 
+                        paddingTop: 5, paddingBottom: 5, borderRadius: 5, marginRight:10 }}><FileExcelOutlined /> Download</button>
           <a href="#" onClick={(e) => {
           e.preventDefault();
           openModal_Menu('Select Column');

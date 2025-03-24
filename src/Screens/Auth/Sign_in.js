@@ -116,9 +116,9 @@ const formik = useFormik({
             <form className="space-y-4 md:space-y-6" onSubmit={formik.handleSubmit}>
               <div>
               <TDInputTemplate
-                    placeholder="youremail@gmail.com"
+                    placeholder="User ID"
                     type="text"
-                    label="Your email"
+                    label="User ID"
                     name="email"
                     formControlName={formik.values.email}
                     handleChange={formik.handleChange}

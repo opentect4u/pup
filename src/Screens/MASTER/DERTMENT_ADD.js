@@ -27,6 +27,7 @@ function DERTMENT_ADD() {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 5;
   const [userDataLocalStore, setUserDataLocalStore] = useState([]);
+  
 
   const fetchSectorDropdownOption = async () => {
     setLoading(true);

@@ -25,6 +25,17 @@ function ACC_HEAD_Form() {
   const [editingAccountHead, setEditingAccountHead] = useState(null); // New state for editing
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 5;
+  const [userDataLocalStore, setUserDataLocalStore] = useState([]);
+
+  useEffect(() => {
+    const userData = localStorage.getItem("user_dt");
+    if (userData) {
+    setUserDataLocalStore(JSON.parse(userData))
+    } else {
+    setUserDataLocalStore([])
+    }
+
+  }, []);
 
   const fetchAccountHeadDropdownOption = async () => {
     setLoading(true);
@@ -57,7 +68,7 @@ function ACC_HEAD_Form() {
     const formData = new FormData();
     // Append each field to FormData
     formData.append("account_head", formik.values.account_head);
-    formData.append("created_by", "SSS Name Created By");
+    formData.append("created_by", userDataLocalStore.user_id);
     
         try {
     
@@ -104,7 +115,7 @@ function ACC_HEAD_Form() {
           // Append each field to FormData
           formData.append("account_head", formik.values.account_head);
           formData.append("sl_no", editingAccountHead.sl_no);
-          formData.append("modified_by", "SSS Name Modified By");
+          formData.append("modified_by", userDataLocalStore.user_id);
 
           console.log(formData, 'ggggggggggg', editingAccountHead, 'llll', formik.values.account_head);
           

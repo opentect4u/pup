@@ -6,6 +6,8 @@ import axios from 'axios';
 import { EditOutlined, EyeOutlined, LoadingOutlined } from '@ant-design/icons';
 import { useParams } from "react-router";
 import { Spin } from 'antd';
+import TableHeader from '../../Components/TableHeader';
+import TableRow from '../../Components/TableRow';
 
 function AdApView() {
   const navigate = useNavigate();
@@ -19,6 +21,7 @@ function AdApView() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 5;
+  const [pageName, setPageName] = useState('');
 
   const fetchTableDataList_Fn = async () => {
     setLoading(true);
@@ -37,6 +40,7 @@ function AdApView() {
       console.log("Response Data Table:", response?.data?.status);
       setTableDataList(response?.data?.message);
       setFilteredDataList(response?.data?.message);
+      setPageName('AdApView');
       }
 
       if(response?.data?.status < 1) {
@@ -99,7 +103,7 @@ function AdApView() {
                     type="text"
                     id="simple-search"
                     className="bg-blue-950 border border-blue-900 text-white text-sm rounded-lg block w-full pl-10 p-2"
-                    placeholder="Search by Scheme Name or Sector"
+                    placeholder="Search by Project ID or Scheme Name"
                     value={searchTerm}
                     onChange={handleSearch}
                   />
@@ -113,36 +117,11 @@ function AdApView() {
 
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                <thead className="text-xs text-gray-700 uppercase bg-slate-200 dark:bg-gray-700 dark:text-gray-400">
-                  <tr>
-                    <th className="px-4 py-3">Sl.No.</th>
-                    <th className="px-4 py-3">Project ID</th>
-                    <th className="px-4 py-3">Approval No</th>
-                    <th className="px-4 py-3">Date of Approval</th>
-                    <th className="px-4 py-3">Scheme Name</th>
-                    <th className="px-4 py-3">Sector</th>
-                    <th className="px-4 py-3">Actions</th>
-                  </tr>
-                </thead>
+              <TableHeader curentPage={pageName} />
+                
                 <tbody>
                   {currentTableData?.map((data, index) => (
-                    <tr key={index} className="border-b dark:border-gray-700">
-                      <td className="px-4 py-3">{(currentPage - 1) * rowsPerPage + index + 1}</td>
-                      <td className="px-4 py-3">{data?.project_id}</td>
-                      <td className="px-4 py-3">{data?.approval_no}</td>
-                      <td className="px-4 py-3">{data?.admin_approval_dt}</td>
-                      <td className="px-4 py-3">{data?.scheme_name}</td>
-                      <td className="px-4 py-3">{data?.sector_name}</td>
-                      <td className="px-4 py-3">
-                        <button
-                          type="button"
-                          className="text-blue-700 border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1.5"
-                          onClick={() => navigate(`/home/admin_approval/AdApcrud/${data?.approval_no}`)}
-                        >
-                         <EyeOutlined />
-                        </button>
-                      </td>
-                    </tr>
+                    <TableRow key={index} data={data} curentPage={pageName} navigate={navigate} />
                   ))}
                 </tbody>
               </table>

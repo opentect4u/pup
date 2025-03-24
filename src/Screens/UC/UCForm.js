@@ -117,7 +117,7 @@ function UCForm() {
           }
         );
 
-        console.log("FormData_____DONE", response?.data);
+        // console.log("FormData_____DONE////////////////", response?.data);
 
         if(response.data.status > 0){
           setFundStatus(response?.data?.message)
@@ -130,7 +130,7 @@ function UCForm() {
         if(response.data.status < 1){
           setFundStatus([])
           setFinalPic([])
-          setProjectStatus('')
+          setProjectStatus(response?.data?.project_status)
           setLoading(false);
         }
         // setLoading(false);
@@ -158,7 +158,7 @@ function UCForm() {
       formData.append("remarks", formik.values.exp_text);
       formData.append("is_final", radioType);
       formData.append("final_pic", formik.values.photo_com_report);
-      formData.append("created_by", "SSS Name Created By");
+      formData.append("created_by", userDataLocalStore.user_id);
   
     
       console.log("FormData_____DONE", formData);
@@ -385,7 +385,7 @@ function UCForm() {
 
   useEffect(()=>{
     fetchProjectId()
-    fundAddedList()
+    // fundAddedList()
   }, [])
   
   useEffect(()=>{
@@ -710,7 +710,7 @@ function UCForm() {
         </Spin>
         {/* fundStatus.length < 6 */}
 
-
+        {/* {JSON.stringify(projectStatus , null, 2)} */}
       {projectStatus == 'CLOSE' &&(
       <>
       <div class="w-full p-4 text-left bg-white border border-gray-200 rounded-lg shadow-sm sm:p-0 dark:bg-gray-800 dark:border-gray-700 mb-5 shadow-xl">

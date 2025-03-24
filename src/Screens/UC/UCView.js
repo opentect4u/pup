@@ -6,6 +6,8 @@ import axios from 'axios';
 import { EyeOutlined, LoadingOutlined } from '@ant-design/icons';
 import { useParams } from "react-router"
 import { Spin } from 'antd';
+import TableHeader from '../../Components/TableHeader';
+import TableRow from '../../Components/TableRow';
 
 function UCView() {
   const navigate = useNavigate();
@@ -16,6 +18,7 @@ function UCView() {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 5;
   const [loading, setLoading] = useState(false);
+  const [pageName, setPageName] = useState('');
 
   const fetchTableDataList_Fn = async () => {
     setLoading(true);
@@ -35,6 +38,7 @@ function UCView() {
       if(response?.data?.status > 0){
         setTableDataList(response?.data?.message);
         setOPERATION_STATUS(response.data.OPERATION_STATUS);
+        setPageName('UCView');
       }
       setLoading(false);
       
@@ -99,37 +103,12 @@ function UCView() {
 
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left text-gray-500">
-                <thead className="text-xs text-gray-700 uppercase bg-slate-200">
-                  <tr>
-                    <th className="px-4 py-3">Project ID</th>
-                    <th className="px-4 py-3">Schematic Name</th>
-                    <th className="px-4 py-3">Sector Name</th>
-                    <th className="px-4 py-3">Financial Year</th>
-                    <th className="px-4 py-3">District</th>
-                    <th className="px-4 py-3">Block</th>
-                    <th className="px-4 py-3">Actions</th>
-                  </tr>
-                </thead>
+              <TableHeader curentPage={pageName} />
+                
                 <tbody>
                   {currentTableData?.map((data, index) => (
-                    <tr key={index} className="border-b">
-                      <td className="px-4 py-3">{data?.project_id}</td>
-                      <td className="px-4 py-3">{data?.scheme_name}</td>
-                      <td className="px-4 py-3">{data?.sector_name}</td>
-                      <td className="px-4 py-3">{data?.fin_year}</td>
-                      <td className="px-4 py-3">{data?.dist_name}</td>
-                      <td className="px-4 py-3">{data?.block_name}</td>
-                      <td className="px-4 py-3">
-                        <button type="button" className="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 
-                        font-medium rounded-lg text-sm px-3 py-1.5"
-                          onClick={() => navigate(`/home/uc/uccrud/${data?.approval_no}`, {
-                            // state: { ...data, operation_status: 'edit' }
-                          })}
-                        >
-                          <EyeOutlined />
-                        </button>
-                      </td>
-                    </tr>
+                    <TableRow key={index} data={data} curentPage={pageName} navigate={navigate} />
+                    
                   ))}
                 </tbody>
               </table>

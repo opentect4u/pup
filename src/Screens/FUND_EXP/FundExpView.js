@@ -6,6 +6,8 @@ import axios from 'axios';
 import { EditOutlined, EyeOutlined, FilePdfOutlined, LoadingOutlined } from '@ant-design/icons';
 import { useParams } from "react-router"
 import { Spin } from 'antd';
+import TableHeader from '../../Components/TableHeader';
+import TableRow from '../../Components/TableRow';
 
 function FundExpView() {
   const navigate = useNavigate();
@@ -16,6 +18,7 @@ function FundExpView() {
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 5;
+  const [pageName, setPageName] = useState('');
 
   const fetchTableDataList_Fn = async () => {
     setLoading(true);
@@ -32,6 +35,7 @@ function FundExpView() {
         setTableDataList(response.data.message);
         setFolderName(response.data.folder_name);
         setOPERATION_STATUS(response.data.OPERATION_STATUS);
+        setPageName('FundExpView');
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -81,36 +85,11 @@ function FundExpView() {
 
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                <thead className="text-xs text-gray-700 uppercase bg-slate-200 dark:bg-gray-700">
-                  <tr>
-                    <th className="px-4 py-3">Project ID</th>
-                    <th className="px-4 py-3">Schematic Name</th>
-                    <th className="px-4 py-3">Sector Name</th>
-                    <th className="px-4 py-3">Financial Year</th>
-                    <th className="px-4 py-3">District</th>
-                    <th className="px-4 py-3">Block</th>
-                    <th className="px-4 py-3">Actions</th>
-                  </tr>
-                </thead>
+              <TableHeader curentPage={pageName} />
+                
                 <tbody>
                   {currentTableData.map((data, index) => (
-                    <tr key={index} className="border-b dark:border-gray-700">
-                      <td className="px-4 py-3">{data.project_id}</td>
-                      <td className="px-4 py-3">{data.scheme_name}</td>
-                      <td className="px-4 py-3">{data.sector_name}</td>
-                      <td className="px-4 py-3">{data.fin_year}</td>
-                      <td className="px-4 py-3">{data.dist_name}</td>
-                      <td className="px-4 py-3">{data.block_name}</td>
-                      <td className="px-4 py-3">
-                        <button
-                          type="button"
-                          className="text-blue-700 border border-blue-700 hover:bg-blue-800 hover:text-white px-3 py-1.5 rounded-lg"
-                          onClick={() => navigate(`/home/fund_expense/fecrud/${data.approval_no}`, { state: { ...data, operation_status: 'edit' } })}
-                        >
-                          <EyeOutlined />
-                        </button>
-                      </td>
-                    </tr>
+                    <TableRow key={index} data={data} curentPage={pageName} navigate={navigate} />
                   ))}
                 </tbody>
               </table>

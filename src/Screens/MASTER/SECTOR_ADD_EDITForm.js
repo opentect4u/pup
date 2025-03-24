@@ -26,6 +26,18 @@ function SECTOR_ADD_EDITForm() {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 5;
 
+    const [userDataLocalStore, setUserDataLocalStore] = useState([]);
+  
+    useEffect(() => {
+      const userData = localStorage.getItem("user_dt");
+      if (userData) {
+      setUserDataLocalStore(JSON.parse(userData))
+      } else {
+      setUserDataLocalStore([])
+      }
+  
+    }, []);
+
   const fetchSectorDropdownOption = async () => {
     setLoading(true);
     try {
@@ -59,7 +71,7 @@ function SECTOR_ADD_EDITForm() {
     const formData = new FormData();
     // Append each field to FormData
     formData.append("sector_desc", formik.values.add_sector);
-    formData.append("created_by", "SSS Name Created By");
+    formData.append("created_by", userDataLocalStore.user_id);
     
         try {
     
@@ -106,7 +118,7 @@ function SECTOR_ADD_EDITForm() {
           // Append each field to FormData
           formData.append("sector_desc", formik.values.add_sector);
           formData.append("sl_no", editingSector.sl_no);
-          formData.append("modified_by", "SSS Name Modified By");
+          formData.append("modified_by", userDataLocalStore.user_id);
 
           console.log(formData, 'ggggggggggg', editingSector, 'llll', formik.values.add_sector);
           
@@ -146,51 +158,7 @@ function SECTOR_ADD_EDITForm() {
   };
 
 
-  // const addSector = async ()=>{
-    
-  //   setLoading(true);
-      
-  //       const formData = new FormData();
-      
-  //       // Append each field to FormData
-  //       formData.append("sector_desc", formik.values.add_sector);
-  //       formData.append("created_by", "SSS Name Created By");
-      
-  //       // console.log(formik.values.admin_appr_pdf, "FormData:", formik.values.vet_dpr_pdf);
-  //       console.log(formData, "FormData:");
-    
-  //       try {
-  //         const response = await axios.post(
-  //           `${url}index.php/webApi/Mdapi/secAdd`,
-  //           formData,
-  //           {
-  //             headers: {
-  //               "Content-Type": "multipart/form-data",
-  //               'auth_key': auth_key // Important for FormData
-  //             },
-  //           }
-  //         );
   
-  //         console.log(response?.data?.status, 'ggggggggggg');
-          
-  
-  //         if(response?.data?.status > 0) {
-  //           Message("success", "Updated successfully.");
-  //           setLoading(false);
-  //           formik.resetForm();
-  //           fetchSectorDropdownOption()
-  //         }
-  
-  //         if(response?.data?.status < 1) {
-  //         setLoading(false);
-  //         }
-          
-  //       } catch (error) {
-  //         setLoading(false);
-  //         Message("error", "Error Submitting Form:");
-  //         console.error("Error submitting form:", error);
-  //       }
-  // }
 
   const onSubmit = (values) => {
     console.log(editingSector === null, 'ggggggggggg - yyyyyyyyyy', editingSector != null);
