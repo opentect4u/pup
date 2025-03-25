@@ -58,12 +58,14 @@ class Report extends CI_Controller {
 					    WHERE a.fin_year = '".$fin_year."'  GROUP BY 
     a.approval_no, a.admin_approval_dt, a.scheme_name,a.project_submit,c.sector_desc,d.fin_year, a.project_id, e.dist_name,f.block_name,g.agency_name,h.account_head";
 	    $result_data = $this->db->query($sql)->result();
+		
 		if($fin_year == ''){
 			$response = ['status' => 0, 'message' => 'Please provide financial year'];
 			
 		}else{
+			$res_fin_data = $this->db->query('select fin_year FROM md_fin_year where sl_no="'.$fin_year.'"')->row();
 			$response = (!empty($result_data)) 
-			? ['status' => 1, 'message' => $result_data] 
+			? ['status' => 1, 'message' => $result_data,'fin_year_name' => $res_fin_data->fin_year] 
 			: ['status' => 0, 'message' => 'No data found'];
 		}
 	
@@ -180,12 +182,19 @@ class Report extends CI_Controller {
 
         $res_fund_release_espense = $this->db->query($sql_fund_release_espense)->result();
 		
-		$response = (!empty($result_data)) 
+
+		if($fin_year == ''){
+			$response = ['status' => 0, 'message' => 'Please provide financial year'];
+			
+		}else{
+			$res_fin_data = $this->db->query('select fin_year FROM md_fin_year where sl_no="'.$fin_year.'"')->row();
+			$response = (!empty($result_data)) 
 			? ['status' => 1, 'sectorwise' => $result_data,'accountwise' => $resacc_data,'distwise' => $resdist_data,'impagencywise' => $resimpagency_data,'progress' => $res_progress,'fund_expenditure'=>$res_fund_release_espense,'fund' => $res_fund,'expenditure' => $res_expenditure] 
 			: ['status' => 0, 'message' => 'No data found'];
 			$this->output
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
+		}
 	}
     /////       ***** Project Detail Report Accountwise *****     /////
 	public function proj_dtl_finawith() {
@@ -196,24 +205,30 @@ class Report extends CI_Controller {
 		$dist = $this->input->post('dist_id');
 		$block = $this->input->post('block_id');
 		$impl_agency = $this->input->post('impl_agency');
-
+		$acc_head_name = ''; $sector_name = '';$dist_name = '';$block_name = '';$agency_name = '';
+		
 		if ($account_head > 0) {
 			$con .= " AND a.account_head = '".$account_head."'";
+			$acc_head_name .= $this->db->query('select account_head FROM md_account where sl_no="'.$account_head.'"')->row()->account_head;
 		}
 
 		if ($sector_id > 0) {
 			$con .= " AND a.sector_id = '".$sector_id."'";
+			$sector_name .= $this->db->query('select sector_desc FROM md_sector where sl_no="'.$sector_id.'"')->row()->sector_desc;
 		}
 		if ($dist > 0) {
 			$con .= " AND a.district_id = '".$dist."'";
+			$dist_name .= $this->db->query('select dist_name FROM md_district where dist_code="'.$dist.'"')->row()->dist_name;
 		}
 
 		if ($block > 0) {
 			$con .= " AND a.block_id = '".$block."'";	
+			$block_name .= $this->db->query('select block_name FROM md_block where block_id="'.$block.'"')->row()->block_name;
 		}
 
 		if ($impl_agency > 0) {
-			$con .= " AND a.impl_agency = '".$impl_agency."'";	
+			$con .= " AND a.impl_agency = '".$impl_agency."'";
+			$agency_name .= $this->db->query('select agency_name FROM md_proj_imp_agency where id="'.$impl_agency.'"')->row()->agency_name;	
 		}
         if($account_head > 0  || $sector_id > 0 || $dist > 0 || $block > 0 || $impl_agency > 0){
 	    $sql = "SELECT a.approval_no,a.admin_approval_dt,a.scheme_name,a.project_id,a.project_submit as project_submitted_by,a.admin_approval,a.vetted_dpr,
@@ -241,8 +256,9 @@ class Report extends CI_Controller {
 					$response = ['status' => 0, 'message' => 'Please provide Required Field'];
 					
 				}else{
+					$res_fin_data = $this->db->query('select fin_year FROM md_fin_year where sl_no="'.$fin_year.'"')->row();
 					$response = (!empty($result_data)) 
-					? ['status' => 1, 'message' => $result_data] 
+					? ['status' => 1, 'message' => $result_data,'fin_year_name' => $res_fin_data->fin_year,'account_head_name' => $acc_head_name,'sector_name' => $sector_name,'dist_name' => $dist_name,'block_name' => $block_name,'agency_name' => $agency_name] 
 					: ['status' => 0, 'message' => 'No data found'];
 				}
 		}else{	
