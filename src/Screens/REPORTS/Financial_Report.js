@@ -5,7 +5,7 @@ import Heading from "../../Components/Heading";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import { Message } from "../../Components/Message";
-import { BarChartOutlined, EditOutlined, EyeOutlined, FileExcelOutlined, FilePdfOutlined, LoadingOutlined, MenuOutlined, UnorderedListOutlined } from "@ant-design/icons";
+import { BarChartOutlined, EditOutlined, EyeOutlined, FileExcelOutlined, FilePdfOutlined, LoadingOutlined, MenuOutlined, PrinterOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { auth_key, folder_admin, folder_certificate, folder_fund, folder_progresImg, folder_tender, proj_final_pic, url } from "../../Assets/Addresses/BaseUrl";
 import VError from "../../Components/VError";
@@ -21,7 +21,11 @@ import { useNavigate } from 'react-router-dom'
 import { useLocation, useParams } from 'react-router-dom';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
-import excel from "../../Assets/Images/excel.png";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+// import LOGO from "../../Assets/Images/logo.png"
+import { getPrintCommonHeader } from "../../Components/PrintCommonHeader";
+import { PrintPageName } from "../../Components/PrintCommonHeader_PageName";
 
 
 const initialValues = {
@@ -85,6 +89,8 @@ function Financial_Report() {
   const navigate = useNavigate()
   const params = useParams();
   const [selectedYear, setSelectedYear] = useState("");
+  const [printYear, setPrintYear] = useState('');
+
 
   const openModal = (file, foldername, title) => {
     setPdfUrl(url + foldername + file);
@@ -264,8 +270,8 @@ function Financial_Report() {
         }
       );
 
+      console.log(response?.data, "utilization");
       if (response?.data?.status > 0) {
-        console.log(response?.data?.status, "utilization", response.data.final_pic); // Log the actual response data
         setVisibleUtilization(true);
         setDetailsReport(response?.data?.message)
         setFinal_pic(response?.data?.final_pic)
@@ -331,6 +337,7 @@ function Financial_Report() {
 
       // console.log("Response Data:", response.data.message); // Log the actual response data
       setFinancialYearDropList(response.data.message)
+      localStorage.setItem("report_year", JSON.stringify(response.data.message))
 
       if (params?.id > 0) {
         setSelectedYear(params?.id); // Set first year as default (modify if needed)
@@ -398,6 +405,8 @@ function Financial_Report() {
     setRowsPerPage(event.rows)
   }
 
+
+
   const showReport = async (params) => {
     setLoading(true);
     const formData = new FormData();
@@ -406,7 +415,6 @@ function Financial_Report() {
     formData.append("fin_year", params > 0 ? params : formik.values.fin_yr);
     // console.log(formik.values.fin_yr, 'formData______________');
     setFinanceYear_submit(formik.values.fin_yr)
-
     try {
       const response = await axios.post(
         `${url}index.php/webApi/Report/proj_dtl_finyearwise`,
@@ -419,17 +427,19 @@ function Financial_Report() {
         }
       );
 
-      console.log(response?.data?.message, 'xxxxxxxxxxxxxxxx', formData);
+      console.log(response?.data, 'xxxxxxxxxxxxxxxx');
 
       if (response?.data?.status > 0) {
         setLoading(false);
         setReportData(response?.data?.message)
+        setPrintYear(response?.data?.fin_year_name)
         // setShowForm(true);
       }
 
       if (response?.data?.status < 1) {
         setLoading(false);
         setReportData([])
+        setPrintYear('')
       }
     } catch (error) {
       setLoading(false);
@@ -446,6 +456,7 @@ function Financial_Report() {
     if (params?.id > 0) {
       showReport(params?.id)
     }
+
   }, [])
 
   const onSubmit = (values) => {
@@ -489,13 +500,20 @@ function Financial_Report() {
   };
 
 
-  const excelData = reportData.map((item) => ({
+
+  // Download & Print Function Start 
+
+
+
+  const excelData_land = reportData.map((item, index) => ({
+    'Sl. No': index + 1, // Adding Serial Number
     'Project ID': item.project_id == '' ? '--' : item.project_id,
     'Date of Administrative Approval': item.admin_approval_dt == '' ? '--' : item.admin_approval_dt,
     'Scheme': item.scheme_name == '' ? '--' : item.scheme_name,
     'Sector': item.sector_name == '' ? '--' : item.sector_name,
     'Schematic Amount': item.fr_sch_amt == '' ? '--' : item.fr_sch_amt,
     'Contigency Amount': item.fr_cont_amt == '' ? '--' : item.fr_cont_amt,
+    'Total Amount': ((parseFloat(item.fr_sch_amt) || 0) + (parseFloat(item.fr_cont_amt) || 0)).toFixed(2),
     'Head Account': item.account_head_name == '' ? '--' : item.account_head_name,
     'District': item.dist_name == '' ? '--' : item.dist_name,
     'Block': item.block_name == '' ? '--' : item.block_name,
@@ -503,22 +521,104 @@ function Financial_Report() {
     'Project Submitted by': item.project_submitted_by == '' ? '--' : item.project_submitted_by,
     'Project Implemented by': item.agency_name == '' ? '--' : item.agency_name,
   }));
+  excelData_land.push({
+    'Sl. No': 'Total',
+    'Project ID': '',
+    'Date of Administrative Approval': '',
+    'Scheme': '',
+    'Sector': '',
+    'Schematic Amount': reportData.reduce((sum, item) => sum + (parseFloat(item?.fr_sch_amt) || 0), 0).toFixed(2),
+    'Contigency Amount': reportData.reduce((sum, item) => sum + (parseFloat(item?.fr_cont_amt) || 0), 0).toFixed(2),
+    'Total Amount': reportData.reduce((sum, item) => sum + ((parseFloat(item?.fr_sch_amt) || 0) + (parseFloat(item?.fr_cont_amt) || 0)), 0).toFixed(2),
+    'District': '',
+    'Block': '',
+    'Source of Fund': '',
+    'Project Submitted by': '',
+    'Project Implemented by': '',
+  });
 
 
+  const excelData_tender = detailsReport.map((item, index) => ({
+    'Sl. No': index + 1, // Adding Serial Number
+    'Tender Date': item.tender_date == '' ? '--' : item.tender_date,
+    'Tender Inviting Authority': item.invite_auth == '' ? '--' : item.invite_auth,
+    'Tender Matured': item.mat_date == '' ? '--' : item.mat_date,
+    'Tender Status': item.tender_status == "M" ? 'Yes' : 'No',
+    'Work Order Issued': item.wo_date == '' ? '--' : item.wo_date,
+    'Work Order Value': item.wo_value == '' ? '--' : item.wo_value,
+    'Tentative Date of Completion': item.comp_date_apprx == '' ? '--' : item.comp_date_apprx,
+    'Amount Put to Tender': item.amt_put_to_tender == '' ? '--' : item.amt_put_to_tender,
+    'DLP': item.dlp == '' ? '--' : item.dlp,
+    'Additional Performance Security': item.add_per_security == '' ? '--' : item.add_per_security,
+    'EMD': item.emd == '' ? '--' : item.emd,
+    'Date Of Refund': item.date_of_refund == '' ? '--' : item.date_of_refund,
+  }));
 
-  const exportPdfHandler = () => {
+  const excelData_Progress = detailsReport.map((item, index) => ({
+    'Sl. No': index + 1, // Adding Serial Number
+    'Progress Percent': item.progress_percent == '' ? '--' : item.progress_percent +'%',
+    'Address': item.address == '' ? '--' : item.address,
+    'Created At': item.created_at == '' ? '--' : item.created_at,
+  }));
 
-    const ws = XLSX.utils.json_to_sheet(excelData);
+  const excelData_Fund = detailsReport.map((item, index) => ({
+    'Sl. No': index + 1, // Adding Serial Number
+    'Receive Date': item.receive_date == '' ? '--' : item.receive_date +'%',
+    'Received By': item.received_by == '' ? '--' : item.received_by,
+    'Instalment Amount': item.instl_amt == '' ? '--' : item.instl_amt,
+    'Schematic Amount': item.sch_amt == '' ? '--' : item.sch_amt,
+    'Contigency Amount': item.cont_amt == '' ? '--' : item.cont_amt,
+  }));
 
-    // // Apply bold style to the header row (row 1)
-    // ws['A1'].s = { font: { bold: true } };
-    // const wb = XLSX.utils.book_new();
-    // XLSX.utils.book_append_sheet(wb, ws, "Report");
-    // XLSX.writeFile(wb, "report.xlsx");
+  const excelData_Expenditure = detailsReport.map((item, index) => ({
+    'Sl. No': index + 1, // Adding Serial Number
+    'Payment Date': item.payment_date == '' ? '--' : item.payment_date,
+    'Payment To': item.payment_to == '' ? '--' : item.payment_to,
+    'Schematic Amount': item.sch_amt == '' ? '--' : item.sch_amt,
+    'Contigency Amount': item.cont_amt == '' ? '--' : item.cont_amt,
+    'Schematic Remarks': item.sch_remark == null ? '--' : item.sch_remark,
+    'Contigency Remarks': item.cont_remark == null ? '--' : item.cont_remark,
+  }));
+
+  const excelData_Utilization = detailsReport.map((item, index) => ({
+    'Sl. No': index + 1, // Adding Serial Number
+    'Certificate Date': item.certificate_date == '' ? '--' : item.certificate_date,
+    'Issued By': item.issued_by == '' ? '--' : item.issued_by,
+    'Issued To': item.issued_to == '' ? '--' : item.issued_to,
+    'Remarks': item.remarks == '' ? '--' : item.remarks,
+    'This Is Final Utilization Certificate?': item.is_final == "Y" ? 'Yes' : 'No',
+  }));
+
+
+  
+  const exportExcelHandler = (para) => {
+    // alert(para)
+    // const ws = XLSX.utils.json_to_sheet(excelData_tender);
 
     // Create a new workbook and worksheet
+    var worksheet;
+
     const workbook = XLSX.utils.book_new();
-    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    if(para == 'land'){
+      worksheet = XLSX.utils.json_to_sheet(excelData_land);
+    }
+
+    if(para == 'tender'){
+      worksheet = XLSX.utils.json_to_sheet(excelData_tender);
+    }
+
+    if(para == 'progress'){
+      worksheet = XLSX.utils.json_to_sheet(excelData_Progress);
+    }
+    if(para == 'fund'){
+      worksheet = XLSX.utils.json_to_sheet(excelData_Fund);
+    }
+    if(para == 'expenditure'){
+      worksheet = XLSX.utils.json_to_sheet(excelData_Expenditure);
+    }
+    if(para == 'utilization'){
+      worksheet = XLSX.utils.json_to_sheet(excelData_Utilization);
+    }
 
     // Append the worksheet to the workbook
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
@@ -532,9 +632,175 @@ function Financial_Report() {
     // Use file-saver to trigger a download
     const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
 
+    if(para == 'land'){
+    saveAs(blob, `${PrintPageName.Financial.replace(/\s+/g, '')}`+`${printYear}`+'.xlsx');
+    }
+    if(para == 'tender'){
+    saveAs(blob, `${PrintPageName.popup_1.replace(/\s+/g, '')}`+`${printYear}`+'.xlsx');
+    }
+    if(para == 'progress'){
+    saveAs(blob, `${PrintPageName.popup_2.replace(/\s+/g, '')}`+`${printYear}`+'.xlsx');
+    }
+    if(para == 'fund'){
+    saveAs(blob, `${PrintPageName.popup_3.replace(/\s+/g, '')}`+`${printYear}`+'.xlsx');
+    }
+    if(para == 'expenditure'){
+    saveAs(blob, `${PrintPageName.popup_4.replace(/\s+/g, '')}`+`${printYear}`+'.xlsx');
+    }
+    if(para == 'utilization'){
+    saveAs(blob, `${PrintPageName.popup_5.replace(/\s+/g, '')}`+`${printYear}`+'.xlsx');
+    }
 
-    saveAs(blob, 'Financial_Yearwise_Report.xlsx');
   };
+
+
+  const printData = (para) => {
+    const printWindow = window.open('', '', 'width=800,height=600');
+    printWindow.document.write(`
+      <html>
+      <head>
+        <title>Report</title>
+        <style>
+        .logo{text-align: center; padding: 0 0 10px 0;}
+        .logo img{width:80px;}
+        h3{text-align: center; font-size: 15px; font-weight: 400; padding: 0 0 7px 0; margin: 0; line-height: 15px;}
+        h2{text-align: center; font-size: 16px; font-weight: 700; padding: 0 0 12px 0; margin: 0; line-height: 15px;}
+        p{text-align: center; font-size: 14px; font-weight: 400; padding: 0 0 10px 0; margin: 0; line-height: 15px;}
+          body {
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+          }
+          table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 11px;
+          }
+          th, td {
+            border: 1px solid black;
+            padding: 3px;
+            text-align: left;
+            font-size: 11px;
+          }
+            /* Ensure borders appear in print */
+          @media print {
+            table, th, td {
+              border: 1px solid black;
+              font-size: 10px;
+            }
+            th, td {
+            padding: 3px;
+          }
+            p.disclam{font-size: 10px; padding: 10px 0 5px 0; text-align: center; font-weight: 700;}
+          }
+        </style>
+      </head>
+      <body>
+      ${getPrintCommonHeader()}
+      <h2>${PrintPageName.Financial} Year: ${printYear}</h2>
+    `);
+  
+    if (para === 'land') {
+      printWindow.document.write(`
+        <h3>Land Report</h3>
+        <table>
+          <tr>
+            ${Object.keys(excelData_land[0] || {}).map((key) => `<th>${key}</th>`).join('')}
+          </tr>
+          ${excelData_land.map(row => `
+            <tr>
+              ${Object.values(row).map(value => `<td>${value}</td>`).join('')}
+            </tr>
+          `).join('')}
+        </table>
+      `);
+    } else if (para === 'tender') {
+      printWindow.document.write(`
+        <h3>Tender Report</h3>
+        <table>
+          <tr>
+            ${Object.keys(excelData_tender[0] || {}).map((key) => `<th>${key}</th>`).join('')}
+          </tr>
+          ${excelData_tender.map(row => `
+            <tr>
+              ${Object.values(row).map(value => `<td>${value}</td>`).join('')}
+            </tr>
+          `).join('')}
+        </table>
+      `);
+    } else if (para === 'progress') {
+      printWindow.document.write(`
+        <h3>Tender Report</h3>
+        <table>
+          <tr>
+            ${Object.keys(excelData_Progress[0] || {}).map((key) => `<th>${key}</th>`).join('')}
+          </tr>
+          ${excelData_Progress.map(row => `
+            <tr>
+              ${Object.values(row).map(value => `<td>${value}</td>`).join('')}
+            </tr>
+          `).join('')}
+        </table>
+      `);
+    } else if (para === 'fund') {
+      printWindow.document.write(`
+        <h3>Tender Report</h3>
+        <table>
+          <tr>
+            ${Object.keys(excelData_Fund[0] || {}).map((key) => `<th>${key}</th>`).join('')}
+          </tr>
+          ${excelData_Fund.map(row => `
+            <tr>
+              ${Object.values(row).map(value => `<td>${value}</td>`).join('')}
+            </tr>
+          `).join('')}
+        </table>
+      `);
+    } else if (para === 'expenditure') {
+      printWindow.document.write(`
+        <h3>Tender Report</h3>
+        <table>
+          <tr>
+            ${Object.keys(excelData_Expenditure[0] || {}).map((key) => `<th>${key}</th>`).join('')}
+          </tr>
+          ${excelData_Expenditure.map(row => `
+            <tr>
+              ${Object.values(row).map(value => `<td>${value}</td>`).join('')}
+            </tr>
+          `).join('')}
+        </table>
+      `);
+    } else if (para === 'utilization') {
+      printWindow.document.write(`
+        <h3>Tender Report</h3>
+        <table>
+          <tr>
+            ${Object.keys(excelData_Utilization[0] || {}).map((key) => `<th>${key}</th>`).join('')}
+          </tr>
+          ${excelData_Utilization.map(row => `
+            <tr>
+              ${Object.values(row).map(value => `<td>${value}</td>`).join('')}
+            </tr>
+          `).join('')}
+        </table>
+      `);
+    }
+  
+    printWindow.document.write(`
+        <p class="disclam">“This document is computer generated and does not require any signature”.</p>
+      </body>
+      </html>
+    `);
+  
+    printWindow.document.close();
+    printWindow.print();
+  };
+
+    // Download & Print Function End 
+  
+
+
+
+
 
   return (
     <section className="bg-white p-5 dark:bg-gray-900">
@@ -599,7 +865,6 @@ function Financial_Report() {
             </div>
 
           </form>
-          {/* {JSON.stringify(financeYear_submit, null, 2)} /// {JSON.stringify(params?.id, null, 2)} */}
           <Spin
             indicator={<LoadingOutlined spin />}
             size="large"
@@ -615,9 +880,8 @@ function Financial_Report() {
 
                   <div className="grid gap-4 sm:grid-cols-12 sm:gap-6 mb-3">
                     <div className="sm:col-span-12 ml-auto">
-                      {/* <button onClick={exportPdfHandler} className='excelDownload'><img src={`${excel}`} alt="" /> </button> */}
-                      <button onClick={exportPdfHandler} style={{ cursor: "pointer", color: '#fff', fontSize:14, background: "#3EB8BD", paddingLeft: 8, paddingRight: 8, 
-                        paddingTop: 5, paddingBottom: 5, borderRadius: 5, marginRight:10 }}><FileExcelOutlined /> Download</button>
+                    <button onClick={()=>{printData('land')}} className="downloadXL"><PrinterOutlined /> Print</button>
+                      <button onClick={()=>{exportExcelHandler('land')}} className="downloadXL"><FileExcelOutlined /> Download</button>
                       <a href="#" onClick={(e) => {
                         e.preventDefault();
                         openModal_Menu('Select Column');
@@ -1033,13 +1297,24 @@ function Financial_Report() {
                 </Dialog>
 
                 <Dialog
-                  header={'Tender Details ' + '(Project ID: ' + modalTitleTable + ')'}
+                  header={<div className="flex justify-between items-center">
+                    <span>{'Tender Details (Project ID: ' + modalTitleTable + ')'}</span>
+                    <div>
+                      <button onClick={()=>{printData('tender')}} className="downloadXL">
+                        <PrinterOutlined /> Print
+                      </button>
+                      <button onClick={()=>{exportExcelHandler('tender')}} className="downloadXL">
+                        <FileExcelOutlined /> Download
+                      </button>
+                    </div>
+                  </div>}
                   // header='modalTitle'
                   visible={visibleTender}
                   style={{ width: "100vw", maxWidth: "1200px" }}
                   onHide={() => setVisibleTender(false)}
                   dismissableMask={true}
                 >
+{/* {JSON.stringify(detailsReport, null, 2)} */}
                   <DataTable
                     value={detailsReport?.map((item, i) => [{ ...item, id: i }]).flat()}
                     selectionMode="checkbox"
@@ -1047,6 +1322,7 @@ function Financial_Report() {
                     dataKey="id"
                     tableClassName="w-full text-sm text-left rtl:text-right shadow-lg text-green-900dark:text-gray-400 table_Custome table_Custome_1st" // Apply row classes
                   >
+                    
                     <Column
                       header="Sl No."
                       body={(rowData) => (
@@ -1164,7 +1440,17 @@ function Financial_Report() {
                 </Dialog>
 
                 <Dialog
-                  header={'Pregress Details ' + '(Project ID: ' + modalTitleTable + ')'}
+                  header={<div className="flex justify-between items-center">
+                    <span>{'Progress Details ' + '(Project ID: ' + modalTitleTable + ')'}</span>
+                    <div>
+                      <button onClick={()=>{printData('progress')}} className="downloadXL">
+                        <PrinterOutlined /> Print
+                      </button>
+                      <button onClick={()=>{exportExcelHandler('progress')}} className="downloadXL">
+                        <FileExcelOutlined /> Download
+                      </button>
+                    </div>
+                  </div>}
                   // header='modalTitle'
                   visible={visibleProgress}
                   style={{ width: "100vw", maxWidth: "1200px" }}
@@ -1237,7 +1523,18 @@ function Financial_Report() {
                 </Dialog>
 
                 <Dialog
-                  header={'Fund Release Details ' + '(Project ID: ' + modalTitleTable + ')'}
+                  header={<div className="flex justify-between items-center">
+                    <span>{'Fund Release Details ' + '(Project ID: ' + modalTitleTable + ')'}</span>
+                    <div>
+                      <button onClick={()=>{printData('fund')}} className="downloadXL">
+                        <PrinterOutlined /> Print
+                      </button>
+                      <button onClick={()=>{exportExcelHandler('fund')}} className="downloadXL">
+                        <FileExcelOutlined /> Download
+                      </button>
+                    </div>
+                  </div>}
+                  
                   // header='modalTitle'
                   visible={visibleFund}
                   style={{ width: "100vw", maxWidth: "1200px" }}
@@ -1311,7 +1608,17 @@ function Financial_Report() {
                 </Dialog>
 
                 <Dialog
-                  header={'Expenditure Details ' + '(Project ID: ' + modalTitleTable + ')'}
+                  header={<div className="flex justify-between items-center">
+                    <span>{'Expenditure Details ' + '(Project ID: ' + modalTitleTable + ')'}</span>
+                    <div>
+                      <button onClick={()=>{printData('expenditure')}} className="downloadXL">
+                        <PrinterOutlined /> Print
+                      </button>
+                      <button onClick={()=>{exportExcelHandler('expenditure')}} className="downloadXL">
+                        <FileExcelOutlined /> Download
+                      </button>
+                    </div>
+                  </div>}
                   // header='modalTitle'
                   visible={visibleExpend}
                   style={{ width: "100vw", maxWidth: "1200px" }}
@@ -1367,7 +1674,17 @@ function Financial_Report() {
                 </Dialog>
 
                 <Dialog
-                  header={'Utilization Certificate Details ' + '(Project ID: ' + modalTitleTable + ')'}
+                  header={<div className="flex justify-between items-center">
+                    <span>{'Utilization Certificate Details ' + '(Project ID: ' + modalTitleTable + ')'}</span>
+                    <div>
+                      <button onClick={()=>{printData('utilization')}} className="downloadXL">
+                        <PrinterOutlined /> Print
+                      </button>
+                      <button onClick={()=>{exportExcelHandler('utilization')}} className="downloadXL">
+                        <FileExcelOutlined /> Download
+                      </button>
+                    </div>
+                  </div>}
                   // header='modalTitle'
                   visible={visibleUtilization}
                   style={{ width: "100vw", maxWidth: "1200px" }}

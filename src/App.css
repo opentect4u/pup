@@ -109,6 +109,13 @@ textarea.bg-white {border: #ccc solid 1px;}
   color: #3EB8BD;}
   .checkBox .ant-checkbox-wrapper span.ant-checkbox{border: #8e8e8e solid 1px;}
 
+  .downloadXL{cursor: pointer;
+    color: rgb(255, 255, 255);
+    font-size: 14px;
+    background: rgb(62, 184, 189);
+    padding: 5px 8px;
+    border-radius: 5px;
+    margin-right: 10px;}
 
 @keyframes App-logo-spin {
   from {
