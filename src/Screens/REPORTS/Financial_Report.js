@@ -530,6 +530,7 @@ function Financial_Report() {
     'Schematic Amount': reportData.reduce((sum, item) => sum + (parseFloat(item?.fr_sch_amt) || 0), 0).toFixed(2),
     'Contigency Amount': reportData.reduce((sum, item) => sum + (parseFloat(item?.fr_cont_amt) || 0), 0).toFixed(2),
     'Total Amount': reportData.reduce((sum, item) => sum + ((parseFloat(item?.fr_sch_amt) || 0) + (parseFloat(item?.fr_cont_amt) || 0)), 0).toFixed(2),
+    'Head Account': '',
     'District': '',
     'Block': '',
     'Source of Fund': '',
@@ -701,7 +702,6 @@ function Financial_Report() {
   
     if (para === 'land') {
       printWindow.document.write(`
-        <h3>Land Report</h3>
         <table>
           <tr>
             ${Object.keys(excelData_land[0] || {}).map((key) => `<th>${key}</th>`).join('')}
@@ -715,7 +715,6 @@ function Financial_Report() {
       `);
     } else if (para === 'tender') {
       printWindow.document.write(`
-        <h3>Tender Report</h3>
         <table>
           <tr>
             ${Object.keys(excelData_tender[0] || {}).map((key) => `<th>${key}</th>`).join('')}
@@ -729,7 +728,6 @@ function Financial_Report() {
       `);
     } else if (para === 'progress') {
       printWindow.document.write(`
-        <h3>Tender Report</h3>
         <table>
           <tr>
             ${Object.keys(excelData_Progress[0] || {}).map((key) => `<th>${key}</th>`).join('')}
@@ -743,7 +741,6 @@ function Financial_Report() {
       `);
     } else if (para === 'fund') {
       printWindow.document.write(`
-        <h3>Tender Report</h3>
         <table>
           <tr>
             ${Object.keys(excelData_Fund[0] || {}).map((key) => `<th>${key}</th>`).join('')}
@@ -757,7 +754,6 @@ function Financial_Report() {
       `);
     } else if (para === 'expenditure') {
       printWindow.document.write(`
-        <h3>Tender Report</h3>
         <table>
           <tr>
             ${Object.keys(excelData_Expenditure[0] || {}).map((key) => `<th>${key}</th>`).join('')}
@@ -771,7 +767,6 @@ function Financial_Report() {
       `);
     } else if (para === 'utilization') {
       printWindow.document.write(`
-        <h3>Tender Report</h3>
         <table>
           <tr>
             ${Object.keys(excelData_Utilization[0] || {}).map((key) => `<th>${key}</th>`).join('')}

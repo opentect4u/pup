@@ -515,7 +515,7 @@ const onPageChange = (event) => {
       // initialValues:formValues,
       // initialValues,
 
-      initialValues: { fin_yr: selectedYear, head_acc: secoundField_submit || secoundValue },
+      initialValues: { fin_yr: financeYear_submit || selectedYear, head_acc: secoundField_submit || secoundValue },
 
       onSubmit,
       validationSchema,
@@ -748,7 +748,6 @@ const onPageChange = (event) => {
             
               if (para === 'land') {
                 printWindow.document.write(`
-                  <h3>Land Report</h3>
                   <table>
                     <tr>
                       ${Object.keys(excelData_land[0] || {}).map((key) => `<th>${key}</th>`).join('')}
@@ -762,7 +761,6 @@ const onPageChange = (event) => {
                 `);
               } else if (para === 'tender') {
                 printWindow.document.write(`
-                  <h3>Tender Report</h3>
                   <table>
                     <tr>
                       ${Object.keys(excelData_tender[0] || {}).map((key) => `<th>${key}</th>`).join('')}
@@ -776,7 +774,6 @@ const onPageChange = (event) => {
                 `);
               } else if (para === 'progress') {
                 printWindow.document.write(`
-                  <h3>Tender Report</h3>
                   <table>
                     <tr>
                       ${Object.keys(excelData_Progress[0] || {}).map((key) => `<th>${key}</th>`).join('')}
@@ -790,7 +787,6 @@ const onPageChange = (event) => {
                 `);
               } else if (para === 'fund') {
                 printWindow.document.write(`
-                  <h3>Tender Report</h3>
                   <table>
                     <tr>
                       ${Object.keys(excelData_Fund[0] || {}).map((key) => `<th>${key}</th>`).join('')}
@@ -804,7 +800,6 @@ const onPageChange = (event) => {
                 `);
               } else if (para === 'expenditure') {
                 printWindow.document.write(`
-                  <h3>Tender Report</h3>
                   <table>
                     <tr>
                       ${Object.keys(excelData_Expenditure[0] || {}).map((key) => `<th>${key}</th>`).join('')}
@@ -818,7 +813,6 @@ const onPageChange = (event) => {
                 `);
               } else if (para === 'utilization') {
                 printWindow.document.write(`
-                  <h3>Tender Report</h3>
                   <table>
                     <tr>
                       ${Object.keys(excelData_Utilization[0] || {}).map((key) => `<th>${key}</th>`).join('')}

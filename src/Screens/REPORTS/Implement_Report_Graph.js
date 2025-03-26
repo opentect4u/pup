@@ -210,7 +210,7 @@ function Implement_Report_Graph() {
       // initialValues:formValues,
       // initialValues,
 
-      initialValues: { fin_yr: selectedYear, head_acc: secoundField_submit || secoundValue },
+      initialValues: { fin_yr: financeYear_submit || selectedYear, head_acc: secoundField_submit || secoundValue },
 
 
       onSubmit,
