@@ -136,10 +136,10 @@ function Implement_Report_Graph() {
     // Append each field to FormData
     formData.append("fin_year", params > 0 ? params : formik.values.fin_yr);
     formData.append("account_head_id", 0);
-    formData.append("sector_id", secoundValue.length > 0 ? secoundValue : formik.values.head_acc);
+    formData.append("sector_id", 0);
     formData.append("dist_id", 0);
     formData.append("block_id", 0);
-    formData.append("impl_agency", 0);
+    formData.append("impl_agency", secoundValue.length > 0 ? secoundValue : formik.values.head_acc);
     console.log(formData, 'formData');
     setFinanceYear_submit(formik.values.fin_yr)
     setSecoundField_submit(formik.values.head_acc)

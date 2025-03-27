@@ -41,7 +41,7 @@ import Implement_Report_Graph from './Screens/REPORTS/Implement_Report_Graph';
 import DERTMENT_ADD from './Screens/MASTER/DERTMENT_ADD';
 import DESIGNATION_ADD from './Screens/MASTER/DESIGNATION_ADD';
 import UserProfile from './Screens/PROFILE_MANAGE/UserProfile';
-import Financial_Report__test from './Screens/REPORTS/Financial_Report__test';
+// import Financial_Report__test from './Screens/REPORTS/Financial_Report__test';
 // import FundRelView__test from './Screens/FUND_RELEASE/FundRelView__test';
 
 const FundRelForm =lazy(()=>import('./Screens/FUND_RELEASE/FundRelForm'))
@@ -297,10 +297,10 @@ const router = createBrowserRouter([
               element: <Financial_Report_Graph />,
             },
 
-            {
-              path: "financial-report_test/:id",
-              element: <Financial_Report__test />,
-            },
+            // {
+            //   path: "financial-report_test/:id",
+            //   element: <Financial_Report__test />,
+            // },
             
             {
                 path: "head-accountwise-report/:id",

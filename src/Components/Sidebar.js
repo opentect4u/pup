@@ -127,6 +127,11 @@ const ReportAccordion = () => (
   <Collapse accordion>
     <Panel header="Report" key="1" >
       <ul>
+
+      {/* <li>
+          <Link to={"report/financial-report_test/0"}>Financial Yearwise Test</Link>
+        </li> */}
+
         <li>
           <Link to={"report/financial-report/0"}>Financial Yearwise</Link>
         </li>

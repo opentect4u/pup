@@ -253,7 +253,7 @@ function Financial_Report_Graph() {
               font-medium rounded-lg text-sm px-3 py-1.8 text-center 
               me-2 mb-0 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 
               dark:focus:ring-blue-800 ml-auto"
-    onClick={() => { navigate(`/home/report/financial-report/${financeYear_submit == "" ? params?.id: financeYear_submit || params?.id}`); }} 
+    onClick={() => { navigate(`/home/report/financial-report_test/${financeYear_submit == "" ? params?.id: financeYear_submit || params?.id}`); }} 
     > <DatabaseOutlined /> Data View </button>
              
             </div>
