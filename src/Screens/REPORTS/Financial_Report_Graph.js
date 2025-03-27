@@ -1,32 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
-import TDInputTemplate from "../../Components/TDInputTemplate";
 import BtnComp from "../../Components/BtnComp";
 import Heading from "../../Components/Heading";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import { Message } from "../../Components/Message";
-import { DatabaseOutlined, EditOutlined, EyeOutlined, FilePdfOutlined, LoadingOutlined } from "@ant-design/icons";
+import { DatabaseOutlined, LoadingOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { auth_key, folder_admin, folder_certificate, folder_fund, folder_progresImg, folder_tender, proj_final_pic, url } from "../../Assets/Addresses/BaseUrl";
 import VError from "../../Components/VError";
 import { Select, Spin } from "antd";
-import { DataTable } from 'primereact/datatable';
-import Column from 'antd/es/table/Column';
-import { Toast } from "primereact/toast"
-// import { Tooltip } from 'react-tooltip'
-import { Tooltip as ReactTooltip } from "react-tooltip";
-import { Dialog } from "primereact/dialog";
-import { Image } from 'antd';
 import { useNavigate } from 'react-router-dom'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { color } from "framer-motion";
-import BarChartComponent from "../../Components/BarChartComponent";
-import PieChartComponent from "../../Components/PieChartComponent";
-import ProgressBarChart from "../../Components/ProgressBarChart";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faIndianRupeeSign } from "@fortawesome/free-solid-svg-icons";
-import BarChartFundComponent from "../../Components/BarChartFundComponent";
-import { useLocation, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import ReportGraph from "../../Components/ReportGraph";
 
 const initialValues = {
   fin_yr: '',
@@ -41,14 +26,12 @@ const validationSchema = Yup.object({
 
 function Financial_Report_Graph() {
   const [loading, setLoading] = useState(false);
-  const [reportData, setReportData] = useState(() => []);
   const [financialYearDropList, setFinancialYearDropList] = useState([]);
 
   const [sectorwiseData, setSectorwiseData] = useState(() => []);
   const [accountwiseData, setAccountwiseData] = useState(() => []);
   const [districtwiseData, setDistrictwiseData] = useState(() => []);
   const [implementwiseData, setImplementwiseData] = useState(() => []);
-  const [expwiseData, setExpwiseData] = useState(() => []);
   const [fundwiseData, setFundwiseData] = useState(() => []);
   const [progresswiseData, setProgresswiseData] = useState(() => []);
   const [financeYear_submit, setFinanceYear_submit] = useState("");
@@ -90,20 +73,6 @@ function Financial_Report_Graph() {
   }, [])
 
 
-  const data_pai = [
-    {
-      number_of_project: "1",
-      dist_name: "PURULIA"
-    },
-    {
-      number_of_project: "5",
-      dist_name: "Kolkata"
-    },
-    {
-      number_of_project: "3",
-      dist_name: "Haora"
-    },
-  ];
 
 
   const showReport = async (params)=>{
@@ -135,7 +104,6 @@ function Financial_Report_Graph() {
         setSectorwiseData(response?.data?.sectorwise)
         setAccountwiseData(response?.data?.accountwise)
         setImplementwiseData(response?.data?.impagencywise)
-        setExpwiseData(response?.data?.expenditure)
         // setFundwiseData(response?.data?.fund)
         setFundwiseData(response?.data?.fund_expenditure)
         setProgresswiseData(response?.data?.progress)
@@ -148,7 +116,6 @@ function Financial_Report_Graph() {
         setAccountwiseData([])
         setDistrictwiseData([])
         setImplementwiseData([])
-        setExpwiseData([])
         setFundwiseData([])
         setProgresswiseData([])
       }
@@ -271,56 +238,17 @@ function Financial_Report_Graph() {
                       spinning={loading}
                       >
                       {sectorwiseData.length > 0 &&(
-                      
-                      <div className="grid gap-4 sm:grid-cols-12 sm:gap-6 mt-10">
-                        
-                      <div className="sm:col-span-6">
-
-                      
-                      <BarChartComponent  data={sectorwiseData} title_page={'Sector Wise'} tooltip_name={'Number Of Projects'} title_Barchart={'Number Of Projects'} key_name_1={'number_of_project'} key_name_2={'sector_name'} bar_name={'Sector'} />
-                      
-                      </div>
-
-                      <div className="sm:col-span-6">
-                      
-                      <BarChartComponent  data={accountwiseData} title_page={'Account Head Wise'} tooltip_name={'Number Of Projects'} title_Barchart={'Number Of Projects'} key_name_1={'number_of_project'} key_name_2={'account_head'} bar_name={'Account Head'} />
-                      
-                      </div>
-
-                      <div className="sm:col-span-6">
-                      
-                      <PieChartComponent data={districtwiseData} title_page={'District Wise Project'}/>
-                      
-                      </div>
-
-                      <div className="sm:col-span-6">
-                      
-                      <BarChartComponent  data={implementwiseData} title_page={'Implementing Agency Wise'} tooltip_name={'Number Of Projects'} title_Barchart={'Number Of Projects'} key_name_1={'number_of_project'} key_name_2={'agency_name'} bar_name={'Implementing Agency'} />
-                    
-                      </div>
-
-                      <div className="sm:col-span-12">
-                      
-                      <ProgressBarChart  data={progresswiseData} title_page={'Progress Wise'} tooltip_name={'xxxxx'} title_Barchart={'Progress'} key_name_1={'progress_percent'} key_name_2={'project_id'} key_name_3={'scheme_name'} bar_name={'Progress'} />
-                    
-                      </div>
-
-                      <div className="sm:col-span-12">
-                      
-                      <BarChartFundComponent  data={fundwiseData} title_page={'Fund Release/Receipt Vs Expenditure'} tooltip_name={'Rs'} title_Barchart={'Amount'} key_name_1={'fund_release'} key_name_2={'project_id'} key_name_3={'fund_expense'}  key_name_4={'scheme_name'} bar_name={'Fund'} />
-                    
-                      </div>
-
-                      
-
-                      {/* <div className="sm:col-span-12">
-                      
-                      <BarChartComponent  data={expwiseData} title_page={'Expenditure Wise'} tooltip_name={'Expenditure'} title_Barchart={'Amount'} key_name_1={'total_amt'} key_name_2={'project_id'} bar_name={'Expenditure'} />
-                    
-                      </div> */}
-
-
-                      </div>
+                      <>
+                      <ReportGraph 
+                      reportName = {'finance'}
+                      sectorwiseData={sectorwiseData} 
+                      accountwiseData={accountwiseData}
+                      districtwiseData={districtwiseData}
+                      implementwiseData={implementwiseData}
+                      progresswiseData={progresswiseData}
+                      fundwiseData={fundwiseData}
+                      />
+                      </>
                       )}
 
                       </Spin>
