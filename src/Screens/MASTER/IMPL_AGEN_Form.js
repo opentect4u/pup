@@ -10,6 +10,7 @@ import axios from "axios";
 import { auth_key, url } from "../../Assets/Addresses/BaseUrl";
 import VError from "../../Components/VError";
 import { Spin } from "antd";
+import MasterTableCommon from "../../Components/MasterTableCommon";
 
 const initialValues = { agency_name: "" };
 
@@ -84,6 +85,7 @@ function IMPL_AGEN_Form() {
   
           if(response?.data?.status < 1) {
           setLoading(false);
+          Message("error", response?.data?.message);
           }
 
         
@@ -277,49 +279,19 @@ function IMPL_AGEN_Form() {
                     onChange={handleSearch}
                   />
                 </div>
-                <div className="overflow-x-auto">
-                <table className="w-full text-sm text-left">
-                  <thead className="bg-slate-200">
-                    <tr>
-                      <th className="px-4 py-3">Sl.No.</th>
-                      <th className="px-4 py-3">Implementing Agency</th>
-                      <th className="px-4 py-3">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {currentTableData.map((data, index) => (
-                      <tr key={index} className="border-b">
-                        <td className="px-4 py-3">{(currentPage - 1) * rowsPerPage + index + 1}</td>
-                        <td className="px-4 py-3">{data?.agency_name}</td>
-                        <td className="px-4 py-3">
-                          <button
-                            className="text-blue-700 border px-3 py-1.5 rounded-lg"
-                            onClick={() => handleEdit(data)}
-                          >
-                            <EditOutlined />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                </div>
-                <div className="flex justify-between p-4">
-  <span className="text-sm text-gray-500">
-  Showing {(currentPage - 1) * rowsPerPage + 1} to {Math.min(currentPage * rowsPerPage, agencyDropList.length)} of {agencyDropList.length}
-  </span>
-  <div className="flex space-x-2 pagination">
-  {Array.from({ length: totalPages }, (_, index) => (
-  <button
-  key={index}
-  className={`px-3 py-1 rounded-md ${currentPage === index + 1 ? 'bg-blue-700 text-white' : 'bg-gray-200 text-gray-700'}`}
-  onClick={() => handlePageChange(index + 1)}
-  >
-  {index + 1}
-  </button>
-  ))}
-  </div>
-  </div>
+
+                <MasterTableCommon
+                currentTableData={currentTableData}
+                currentPage={currentPage}
+                rowsPerPage={rowsPerPage}
+                handleEdit={handleEdit}
+                sectorDropList={agencyDropList}
+                handlePageChange={handlePageChange}
+                totalPages={totalPages}
+                masterName='implementing'
+                />
+
+                
 
 
 
