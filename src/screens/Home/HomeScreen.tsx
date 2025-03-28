@@ -11,7 +11,7 @@ import InputPaper from '../../components/InputPaper'
 import Header from '../../components/Header'
 import { fileStorage, loginStorage, projectStorage } from '../../storage/appStorage'
 // @ts-ignore
-import { AUTH_KEY } from "@env"
+import { AUTH_KEY, REVERSE_GEOENCODING_API_KEY } from "@env"
 import { ADDRESSES } from '../../config/api_list'
 import axios from 'axios'
 import { CommonActions, useNavigation } from '@react-navigation/native'
@@ -75,9 +75,12 @@ const HomeScreen = () => {
 
     const fetchGeoLocaltionAddress = async () => {
         console.log("REVERSE GEO ENCODING API CALLING...")
-        await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${location?.latitude},${location?.longitude}&key=AIzaSyAhSuw5-ThQnJTZCGC4e_oBsL1iIUbJxts`).then(res => {
+        await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${location?.latitude},${location?.longitude}&key=${REVERSE_GEOENCODING_API_KEY}`).then(res => {
             setGeolocationFetchedAddress(res?.data?.results[0]?.formatted_address)
         })
+        // await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${location?.latitude},${location?.longitude}&key=AIzaSyAhSuw5-ThQnJTZCGC4e_oBsL1iIUbJxts`).then(res => {
+        //     setGeolocationFetchedAddress(res?.data?.results[0]?.formatted_address)
+        // })
     }
 
     // to be enabled later...
