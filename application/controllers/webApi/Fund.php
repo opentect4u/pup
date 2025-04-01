@@ -80,7 +80,7 @@ class Fund extends CI_Controller {
 		$approval_no = $this->input->post('approval_no') ;
 		$where = array('approval_no' => $approval_no); 
 		
-		$result_data = $this->Master->f_select('td_fund_receive', 'receive_no,received_by,receive_date as isntl_date,instl_amt,allotment_no,sch_amt,cont_amt', $where, NULL);
+		$result_data = $this->Master->f_select('td_fund_receive', 'receive_no,received_by,receive_date as isntl_date,instl_amt,allot_order_no,allot_order_dt,allotment_no,sch_amt,cont_amt', $where, NULL);
 		$response = (!empty($result_data)) 
 			? ['status' => 1, 'message' => $result_data,'OPERATION_STATUS' => 'add','folder_name'=>'uploads/fund/'] 
 			: ['status' => 0, 'message' => 'No data found'];
@@ -96,7 +96,7 @@ class Fund extends CI_Controller {
 		               'b.fin_year = d.sl_no' => NULL,'b.district_id = e.dist_code' => NULL,
 					   'b.block_id = f.block_id' => NULL,'1 group by b.admin_approval_dt,b.scheme_name,sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no,a.receive_no,a.receive_date'=>NULL);
 		
-		$result_data = $this->Master->f_select('td_fund_receive a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f', 'b.admin_approval_dt,b.scheme_name,c.sector_desc as sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no,a.receive_no,a.receive_date', $where, NULL);
+		$result_data = $this->Master->f_select('td_fund_receive a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f', 'b.admin_approval_dt,b.scheme_name,c.sector_desc as sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no,a.receive_no,a.receive_date,a.allot_order_no,a.allot_order_dt', $where, NULL);
 
 		if (!empty($result_data)) {
 			echo json_encode(['status' => 1, 'message' => $result_data,'folder_name'=>'uploads/fund/']);
@@ -181,6 +181,8 @@ class Fund extends CI_Controller {
 			'receive_date' => $this->input->post('isntl_date'),
 			'received_by' => $this->input->post('created_by'),
 			'instl_amt' => $this->input->post('instl_amt'),
+			'allot_order_no' => $this->input->post('allot_order_no'),
+			'allot_order_dt' => $this->input->post('allot_order_dt'),
 			'allotment_no' => $upload_paths['allotment_no'],
 			'sch_amt' => $this->input->post('sch_amt'),
 			'cont_amt' => $this->input->post('cont_amt'),
@@ -263,6 +265,8 @@ class Fund extends CI_Controller {
 			'receive_date' => $this->input->post('isntl_date'),
 			'sch_amt' => $this->input->post('sch_amt'),
 			'cont_amt' => $this->input->post('cont_amt'),
+			'allot_order_no' => $this->input->post('allot_order_no'),
+			'allot_order_dt' => $this->input->post('allot_order_dt'),
 			'modified_by' => $this->input->post('modified_by'),
 			'modified_at' => date('Y-m-d H:i:s')
 		];

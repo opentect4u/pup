@@ -99,6 +99,49 @@ class Mdapi extends CI_Controller {
 		}
     }
 
+	public function get_ps() {
+	
+		$this->form_validation->set_rules('dist_id', 'District ', 'required');
+		$this->form_validation->set_rules('block_id', 'Block', 'required');
+		
+		if ($this->form_validation->run() == FALSE) {
+			echo json_encode([
+				'status' => 0,
+				'message' => validation_errors()
+			]);
+		}else{
+			$where = array('dist_id' => $this->input->post('dist_id'));
+			$result_data = $this->Master->f_select('md_police_station', array('id','ps_name',), $where, NULL);
+			$response = (!empty($result_data)) 
+			? ['status' => 1, 'message' => $result_data] 
+			: ['status' => 0, 'message' => 'No data found'];
+			$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
+	   }
+	}
+	public function get_gp() {
+	
+		$this->form_validation->set_rules('dist_id', 'District ', 'required');
+		$this->form_validation->set_rules('block_id', 'Block', 'required');
+		
+		if ($this->form_validation->run() == FALSE) {
+			echo json_encode([
+				'status' => 0,
+				'message' => validation_errors()
+			]);
+		}else{
+			$where = array('dist_id' => $this->input->post('dist_id'),'block_id' => $this->input->post('block_id'));
+			$result_data = $this->Master->f_select('md_gp', array('gp_id','gp_name',), $where, NULL);
+			
+			$response = (!empty($result_data)) 
+			? ['status' => 1, 'message' => $result_data] 
+			: ['status' => 0, 'message' => 'No data found'];
+			$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
+	   }
+	}
 	//////// *************    API FOR FUND MASTER  ************* ////////
 	public function fundAdd() {
 		$query = $this->db->get_where('md_fund', ['fund_type' => trim($this->input->post('fund_type'))]);

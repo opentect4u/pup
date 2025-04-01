@@ -323,7 +323,7 @@ class Report extends CI_Controller {
 							SUM(b.sch_amt) + SUM(b.cont_amt) AS fund_release
 						FROM td_fund_receive b
 						JOIN td_admin_approval a ON a.approval_no = b.approval_no
-						WHERE a.fin_year = '".$fin_year."'
+						WHERE a.fin_year = '".$fin_year."' $con
 						GROUP BY a.project_id, a.scheme_name) f
 					LEFT JOIN 
 						(SELECT 

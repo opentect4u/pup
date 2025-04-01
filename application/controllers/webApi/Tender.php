@@ -131,7 +131,7 @@ class Tender extends CI_Controller {
 	public function proj_approv_list() {
 		$json_data = file_get_contents("php://input");
 		$data = json_decode($json_data, true);
-		$where = array('a.sector_id = b.sl_no' => NULL,'a.account_head = c.sl_no' => NULL);
+		$where = array('a.sector_id = b.sl_no' => NULL,'a.account_head = c.sl_no' => NULL,'a.ps_id = d.id' => NULL,'a.gp_id = e.gp_id' => NULL);
         // Check if JSON decoding was successful
 		if (!$data) {
 			echo json_encode([
@@ -157,7 +157,7 @@ class Tender extends CI_Controller {
 			$where = array_merge($where, ['a.approval_no' => $approval_no]); 
 		}
 		
-		$result_data = $this->Master->f_select('td_admin_approval a ,md_sector b ,md_account c', 'a.approval_no,a.scheme_name,b.sector_desc as sector_name,(a.sch_amt+a.cont_amt) as tot_amt,a.project_id,c.account_head ', $where, NULL);
+		$result_data = $this->Master->f_select('td_admin_approval a ,md_sector b ,md_account c,md_police_station d,md_gp e', 'a.approval_no,a.scheme_name,b.sector_desc as sector_name,(a.sch_amt+a.cont_amt) as tot_amt,a.project_id,c.account_head,,d.ps_name,e.gp_name,a.jl_no,a.mouza,a.dag_no,a.khatian_no,a.area ', $where, NULL);
 
 		$response = (!empty($result_data)) 
 			? ['status' => 1, 'message' => $result_data,'OPERATION_STATUS' => 'add'] 
