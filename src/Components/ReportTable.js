@@ -324,11 +324,11 @@ function ReportTable(
     'Tender Status': item.tender_status == "M" ? 'Yes' : 'No',
     'Work Order Issued': item.wo_date == '' ? '--' : item.wo_date,
     'Work Order Value': item.wo_value == '' ? '--' : item.wo_value,
-    'Tentative Date of Completion': item.comp_date_apprx == '' ? '--' : item.comp_date_apprx,
+    'Date of Completion (As per Work Order)': item.comp_date_apprx == '' ? '--' : item.comp_date_apprx,
     'Amount Put to Tender': item.amt_put_to_tender == '' ? '--' : item.amt_put_to_tender,
     'DLP': item.dlp == '' ? '--' : item.dlp,
     'Additional Performance Security': item.add_per_security == '' ? '--' : item.add_per_security,
-    'EMD': item.emd == '' ? '--' : item.emd,
+    'EMD/Security Deposit ': item.emd == '' ? '--' : item.emd,
     'Date Of Refund': item.date_of_refund == '' ? '--' : item.date_of_refund,
   }));
 
@@ -688,11 +688,11 @@ function ReportTable(
       )
     },
     { field:"wo_value", header:"Work Order Value"},
-    { field:"comp_date_apprx", header:"Tentative Date of Completion"},
+    { field:"comp_date_apprx", header:"Date of Completion (As per Work Order)"},
     { field:"amt_put_to_tender", header:"Amount Put to Tender"},
     { field:"dlp", header:"DLP"},
     { field:"add_per_security", header:"Additional Performance Security"},
-    { field:"emd", header:"EMD"},
+    { field:"emd", header:"EMD/Security Deposit"},
     { field:"date_of_refund", header:"Date Of Refund"},
     // ... other tender columns
   ];

@@ -20,6 +20,8 @@ import { Toast } from "primereact/toast"
 
 const initialValues = {
   receipt_first: '',
+  allotment_order_no: '',
+  allotment_order_date: '',
   al1_pdf: '',
   sch_amt_one: '',
   cont_amt_one: '',
@@ -31,6 +33,8 @@ const initialValues = {
 
 const validationSchema = Yup.object({
   receipt_first: Yup.string().required('Receipt is Required'),
+  allotment_order_no: Yup.string().required('Allotment Order No. is Required'),
+  allotment_order_date: Yup.string().required('Allotment Order Date is Required'),
   al1_pdf: Yup.string().required('Allotment Order No. is Required'),
   sch_amt_one: Yup.string().required('Schematic Amount is Required'),
   cont_amt_one: Yup.string().required('Contigency Amount is Required'),
@@ -130,6 +134,8 @@ function FundRelForm() {
       // // Append each field to FormData
       
       formData.append("instl_amt", formik.values.receipt_first);
+      formData.append("allot_order_no", formik.values.allotment_order_no);
+      formData.append("allot_order_dt", formik.values.allotment_order_date);
       formData.append("allotment_no", formik.values.al1_pdf); // Ensure this is a file if applicable
       formData.append("sch_amt", formik.values.sch_amt_one);
       formData.append("cont_amt", formik.values.cont_amt_one);
@@ -175,6 +181,10 @@ function FundRelForm() {
   
       
       formData.append("instl_amt", formik.values.receipt_first);
+
+      formData.append("allot_order_no", formik.values.allotment_order_no);
+      formData.append("allot_order_dt", formik.values.allotment_order_date);
+      
       formData.append("allotment_no", formik.values.al1_pdf);  //////////
       formData.append("sch_amt", formik.values.sch_amt_one);
       formData.append("cont_amt", formik.values.cont_amt_one);
@@ -353,6 +363,8 @@ function FundRelForm() {
         setLoading(false);
         setValues({
           receipt_first: response?.data?.message?.instl_amt,
+          allotment_order_no: response?.data?.message?.allot_order_no,
+          allotment_order_date : response?.data?.message?.allot_order_dt,
           al1_pdf: response.data.message.allotment_no,
           sch_amt_one: response.data.message.sch_amt,
           cont_amt_one: response.data.message.cont_amt,
@@ -666,6 +678,16 @@ function FundRelForm() {
           ></Column>
 
           <Column
+          field="allot_order_no"
+          header="Allotment Order No."
+          ></Column>
+
+          <Column
+          field="allot_order_dt"
+          header="Allotment Order Date"
+          ></Column>
+
+          <Column
           field="isntl_date"
           header="Installment Date"
           ></Column>
@@ -720,7 +742,7 @@ function FundRelForm() {
 
           <Column
           // field="instl_amt"
-          header="Allotment Order No."
+          header="Upload Allotment Order"
           body={(rowData) => (
           <a href={url + folderName + rowData?.allotment_no} target='_blank'><FilePdfOutlined style={{fontSize:22, color:'red'}} /></a>
           )}
@@ -759,7 +781,7 @@ function FundRelForm() {
           <div class="grid gap-4 sm:grid-cols-12 sm:gap-6">
             <div class="sm:col-span-3">
               <TDInputTemplate
-                type="text"
+                type="number"
                 placeholder="Rs...."
                 label="Receipt of first installment (Rs.)"
                 name="receipt_first"
@@ -772,13 +794,51 @@ function FundRelForm() {
                 <VError title={formik.errors.receipt_first} />
               )}
             </div>
+
+
+
+            <div class="sm:col-span-3">
+              <TDInputTemplate
+                type="text"
+                placeholder="Allotment Order No...."
+                label="Allotment Order No."
+                name="allotment_order_no"
+                formControlName={formik.values.allotment_order_no}
+                handleChange={formik.handleChange}
+                handleBlur={formik.handleBlur}
+                mode={1}
+              />
+              {formik.errors.allotment_order_no && formik.touched.allotment_order_no && (
+                <VError title={formik.errors.allotment_order_no} />
+              )}
+            </div>
+
+
+            <div class="sm:col-span-3">
+            <TDInputTemplate
+                placeholder="Allotment Order Date goes here..."
+                type="date"
+                label="Allotment Order Date "
+                name="allotment_order_date"
+                formControlName={formik.values.allotment_order_date}
+                handleChange={formik.handleChange}
+                handleBlur={formik.handleBlur}
+                mode={1}
+                // disabled= {operation_status ==  'edit'? true : false}
+              />
+              {formik.errors.allotment_order_date && formik.touched.allotment_order_date && (
+                <VError title={formik.errors.allotment_order_date} />
+              )}
+            </div>
+
+
           
             <div class="sm:col-span-3" style={{position:'relative'}}>
               <TDInputTemplate
               type="file"
               name="al1_pdf"
-              placeholder="Allotment Order No."
-              label="Allotment Order No."
+              placeholder="Upload Allotment Order"
+              label="Upload Allotment Order"
               // handleChange={(event) => {
               // formik.setFieldValue("al1_pdf", event.currentTarget.files[0]);
               // }}

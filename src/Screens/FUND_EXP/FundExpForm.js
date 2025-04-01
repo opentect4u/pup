@@ -15,6 +15,9 @@ import { DataTable } from 'primereact/datatable';
 import Column from 'antd/es/table/Column';
 import { Toast } from "primereact/toast"
 
+
+
+
 const initialValues = {
   // exp_text: '',
   // al1_pdf: '',
@@ -22,7 +25,7 @@ const initialValues = {
   cont_amt_one: '',
   payment_date:'',
   sch_remark: '',
-  cont_remark: '',
+  cont_remark: [],
 };
 
 
@@ -34,13 +37,7 @@ const validationSchema = Yup.object({
   cont_amt_one: Yup.string().required('Contigency Amount is Required'),
   payment_date: Yup.string().required('Expenditure Date is Required'),
   sch_remark: Yup.string().required('Schematic Remarks is Required'),
-  cont_remark: Yup.string().required('Contigency Remarks is Required'),
-
-
-  // exp_text: Yup.string(),
-  // al1_pdf: Yup.string(),
-  // sch_amt_one: Yup.string(),
-  // cont_amt_one: Yup.string(),
+  cont_remark: Yup.array().required('Contigency Remarks is Required'),
 
 });
 
@@ -49,9 +46,6 @@ function FundExpForm() {
   const params = useParams();
   const [formValues, setValues] = useState(initialValues);
   const location = useLocation();
-  // const operation_status = location.state?.operation_status || "add";
-  // const payment_no = location.state?.payment_no || "";
-  // const payment_date = location.state?.payment_date || "";
 
   const [operation_status, setOperation_status] = useState('');
   const [payment_no, setpayment_no] = useState('');
@@ -71,11 +65,7 @@ function FundExpForm() {
   const [approvalNo, setApprovalNo] = useState('');
   const toast = useRef(null)
   const [userDataLocalStore, setUserDataLocalStore] = useState([]);
-
-
-
-
-
+  
     
     const fundAddedList = async (approvalNo_Para) => {
       setLoading(true); // Set loading state
@@ -140,7 +130,7 @@ function FundExpForm() {
       formData.append("cont_remark", formik.values.cont_remark);
       formData.append("created_by", "SSS Name Created By");
 
-  
+      console.log(formik.values.cont_remark, 'FormData_____');
     
       console.log("FormData:", formData);
   
@@ -155,7 +145,7 @@ function FundExpForm() {
             },
           }
         );
-        console.log(response, 'FormData_____', (prevFundStatus) => [...prevFundStatus, formData]);
+        
         
         // setLoading(false);
         Message("success", "Updated successfully.");
@@ -307,6 +297,9 @@ function FundExpForm() {
   };
 
 
+
+
+
   const loadFormEditData = async (approval_no, payment_no, payment_date) => {
     setLoading(true); // Set loading state
 
@@ -398,6 +391,34 @@ function FundExpForm() {
     setShowForm(true);
     }
     }, [])
+
+
+    const data = [
+      { gp_id: "294", gp_name: "BIPRATIKURI" },
+      { gp_id: "295", gp_name: "CHAUHATTA-MAHODARI-I" },
+      { gp_id: "296", gp_name: "CHAUHATTA-MAHODARI-II" },
+      { gp_id: "297", gp_name: "DWARAKA" },
+      { gp_id: "298", gp_name: "HATIA" },
+      { gp_id: "299", gp_name: "INDUS" },
+      { gp_id: "300", gp_name: "JAMNA" },
+      { gp_id: "301", gp_name: "KIRNAHAR-I" },
+      { gp_id: "302", gp_name: "KURUNNAHAR" },
+      { gp_id: "303", gp_name: "LABPUR-I" },
+      { gp_id: "304", gp_name: "LABPUR-II" },
+      { gp_id: "305", gp_name: "THIBA" }
+    ];
+    
+    const options = data.map(item => ({
+      value: item.gp_id,
+      label: item.gp_name
+    }));
+  
+    const handleChange_contigen = (value) => {
+      if(value.length > 1){
+        formik.setFieldValue("cont_remark", '')
+      }
+      console.log(`selected ${value.length}`);
+    };
     
   return (
     <section class="bg-white p-5 dark:bg-gray-900">
@@ -573,7 +594,7 @@ function FundExpForm() {
 						spinning={loading}
 					>
 
-{/* {JSON.stringify(fundStatus, null, 2)} */}
+{/* {JSON.stringify(fundStatus.length +1 , null, 2)} */}
 
         {fundStatus?.length > 0 && (
           <>
@@ -591,7 +612,7 @@ function FundExpForm() {
 
           <Column
           field="payment_no"
-          header="SL.No."
+          header="RA Bill"
           footer={
             <span style={{ fontWeight: "bold", color: "#0694A2" }}>
             Total: 
@@ -674,7 +695,7 @@ function FundExpForm() {
        
        {showForm &&(
         <>
-       <Heading title={"Expenditure Details"} button={'N'}/>
+       <Heading title={`Expenditure Details (RA Bill ${fundStatus?.length + 1})`} button="N" />
        
        <form onSubmit={formik.handleSubmit}>
           <div class="grid gap-4 sm:grid-cols-12 sm:gap-6">
@@ -747,23 +768,40 @@ function FundExpForm() {
               )}
             </div>
 
-            {/* <div class="sm:col-span-12">
-              <TDInputTemplate
-                type="text"
-                placeholder="Remarks Text.."
-                label="Remarks"
-                name="exp_text"
-                formControlName={formik.values.exp_text}
-                handleChange={formik.handleChange}
-                handleBlur={formik.handleBlur}
-                mode={3}
+            <div class="sm:col-span-6 contigencySelect">
+            <label for="sch_amt_one" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Choose Contigency Remarks</label>
+            
+              <Select
+              placeholder="Choose Contingency Remarks goes here..."
+              label="Choose Contingency Remarks"
+              name="cont_remark"
+              mode="tags"
+              style={{ width: '100%' }}
+              // value={formik.values.cont_remark}  // Bind Formik state
+              onChange={(value) => 
+              {
+                console.log(value, 'valuevaluevaluevaluevalue');
+              // handleChange_contigen(value)
+              formik.setFieldValue("cont_remark", value)
+              }
+              } // Update Formik state
+              handleChange={formik.handleChange}
+              handleBlur={formik.handleBlur}
+              // tokenSeparators={[]}
+              options={options}
+              filterOption={(input, option) => {
+                (option?.label ?? "").toLowerCase().includes(input.toLowerCase())}}
               />
-              {formik.errors.exp_text && formik.touched.exp_text && (
-                <VError title={formik.errors.exp_text} />
-              )}
-            </div> */}
 
-            <div class="sm:col-span-6">
+
+
+
+              {formik.errors.cont_remark && formik.touched.cont_remark && (
+              <VError title={formik.errors.cont_remark} />
+              )}
+            </div>
+
+            <div class="sm:col-span-12">
               <TDInputTemplate
                 type="text"
                 placeholder="Schematic Remarks Text.."
@@ -779,21 +817,7 @@ function FundExpForm() {
               )}
             </div>
 
-            <div class="sm:col-span-6">
-              <TDInputTemplate
-                type="text"
-                placeholder="Contigency Remarks Text.."
-                label="Contigency Remarks"
-                name="cont_remark"
-                formControlName={formik.values.cont_remark}
-                handleChange={formik.handleChange}
-                handleBlur={formik.handleBlur}
-                mode={3}
-              />
-              {formik.errors.cont_remark && formik.touched.cont_remark && (
-                <VError title={formik.errors.cont_remark} />
-              )}
-            </div>
+            
 
             
 

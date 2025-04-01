@@ -53,7 +53,7 @@ const TableRow = ({ index, data, navigate, curentPage }) => {
               state: { ...data, operation_status: 'edit' },
             })}
           >
-            <EyeOutlined />
+            <EditOutlined />
           </button>
         </td>
       </tr>
@@ -105,11 +105,11 @@ const TableRow = ({ index, data, navigate, curentPage }) => {
             type="button"
             className="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 
   focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1.5"
-            onClick={() => navigate(`/home/fund_release/frcrud_test/${data?.approval_no}`, {
+            onClick={() => navigate(`/home/fund_release/frcrud/${data?.approval_no}`, {
               state: { ...data, operation_status: 'edit' },
             })}
           >
-            <EyeOutlined />
+            <EditOutlined />
           </button>
         </td>
       </tr>
@@ -131,7 +131,7 @@ const TableRow = ({ index, data, navigate, curentPage }) => {
             className="text-blue-700 border border-blue-700 hover:bg-blue-800 hover:text-white px-3 py-1.5 rounded-lg"
             onClick={() => navigate(`/home/fund_expense/fecrud/${data.approval_no}`, { state: { ...data, operation_status: 'edit' } })}
           >
-            <EyeOutlined />
+            <EditOutlined />
           </button>
         </td>
       </tr>
@@ -154,7 +154,7 @@ const TableRow = ({ index, data, navigate, curentPage }) => {
               // state: { ...data, operation_status: 'edit' }
             })}
           >
-            <EyeOutlined />
+            <EditOutlined />
           </button>
         </td>
       </tr>

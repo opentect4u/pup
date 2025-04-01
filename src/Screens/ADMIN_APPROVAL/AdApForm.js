@@ -28,8 +28,16 @@ const initialValues = {
   proj_imp_by: '',
   dis: '',
   block: '',
+  ps_id: '',
+  // gp_id: '',
   vet_dpr_pdf: '',
   src: '',
+
+  jl_no: '',
+  mouza: '',
+  dag_no: '',
+  khatian_no: '',
+  area: '',
 };
 
 
@@ -67,8 +75,18 @@ const validationSchema = Yup.object({
   proj_imp_by: Yup.string().required('Project implemented By is Required'),
   dis: Yup.string().required('District is Required'),
   block: Yup.string().required('Block is Required'),
+
+  ps_id: Yup.string().required('Police Station is Required'),
+  // gp_id: Yup.string().required('Gram Panchayat is Required'),
+
   vet_dpr_pdf: Yup.string().required('Vetted DPR is Required'),
   src: Yup.string().required('Source of Fund is Required'),
+
+  jl_no:  Yup.string().required('JL No. is Required'),
+  mouza:  Yup.string().required('Mouza is Required'),
+  dag_no:  Yup.string().required('Dag No is Required'),
+  khatian_no:  Yup.string().required('Khatian No is Required'),
+  area:  Yup.string().required('Area is Required'),
 
 
 });
@@ -86,8 +104,17 @@ function AdApForm() {
   const [districtDropList, setDistrictDropList] = useState([]);
   const [district_ID, setDistrict_ID] = useState([]);
 
+  const [block_ID, setBlock_ID] = useState([]);
   const [blockDropList, setBlockDropList] = useState(() => []);
   const [blockDropList_Load, setBlockDropList_Load] = useState(() => []);
+
+  const [psStn_ID, setpsStn_ID] = useState([]);
+  const [psStnDropList, setpsStnDropList] = useState(() => []);
+  const [psStnDropList_Load, setpsStnDropList_Load] = useState(() => []);
+
+  const [GM_ID, setGM_ID] = useState([]);
+  const [GM_DropList, setGM_DropList] = useState(() => []);
+  const [GM_DropList_Load, setGM_DropList_Load] = useState(() => []);
 
   const [sourceFundDropList, setSourceFundDropList] = useState([]);
   const params = useParams()
@@ -227,8 +254,72 @@ function AdApForm() {
         }
       );
 
-      console.log("Response Data__Block:", response.data.message); // Log the actual response data
       setBlockDropList(response.data.message)
+    } catch (error) {
+      console.error("Error fetching data:", error); // Handle errors properly
+    }
+  };
+
+  const fetchPoliceStnOption = async () => {
+    const formData = new FormData();
+    formData.append("dist_id", district_ID);
+    formData.append("block_id", 0);
+
+    try {
+    const response = await axios.post(
+    `${url}index.php/webApi/Mdapi/get_ps`,
+    formData,
+    {
+    headers: {
+    "Content-Type": "multipart/form-data",
+    'auth_key': auth_key // Important for FormData
+    },
+    }
+    );
+
+    console.log(response, 'pssssssssssssss', formData);
+    if(response?.data?.status > 0){
+      setpsStnDropList(response?.data?.message)
+    }
+
+    if(response?.data?.status < 1){
+      setpsStnDropList([])
+    }
+    
+
+    } catch (error) {
+    console.error("Error fetching data:", error); // Handle errors properly
+    }
+
+
+  };
+
+  const fetch_GM_Option = async () => {
+    const formData = new FormData();
+    formData.append("dist_id", district_ID);
+    formData.append("block_id", block_ID);
+
+    try {
+    const response = await axios.post(
+    `${url}index.php/webApi/Mdapi/get_gp`,
+    formData,
+    {
+    headers: {
+    "Content-Type": "multipart/form-data",
+    'auth_key': auth_key // Important for FormData
+    },
+    }
+    );
+
+    console.log(response?.data?.message, 'rrrrrrrrrrrrrrrrr', formData);
+    if(response?.data?.status > 0){
+      setGM_DropList(response?.data?.message)
+    }
+
+    if(response?.data?.status < 1){
+      setGM_DropList([])
+    }
+
     } catch (error) {
       console.error("Error fetching data:", error); // Handle errors properly
     }
@@ -267,11 +358,6 @@ function AdApForm() {
  
 
   useEffect(() => {
-    console.log(params?.id, 'paramsparamsparamsparams');
-    // axios.post(url+'index.php/webApi/Mdapi/sector', {},
-    //   {headers: { 
-    //   'auth_key': auth_key, 
-    // }}).then(res=>console.log(res))
     fetchSectorDropdownOption()
     fetchFinancialYeardownOption()
     fetchProjectImplement()
@@ -282,7 +368,13 @@ function AdApForm() {
 
   useEffect(() => {
     fetchBlockdownOption()
+    // fetch_GM_Option()
   }, [district_ID])
+
+  useEffect(() => {
+    fetchPoliceStnOption()
+    fetch_GM_Option()
+  }, [district_ID, block_ID])
 
   useEffect(()=>{
 
@@ -294,7 +386,7 @@ function AdApForm() {
   }, [])
 
   
- const fetchBlockdownOption__load = async (dis_id, block_id) => {
+  const fetchBlockdownOption__load = async (dis_id, block_id) => {
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Mdapi/block',
@@ -309,13 +401,73 @@ function AdApForm() {
       var data = response?.data?.message
       const filteredBlockLoad = data.filter(block => block.block_id === block_id);
 
-      console.log("/////////////////////", filteredBlockLoad); // Log the actual response data
+      console.log(filteredBlockLoad, 'filteredBlockLoad');
       
       setBlockDropList_Load(filteredBlockLoad)
     } catch (error) {
       console.error("Error fetching data:", error); // Handle errors properly
     }
   };
+
+  const fetchPoliceStnOption__load = async (dis_id, ps_id) => {
+    const formData = new FormData();
+    formData.append("dist_id", dis_id);
+    formData.append("block_id", 0);
+
+    try {
+    const response = await axios.post(
+    `${url}index.php/webApi/Mdapi/get_ps`,
+    formData,
+    {
+    headers: {
+    "Content-Type": "multipart/form-data",
+    'auth_key': auth_key // Important for FormData
+    },
+    }
+    );
+
+    
+
+    var data = response?.data?.message
+    const filteredData = data.filter(ps => ps.id === ps_id);
+    console.log(dis_id, ps_id, 'fetchPoliceStnOption__load', filteredData);
+      
+    setpsStnDropList_Load(filteredData)
+    
+    } catch (error) {
+      console.error("Error fetching data:", error); // Handle errors properly
+    }
+  };
+
+  const fetch_GM_Option__load = async (dis_id, block_id, gm_id) => {
+    const formData = new FormData();
+    formData.append("dist_id", dis_id);
+    formData.append("block_id", block_id);
+
+    try {
+    const response = await axios.post(
+    `${url}index.php/webApi/Mdapi/get_gp`,
+    formData,
+    {
+    headers: {
+    "Content-Type": "multipart/form-data",
+    'auth_key': auth_key // Important for FormData
+    },
+    }
+    );
+
+    
+    
+    var data = response?.data?.message
+    const filteredData = data.filter(gp => gp.gp_id === gm_id);
+    console.log(dis_id, block_id, gm_id, 'fetch_GM_Option__load', filteredData);
+    setGM_DropList_Load(filteredData)
+    
+    } catch (error) {
+      console.error("Error fetching data:", error); // Handle errors properly
+    }
+  };
+
 
 
 
@@ -338,6 +490,10 @@ function AdApForm() {
 
       const totalAmount = Number(response.data.message.sch_amt) + Number(response.data.message.cont_amt);
       fetchBlockdownOption__load(response?.data?.message?.district_id, response?.data?.message?.block_id)
+
+      fetchPoliceStnOption__load(response?.data?.message?.district_id, response.data.message.ps_id)
+      fetch_GM_Option__load(response?.data?.message?.district_id, response.data.message.block_id, response.data.message.gp_id)
+
       setValues({
         scheme_name: response.data.message.scheme_name,
         sector_name: response.data.message.sector_id,
@@ -353,11 +509,23 @@ function AdApForm() {
         proj_imp_by: response.data.message.impl_agency,
         dis: response.data.message.district_id,
         block: response.data.message.block_id,
+
+        ps_id: response.data.message.ps_id,
+        gp_id: response.data.message.gp_id,
+
+
         vet_dpr_pdf: response.data.message.vetted_dpr,
         src: response.data.message.fund_id,
+
+        jl_no: response.data.message.jl_no,
+        mouza: response.data.message.mouza,
+        
+        dag_no: response.data.message.dag_no,
+        khatian_no: response.data.message.khatian_no,
+        area: response.data.message.area,
       })
 
-      console.log("loadFormData", response.data.message); // Log the actual response data
+      console.log("loadFormDatafffffffff", response.data.message.dag_no); // Log the actual response data
       // setSourceFundDropList(response.data.message)
     } catch (error) {
       console.error("Error fetching data:", error); // Handle errors properly
@@ -385,12 +553,24 @@ function AdApForm() {
     formData.append("impl_agency", formik.values.proj_imp_by);
     formData.append("district_id", formik.values.dis);
     formData.append("block_id", formik.values.block);
+
+    formData.append("ps_id", formik.values.ps_id);
+    formData.append("gp_id", formik.values.gp_id);
+
     formData.append("vetted_dpr", formik.values.vet_dpr_pdf); // Ensure this is a file if applicable
     formData.append("fund_id", formik.values.src);
+
+    formData.append("jl_no", formik.values.jl_no);
+    formData.append("mouza", formik.values.mouza);
+    formData.append("dag_no", formik.values.dag_no);
+    formData.append("khatian_no", formik.values.khatian_no);
+    formData.append("area", formik.values.area);
+
+
     formData.append("created_by", userDataLocalStore.user_id);
   
     // console.log(formik.values.admin_appr_pdf, "FormData:", formik.values.vet_dpr_pdf);
-    console.log(formik.values.block, "FormData:", formik.values.admin_appr_pdf.name);
+    console.log(formData, "FormData:", formik.values.admin_appr_pdf.name);
 
     try {
       const response = await axios.post(
@@ -435,28 +615,22 @@ function AdApForm() {
     formData.append("impl_agency", formik.values.proj_imp_by);
     formData.append("district_id", formik.values.dis);
     formData.append("block_id", formik.values.block);
+
+    formData.append("ps_id", formik.values.ps_id);
+    formData.append("gp_id", formik.values.gp_id);
+
     formData.append("vetted_dpr", formik.values.vet_dpr_pdf); // Ensure this is a file if applicable
     formData.append("fund_id", formik.values.src);
+
+    formData.append("jl_no", formik.values.jl_no);
+    formData.append("mouza", formik.values.mouza);
+    formData.append("dag_no", formik.values.dag_no);
+    formData.append("khatian_no", formik.values.khatian_no);
+    formData.append("area", formik.values.area);
+
     formData.append("approval_no", params?.id);
     formData.append("modified_by", userDataLocalStore.user_id);
-    
 
-  // 'scheme_name' __,
-  // 'sector_id' __,
-  // 'fin_year' __,
-  // 'sch_amt' __,
-  // 'cont_amt' __,
-  // 'admin_approval' __,
-  // 'vetted_dpr' __,
-  // 'project_id' __,
-  // 'account_head' __,
-  // 'admin_approval_dt' __,
-  // 'project_submit' __,
-  // 'impl_agency' __,
-  // 'district_id' __,
-  // 'block_id' __,
-  // 'fund_id' __,
-  // 'modified_by'
   
     console.log(formData, "FormData:", formik.values.admin_appr_pdf);
 
@@ -971,9 +1145,21 @@ function AdApForm() {
             onChange={(value) => {
             formik.setFieldValue("dis", value)
             setDistrict_ID(value)
+
             formik.setFieldValue("block", "");
             setBlockDropList([]);
             setBlockDropList_Load([]);
+
+            formik.setFieldValue("ps_id", "");
+            setpsStnDropList([]);
+            setpsStnDropList_Load([])
+
+            formik.setFieldValue("gp_id", "");
+            setGM_DropList([]);
+            setGM_DropList_Load([])
+
+
+            
             console.log(value, 'disdisdis');
             }}
             onBlur={formik.handleBlur}
@@ -992,90 +1178,136 @@ function AdApForm() {
             ))}
             </Select>
 
-{/* <Select
-  showSearch
-  placeholder="Choose District"
-  value={formik.values.dis || undefined} // Ensure default empty state
-  onChange={(value) => {
-    formik.setFieldValue("dis", value);
-    setDistrict_ID(value);
-    formik.setFieldValue("block", ""); // Reset block selection
-    setBlockDropList([]);
-    setBlockDropList_Load([]);
-    console.log(value, "disdisdis");
-  }}
-  onBlur={formik.handleBlur}
-  style={{ width: "100%" }}
-  optionFilterProp="children"
-  filterOption={(input, option) =>
-    option?.children?.toLowerCase().includes(input.toLowerCase())
-  }
->
-  <Select.Option value="" disabled>Choose District</Select.Option>
-  {districtDropList?.map((data) => (
-    <Select.Option key={data.dist_code} value={data.dist_code}>
-      {data.dist_name}
-    </Select.Option>
-  ))}
-</Select>; */}
+
               {formik.errors.dis && formik.touched.dis && (
                 <VError title={formik.errors.dis} />
               )}
             </div>
             <div class="sm:col-span-4">
+            {/* {JSON.stringify(district_ID, null, 2)} ///  {JSON.stringify(block_ID, null, 2)} */}
+          
 
 
               <label for="block" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Block</label>
-              {/* <Select
-                placeholder="Choose Block"
-                // value={formik.values.block || undefined} // Ensure default empty state
-                value={blockDropList_Load[0]?.block_name ? blockDropList_Load[0]?.block_name : formik.values.block || undefined}
-                onChange={(value) => {
-                  formik.setFieldValue("block", value)
-                  // setDistrict_ID(value)
-                  console.log(value, 'blockblockblock');
-                }}
-                onBlur={formik.handleBlur}
-                style={{ width: "100%" }}
-              >
-                <Select.Option value="" disabled> Choose Block </Select.Option>
-                {blockDropList.map(data => (
-                  <Select.Option key={data.block_id} value={data.block_id}>
-                    {data.block_name}
-                  </Select.Option>
-                ))}
-              </Select> */}
-              <Select
-  showSearch
-  placeholder="Choose Block"
-  value={
-    blockDropList_Load[0]?.block_name
-      ? blockDropList_Load[0]?.block_name
-      : formik.values.block || undefined
-  }
-  onChange={(value) => {
-    formik.setFieldValue("block", value);
-    console.log(value, "blockblockblock");
-  }}
-  onBlur={formik.handleBlur}
-  style={{ width: "100%" }}
-  optionFilterProp="children"
-  filterOption={(input, option) =>
-    option?.children?.toLowerCase().includes(input.toLowerCase())
-  }
->
-  <Select.Option value="" disabled>Choose Block</Select.Option>
-  {blockDropList.map((data) => (
-    <Select.Option key={data.block_id} value={data.block_id}>
-      {data.block_name}
-    </Select.Option>
-  ))}
-</Select>
+              
+          <Select
+          showSearch
+          placeholder="Choose Block"
+          value={
+          blockDropList_Load[0]?.block_name
+          ? blockDropList_Load[0]?.block_name
+          : formik.values.block || undefined
+          }
+          onChange={(value) => {
+          formik.setFieldValue("block", value);
+          setBlock_ID(value)
+
+          formik.setFieldValue("ps_id", "");
+            setpsStnDropList([]);
+            setpsStnDropList_Load([])
+
+            formik.setFieldValue("gp_id", "");
+            setGM_DropList([]);
+            setGM_DropList_Load([])
+
+          }}
+          onBlur={formik.handleBlur}
+          style={{ width: "100%" }}
+          optionFilterProp="children"
+          filterOption={(input, option) =>
+          option?.children?.toLowerCase().includes(input.toLowerCase())
+          }
+          >
+          <Select.Option value="" disabled>Choose Block</Select.Option>
+          {blockDropList.map((data) => (
+          <Select.Option key={data.block_id} value={data.block_id}>
+          {data.block_name}
+          </Select.Option>
+          ))}
+          </Select>
               {/* {JSON.stringify(blockDropList_Load[0]?.block_name, null, 2)} */}
               {formik.errors.block && formik.touched.block && (
                 <VError title={formik.errors.block} />
               )}
             </div>
+
+
+    <div class="sm:col-span-4">
+
+
+    <label for="block" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Police Station</label>
+
+    <Select
+    showSearch
+    placeholder="Choose Police Station"
+    value={
+      psStnDropList_Load[0]?.ps_name
+    ? psStnDropList_Load[0]?.ps_name
+    : formik.values.ps_id || undefined
+    }
+    // value={
+    //   formik.values.ps_id || undefined
+    //   }
+    onChange={(value) => {
+    formik.setFieldValue("ps_id", value);
+    }}
+    onBlur={formik.handleBlur}
+    style={{ width: "100%" }}
+    optionFilterProp="children"
+    filterOption={(input, option) =>
+    option?.children?.toLowerCase().includes(input.toLowerCase())
+    }
+    >
+    <Select.Option value="" disabled>Choose Police Station</Select.Option>
+    {psStnDropList.map((data) => (
+    <Select.Option key={data.id} value={data.id}>
+    {data.ps_name}
+    </Select.Option>
+    ))}
+    </Select>
+    {/* {JSON.stringify(blockDropList_Load[0]?.block_name, null, 2)} */}
+    {formik.errors.ps_id && formik.touched.ps_id && (
+    <VError title={formik.errors.ps_id} />
+    )}
+    </div>
+
+
+    <div class="sm:col-span-4">
+
+
+        <label for="block" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Gram Panchayat</label>
+
+        <Select
+        showSearch
+        placeholder="Choose Gram Panchayat"
+        value={
+          GM_DropList_Load[0]?.gp_name
+        ? GM_DropList_Load[0]?.gp_name
+        : formik.values.gp_id || undefined
+        }
+
+        onChange={(value) => {
+        formik.setFieldValue("gp_id", value);
+        }}
+        onBlur={formik.handleBlur}
+        style={{ width: "100%" }}
+        optionFilterProp="children"
+        filterOption={(input, option) =>
+        option?.children?.toLowerCase().includes(input.toLowerCase())
+        }
+        >
+        <Select.Option value="" disabled>Choose Police Station</Select.Option>
+        {GM_DropList.map((data) => (
+        <Select.Option key={data.gp_id} value={data.gp_id}>
+        {data.gp_name}
+        </Select.Option>
+        ))}
+        </Select>
+        {/* {JSON.stringify(blockDropList_Load[0]?.block_name, null, 2)} */}
+        {formik.errors.gp_id && formik.touched.gp_id && (
+        <VError title={formik.errors.gp_id} />
+        )}
+        </div>
 
             <div class="sm:col-span-4" style={{position:'relative'}}>
             {/* {JSON.stringify(errorpdf_2 , null, 2)} */}
@@ -1084,13 +1316,6 @@ function AdApForm() {
               name="vet_dpr_pdf"
               placeholder="Vetted DPR"
               label="Vetted DPR"
-              // handleChange={(event) => {
-              //   const file = event.currentTarget.files[0];
-              //   if (file) {
-              //   formik.setFieldValue("vet_dpr_pdf", file);
-              //   setFilePreview_2(URL.createObjectURL(file)); // Create a preview URL
-              //   }
-              // }}
               handleChange={(event) => {
                 handleFileChange_pdf_2(event)
               }}
@@ -1156,6 +1381,90 @@ function AdApForm() {
                 <VError title={formik.errors.src} />
               )}
             </div>
+
+            <div class="sm:col-span-4">
+              <TDInputTemplate
+                placeholder="Name goes here..."
+                type="text"
+                label="JL No."
+                name="jl_no"
+                formControlName={formik.values.jl_no}
+                handleChange={formik.handleChange}
+                handleBlur={formik.handleBlur}
+                mode={1}
+              />
+              {formik.errors.jl_no && formik.touched.jl_no && (
+                <VError title={formik.errors.jl_no} />
+              )}
+            </div>
+
+            <div class="sm:col-span-4">
+              <TDInputTemplate
+                placeholder="Name goes here..."
+                type="text"
+                label="Mouza"
+                name="mouza"
+                formControlName={formik.values.mouza}
+                handleChange={formik.handleChange}
+                handleBlur={formik.handleBlur}
+                mode={1}
+              />
+              {formik.errors.mouza && formik.touched.mouza && (
+                <VError title={formik.errors.mouza} />
+              )}
+            </div>
+
+            <div class="sm:col-span-4">
+              
+
+              <TDInputTemplate
+                placeholder="Name goes here..."
+                type="text"
+                label="Dag No."
+                name="dag_no"
+                formControlName={formik.values.dag_no}
+                handleChange={formik.handleChange}
+                handleBlur={formik.handleBlur}
+                mode={1}
+              />
+              {formik.errors.dag_no && formik.touched.dag_no && (
+                <VError title={formik.errors.dag_no} />
+              )}
+            </div>
+
+            <div class="sm:col-span-4">
+              <TDInputTemplate
+                placeholder="Name goes here..."
+                type="text"
+                label="Khatian No."
+                name="khatian_no"
+                formControlName={formik.values.khatian_no}
+                handleChange={formik.handleChange}
+                handleBlur={formik.handleBlur}
+                mode={1}
+              />
+              {formik.errors.khatian_no && formik.touched.khatian_no && (
+                <VError title={formik.errors.khatian_no} />
+              )}
+            </div>
+
+            <div class="sm:col-span-4">
+              <TDInputTemplate
+                placeholder="Name goes here..."
+                type="number"
+                label="Area (in Acre)"
+                name="area"
+                formControlName={formik.values.area}
+                handleChange={formik.handleChange}
+                handleBlur={formik.handleBlur}
+                mode={1}
+              />
+              {formik.errors.area && formik.touched.area && (
+                <VError title={formik.errors.area} />
+              )}
+            </div>
+
+            
             <div className="sm:col-span-12 flex justify-center gap-4 mt-4">
               
               <BtnComp title={params?.id > 0 ? 'Reload' : 'Reset'} type="reset" 

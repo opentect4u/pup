@@ -119,6 +119,8 @@ textarea.bg-white {border: #ccc solid 1px;}
 
   .p-dialog-mask{z-index: 1 !important;}
 
+  .contigencySelect .ant-select-multiple{height: 38px !important;}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

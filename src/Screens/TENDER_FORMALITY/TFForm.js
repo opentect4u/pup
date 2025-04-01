@@ -59,12 +59,12 @@ const validationSchema = Yup.object({
   wo_dt: Yup.string().required('Work Order Issued On is Required'),
   wo_pdf: Yup.string().required('Work Order Copy is Required'),
   wo_value: Yup.string().required('Work Order Value is Required'),
-  compl: Yup.string().required('Tentative Date of Completion is Required'),
+  compl: Yup.string().required('Date of Completion (As per Work Order) is Required'),
 
   amt_put_tender: Yup.string().required('Amount Put to Tender is Required'),
   dlp: Yup.string().required('DLP is Required'),
   add_per_sec: Yup.string().required('Additional Performance Security is Required'),
-  emd: Yup.string().required('EMD is Required'),
+  emd: Yup.string().required('EMD/Security Deposit is Required'),
   date_refund: Yup.string().required('Date Of Refund is Required'),
 
 
@@ -746,7 +746,7 @@ function TFForm() {
 
 <Column
           field="emd"
-          header="EMD"
+          header="EMD/Security Deposit"
           ></Column>
 
 <Column
@@ -789,7 +789,7 @@ function TFForm() {
 
           <Column
           field="comp_date_apprx"
-          header="Tentative Date of Completion"
+          header="Date of Completion (As per Work Order)"
           ></Column>
 
           <Column
@@ -953,9 +953,9 @@ function TFForm() {
 
             <div class="sm:col-span-4">
               <TDInputTemplate
-                placeholder="EMD..."
+                placeholder="EMD/Security Deposit..."
                 type="number"
-                label="EMD"
+                label="EMD/Security Deposit"
                 name="emd"
                 formControlName={formik.values.emd}
                 handleChange={formik.handleChange}
@@ -1074,9 +1074,9 @@ function TFForm() {
             </div>
             <div class="sm:col-span-4">
               <TDInputTemplate
-                placeholder="Tentative Date of Completion"
+                placeholder="Date of Completion (As per Work Order)"
                 type="date"
-                label="Tentative Date of Completion"
+                label="Date of Completion (As per Work Order)"
                 name="compl"
                 formControlName={formik.values.compl}
                 handleChange={formik.handleChange}
