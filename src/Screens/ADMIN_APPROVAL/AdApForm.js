@@ -130,6 +130,8 @@ function AdApForm() {
   const [errorpdf_1, setErrorpdf_1] = useState("");
   const [errorpdf_2, setErrorpdf_2] = useState("");
 
+  const [projectSubBy, setProjectSubBy] = useState([]);
+
 
   const fetchSectorDropdownOption = async () => {
     setLoading(true);
@@ -344,6 +346,29 @@ function AdApForm() {
     }
   };
 
+  const fetchProjectSubmitData = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        url + 'index.php/webApi/Mdapi/projSubmitBy',
+        {}, // Empty body
+        {
+          headers: {
+            'auth_key': auth_key,
+          },
+        }
+      );
+
+      console.log("fetchProjectSubmitData", response.data.message); // Log the actual response data
+      setProjectSubBy(response?.data?.message)
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching data:", error); // Handle errors properly
+      setLoading(false);
+    }
+  };
+
+
 
   useEffect(() => {
   const userData = localStorage.getItem("user_dt");
@@ -364,6 +389,7 @@ function AdApForm() {
     fetchHeadAccountdownOption()
     fetchDistrictdownOption()
     fetchSourceFunddownOption()
+    fetchProjectSubmitData()
   }, [])
 
   useEffect(() => {
@@ -1060,7 +1086,7 @@ function AdApForm() {
             </div>
             
             <div class="sm:col-span-4">
-              <TDInputTemplate
+              {/* <TDInputTemplate
                 placeholder="Name goes here..."
                 type="text"
                 label="Project Submitted By"
@@ -1069,41 +1095,44 @@ function AdApForm() {
                 handleChange={formik.handleChange}
                 handleBlur={formik.handleBlur}
                 mode={1}
-              />
+              /> */}
+<label for="dis" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Project Submitted By</label>
+
+<Select
+  showSearch
+  placeholder="Name goes here..."
+  value={formik.values.proj_sub_by || undefined} // Ensure default empty state
+  onChange={(value) => {
+    formik.setFieldValue("proj_sub_by", value);
+    console.log(value, "ggggggggggggggggggg");
+  }}
+  onBlur={formik.handleBlur}
+  style={{ width: "100%" }}
+  optionFilterProp="children"
+  filterOption={(input, option) =>
+    option?.children?.toLowerCase().includes(input.toLowerCase())
+  }
+>
+  <Select.Option value="" disabled>
+    Choose Project Submitted By
+  </Select.Option>
+  {projectSubBy?.map((data) => (
+    <Select.Option key={data.sl_no} value={data.sl_no}>
+      {data.proj_submit_by}
+    </Select.Option>
+  ))}
+</Select>
+
+
               {formik.errors.proj_sub_by && formik.touched.proj_sub_by && (
                 <VError title={formik.errors.proj_sub_by} />
               )}
             </div>
             <div class="sm:col-span-4">
-              {/* <TDInputTemplate
-                placeholder="Name goes here..."
-                type="text"
-                label="Project implemented By"
-                name="proj_imp_by"
-                formControlName={formik.values.proj_imp_by}
-                handleChange={formik.handleChange}
-                handleBlur={formik.handleBlur}
-                mode={1}
-              /> */}
+
 
               <label for="dis" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Project implemented By</label>
-              {/* <Select
-                placeholder="Choose Project implemented By"
-                value={formik.values.proj_imp_by || undefined} // Ensure default empty state
-                onChange={(value) => {
-                  formik.setFieldValue("proj_imp_by", value)
-                  console.log(value, 'ggggggggggggggggggg');
-                }}
-                onBlur={formik.handleBlur}
-                style={{ width: "100%" }}
-              >
-                <Select.Option value="" disabled> Choose Project implemented By </Select.Option>
-                {projectImple?.map(data => (
-                  <Select.Option key={data.id} value={data.id}>
-                    {data.agency_name}
-                  </Select.Option>
-                ))}
-              </Select> */}
+
 
 <Select
   showSearch

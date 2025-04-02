@@ -97,6 +97,9 @@ const MasterAccordion = () => (
         <li>
           <Link to={"master/designation"}>Designation</Link>
         </li>
+        <li>
+          <Link to={"master/project-submitted"}>Project Submitted By</Link>
+        </li>
       </ul>
     </Panel>
   </Collapse>

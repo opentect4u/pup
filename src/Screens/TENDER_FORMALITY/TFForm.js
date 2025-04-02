@@ -792,13 +792,16 @@ function TFForm() {
           header="Date of Completion (As per Work Order)"
           ></Column>
 
-          <Column
+{params.id > 0 &&(
+  <Column
           field="comp_date_apprx"
           header="Action"
           body={(rowData) => (
             <a onClick={() => { loadFormEditData(params?.id, rowData.sl_no)}}><EditOutlined style={{fontSize:22}} /></a>
             )}
           ></Column>
+)}
+          
 
           
 
@@ -1088,8 +1091,8 @@ function TFForm() {
               )}
             </div>
         <div className="sm:col-span-12 flex justify-center gap-4 mt-4">
-        {operation_status !=  'edit'&&(
-          <BtnComp title={operation_status ==  'edit' ? 'Reload' : 'Reset'} type="reset" 
+        {params.id < 1 &&(
+          <BtnComp title={'Reset'} type="reset" 
         onClick={() => { 
           formik.resetForm();
         }}
@@ -1097,7 +1100,7 @@ function TFForm() {
         )}
         
         {/* <button type="submit">Search</button> */}
-        <BtnComp type={'submit'} title={operation_status ==  'edit' ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
+        <BtnComp type={'submit'} title={params.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
          </div>
           </div>
 

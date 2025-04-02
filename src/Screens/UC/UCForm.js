@@ -692,6 +692,7 @@ function UCForm() {
           header="Remarks"
           ></Column>
 
+{params.id > 0 &&(
 <Column
           field="comp_date_apprx"
           header="Action"
@@ -699,6 +700,7 @@ function UCForm() {
             <a onClick={() => { loadFormEditData(params?.id, rowData.certificate_no)}}><EditOutlined style={{fontSize:22, }} /></a>
             )}
           ></Column>
+        )}
 
           
 
@@ -739,6 +741,7 @@ function UCForm() {
         <>
        {projectStatus == 'OPEN' &&(
         <>
+        <div className='mt-5'>
         <Heading title={"Utilization Certificate Details"} button={'N'}/>
         <form onSubmit={formik.handleSubmit}>
         <div class="grid gap-4 sm:grid-cols-12 sm:gap-6">
@@ -897,15 +900,15 @@ function UCForm() {
           
 
           <div className="sm:col-span-12 flex justify-center gap-4 mt-4">
-          {operation_status !=  'edit'&&(
-          <BtnComp title={operation_status ==  'edit' ? 'Reload' : 'Reset'} type="reset" 
+          {params.id < 1 &&(
+          <BtnComp title={'Reset'} type="reset" 
         onClick={() => { 
           formik.resetForm();
         }}
         width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
         )}
       {/* <button type="submit">Search</button> */}
-      <BtnComp type={'submit'} title={operation_status ==  'edit' ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
+      <BtnComp type={'submit'} title={params.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
        </div>
 
          
@@ -914,6 +917,7 @@ function UCForm() {
         </div>
 
       </form>
+      </div>
       </>
        )}
        

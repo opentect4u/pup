@@ -748,6 +748,7 @@ function FundRelForm() {
           )}
           ></Column>
 
+{params.id > 0 &&(
 <Column
           field="comp_date_apprx"
           header="Action"
@@ -755,6 +756,7 @@ function FundRelForm() {
             <a onClick={() => { loadFormEditData(params?.id, rowData.receive_no, rowData.isntl_date)}}><EditOutlined style={{fontSize:22, }} /></a>
             )}
           ></Column>
+)}
 
           </DataTable>
 
@@ -944,15 +946,15 @@ function FundRelForm() {
             <div className="sm:col-span-12 flex justify-center gap-4 mt-4">
          {/* <BtnComp title={'Reset'} width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'}/>
          <BtnComp title={'Submit'} width={'w-1/6'} bgColor={'bg-blue-900'}/> */}
-          {operation_status !=  'edit'&&(
-          <BtnComp title={operation_status ==  'edit' ? 'Reload' : 'Reset'} type="reset" 
+          {params.id < 1 &&(
+          <BtnComp title={'Reset'} type="reset" 
         onClick={() => { 
           formik.resetForm();
         }}
         width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
         )}
         {/* <button type="submit">Search</button> */}
-        <BtnComp type={'submit'} title={operation_status ==  'edit' ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
+        <BtnComp type={'submit'} title={params.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
          </div>
 
             

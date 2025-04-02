@@ -41,6 +41,7 @@ import Implement_Report_Graph from './Screens/REPORTS/Implement_Report_Graph';
 import DERTMENT_ADD from './Screens/MASTER/DERTMENT_ADD';
 import DESIGNATION_ADD from './Screens/MASTER/DESIGNATION_ADD';
 import UserProfile from './Screens/PROFILE_MANAGE/UserProfile';
+import Project_Submitted_By_Form from './Screens/MASTER/Project_Submitted_By_Form';
 // import Financial_Report__test from './Screens/REPORTS/Financial_Report__test';
 // import FundRelView__test from './Screens/FUND_RELEASE/FundRelView__test';
 
@@ -232,6 +233,10 @@ const router = createBrowserRouter([
             {
               path: "designation",
               element: <DESIGNATION_ADD />,
+            },
+            {
+              path: "project-submitted",
+              element: <Project_Submitted_By_Form />,
             },
 
           ]

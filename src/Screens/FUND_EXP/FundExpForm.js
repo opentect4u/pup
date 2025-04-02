@@ -30,16 +30,7 @@ const initialValues = {
 
 
 
-const validationSchema = Yup.object({
-  // exp_text: Yup.string().required('Remarks is Required'),
-  // al1_pdf: Yup.string().required('Allotment Order No. is Required'),
-  sch_amt_one: Yup.string().required('Schematic Amount is Required'),
-  cont_amt_one: Yup.string().required('Contigency Amount is Required'),
-  payment_date: Yup.string().required('Expenditure Date is Required'),
-  sch_remark: Yup.string().required('Schematic Remarks is Required'),
-  cont_remark: Yup.array().required('Contigency Remarks is Required'),
 
-});
 
 
 function FundExpForm() {
@@ -65,7 +56,35 @@ function FundExpForm() {
   const [approvalNo, setApprovalNo] = useState('');
   const toast = useRef(null)
   const [userDataLocalStore, setUserDataLocalStore] = useState([]);
+
+  const [balanceSchematicAmount, setBalanceSchematicAmount] = useState('');
+  const [balanceContigencyAmount, setBalanceContigencyAmount] = useState('');
+  const [contigencyRemarks, setContigencyRemarks] = useState([]);
+  const [contigencyId, setContigencyId] = useState([]);
   
+  const validationSchema = Yup.object({
+    // exp_text: Yup.string().required('Remarks is Required'),
+    // al1_pdf: Yup.string().required('Allotment Order No. is Required'),
+
+    // sch_amt_one: Yup.string().required('Schematic Amount is Required'),
+    sch_amt_one: Yup.number()
+      .typeError('Schematic Amount must be a number')
+      .positive('Schematic Amount must be greater than zero')
+      .max(balanceSchematicAmount, `Amount must be less than ${balanceSchematicAmount}`)
+      .required('Schematic Amount is required'),
+    // cont_amt_one: Yup.string().required('Contigency Amount is Required'),
+    cont_amt_one: Yup.number()
+      .typeError('Contigency Amount must be a number')
+      .positive('Contigency Amount must be greater than zero')
+      .max(balanceContigencyAmount, `Amount must be less than ${balanceContigencyAmount}`)
+      .required('Contigency Amount is required'),
+    payment_date: Yup.string().required('Expenditure Date is Required'),
+    sch_remark: Yup.string().required('Schematic Remarks is Required'),
+    cont_remark: Yup.array()
+      .min(1, 'Contingency Remarks is Required') // Ensures at least one selection
+      .required('Contingency Remarks is Required'),
+  
+  });
     
     const fundAddedList = async (approvalNo_Para) => {
       setLoading(true); // Set loading state
@@ -109,7 +128,7 @@ function FundExpForm() {
         // navigate(`/home/fund_release`);
       } catch (error) {
         setLoading(false);
-        Message("error", "Error Fetching Form Data:");
+        Message("error", "Error Fetching Form Data: fundAddedList");
         // console.error("Error submitting form:", error);
       }
   
@@ -130,7 +149,7 @@ function FundExpForm() {
       formData.append("cont_remark", formik.values.cont_remark);
       formData.append("created_by", "SSS Name Created By");
 
-      console.log(formik.values.cont_remark, 'FormData_____');
+      console.log(formData, 'FormData_____');
     
       console.log("FormData:", formData);
   
@@ -147,11 +166,25 @@ function FundExpForm() {
         );
         
         
-        // setLoading(false);
+        console.log(response.data, 'FormData_____');
+        
+        if(response.data.status > 0){
+          // setLoading(false);
         Message("success", "Updated successfully.");
         // navigate(`/home/fund_release`);
         fundAddedList(approvalNo)
+        formik.setFieldValue("cont_remark", [])
         formik.resetForm();
+
+          
+        }
+
+        if(response.data.status < 1){
+          setLoading(false);
+          // setShowForm(false);
+        }
+        
+        
       } catch (error) {
         // setLoading(false);
         Message("error", "Error Submitting Form:");
@@ -252,6 +285,37 @@ function FundExpForm() {
     }
   };
 
+  const fetchContigenceRemarks = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        url + 'index.php/webApi/Mdapi/contRmrks',
+        {}, // Empty body
+        {
+          headers: {
+            'auth_key': auth_key,
+          },
+        }
+      );
+
+      if(response?.data?.status > 0){
+      // fundAddedList()
+      console.log("fetchContigenceRemarks", response?.data?.message); // Log the actual response data
+      setContigencyRemarks(response?.data?.message)
+      setLoading(false);
+      }
+
+      if(response?.data?.status < 1){
+        setContigencyRemarks([])
+        setLoading(false);
+      }
+      
+    } catch (error) {
+      console.error("Error fetching data:", error); // Handle errors properly
+      setLoading(false);
+    }
+  };
+
   const loadFormData = async (project_id) => {
     // console.log(project_id, 'responsedata');
     setLoading(true); // Set loading state
@@ -271,11 +335,14 @@ function FundExpForm() {
         }
       );
 
-      console.log(response?.data, 'responsedata');
+      console.log(response?.data, 'alocateSchematicAmount');
       
       if (response?.data.status > 0) {
         setLoading(false);
         setGetMsgData(response?.data?.message)
+
+        setBalanceSchematicAmount(response?.data?.fund_total[0]?.tot_sch_amt - response?.data?.expense_total[0]?.tot_sch_amt)
+        setBalanceContigencyAmount(response?.data?.fund_total[0]?.tot_cont_amt - response?.data?.expense_total[0]?.tot_cont_amt)
         
         // setGetStatusData(response?.data?.prog_img)
         // setFolderProgres(response?.data?.folder_name)
@@ -307,6 +374,9 @@ function FundExpForm() {
     setpayment_no(payment_no)
     setpayment_date(payment_date)
 
+    console.log(approval_no, payment_no, payment_date, 'fffffffffjjhkjhjk');
+    
+
     const formData = new FormData();
 
     formData.append("approval_no", approval_no);
@@ -324,7 +394,6 @@ function FundExpForm() {
         }
       );
 
-      // console.log(response?.data?.message, 'fffffffffjjhkjhjk');
       
       if (response?.data.status > 0) {
         setLoading(false);
@@ -333,7 +402,7 @@ function FundExpForm() {
           sch_amt_one: response.data.message.sch_amt,
           cont_amt_one: response.data.message.cont_amt,
           sch_remark:  response.data.message.sch_remark,
-          cont_remark: response.data.message.cont_remark,
+          cont_remark: response?.data?.cont_remark,
         })
 
       }
@@ -351,14 +420,16 @@ function FundExpForm() {
 
   useEffect(()=>{
     fetchProjectId()
-
-    fundAddedList()
+    // fundAddedList()
+    fetchContigenceRemarks()
   }, [])
 
   const formik = useFormik({
       // initialValues:formValues,
-      // initialValues,
       initialValues: +params.id > 0 ? formValues : initialValues,
+      // initialValues: +params.id > 0 ? formValues : {
+      //   cont_remark: selectedGpNames, // Set preselected values
+      // },
       onSubmit,
       validationSchema,
       enableReinitialize: true,
@@ -408,17 +479,19 @@ function FundExpForm() {
       { gp_id: "305", gp_name: "THIBA" }
     ];
     
-    const options = data.map(item => ({
-      value: item.gp_id,
-      label: item.gp_name
+    const options = contigencyRemarks.map(item => ({
+      value: item.sl_no,
+      label: item.cont_rmrks
     }));
+
+
   
-    const handleChange_contigen = (value) => {
-      if(value.length > 1){
-        formik.setFieldValue("cont_remark", '')
-      }
-      console.log(`selected ${value.length}`);
-    };
+    // const handleChange_contigen = (value) => {
+    //   if(value.length > 3){
+    //     formik.setFieldValue("cont_remark", [])
+    //   }
+    //   console.log(`selected ${value.length}`);
+    // };
     
   return (
     <section class="bg-white p-5 dark:bg-gray-900">
@@ -596,8 +669,8 @@ function FundExpForm() {
 
 {/* {JSON.stringify(fundStatus.length +1 , null, 2)} */}
 
-        {fundStatus?.length > 0 && (
-          <>
+        {/* {fundStatus?.length > 0 && (
+          <> */}
             <Heading title={"Expenditure History"} button={'N'} />
 
             <Toast ref={toast} />
@@ -676,26 +749,30 @@ function FundExpForm() {
           header="Contigency Remarks"
           ></Column>
 
-<Column
-          field="comp_date_apprx"
-          header="Action"
-          body={(rowData) => (
-            <a onClick={() => { loadFormEditData(params?.id, rowData.payment_no, rowData.payment_date)}}><EditOutlined style={{fontSize:22, }} /></a>
-            )}
-          ></Column>
+{params.id > 0 &&(
+        <Column
+        field="comp_date_apprx"
+        header="Action"
+        body={(rowData) => (
+          <a onClick={() => { loadFormEditData(params?.id, rowData.payment_no, rowData.payment_date)}}><EditOutlined style={{fontSize:22, }} /></a>
+          )}
+        ></Column>
+)}
+          
 
           
 
           </DataTable>
 
            
-          </>
-        )}
+          {/* </>
+        )} */}
         </Spin>
        
        {showForm &&(
         <>
-       <Heading title={`Expenditure Details (RA Bill ${fundStatus?.length + 1})`} button="N" />
+        {params.id > 0 &&(<Heading title={`Expenditure Details`} button="N" />)}
+        {params.id < 1 &&(<Heading title={`Expenditure Details (RA Bill ${fundStatus?.length + 1})`} button="N" />)}
        
        <form onSubmit={formik.handleSubmit}>
           <div class="grid gap-4 sm:grid-cols-12 sm:gap-6">
@@ -778,23 +855,31 @@ function FundExpForm() {
               mode="tags"
               style={{ width: '100%' }}
               // value={formik.values.cont_remark}  // Bind Formik state
-              onChange={(value) => 
-              {
-                console.log(value, 'valuevaluevaluevaluevalue');
-              // handleChange_contigen(value)
-              formik.setFieldValue("cont_remark", value)
-              }
-              } // Update Formik state
+              value={formik.values.cont_remark}
+              onChange={(value) => {
+                formik.setFieldValue("cont_remark", value)
+                // handleChange_contigen(value)
+              }} // Update Formik state
               handleChange={formik.handleChange}
-              handleBlur={formik.handleBlur}
-              // tokenSeparators={[]}
-              options={options}
+             
+              // handleBlur={formik.handleBlur}
+              onBlur={() => formik.setFieldTouched("cont_remark", true)}
+              tokenSeparators={[]}
+              options={contigencyRemarks.map(item => ({
+                value: item.sl_no,
+                label: item.cont_rmrks
+              }))}
               filterOption={(input, option) => {
                 (option?.label ?? "").toLowerCase().includes(input.toLowerCase())}}
               />
 
-
-
+{/* <Select
+  style={{ width: '100%' }}
+  // key={formik.values.cont_remark.length} // Change key to force re-render
+  // value={formik.values.cont_remark}
+  onChange={(value) => formik.setFieldValue("cont_remark", value)}
+  options={options}
+/> */}
 
               {formik.errors.cont_remark && formik.touched.cont_remark && (
               <VError title={formik.errors.cont_remark} />
@@ -824,15 +909,16 @@ function FundExpForm() {
             <div className="sm:col-span-12 flex justify-center gap-4 mt-4">
          {/* <BtnComp title={'Reset'} width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'}/>
          <BtnComp title={'Submit'} width={'w-1/6'} bgColor={'bg-blue-900'}/> */}
-          {operation_status !=  'edit'&&(
-          <BtnComp title={operation_status ==  'edit' ? 'Reload' : 'Reset'} type="reset" 
+          {params.id < 1 &&(
+          <BtnComp title={'Reset'} type="reset" 
         onClick={() => { 
           formik.resetForm();
+          formik.setFieldValue("cont_remark", []);
         }}
         width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
         )}
         {/* <button type="submit">Search</button> */}
-        <BtnComp type={'submit'} title={operation_status ==  'edit' ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
+        <BtnComp type={'submit'} title={params.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
          </div>
 
            

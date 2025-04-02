@@ -17,7 +17,8 @@ function MasterTableCommon({
         implementing: 'agency_name',
         account: 'account_head',
         department: 'dept_name',
-        designation: 'desig_name'
+        designation: 'desig_name',
+        project: 'proj_submit_by',
     };
 
     return (
