@@ -33,7 +33,9 @@ class HomeScreenTemplateStrings extends GlobalTemplateStrings {
         uploadPhotoBtnLabel: `Upload Photo(s)`,
         uploadPhotoBtnSubText: `Maximum 4 Photos. (Each 2MB max)`,
         fontItalic: `Product Sans Italic`,
-        fetchProgress: `Fetch Progress`
+        fetchProgress: `Fetch Progress`,
+        complete: `Complete`,
+        finalSubmissionDate: `Final Submission Date`,
     }
     public getStrings() {
         return {

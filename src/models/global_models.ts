@@ -5,4 +5,6 @@ export type ProjectStoreModel = {
     lat: number
     lng: number
     locationAddress: string
+    actualDateOfCompletion: Date
+    remarks: string
 }

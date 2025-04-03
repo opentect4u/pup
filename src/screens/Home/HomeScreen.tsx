@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react'
-import { Alert, Image, ScrollView, StyleSheet, ToastAndroid, View, TouchableOpacity, RefreshControl, Linking } from 'react-native'
-import { Icon, Text } from 'react-native-paper'
+import { Alert, Image, ScrollView, StyleSheet, ToastAndroid, View, TouchableOpacity, RefreshControl, Linking, Pressable } from 'react-native'
+import { Button, Icon, Modal, ProgressBar, Text, TextInput } from 'react-native-paper'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { usePaperColorScheme } from '../../theme/theme'
 import { homeScreenStrings } from '../../constants/strings'
@@ -27,6 +27,9 @@ import ImageResizer from '@bam.tech/react-native-image-resizer';
 import RNFS from 'react-native-fs';
 import { ProjectStoreModel } from '../../models/global_models'
 import ProjectGrid from '../../components/complex/ProjectGrid'
+import DatePicker from 'react-native-date-picker'
+import RNDateTimePicker from '@react-native-community/datetimepicker'
+import CalendarPicker from 'react-native-calendar-picker';
 
 const strings = homeScreenStrings.getStrings()
 
@@ -44,6 +47,17 @@ const HomeScreen = () => {
     const [projectsList, setProjectsList] = useState<any[]>([])
     const [loading, setLoading] = useState(false)
     const [fetchedProjectDetails, setFetchedProjectDetails] = useState(() => "")
+    const [progressComplet, setProgressComplet] = useState(() => Number(0))
+
+
+
+    
+
+    
+  
+
+
+
     // Set projectId to null instead of "" to indicate no selection
     const [formData1, setFormData1] = useState({
         projectId: null as string | null,
@@ -51,6 +65,8 @@ const HomeScreen = () => {
         latitude: "",
         longitude: "",
         locationAddress: "",
+        actualDateOfCompletion: "",
+        remarks: "",
     })
     // const [projectRangeCaps, setProjectRangeCaps] = useState<any[]>(() => [])
     const [checkErr, setCheckErr] = useState(() => false)
@@ -58,6 +74,8 @@ const HomeScreen = () => {
     console.log("LOCATION: ", location)
 
     const handleFormChange = useCallback((field: string, value: any) => {
+
+
         setFormData1(prev => ({
             ...prev,
             [field]: value,
@@ -118,6 +136,38 @@ const HomeScreen = () => {
         }
         setLoading(false)
     }, [])
+
+    const fetchProgressDone = async (data: any) => {
+        setLoading(true)
+        console.log("Percentage_", data)
+        const formData = new FormData()
+        formData.append('approval_no', data)
+
+        try {
+            const res = await axios.post(`${ADDRESSES.FETCH_PROGRESS_DONE}`, formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                    "auth_key": AUTH_KEY
+                }
+            })
+            if (res?.data?.status === 1) {
+                console.log("Percentage_ ", res?.data)
+                // const newProjectsList = res?.data?.message?.map((item: any) => ({
+                //     label: `${item?.project_id} / ${item?.approval_no}\n${item?.scheme_name}`,
+                //     value: `${item?.approval_no},${item?.project_id}`
+                // }))
+                // setProjectsList(newProjectsList)
+                setProgressComplet(res?.data?.progress_percent)
+            } else {
+                setProgressComplet(Number(0))
+                ToastAndroid.show("Percentage fetch error.", ToastAndroid.SHORT)
+            }
+        } catch (err) {
+            console.log("ERR PROJ", err)
+            ToastAndroid.show("Some error occurred while fetching projects.", ToastAndroid.SHORT)
+        }
+        setLoading(false)
+    }
 
     useEffect(() => {
         fetchProjectsList()
@@ -281,6 +331,8 @@ const HomeScreen = () => {
         formData.append('lat', location?.latitude!)
         formData.append('long', location.longitude!)
         formData.append('address', geolocationFetchedAddress)
+        formData.append('actual_date_comp', '2025-04-04')
+        formData.append('remarks', formData1.remarks)
 
         console.log("FORM DATA UPDATE ", formData)
 
@@ -329,36 +381,39 @@ const HomeScreen = () => {
 
         formData.append('created_by', loginStore?.user_id)
 
-        await axios.post(`${ADDRESSES.PROJECT_PROGRESS_UPDATE}`, formData, {
-            headers: {
-                "Content-Type": "multipart/form-data",
-                "auth_key": AUTH_KEY
-            }
-        }).then(res => {
-            console.log("Response:", res?.data)
-            if (res?.data?.status === 1) {
-                Alert.alert("Approval Photo", "Approval project photo(s) uploaded successfully.")
-                removeAllImages()
-                setFormData1({
-                    projectId: "",
-                    progress: "",
-                    latitude: "",
-                    longitude: "",
-                    locationAddress: ""
-                })
-                setFetchedProjectDetails(() => "")
-            } else {
-                ToastAndroid.show("Sending details with photo error.", ToastAndroid.SHORT)
-            }
-        }).catch(err => {
-            console.log("Upload error:", err)
-        })
+        // await axios.post(`${ADDRESSES.PROJECT_PROGRESS_UPDATE}`, formData, {
+        //     headers: {
+        //         "Content-Type": "multipart/form-data",
+        //         "auth_key": AUTH_KEY
+        //     }
+        // }).then(res => {
+        //     console.log("Response:", res?.data)
+        //     if (res?.data?.status === 1) {
+        //         Alert.alert("Approval Photo", "Approval project photo(s) uploaded successfully.")
+        //         removeAllImages()
+        //         setFormData1({
+        //             projectId: "",
+        //             progress: "",
+        //             latitude: "",
+        //             longitude: "",
+        //             locationAddress: "",
+        //             actualDateOfCompletion: "",
+        //             remarks: "",
+        //         })
+        //         setProgressComplet(Number(0))
+        //         setFetchedProjectDetails(() => "")
+        //     } else {
+        //         ToastAndroid.show("Sending details with photo error.", ToastAndroid.SHORT)
+        //     }
+        // }).catch(err => {
+        //     console.log("Upload error:", err)
+        // })
 
         setLoading(false)
     }, [formData1, imgData, loginStore, removeAllImages, handleFormChange])
 
     const saveLocally = useCallback(async () => {
-        if (!formData1.projectId || !formData1.progress || imgData.length === 0) {
+        if (!formData1.projectId || !formData1.progress || ((100 - progressComplet) === parseInt(formData1.progress, 10) ? !formData1.remarks : false) || imgData.length === 0) {
             ToastAndroid.show("Please fill all fields and add at least one photo.", ToastAndroid.SHORT)
             return;
         }
@@ -389,8 +444,13 @@ const HomeScreen = () => {
                 "progress_pic[]": permanentUris,
                 lat: location?.latitude!,
                 lng: location.longitude!,
-                locationAddress: geolocationFetchedAddress
+                locationAddress: geolocationFetchedAddress,
+                actualDateOfCompletion: new Date('2025-04-04'),
+                remarks: formData1.remarks,
             };
+
+            console.log(newProject, 'newProjectnewProject', formData1.remarks);
+            
 
             storedProjects.push(newProject);
 
@@ -404,7 +464,9 @@ const HomeScreen = () => {
                 progress: "",
                 latitude: "",
                 longitude: "",
-                locationAddress: ""
+                locationAddress: "",
+                actualDateOfCompletion: "",
+                remarks: "",
             });
             setFetchedProjectDetails(() => "");
         } catch (err) {
@@ -467,6 +529,9 @@ const HomeScreen = () => {
                         onChange={item => {
                             console.log("Selected project:", item)
                             handleFormChange("projectId", item?.value)
+                            fetchProgressDone(item?.value.split(',')[0])
+                            handleFormChange("progress", "");
+                            handleFormChange("remarks", "");
                         }}
                         renderLeftIcon={() => (
                             <Icon size={25} source={"creation"} />
@@ -532,6 +597,35 @@ const HomeScreen = () => {
                         </View>
                     }
 
+                    {/* <View>
+                        <Text>{JSON.stringify(Number(progressComplet), null, 2)}</Text>
+                        <Text>{JSON.stringify(Number(formData1.progress), null, 2)}</Text>
+                        <Text>{JSON.stringify(formData1.projectId?.split(",")[0], null, 2)}</Text>
+                        <Text>{JSON.stringify((100 - Number(progressComplet)), null, 2)}</Text>
+                    </View> */}
+
+
+
+                    <View style={{ marginVertical: 10 }}>
+                        {/* Progress Percentage Text (Left Above the Bar) */}
+                        <Text
+                            style={{
+                                color: theme.colors.primary,
+                                fontWeight: "bold",
+                                marginBottom: 5 // Spacing between text and bar
+                            }}
+                        >
+                            {progressComplet}% {strings.complete}
+                        </Text>
+
+                        {/* Progress Bar */}
+                        <ProgressBar
+                            progress={progressComplet / 100}
+                            color={theme.colors.primary}
+                            style={{ height: 12, borderRadius: 6 }}
+                        />
+                    </View>
+
 
                     {formData1.projectId && (
                         <InputPaper
@@ -541,10 +635,44 @@ const HomeScreen = () => {
                             leftIcon='progress-clock'
                             keyboardType="number-pad"
                             value={formData1.progress}
-                            onChangeText={(txt: any) => handleFormChange("progress", txt)}
+                            // onChangeText={(txt: any) => handleFormChange("progress", txt)}
+                            onChangeText={(txt: any) => {
+                                // Allow only numbers and ensure max value is 30
+                                handleFormChange("remarks", "");
+                                let num = parseInt(txt, 10);
+                                if (!isNaN(num) && num <= 100 - progressComplet) {
+                                    handleFormChange("progress", txt);
+                                } else if (txt === "") {
+                                    handleFormChange("progress", ""); // Allow clearing input
+                                } else {
+                                    handleFormChange("progress", ""); // Reset field if value > 30
+                                }
+                            }}
+                            // disabled={progressComplet === 100}
                             customStyle={{ backgroundColor: theme.colors.background }}
                         />
                     )}
+
+                    {(100 - Number(progressComplet)) === Number(formData1.progress) && (
+                        <>
+                            <TextInput
+                                error={checkErr}
+                                label="Remarks..."
+                                maxLength={10}
+                                // leftIcon='progress-clock'
+                                // keyboardType="number-pad"
+                                value={formData1.remarks}
+                                onChangeText={(txt: any) => handleFormChange("remarks", txt)}
+                                // disabled={progressComplet === 100}
+                                style={{ backgroundColor: theme.colors.background }}
+                            />
+
+
+                        </>
+                    )}
+
+                
+                    
 
                     <ButtonPaper
                         icon={"camera"}
@@ -591,7 +719,8 @@ const HomeScreen = () => {
                         }}
                         style={{ marginTop: 15, paddingVertical: 8 }}
                         loading={loading}
-                        disabled={!formData1.progress || !formData1.projectId || loading || checkErr}
+                        disabled={!formData1.progress || !formData1.projectId || loading || checkErr || imgData?.length === 0
+                            || ((100 - progressComplet) === parseInt(formData1.progress, 10) ? !formData1.remarks : false)}
                     >
                         Update Progress
                     </ButtonPaper>
@@ -613,6 +742,7 @@ const HomeScreen = () => {
                             || !formData1.projectId
                             || !location.latitude
                             || !location.longitude
+                            || ((100 - progressComplet) === parseInt(formData1.progress, 10) ? !formData1.remarks : false)
                             || !geolocationFetchedAddress
                         }
                     >
@@ -669,4 +799,32 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         padding: 2,
     },
+
+
+    container: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+      },
+      openButton: {
+        padding: 10,
+        backgroundColor: "#007bff",
+        borderRadius: 5,
+      },
+      buttonText: {
+        color: "#fff",
+        fontSize: 16,
+      },
+      modalContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
+        zIndex: 1000,
+      },
+      modalContent: {
+        backgroundColor: "#fff",
+        padding: 20,
+        borderRadius: 10,
+      },
 })
