@@ -70,13 +70,13 @@ function FundExpForm() {
     sch_amt_one: Yup.number()
       .typeError('Schematic Amount must be a number')
       .positive('Schematic Amount must be greater than zero')
-      .max(balanceSchematicAmount, `Amount must be less than ${balanceSchematicAmount}`)
+      .max(balanceSchematicAmount, `Amount must be within ${balanceSchematicAmount}`)
       .required('Schematic Amount is required'),
     // cont_amt_one: Yup.string().required('Contigency Amount is Required'),
     cont_amt_one: Yup.number()
       .typeError('Contigency Amount must be a number')
       .positive('Contigency Amount must be greater than zero')
-      .max(balanceContigencyAmount, `Amount must be less than ${balanceContigencyAmount}`)
+      .max(balanceContigencyAmount, `Amount must be within ${balanceContigencyAmount}`)
       .required('Contigency Amount is required'),
     payment_date: Yup.string().required('Expenditure Date is Required'),
     sch_remark: Yup.string().required('Schematic Remarks is Required'),

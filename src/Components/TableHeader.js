@@ -7,6 +7,7 @@ const TableHeader = ({ curentPage }) => {
     page_4: 'FundRelView',
     page_5: 'FundExpView',
     page_6: 'UCView',
+    page_7: 'PCRView',
   }
 
   if (curentPage === pageTree.page_1) {
@@ -102,6 +103,22 @@ const TableHeader = ({ curentPage }) => {
           <th className="px-4 py-3">District</th>
           <th className="px-4 py-3">Block</th>
           <th className="px-4 py-3">Actions</th>
+        </tr>
+      </thead>
+    );
+  }
+
+  if (curentPage === pageTree.page_7) {
+    return (
+      <thead className="text-xs text-gray-700 uppercase bg-slate-200">
+        <tr>
+          <th className="px-4 py-3">Project ID</th>
+          <th className="px-4 py-3">Schematic Name</th>
+          <th className="px-4 py-3">Sector Name</th>
+          <th className="px-4 py-3">Financial Year</th>
+          <th className="px-4 py-3">Generate Certificate</th>
+          <th className="px-4 py-3">Upload</th>
+          <th className="px-4 py-3">View</th>
         </tr>
       </thead>
     );

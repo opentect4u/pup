@@ -10,7 +10,7 @@ import { useFormik } from "formik";
 import { Flex, Progress, Select, Spin } from "antd";
 import { Message } from "../../Components/Message";
 import { useNavigate, useParams } from "react-router"
-import { CalendarOutlined, FilePdfOutlined, LoadingOutlined } from "@ant-design/icons";
+import { CalendarOutlined, CommentOutlined, FilePdfOutlined, LoadingOutlined } from "@ant-design/icons";
 import { FaMapMarker } from "react-icons/fa";
 import demoimg from "../../Assets/Images/demo.jpg";
 import { Image } from 'antd';
@@ -23,6 +23,8 @@ import { Image } from 'antd';
 // const validationSchema = Yup.object({
 
 // });
+
+var cumulativeProgress = 0;
 
 
 
@@ -115,7 +117,7 @@ function PRDetails() {
     }
   }, [])
 
-
+  
 
 
   return (
@@ -292,14 +294,21 @@ function PRDetails() {
                  {/* // {JSON.stringify(folderName, null, 2)} */}
 
                 {getStatusData?.map((data, index) => (
+                  
+                  
                   <>
+                    {/* {cumulativeProgress = cumulativeProgress + parseInt(data?.progress_percent)} */}
+
                     <div class="w-full p-4 text-left bg-white border border-gray-200 rounded-lg shadow-sm sm:p-0 dark:bg-gray-800 dark:border-gray-700 mb-5 shadow-xl">
                       {/* <img class="object-cover w-full rounded-t-lg h-96 md:h-auto md:w-48 md:rounded-none md:rounded-s-lg" src="/docs/images/blog/image-4.jpg" alt=""/> */}
 
                       <div class="flex flex-col justify-between p-4 leading-normal">
                         <h5 class="mb-0 text-sm font-bold text-gray-900 dark:text-white">Progress Status Phase {data?.visit_no}
                           <span className="text-xs bg-gray-700 text-white p-1 ml-5 rounded-md">Work Status {data?.progress_percent}%</span> </h5>
-                        <Flex gap="small" vertical><Progress percent={data?.progress_percent} /></Flex>
+                        <Flex gap="small" vertical>
+                          <Progress percent={data?.progress_percent} />
+                          {/* <Progress percent={cumulativeProgress} /> */}
+                          </Flex>
                         <p class="mb-3 font-normal items-center text-sm text-gray-700 dark:text-gray-400 flex">
                           <span className="flex items-center font-bold mr-1"><CalendarOutlined style={{ color: '#3EB8BD', marginRight: 5, marginLeft: 3 }} /> Visit Date:</span> {data?.visit_dt}
                           <span className="flex items-center font-bold mr-1"><FaMapMarker style={{ color: '#3EB8BD', marginRight: 5, marginLeft: 3 }} /> Visit By:</span> {data?.visit_by}
@@ -325,6 +334,25 @@ function PRDetails() {
           <Image width={80} className="rounded-full mr-3 lightBox_thum" src={demoimg} />
           <Image width={80} className="rounded-full mr-3 lightBox_thum" src={demoimg} /> */}
                         </div>
+                        
+                          {data?.remarks.length > 0  &&(
+                            <>
+                            <p class="mb-0 font-normal items-center text-sm text-gray-700 dark:text-gray-400 flex mt-5">
+                          <span className="flex items-center font-bold mr-1">
+                            <CalendarOutlined style={{ color: '#333', marginRight: 5, marginLeft: 3 }} /> Actual Date of Completion:</span> 
+                            {data?.actual_date_comp} 
+                          
+                        </p>
+                        <p class="mb-3 font-normal items-center text-sm text-gray-700 dark:text-gray-400 flex mt-2">
+                        
+                        <span className="flex items-center font-bold mr-1">
+                          {/* <FaMapMarker style={{ color: '#3EB8BD', marginRight: 5, marginLeft: 3 }} />  */}
+                          <CommentOutlined style={{ color: '#333', marginRight: 5, marginLeft: 3 }} /> Project Completion Remarks:</span> {data?.remarks}
+                        
+                      </p>
+                            </>
+                          )}
+                        
                       </div>
                     </div>
                   </>

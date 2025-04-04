@@ -18,6 +18,7 @@ const items = [
   //   key: "home",
   //   icon: <HomeFilled />,
   // },
+  
   {
     label: <Link to={"admin_approval"}>Administrative Approval </Link>,
     key: "ad-appr",
@@ -26,6 +27,11 @@ const items = [
   {
     label: <Link to={"tender_formality"}>Tender Formalities </Link>,
     key: "TF",
+    icon: <FileFilled />,
+  },
+  {
+    label: <Link to={"pcr"}>PCR </Link>,
+    key: "PCR",
     icon: <FileFilled />,
   },
   {

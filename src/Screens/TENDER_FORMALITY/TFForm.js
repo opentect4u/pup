@@ -459,8 +459,8 @@ function TFForm() {
       }
 
       // Check if file size exceeds 20MB
-      if (fileSizeMB > 20) {
-        setErrorpdf_1("File size should not exceed 20MB.");
+      if (fileSizeMB > 2) {
+        setErrorpdf_1("File size should not exceed 2MB.");
         return;
       }
 
@@ -487,8 +487,8 @@ function TFForm() {
       }
 
       // Check if file size exceeds 20MB
-      if (fileSizeMB > 20) {
-        setErrorpdf_2("File size should not exceed 20MB.");
+      if (fileSizeMB > 2) {
+        setErrorpdf_2("File size should not exceed 2MB.");
         return;
       }
 
@@ -659,7 +659,7 @@ function TFForm() {
 
               </div>
 
-              <div class="sm:col-span-4">
+              {/* <div class="sm:col-span-4">
                 
 
               <TDInputTemplate
@@ -670,7 +670,7 @@ function TFForm() {
                   disabled={true}
               />
 
-              </div>
+              </div> */}
               
 
             </div>
@@ -841,7 +841,7 @@ function TFForm() {
               type="file"
               name="td_pdf"
               placeholder="Tender Notice"
-              label="Tender Notice"
+              label="Tender Notice (PDF Max Size 2 MB)"
               // handleChange={(event) => {
               //   const file = event.currentTarget.files[0];
               //   if (file) {
@@ -1023,7 +1023,7 @@ function TFForm() {
               type="file"
               name="wo_pdf"
               placeholder="Work Order Copy"
-              label="Work Order Copy"
+              label="Work Order Copy (PDF Max Size 2 MB)"
               // handleChange={(event) => {
               //   const file = event.currentTarget.files[0];
               //   if (file) {

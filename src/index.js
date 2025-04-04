@@ -42,6 +42,9 @@ import DERTMENT_ADD from './Screens/MASTER/DERTMENT_ADD';
 import DESIGNATION_ADD from './Screens/MASTER/DESIGNATION_ADD';
 import UserProfile from './Screens/PROFILE_MANAGE/UserProfile';
 import Project_Submitted_By_Form from './Screens/MASTER/Project_Submitted_By_Form';
+import PCRView from './Screens/PCR_Generate/PCRView';
+import PCRComp from './Screens/PCR_Generate/PCRComp';
+import PCRForm from './Screens/PCR_Generate/PCRForm';
 // import Financial_Report__test from './Screens/REPORTS/Financial_Report__test';
 // import FundRelView__test from './Screens/FUND_RELEASE/FundRelView__test';
 
@@ -122,6 +125,24 @@ const router = createBrowserRouter([
             {
               path: "tfcrud/:id",
               element: <TFForm />,
+            },
+            // {
+            //   path: "tftenderlist",
+            //   element: <TFTenderList />,
+            // }
+          ]
+        },
+        {
+          path: "pcr",
+          element: <PCRComp />,
+          children: [
+            {
+              path: "",
+              element: <PCRView />,
+            },
+            {
+              path: "pcr-add/:id",
+              element: <PCRForm />,
             },
             // {
             //   path: "tftenderlist",

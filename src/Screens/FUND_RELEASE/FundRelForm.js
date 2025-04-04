@@ -35,7 +35,7 @@ const validationSchema = Yup.object({
   receipt_first: Yup.string().required('Receipt is Required'),
   allotment_order_no: Yup.string().required('Allotment Order No. is Required'),
   allotment_order_date: Yup.string().required('Allotment Order Date is Required'),
-  al1_pdf: Yup.string().required('Allotment Order No. is Required'),
+  al1_pdf: Yup.string().required('Upload Allotment Order is Required'),
   sch_amt_one: Yup.string().required('Schematic Amount is Required'),
   cont_amt_one: Yup.string().required('Contigency Amount is Required'),
   isntl_date: Yup.string().required('Installment Date is Required'),
@@ -167,7 +167,7 @@ function FundRelForm() {
         formik.resetForm();
       } catch (error) {
         setLoading(false);
-        Message("error", "Error Submitting Form: uu");
+        Message("error", "Error..");
         console.error("Error submitting form:", error);
       }
   
@@ -446,8 +446,8 @@ function FundRelForm() {
                     }
               
                     // Check if file size exceeds 20MB
-                    if (fileSizeMB > 20) {
-                      setErrorpdf_1("File size should not exceed 20MB.");
+                    if (fileSizeMB > 2) {
+                      setErrorpdf_1("File size should not exceed 2MB.");
                       return;
                     }
               
@@ -785,7 +785,7 @@ function FundRelForm() {
               <TDInputTemplate
                 type="number"
                 placeholder="Rs...."
-                label="Receipt of first installment (Rs.)"
+                label="Receipt of Installment (Rs.)"
                 name="receipt_first"
                 formControlName={formik.values.receipt_first}
                 handleChange={formik.handleChange}
@@ -840,7 +840,7 @@ function FundRelForm() {
               type="file"
               name="al1_pdf"
               placeholder="Upload Allotment Order"
-              label="Upload Allotment Order"
+              label="Upload Allotment Order (PDF Max Size 2 MB)"
               // handleChange={(event) => {
               // formik.setFieldValue("al1_pdf", event.currentTarget.files[0]);
               // }}

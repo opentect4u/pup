@@ -436,9 +436,9 @@ function UCForm() {
           return;
         }
   
-        // Check if file size exceeds 20MB
-        if (fileSizeMB > 20) {
-          setErrorpdf_1("File size should not exceed 20MB.");
+        // Check if file size exceeds 2MB
+        if (fileSizeMB > 2) {
+          setErrorpdf_1("File size should not exceed 2MB.");
           return;
         }
   
@@ -795,7 +795,7 @@ function UCForm() {
               type="file"
               name="certificate_path"
               placeholder="Utilization Certificate"
-              label="Utilization Certificate"
+              label="Utilization Certificate (PDF Max Size 2 MB)"
               // handleChange={(event) => {
               //   const file = event.currentTarget.files[0];
               //   if (file) {

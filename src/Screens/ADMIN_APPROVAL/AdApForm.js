@@ -735,8 +735,8 @@ function AdApForm() {
       }
 
       // Check if file size exceeds 20MB
-      if (fileSizeMB > 20) {
-        setErrorpdf_1("File size should not exceed 20MB.");
+      if (fileSizeMB > 2) {
+        setErrorpdf_1("File size should not exceed 2MB.");
         return;
       }
 
@@ -763,8 +763,8 @@ function AdApForm() {
       }
 
       // Check if file size exceeds 20MB
-      if (fileSizeMB > 20) {
-        setErrorpdf_2("File size should not exceed 20MB.");
+      if (fileSizeMB > 1024) {
+        setErrorpdf_2("File size should not exceed 1GB.");
         return;
       }
 
@@ -1021,7 +1021,7 @@ function AdApForm() {
               type="file"
               name="admin_appr_pdf"
               placeholder="Administrative Approval(G.O)"
-              label="Administrative Approval(G.O)"
+              label="Administrative Approval(G.O) (PDF Max Size 2 MB)"
               // handleChange={(event) => {
               // formik.setFieldValue("vet_dpr_pdf", event.currentTarget.files[0]);
               // }}
@@ -1344,7 +1344,7 @@ function AdApForm() {
               type="file"
               name="vet_dpr_pdf"
               placeholder="Vetted DPR"
-              label="Vetted DPR"
+              label="Vetted DPR (PDF Max Size 1 GB)"
               handleChange={(event) => {
                 handleFileChange_pdf_2(event)
               }}
