@@ -1,6 +1,19 @@
-import { Alert, Linking, Platform, StyleSheet, View, TouchableOpacity, Image } from 'react-native';
+import {
+  Alert,
+  Linking,
+  Platform,
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
 import React, { useEffect, useState, useRef } from 'react';
-import { Camera, CameraDevice, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
+import {
+  Camera,
+  CameraDevice,
+  useCameraDevice,
+  useCameraPermission,
+} from 'react-native-vision-camera';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import navigationRoutes from '../../routes/routes';
 import { usePaperColorScheme } from '../../theme/theme';
@@ -17,32 +30,40 @@ function CameraScreen() {
   useEffect(() => {
     const cameraPermissionRequest = () => {
       if (!hasPermission) {
-        requestPermission().then(res => {
-          if (res) {
-            console.log("REQUEST GRANTED...", res);
-          } else {
-            console.log("REQUEST REJECTED...", res);
-            Alert.alert(
-              "Allow Permissions",
-              "Click Open Settings: Go to Permissions -> Allow Camera access.",
-              [
-                { text: "Open Settings", onPress: () => Linking.openSettings() },
-                { text: "Later", onPress: () => null },
-              ],
-            );
-          }
-        }).catch(err =>
-          console.log("SOME PROBLEM DETECTED WHILE PERMISSION OF CAMERA GIVING...", err)
-        );
+        requestPermission()
+          .then(res => {
+            if (res) {
+              console.log('REQUEST GRANTED...', res);
+            } else {
+              console.log('REQUEST REJECTED...', res);
+              Alert.alert(
+                'Allow Permissions',
+                'Click Open Settings: Go to Permissions -> Allow Camera access.',
+                [
+                  {
+                    text: 'Open Settings',
+                    onPress: () => Linking.openSettings(),
+                  },
+                  { text: 'Later', onPress: () => null },
+                ],
+              );
+            }
+          })
+          .catch(err =>
+            console.log(
+              'SOME PROBLEM DETECTED WHILE PERMISSION OF CAMERA GIVING...',
+              err,
+            ),
+          );
       }
     };
-    if (Platform.OS === "android") {
+    if (Platform.OS === 'android') {
       cameraPermissionRequest();
     }
   }, []);
 
   const takePhoto = async () => {
-    console.log("Capture btn clicked...")
+    console.log('Capture btn clicked...');
     if (cameraRef.current && device) {
       const photo = await cameraRef.current.takeSnapshot();
       const filePath = `${RNFS.DocumentDirectoryPath}/photo.jpg`;
@@ -52,19 +73,25 @@ function CameraScreen() {
   };
 
   const handleExit = () => {
-    console.log("PHOTO PATH: ", photoPath)
+    console.log('PHOTO PATH: ', photoPath);
     if (photoPath) {
-      navigation.dispatch(CommonActions.navigate({
-        name: navigationRoutes.homeScreen,
-        params: {
-          photo: photoPath
-        }
-      }));
+      navigation.dispatch(
+        CommonActions.navigate({
+          name: navigationRoutes.homeScreen,
+          params: {
+            photo: photoPath,
+          },
+        }),
+      );
     }
   };
 
   return (
-    <View style={[StyleSheet.absoluteFill, { backgroundColor: theme.colors.secondaryContainer }]}>
+    <View
+      style={[
+        StyleSheet.absoluteFill,
+        { backgroundColor: theme.colors.secondaryContainer },
+      ]}>
       {device && (
         <Camera
           ref={cameraRef}
@@ -81,7 +108,10 @@ function CameraScreen() {
       </TouchableOpacity>
       {photoPath && (
         <>
-          <Image source={{ uri: photoPath }} style={[StyleSheet.absoluteFill]} />
+          <Image
+            source={{ uri: photoPath }}
+            style={[StyleSheet.absoluteFill]}
+          />
           <TouchableOpacity style={styles.exitButton} onPress={handleExit}>
             <View style={styles.innerCircleExit} />
           </TouchableOpacity>
@@ -133,7 +163,7 @@ const styles = StyleSheet.create({
     // width: 100,
     // height: 100,
     // borderRadius: 10,
-  }
+  },
 });
 
 export default CameraScreen;

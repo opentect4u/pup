@@ -1,5 +1,3 @@
-import loginImg from './login_img.png'
+import loginImg from './login_img.png';
 
-export {
-  loginImg,
-}
+export { loginImg };

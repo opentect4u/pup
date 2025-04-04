@@ -1,469 +1,548 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react'
-import { Alert, Image, ScrollView, StyleSheet, ToastAndroid, View, TouchableOpacity } from 'react-native'
-import { Icon, Text } from 'react-native-paper'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { usePaperColorScheme } from '../../theme/theme'
-import { homeScreenStrings } from '../../constants/strings'
-import useGeoLocation from '../../hooks/useGeoLocation'
-import { Dropdown } from 'react-native-element-dropdown'
-import ButtonPaper from '../../components/ButtonPaper'
-import InputPaper from '../../components/InputPaper'
-import Header from '../../components/Header'
-import { fileStorage, loginStorage, projectStorage } from '../../storage/appStorage'
-// @ts-ignore
-import { AUTH_KEY } from "@env"
-import { ADDRESSES } from '../../config/api_list'
-import axios from 'axios'
-import { useNavigation } from '@react-navigation/native'
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
-    Asset,
-    ImageLibraryOptions,
-    ImagePickerResponse,
-    launchImageLibrary,
-    launchCamera,
-    CameraOptions
-} from "react-native-image-picker"
+  Alert,
+  Image,
+  ScrollView,
+  StyleSheet,
+  ToastAndroid,
+  View,
+  TouchableOpacity,
+} from 'react-native';
+import { Icon, Text } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { usePaperColorScheme } from '../../theme/theme';
+import { homeScreenStrings } from '../../constants/strings';
+import useGeoLocation from '../../hooks/useGeoLocation';
+import { Dropdown } from 'react-native-element-dropdown';
+import ButtonPaper from '../../components/ButtonPaper';
+import InputPaper from '../../components/InputPaper';
+import Header from '../../components/Header';
+import {
+  fileStorage,
+  loginStorage,
+  projectStorage,
+} from '../../storage/appStorage';
+// @ts-ignore
+import { AUTH_KEY } from '@env';
+import { ADDRESSES } from '../../config/api_list';
+import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
+import {
+  Asset,
+  ImageLibraryOptions,
+  ImagePickerResponse,
+  launchImageLibrary,
+  launchCamera,
+  CameraOptions,
+} from 'react-native-image-picker';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
 import RNFS from 'react-native-fs';
 
-const strings = homeScreenStrings.getStrings()
+const strings = homeScreenStrings.getStrings();
 
 const HomeScreen = () => {
-    const navigation = useNavigation()
-    const theme = usePaperColorScheme()
-    const { location } = useGeoLocation()
+  const navigation = useNavigation();
+  const theme = usePaperColorScheme();
+  const { location } = useGeoLocation();
 
-    // Memoize loginStore so it doesn't change on every render
-    const loginStore = useMemo(() => JSON.parse(loginStorage?.getString("login-data") ?? "{}"), [])
+  // Memoize loginStore so it doesn't change on every render
+  const loginStore = useMemo(
+    () => JSON.parse(loginStorage?.getString('login-data') ?? '{}'),
+    [],
+  );
 
-    const [imgData, setImgData] = useState<Asset[]>([])
-    const [projectsList, setProjectsList] = useState<any[]>([])
-    const [loading, setLoading] = useState(false)
-    // Set projectId to null instead of "" to indicate no selection
-    const [formData1, setFormData1] = useState({
-        projectId: null as string | null,
-        progress: "",
-    })
+  const [imgData, setImgData] = useState<Asset[]>([]);
+  const [projectsList, setProjectsList] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  // Set projectId to null instead of "" to indicate no selection
+  const [formData1, setFormData1] = useState({
+    projectId: null as string | null,
+    progress: '',
+  });
 
-    const handleFormChange = useCallback((field: string, value: any) => {
-        setFormData1(prev => ({
-            ...prev,
-            [field]: value,
-        }))
-    }, [])
+  const handleFormChange = useCallback((field: string, value: any) => {
+    setFormData1(prev => ({
+      ...prev,
+      [field]: value,
+    }));
+  }, []);
 
-    const fetchProjectsList = useCallback(async () => {
-        setLoading(true)
-        const formData = new FormData()
-        formData.append('', null)
+  const fetchProjectsList = useCallback(async () => {
+    setLoading(true);
+    const formData = new FormData();
+    formData.append('', null);
 
-        try {
-            const res = await axios.post(`${ADDRESSES.FETCH_PROJECTS_LIST}`, formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                    "auth_key": AUTH_KEY
-                }
-            })
-            if (res?.data?.status === 1) {
-                console.log("PROJECTS : ", res?.data)
-                const newProjectsList = res?.data?.message?.map((item: any) => ({
-                    label: `${item?.project_id}\n${item?.scheme_name}`,
-                    value: item?.approval_no
-                }))
-                setProjectsList(newProjectsList)
-            } else {
-                ToastAndroid.show("Projects fetch error.", ToastAndroid.SHORT)
+    try {
+      const res = await axios.post(
+        `${ADDRESSES.FETCH_PROJECTS_LIST}`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            auth_key: AUTH_KEY,
+          },
+        },
+      );
+      if (res?.data?.status === 1) {
+        console.log('PROJECTS : ', res?.data);
+        const newProjectsList = res?.data?.message?.map((item: any) => ({
+          label: `${item?.project_id}\n${item?.scheme_name}`,
+          value: item?.approval_no,
+        }));
+        setProjectsList(newProjectsList);
+      } else {
+        ToastAndroid.show('Projects fetch error.', ToastAndroid.SHORT);
+      }
+    } catch (err) {
+      console.log('ERR PROJ', err);
+      ToastAndroid.show(
+        'Some error occurred while fetching projects.',
+        ToastAndroid.SHORT,
+      );
+    }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    fetchProjectsList();
+  }, [fetchProjectsList]);
+
+  const openGallery = useCallback(() => {
+    const options: ImageLibraryOptions = {
+      mediaType: 'photo',
+      includeBase64: true,
+      selectionLimit: 4,
+    };
+
+    launchImageLibrary(options, (response: ImagePickerResponse) => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+        fileStorage.clearAll();
+      } else if (response.errorCode) {
+        console.log('ImagePicker Error: ', response.errorMessage);
+        fileStorage.clearAll();
+      } else {
+        const assets = response?.assets as Asset[];
+        if (assets && assets.length > 0) {
+          setImgData(prev => {
+            const currentCount = prev.length;
+            const allowedCount = 4 - currentCount;
+            if (allowedCount <= 0) {
+              ToastAndroid.show('Maximum 4 images allowed', ToastAndroid.SHORT);
+              return prev;
             }
-        } catch (err) {
-            console.log("ERR PROJ", err)
-            ToastAndroid.show("Some error occurred while fetching projects.", ToastAndroid.SHORT)
+            const newAssets = assets.slice(0, allowedCount);
+            return [...prev, ...newAssets];
+          });
+
+          fileStorage.set('file-data', assets[0].base64?.toString() || '');
+          fileStorage.set('file-uri', assets[0].uri?.toString() || '');
+          console.log(
+            'Selected images:',
+            assets.map(a => a.uri),
+          );
         }
-        setLoading(false)
-    }, [])
+      }
+    });
+  }, []);
 
-    useEffect(() => {
-        fetchProjectsList()
-    }, [fetchProjectsList])
-
-    const openGallery = useCallback(() => {
-        const options: ImageLibraryOptions = {
-            mediaType: "photo",
-            includeBase64: true,
-            selectionLimit: 4,
+  const openCamera = useCallback(() => {
+    const options: CameraOptions = {
+      mediaType: 'photo',
+      includeBase64: true,
+    };
+    launchCamera(options, (response: ImagePickerResponse) => {
+      if (response.didCancel) {
+        console.log('User cancelled camera');
+        fileStorage.clearAll();
+      } else if (response.errorCode) {
+        console.log('Camera Error: ', response.errorMessage);
+        fileStorage.clearAll();
+      } else {
+        const assets = response?.assets as Asset[];
+        if (assets && assets.length > 0) {
+          setImgData(prev => {
+            const currentCount = prev.length;
+            const allowedCount = 4 - currentCount;
+            if (allowedCount <= 0) {
+              ToastAndroid.show('Maximum 4 images allowed', ToastAndroid.SHORT);
+              return prev;
+            }
+            const newAssets = assets.slice(0, allowedCount);
+            return [...prev, ...newAssets];
+          });
+          // Optionally store the first captured image's data
+          fileStorage.set('file-data', assets[0].base64?.toString() || '');
+          fileStorage.set('file-uri', assets[0].uri?.toString() || '');
+          console.log(
+            'Captured images:',
+            assets.map(a => a.uri),
+          );
         }
+      }
+    });
+  }, []);
 
-        launchImageLibrary(options, (response: ImagePickerResponse) => {
-            if (response.didCancel) {
-                console.log("User cancelled image picker")
-                fileStorage.clearAll()
-            } else if (response.errorCode) {
-                console.log("ImagePicker Error: ", response.errorMessage)
-                fileStorage.clearAll()
-            } else {
-                const assets = response?.assets as Asset[]
-                if (assets && assets.length > 0) {
-                    setImgData(prev => {
-                        const currentCount = prev.length
-                        const allowedCount = 4 - currentCount
-                        if (allowedCount <= 0) {
-                            ToastAndroid.show("Maximum 4 images allowed", ToastAndroid.SHORT)
-                            return prev
-                        }
-                        const newAssets = assets.slice(0, allowedCount)
-                        return [...prev, ...newAssets]
-                    })
+  const selectLogo = useCallback(() => {
+    Alert.alert('Upload Photo', 'Select an option', [
+      { text: 'Take Photo', onPress: openCamera },
+      { text: 'Choose from Gallery', onPress: openGallery },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
+  }, [openCamera, openGallery]);
 
-                    fileStorage.set("file-data", assets[0].base64?.toString() || "")
-                    fileStorage.set("file-uri", assets[0].uri?.toString() || "")
-                    console.log("Selected images:", assets.map(a => a.uri))
-                }
-            }
-        })
-    }, [])
+  const removeImage = useCallback((index: number) => {
+    setImgData(prev => prev.filter((_, i) => i !== index));
+  }, []);
 
-    const openCamera = useCallback(() => {
-        const options: CameraOptions = {
-            mediaType: "photo",
-            includeBase64: true,
-        }
-        launchCamera(options, (response: ImagePickerResponse) => {
-            if (response.didCancel) {
-                console.log("User cancelled camera")
-                fileStorage.clearAll()
-            } else if (response.errorCode) {
-                console.log("Camera Error: ", response.errorMessage)
-                fileStorage.clearAll()
-            } else {
-                const assets = response?.assets as Asset[]
-                if (assets && assets.length > 0) {
-                    setImgData(prev => {
-                        const currentCount = prev.length
-                        const allowedCount = 4 - currentCount
-                        if (allowedCount <= 0) {
-                            ToastAndroid.show("Maximum 4 images allowed", ToastAndroid.SHORT)
-                            return prev
-                        }
-                        const newAssets = assets.slice(0, allowedCount)
-                        return [...prev, ...newAssets]
-                    })
-                    // Optionally store the first captured image's data
-                    fileStorage.set("file-data", assets[0].base64?.toString() || "")
-                    fileStorage.set("file-uri", assets[0].uri?.toString() || "")
-                    console.log("Captured images:", assets.map(a => a.uri))
-                }
-            }
-        })
-    }, [])
+  const removeAllImages = useCallback(() => {
+    setImgData([]);
+    fileStorage.delete('file-data');
+    fileStorage.delete('file-uri');
+  }, []);
 
-    const selectLogo = useCallback(() => {
-        Alert.alert(
-            "Upload Photo",
-            "Select an option",
-            [
-                { text: "Take Photo", onPress: openCamera },
-                { text: "Choose from Gallery", onPress: openGallery },
-                { text: "Cancel", style: "cancel" }
-            ]
-        )
-    }, [openCamera, openGallery])
+  const updateProjectProgressDetails = useCallback(async () => {
+    setLoading(true);
+    const formData = new FormData();
+    formData.append('approval_no', formData1.projectId || '');
+    formData.append('progress_percent', formData1.progress);
 
-    const removeImage = useCallback((index: number) => {
-        setImgData(prev => prev.filter((_, i) => i !== index))
-    }, [])
-
-    const removeAllImages = useCallback(() => {
-        setImgData([])
-        fileStorage.delete("file-data")
-        fileStorage.delete("file-uri")
-    }, [])
-
-    const updateProjectProgressDetails = useCallback(async () => {
-        setLoading(true)
-        const formData = new FormData()
-        formData.append('approval_no', formData1.projectId || '')
-        formData.append('progress_percent', formData1.progress)
-
-        // Process each image to ensure its size is under 2MB (2 * 1024 * 1024 bytes)
-        const processedImages = await Promise.all(
-            imgData.map(async (asset, index) => {
-                if (asset.fileSize && asset.fileSize > 2 * 1024 * 1024) {
-                    // Reduce dimensions by 80% (adjust factor as needed)
-                    const targetWidth = asset.width ? Math.round(asset.width * 0.8) : 800
-                    const targetHeight = asset.height ? Math.round(asset.height * 0.8) : 600
-                    try {
-                        const resizedImage = await ImageResizer.createResizedImage(
-                            asset.uri!,
-                            targetWidth,
-                            targetHeight,
-                            "JPEG",
-                            80,       // quality (0-100)
-                            0,        // rotation
-                            null,     // outputPath (null uses cache folder)
-                            false,    // keepMeta
-                            {}        // options
-                        )
-                        return {
-                            ...asset,
-                            uri: resizedImage.uri,
-                            fileName: resizedImage.name || asset.fileName || `progress_pic_${index}.jpg`,
-                            type: "image/jpeg"
-                        }
-                    } catch (err) {
-                        console.log("Image resizing error", err)
-                        return asset
-                    }
-                }
-                return asset
-            })
-        )
-
-        // Append processed images to formData
-        processedImages.forEach((asset, index) => {
-            formData.append("progress_pic[]", {
-                uri: asset.uri!,
-                type: asset.type || "image/jpeg",
-                name: asset.fileName || `progress_pic_${index}.jpg`,
-            } as any)
-        })
-
-        formData.append('created_by', loginStore?.user_id)
-
-        await axios.post(`${ADDRESSES.PROJECT_PROGRESS_UPDATE}`, formData, {
-            headers: {
-                "Content-Type": "multipart/form-data",
-                "auth_key": AUTH_KEY
-            }
-        }).then(res => {
-            console.log("Response:", res?.data)
-            if (res?.data?.status === 1) {
-                Alert.alert("Approval Photo", "Approval project photo(s) uploaded successfully.")
-                removeAllImages()
-                setFormData1({
-                    projectId: "",
-                    progress: ""
-                })
-            } else {
-                ToastAndroid.show("Sending details with photo error.", ToastAndroid.SHORT)
-            }
-        }).catch(err => {
-            console.log("Upload error:", err)
-        })
-
-        setLoading(false)
-    }, [formData1, imgData, loginStore, removeAllImages, handleFormChange])
-
-    // --- New saveLocally function implementation ---
-    const saveLocally = useCallback(async () => {
-        if (!formData1.projectId || !formData1.progress || imgData.length === 0) {
-            ToastAndroid.show("Please fill all fields and add at least one photo.", ToastAndroid.SHORT)
-            return;
-        }
-        try {
-            let permanentUris: string[] = [];
-            // Copy each selected image to a permanent location
-            for (const asset of imgData) {
-                const filename = asset.fileName || `progress_pic_${Date.now()}.jpg`;
-                const newPath = `${RNFS.DocumentDirectoryPath}/${filename}`;
-                // Copy file from temporary URI to DocumentDirectoryPath (permanent storage)
-                await RNFS.copyFile(asset.uri!, newPath);
-                // Ensure the URI has a file:// prefix
-                const permanentUri = newPath.startsWith("file://") ? newPath : "file://" + newPath;
-                permanentUris.push(permanentUri);
-            }
-
-            // Retrieve existing projects from projectStorage
-            let storedProjects: any[] = [];
-            const projectsData = await projectStorage.getString("projects");
-            if (projectsData) {
-                storedProjects = JSON.parse(projectsData);
-            }
-
-            // Create a new project object with permanent image URIs
-            const newProject = {
-                projectId: formData1.projectId,
-                progress: formData1.progress,
-                "progress_pic[]": permanentUris
+    // Process each image to ensure its size is under 2MB (2 * 1024 * 1024 bytes)
+    const processedImages = await Promise.all(
+      imgData.map(async (asset, index) => {
+        if (asset.fileSize && asset.fileSize > 2 * 1024 * 1024) {
+          // Reduce dimensions by 80% (adjust factor as needed)
+          const targetWidth = asset.width ? Math.round(asset.width * 0.8) : 800;
+          const targetHeight = asset.height
+            ? Math.round(asset.height * 0.8)
+            : 600;
+          try {
+            const resizedImage = await ImageResizer.createResizedImage(
+              asset.uri!,
+              targetWidth,
+              targetHeight,
+              'JPEG',
+              80, // quality (0-100)
+              0, // rotation
+              null, // outputPath (null uses cache folder)
+              false, // keepMeta
+              {}, // options
+            );
+            return {
+              ...asset,
+              uri: resizedImage.uri,
+              fileName:
+                resizedImage.name ||
+                asset.fileName ||
+                `progress_pic_${index}.jpg`,
+              type: 'image/jpeg',
             };
-
-            storedProjects.push(newProject);
-
-            // Save the updated projects list to projectStorage
-            await projectStorage.set("projects", JSON.stringify(storedProjects));
-
-            ToastAndroid.show("Project saved locally.", ToastAndroid.SHORT);
-            removeAllImages();
-            setFormData1({
-                projectId: "",
-                progress: ""
-            });
-        } catch (err) {
-            console.log("Error saving locally:", err);
-            ToastAndroid.show("Error saving project locally.", ToastAndroid.SHORT);
+          } catch (err) {
+            console.log('Image resizing error', err);
+            return asset;
+          }
         }
-    }, [formData1, imgData, removeAllImages])
-    // --- End saveLocally function ---
+        return asset;
+      }),
+    );
 
-    return (
-        <SafeAreaView style={{ flex: 1 }}>
-            <ScrollView keyboardShouldPersistTaps='handled' style={{ backgroundColor: theme.colors.background }}>
-                <Header />
-                <View style={{ padding: 30, gap: 5, flex: 1 }}>
-                    <Text variant='titleLarge' style={{ color: theme.colors.secondary }}>
-                        {strings.projectDropdownLabel}
-                    </Text>
-                    <Dropdown
-                        style={[styles.dropdown, { width: '100%', borderColor: theme.colors.secondary, backgroundColor: theme.colors.secondaryContainer }]}
-                        placeholderStyle={[styles.placeholderStyle, { color: theme.colors.onBackground }]}
-                        selectedTextStyle={[styles.selectedTextStyle, { color: theme.colors.primary }]}
-                        inputSearchStyle={[styles.inputSearchStyle, { borderRadius: 10 }]}
-                        containerStyle={{ alignSelf: "auto", borderRadius: 10 }}
-                        iconStyle={styles.iconStyle}
-                        data={projectsList}
-                        search
-                        maxHeight={300}
-                        labelField="label"
-                        valueField="value"
-                        placeholder="Choose Project"
-                        searchPlaceholder="Search Project..."
-                        value={formData1?.projectId}
-                        onChange={item => {
-                            console.log("Selected project:", item)
-                            handleFormChange("projectId", item?.value)
-                        }}
-                        renderLeftIcon={() => (
-                            <Icon size={25} source={"creation"} />
-                        )}
+    // Append processed images to formData
+    processedImages.forEach((asset, index) => {
+      formData.append('progress_pic[]', {
+        uri: asset.uri!,
+        type: asset.type || 'image/jpeg',
+        name: asset.fileName || `progress_pic_${index}.jpg`,
+      } as any);
+    });
+
+    formData.append('created_by', loginStore?.user_id);
+
+    await axios
+      .post(`${ADDRESSES.PROJECT_PROGRESS_UPDATE}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          auth_key: AUTH_KEY,
+        },
+      })
+      .then(res => {
+        console.log('Response:', res?.data);
+        if (res?.data?.status === 1) {
+          Alert.alert(
+            'Approval Photo',
+            'Approval project photo(s) uploaded successfully.',
+          );
+          removeAllImages();
+          setFormData1({
+            projectId: '',
+            progress: '',
+          });
+        } else {
+          ToastAndroid.show(
+            'Sending details with photo error.',
+            ToastAndroid.SHORT,
+          );
+        }
+      })
+      .catch(err => {
+        console.log('Upload error:', err);
+      });
+
+    setLoading(false);
+  }, [formData1, imgData, loginStore, removeAllImages, handleFormChange]);
+
+  // --- New saveLocally function implementation ---
+  const saveLocally = useCallback(async () => {
+    if (!formData1.projectId || !formData1.progress || imgData.length === 0) {
+      ToastAndroid.show(
+        'Please fill all fields and add at least one photo.',
+        ToastAndroid.SHORT,
+      );
+      return;
+    }
+    try {
+      let permanentUris: string[] = [];
+      // Copy each selected image to a permanent location
+      for (const asset of imgData) {
+        const filename = asset.fileName || `progress_pic_${Date.now()}.jpg`;
+        const newPath = `${RNFS.DocumentDirectoryPath}/${filename}`;
+        // Copy file from temporary URI to DocumentDirectoryPath (permanent storage)
+        await RNFS.copyFile(asset.uri!, newPath);
+        // Ensure the URI has a file:// prefix
+        const permanentUri = newPath.startsWith('file://')
+          ? newPath
+          : 'file://' + newPath;
+        permanentUris.push(permanentUri);
+      }
+
+      // Retrieve existing projects from projectStorage
+      let storedProjects: any[] = [];
+      const projectsData = await projectStorage.getString('projects');
+      if (projectsData) {
+        storedProjects = JSON.parse(projectsData);
+      }
+
+      // Create a new project object with permanent image URIs
+      const newProject = {
+        projectId: formData1.projectId,
+        progress: formData1.progress,
+        'progress_pic[]': permanentUris,
+      };
+
+      storedProjects.push(newProject);
+
+      // Save the updated projects list to projectStorage
+      await projectStorage.set('projects', JSON.stringify(storedProjects));
+
+      ToastAndroid.show('Project saved locally.', ToastAndroid.SHORT);
+      removeAllImages();
+      setFormData1({
+        projectId: '',
+        progress: '',
+      });
+    } catch (err) {
+      console.log('Error saving locally:', err);
+      ToastAndroid.show('Error saving project locally.', ToastAndroid.SHORT);
+    }
+  }, [formData1, imgData, removeAllImages]);
+  // --- End saveLocally function ---
+
+  return (
+    <SafeAreaView style={{ flex: 1 }}>
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        style={{ backgroundColor: theme.colors.background }}>
+        <Header />
+        <View style={{ padding: 30, gap: 5, flex: 1 }}>
+          <Text variant="titleLarge" style={{ color: theme.colors.secondary }}>
+            {strings.projectDropdownLabel}
+          </Text>
+          <Dropdown
+            style={[
+              styles.dropdown,
+              {
+                width: '100%',
+                borderColor: theme.colors.secondary,
+                backgroundColor: theme.colors.secondaryContainer,
+              },
+            ]}
+            placeholderStyle={[
+              styles.placeholderStyle,
+              { color: theme.colors.onBackground },
+            ]}
+            selectedTextStyle={[
+              styles.selectedTextStyle,
+              { color: theme.colors.primary },
+            ]}
+            inputSearchStyle={[styles.inputSearchStyle, { borderRadius: 10 }]}
+            containerStyle={{ alignSelf: 'auto', borderRadius: 10 }}
+            iconStyle={styles.iconStyle}
+            data={projectsList}
+            search
+            maxHeight={300}
+            labelField="label"
+            valueField="value"
+            placeholder="Choose Project"
+            searchPlaceholder="Search Project..."
+            value={formData1?.projectId}
+            onChange={item => {
+              console.log('Selected project:', item);
+              handleFormChange('projectId', item?.value);
+            }}
+            renderLeftIcon={() => <Icon size={25} source={'creation'} />}
+          />
+          <ButtonPaper
+            icon={'cloud-search-outline'}
+            mode="contained"
+            onPress={() => null}
+            style={{ marginTop: 15, paddingVertical: 8 }}
+            disabled={!formData1.projectId}>
+            {strings.submitText}
+          </ButtonPaper>
+
+          {formData1.projectId && (
+            <InputPaper
+              label="Project Progress..."
+              maxLength={10}
+              leftIcon="progress-clock"
+              keyboardType="number-pad"
+              value={formData1.progress}
+              onChangeText={(txt: any) => handleFormChange('progress', txt)}
+              customStyle={{
+                backgroundColor: theme.colors.background,
+                marginTop: 10,
+              }}
+            />
+          )}
+
+          <ButtonPaper
+            icon={'camera'}
+            mode="contained"
+            onPress={selectLogo}
+            style={{ marginTop: 15, paddingVertical: 8 }}>
+            {strings.uploadPhotoBtnLabel}
+          </ButtonPaper>
+          <Text
+            variant="bodySmall"
+            style={{
+              color: theme.colors.onBackground,
+              fontFamily: strings.fontItalic,
+            }}>
+            {strings.uploadPhotoBtnSubText}
+          </Text>
+
+          {imgData.length > 0 && (
+            <ScrollView horizontal style={{ marginTop: 15 }}>
+              {imgData.map((asset, index) => (
+                <View
+                  key={asset.uri || index}
+                  style={{ marginRight: 10, position: 'relative' }}>
+                  <Image
+                    source={{ uri: asset.uri! }}
+                    style={styles.image}
+                    resizeMode="contain"
+                  />
+                  <TouchableOpacity
+                    onPress={() => removeImage(index)}
+                    style={styles.removeIconContainer}>
+                    <Icon
+                      size={20}
+                      color={theme.colors.error}
+                      source={'trash-can-outline'}
                     />
-                    <ButtonPaper
-                        icon={"cloud-search-outline"}
-                        mode='contained'
-                        onPress={() => null}
-                        style={{ marginTop: 15, paddingVertical: 8 }}
-                        disabled={!formData1.projectId}
-                    >
-                        {strings.submitText}
-                    </ButtonPaper>
-
-                    {formData1.projectId && (
-                        <InputPaper
-                            label="Project Progress..."
-                            maxLength={10}
-                            leftIcon='progress-clock'
-                            keyboardType="number-pad"
-                            value={formData1.progress}
-                            onChangeText={(txt: any) => handleFormChange("progress", txt)}
-                            customStyle={{ backgroundColor: theme.colors.background, marginTop: 10 }}
-                        />
-                    )}
-
-                    <ButtonPaper
-                        icon={"camera"}
-                        mode='contained'
-                        onPress={selectLogo}
-                        style={{ marginTop: 15, paddingVertical: 8 }}
-                    >
-                        {strings.uploadPhotoBtnLabel}
-                    </ButtonPaper>
-                    <Text variant='bodySmall' style={{
-                        color: theme.colors.onBackground,
-                        fontFamily: strings.fontItalic
-                    }}>{strings.uploadPhotoBtnSubText}</Text>
-
-                    {imgData.length > 0 && (
-                        <ScrollView horizontal style={{ marginTop: 15 }}>
-                            {imgData.map((asset, index) => (
-                                <View key={asset.uri || index} style={{ marginRight: 10, position: 'relative' }}>
-                                    <Image source={{ uri: asset.uri! }} style={styles.image} resizeMode="contain" />
-                                    <TouchableOpacity
-                                        onPress={() => removeImage(index)}
-                                        style={styles.removeIconContainer}
-                                    >
-                                        <Icon size={20} color={theme.colors.error} source={"trash-can-outline"} />
-                                    </TouchableOpacity>
-                                </View>
-                            ))}
-                        </ScrollView>
-                    )}
-
-                    <ButtonPaper
-                        icon={"progress-clock"}
-                        mode='outlined'
-                        onPress={() => {
-                            Alert.alert("Alert", "Are you sure you want to submit the details?", [
-                                { "text": strings.noTxt, onPress: () => null },
-                                { "text": strings.yesTxt, onPress: () => updateProjectProgressDetails() }
-                            ])
-                        }}
-                        style={{ marginTop: 15, paddingVertical: 8 }}
-                        loading={loading}
-                        disabled={!formData1.progress || !formData1.projectId || loading}
-                    >
-                        Update Progress
-                    </ButtonPaper>
-
-                    <ButtonPaper
-                        icon={"content-save-outline"}
-                        mode='contained'
-                        buttonColor={theme.colors.tertiary}
-                        onPress={() => {
-                            Alert.alert("Alert", "Are you sure you want to save the details?", [
-                                { "text": strings.noTxt, onPress: () => null },
-                                { "text": strings.yesTxt, onPress: () => saveLocally() }
-                            ])
-                        }}
-                        style={{ marginTop: 15, paddingVertical: 8 }}
-                    >
-                        Save Locally
-                    </ButtonPaper>
+                  </TouchableOpacity>
                 </View>
+              ))}
             </ScrollView>
-        </SafeAreaView>
-    )
-}
+          )}
 
-export default HomeScreen
+          <ButtonPaper
+            icon={'progress-clock'}
+            mode="outlined"
+            onPress={() => {
+              Alert.alert(
+                'Alert',
+                'Are you sure you want to submit the details?',
+                [
+                  { text: strings.noTxt, onPress: () => null },
+                  {
+                    text: strings.yesTxt,
+                    onPress: () => updateProjectProgressDetails(),
+                  },
+                ],
+              );
+            }}
+            style={{ marginTop: 15, paddingVertical: 8 }}
+            loading={loading}
+            disabled={!formData1.progress || !formData1.projectId || loading}>
+            Update Progress
+          </ButtonPaper>
+
+          <ButtonPaper
+            icon={'content-save-outline'}
+            mode="contained"
+            buttonColor={theme.colors.tertiary}
+            onPress={() => {
+              Alert.alert(
+                'Alert',
+                'Are you sure you want to save the details?',
+                [
+                  { text: strings.noTxt, onPress: () => null },
+                  { text: strings.yesTxt, onPress: () => saveLocally() },
+                ],
+              );
+            }}
+            style={{ marginTop: 15, paddingVertical: 8 }}>
+            Save Locally
+          </ButtonPaper>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+export default HomeScreen;
 
 const styles = StyleSheet.create({
-    dropdown: {
-        minHeight: 70,
-        maxHeight: 70,
-        alignSelf: "center",
-        paddingHorizontal: 30,
-        borderRadius: 20,
-        borderWidth: 1,
-        marginTop: 5
-    },
-    placeholderStyle: {
-        fontSize: 16,
-        marginLeft: 16,
-        fontFamily: strings.fontName
-    },
-    selectedTextStyle: {
-        fontSize: 16,
-        marginLeft: 16,
-        fontFamily: strings.fontName
-    },
-    iconStyle: {
-        width: 20,
-        height: 20,
-    },
-    inputSearchStyle: {
-        height: 40,
-        fontSize: 16,
-        fontFamily: strings.fontName
-    },
-    image: {
-        width: 100,
-        height: 100,
-        borderWidth: 1,
-        borderRadius: 10,
-    },
-    removeIconContainer: {
-        position: 'absolute',
-        top: 2,
-        right: 2,
-        backgroundColor: 'rgba(255,255,255,0.7)',
-        borderRadius: 15,
-        padding: 2,
-    },
-})
+  dropdown: {
+    minHeight: 70,
+    maxHeight: 70,
+    alignSelf: 'center',
+    paddingHorizontal: 30,
+    borderRadius: 20,
+    borderWidth: 1,
+    marginTop: 5,
+  },
+  placeholderStyle: {
+    fontSize: 16,
+    marginLeft: 16,
+    fontFamily: strings.fontName,
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+    marginLeft: 16,
+    fontFamily: strings.fontName,
+  },
+  iconStyle: {
+    width: 20,
+    height: 20,
+  },
+  inputSearchStyle: {
+    height: 40,
+    fontSize: 16,
+    fontFamily: strings.fontName,
+  },
+  image: {
+    width: 100,
+    height: 100,
+    borderWidth: 1,
+    borderRadius: 10,
+  },
+  removeIconContainer: {
+    position: 'absolute',
+    top: 2,
+    right: 2,
+    backgroundColor: 'rgba(255,255,255,0.7)',
+    borderRadius: 15,
+    padding: 2,
+  },
+});

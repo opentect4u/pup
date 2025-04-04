@@ -1,10 +1,7 @@
-const UAT = true
+const UAT = true;
 
 const BASE_URL = UAT
-    ? `http://192.168.1.60/back-end/index.php`
-    : `https://pup.opentech4u.co.in/pup/index.php`
+  ? `http://192.168.1.60/back-end/index.php`
+  : `https://pup.opentech4u.co.in/pup/index.php`;
 
-export {
-    UAT,
-    BASE_URL
-}
+export { UAT, BASE_URL };

@@ -1,385 +1,445 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react'
-import { Alert, Image, ScrollView, StyleSheet, ToastAndroid, View, TouchableOpacity, RefreshControl, Linking, Pressable } from 'react-native'
-import { Button, Icon, Modal, ProgressBar, Text, TextInput } from 'react-native-paper'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { usePaperColorScheme } from '../../theme/theme'
-import { homeScreenStrings } from '../../constants/strings'
-import useGeoLocation from '../../hooks/useGeoLocation'
-import { Dropdown } from 'react-native-element-dropdown'
-import ButtonPaper from '../../components/ButtonPaper'
-import InputPaper from '../../components/InputPaper'
-import Header from '../../components/Header'
-import { fileStorage, loginStorage, projectStorage } from '../../storage/appStorage'
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import {
+    Alert,
+    Image,
+    ScrollView,
+    StyleSheet,
+    ToastAndroid,
+    View,
+    TouchableOpacity,
+    RefreshControl,
+    Linking,
+} from 'react-native';
+import {
+    Icon,
+    ProgressBar,
+    Text,
+    TextInput,
+} from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { usePaperColorScheme } from '../../theme/theme';
+import { homeScreenStrings } from '../../constants/strings';
+import useGeoLocation from '../../hooks/useGeoLocation';
+import { Dropdown } from 'react-native-element-dropdown';
+import ButtonPaper from '../../components/ButtonPaper';
+import InputPaper from '../../components/InputPaper';
+import Header from '../../components/Header';
+import {
+    fileStorage,
+    loginStorage,
+    projectStorage,
+} from '../../storage/appStorage';
 // @ts-ignore
-import { AUTH_KEY, REVERSE_GEOENCODING_API_KEY } from "@env"
-import { ADDRESSES } from '../../config/api_list'
-import axios from 'axios'
-import { CommonActions, useNavigation } from '@react-navigation/native'
+import { AUTH_KEY, REVERSE_GEOENCODING_API_KEY } from '@env';
+import { ADDRESSES } from '../../config/api_list';
+import axios from 'axios';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
     Asset,
     ImageLibraryOptions,
     ImagePickerResponse,
     launchImageLibrary,
     launchCamera,
-    CameraOptions
-} from "react-native-image-picker"
+    CameraOptions,
+} from 'react-native-image-picker';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
 import RNFS from 'react-native-fs';
-import { ProjectStoreModel } from '../../models/global_models'
-import ProjectGrid from '../../components/complex/ProjectGrid'
-import DatePicker from 'react-native-date-picker'
-import RNDateTimePicker from '@react-native-community/datetimepicker'
-import CalendarPicker from 'react-native-calendar-picker';
+import { ProjectStoreModel } from '../../models/global_models';
+import ProjectGrid from '../../components/complex/ProjectGrid';
+import DatePicker from 'react-native-date-picker';
 
-const strings = homeScreenStrings.getStrings()
+const strings = homeScreenStrings.getStrings();
 
 const HomeScreen = () => {
-    const navigation = useNavigation()
-    const theme = usePaperColorScheme()
-    const { location, error } = useGeoLocation()
-    const [geolocationFetchedAddress, setGeolocationFetchedAddress] = useState(() => "")
+    const navigation = useNavigation();
+    const theme = usePaperColorScheme();
+    const { location, error } = useGeoLocation();
+    const [geolocationFetchedAddress, setGeolocationFetchedAddress] = useState(
+        () => '',
+    );
 
     // Memoize loginStore so it doesn't change on every render
-    const loginStore = useMemo(() => JSON.parse(loginStorage?.getString("login-data") ?? "{}"), [])
+    const loginStore = useMemo(
+        () => JSON.parse(loginStorage?.getString('login-data') ?? '{}'),
+        [],
+    );
 
-    const [refreshing, setRefreshing] = useState(() => false)
-    const [imgData, setImgData] = useState<Asset[]>([])
-    const [projectsList, setProjectsList] = useState<any[]>([])
-    const [loading, setLoading] = useState(false)
-    const [fetchedProjectDetails, setFetchedProjectDetails] = useState(() => "")
-    const [progressComplet, setProgressComplet] = useState(() => Number(0))
-
-
-
-    
-
-    
-  
-
-
+    const [refreshing, setRefreshing] = useState(() => false);
+    const [imgData, setImgData] = useState<Asset[]>([]);
+    const [projectsList, setProjectsList] = useState<any[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [fetchedProjectDetails, setFetchedProjectDetails] = useState(() => '');
+    const [progressComplete, setProgressComplete] = useState(() => Number(0));
+    const [openDate, setOpenDate] = useState(() => false);
 
     // Set projectId to null instead of "" to indicate no selection
     const [formData1, setFormData1] = useState({
         projectId: null as string | null,
-        progress: "",
-        latitude: "",
-        longitude: "",
-        locationAddress: "",
-        actualDateOfCompletion: "",
-        remarks: "",
-    })
+        progress: '',
+        latitude: '',
+        longitude: '',
+        locationAddress: '',
+        actualDateOfCompletion: '',
+        remarks: '',
+        date: new Date(),
+    });
     // const [projectRangeCaps, setProjectRangeCaps] = useState<any[]>(() => [])
-    const [checkErr, setCheckErr] = useState(() => false)
+    const [checkErr, setCheckErr] = useState(() => false);
 
-    console.log("LOCATION: ", location)
+    console.log('LOCATION: ', location);
 
     const handleFormChange = useCallback((field: string, value: any) => {
-
-
         setFormData1(prev => ({
             ...prev,
             [field]: value,
-        }))
-    }, [])
+        }));
+    }, []);
 
     useEffect(() => {
         if (error) {
-            Alert.alert("Turn on Location", "Give access to Location or Turn on GPS from app settings.", [{
-                text: "Go to Settings",
-                onPress: () => { navigation.dispatch(CommonActions.goBack()); Linking.openSettings() }
-            }])
+            Alert.alert(
+                'Turn on Location',
+                'Give access to Location or Turn on GPS from app settings.',
+                [
+                    {
+                        text: 'Go to Settings',
+                        onPress: () => {
+                            navigation.dispatch(CommonActions.goBack());
+                            Linking.openSettings();
+                        },
+                    },
+                ],
+            );
         }
-    }, [error])
+    }, [error]);
 
     const fetchGeoLocaltionAddress = async () => {
-        console.log("REVERSE GEO ENCODING API CALLING...")
-        await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${location?.latitude},${location?.longitude}&key=${REVERSE_GEOENCODING_API_KEY}`).then(res => {
-            setGeolocationFetchedAddress(res?.data?.results[0]?.formatted_address)
-        })
+        console.log('REVERSE GEO ENCODING API CALLING...');
+        await axios
+            .get(
+                `https://maps.googleapis.com/maps/api/geocode/json?latlng=${location?.latitude},${location?.longitude}&key=${REVERSE_GEOENCODING_API_KEY}`,
+            )
+            .then(res => {
+                setGeolocationFetchedAddress(res?.data?.results[0]?.formatted_address);
+            });
         // await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${location?.latitude},${location?.longitude}&key=AIzaSyAhSuw5-ThQnJTZCGC4e_oBsL1iIUbJxts`).then(res => {
         //     setGeolocationFetchedAddress(res?.data?.results[0]?.formatted_address)
         // })
-    }
+    };
 
     // to be enabled later...
     useEffect(() => {
         if (location?.latitude && location.longitude) {
-            fetchGeoLocaltionAddress()
+            fetchGeoLocaltionAddress();
         }
-    }, [location])
+    }, [location]);
 
     const fetchProjectsList = useCallback(async () => {
-        setLoading(true)
-        const formData = new FormData()
-        formData.append('', null)
+        setLoading(true);
+        const formData = new FormData();
+        formData.append('', null);
 
         try {
-            const res = await axios.post(`${ADDRESSES.FETCH_PROJECTS_LIST}`, formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                    "auth_key": AUTH_KEY
-                }
-            })
+            const res = await axios.post(
+                `${ADDRESSES.FETCH_PROJECTS_LIST}`,
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        auth_key: AUTH_KEY,
+                    },
+                },
+            );
             if (res?.data?.status === 1) {
-                console.log("PROJECTS : ", res?.data)
+                console.log('PROJECTS : ', res?.data);
                 const newProjectsList = res?.data?.message?.map((item: any) => ({
                     label: `${item?.project_id} / ${item?.approval_no}\n${item?.scheme_name}`,
-                    value: `${item?.approval_no},${item?.project_id}`
-                }))
-                setProjectsList(newProjectsList)
+                    value: `${item?.approval_no},${item?.project_id}`,
+                }));
+                setProjectsList(newProjectsList);
             } else {
-                ToastAndroid.show("Projects fetch error.", ToastAndroid.SHORT)
+                ToastAndroid.show('Projects fetch error.', ToastAndroid.SHORT);
             }
         } catch (err) {
-            console.log("ERR PROJ", err)
-            ToastAndroid.show("Some error occurred while fetching projects.", ToastAndroid.SHORT)
+            console.log('ERR PROJ', err);
+            ToastAndroid.show(
+                'Some error occurred while fetching projects.',
+                ToastAndroid.SHORT,
+            );
         }
-        setLoading(false)
-    }, [])
+        setLoading(false);
+    }, []);
 
     const fetchProgressDone = async (data: any) => {
-        setLoading(true)
-        console.log("Percentage_", data)
-        const formData = new FormData()
-        formData.append('approval_no', data)
+        setLoading(true);
+        console.log('Percentage_', data);
+        const formData = new FormData();
+        formData.append('approval_no', data);
 
         try {
-            const res = await axios.post(`${ADDRESSES.FETCH_PROGRESS_DONE}`, formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                    "auth_key": AUTH_KEY
-                }
-            })
+            const res = await axios.post(
+                `${ADDRESSES.FETCH_PROGRESS_DONE}`,
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        auth_key: AUTH_KEY,
+                    },
+                },
+            );
             if (res?.data?.status === 1) {
-                console.log("Percentage_ ", res?.data)
+                console.log('Percentage_ ', res?.data);
                 // const newProjectsList = res?.data?.message?.map((item: any) => ({
                 //     label: `${item?.project_id} / ${item?.approval_no}\n${item?.scheme_name}`,
                 //     value: `${item?.approval_no},${item?.project_id}`
                 // }))
                 // setProjectsList(newProjectsList)
-                setProgressComplet(res?.data?.progress_percent)
+                setProgressComplete(res?.data?.progress_percent);
             } else {
-                setProgressComplet(Number(0))
-                ToastAndroid.show("Percentage fetch error.", ToastAndroid.SHORT)
+                setProgressComplete(Number(0));
+                ToastAndroid.show('Percentage fetch error.', ToastAndroid.SHORT);
             }
         } catch (err) {
-            console.log("ERR PROJ", err)
-            ToastAndroid.show("Some error occurred while fetching projects.", ToastAndroid.SHORT)
+            console.log('ERR PROJ', err);
+            ToastAndroid.show(
+                'Some error occurred while fetching projects.',
+                ToastAndroid.SHORT,
+            );
         }
-        setLoading(false)
-    }
+        setLoading(false);
+    };
 
     useEffect(() => {
-        fetchProjectsList()
-    }, [fetchProjectsList])
+        fetchProjectsList();
+    }, [fetchProjectsList]);
 
     const fetchProjectDetails = async () => {
-        setLoading(true)
-        const formData = new FormData()
-        formData.append('approval_no', formData1?.projectId?.split(",")[0])
+        setLoading(true);
+        const formData = new FormData();
+        formData.append('approval_no', formData1?.projectId?.split(',')[0]);
 
         try {
-            const res = await axios.post(`${ADDRESSES.FETCH_PROJECT_PROCESS}`, formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                    "auth_key": AUTH_KEY
-                }
-            })
+            const res = await axios.post(
+                `${ADDRESSES.FETCH_PROJECT_PROCESS}`,
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        auth_key: AUTH_KEY,
+                    },
+                },
+            );
             if (res?.data?.status === 1) {
-                console.log("PROJECT DTLS : ", res?.data)
+                console.log('PROJECT DTLS : ', res?.data);
                 // const newProjectsList = res?.data?.message?.map((item: any) => ({
                 //     label: `${item?.project_id} / ${item?.approval_no}\n${item?.scheme_name}`,
                 //     value: item?.approval_no
                 // }))
                 // setProjectsList(newProjectsList)
-                setFetchedProjectDetails(JSON.stringify(res?.data))
+                setFetchedProjectDetails(JSON.stringify(res?.data));
             } else {
-                ToastAndroid.show("Project details fetch error.", ToastAndroid.SHORT)
+                ToastAndroid.show('Project details fetch error.', ToastAndroid.SHORT);
             }
         } catch (err) {
-            console.log("ERR PROJ DTLS", err)
-            ToastAndroid.show("Some error occurred while fetching project details.", ToastAndroid.SHORT)
+            console.log('ERR PROJ DTLS', err);
+            ToastAndroid.show(
+                'Some error occurred while fetching project details.',
+                ToastAndroid.SHORT,
+            );
         }
-        setLoading(false)
-    }
+        setLoading(false);
+    };
 
     const openGallery = useCallback(() => {
         const options: ImageLibraryOptions = {
-            mediaType: "photo",
+            mediaType: 'photo',
             includeBase64: true,
             selectionLimit: 4,
-        }
+        };
 
         launchImageLibrary(options, (response: ImagePickerResponse) => {
             if (response.didCancel) {
-                console.log("User cancelled image picker")
-                fileStorage.clearAll()
+                console.log('User cancelled image picker');
+                fileStorage.clearAll();
             } else if (response.errorCode) {
-                console.log("ImagePicker Error: ", response.errorMessage)
-                fileStorage.clearAll()
+                console.log('ImagePicker Error: ', response.errorMessage);
+                fileStorage.clearAll();
             } else {
-                const assets = response?.assets as Asset[]
+                const assets = response?.assets as Asset[];
                 if (assets && assets.length > 0) {
                     setImgData(prev => {
-                        const currentCount = prev.length
-                        const allowedCount = 4 - currentCount
+                        const currentCount = prev.length;
+                        const allowedCount = 4 - currentCount;
                         if (allowedCount <= 0) {
-                            ToastAndroid.show("Maximum 4 images allowed", ToastAndroid.SHORT)
-                            return prev
+                            ToastAndroid.show('Maximum 4 images allowed', ToastAndroid.SHORT);
+                            return prev;
                         }
-                        const newAssets = assets.slice(0, allowedCount)
-                        return [...prev, ...newAssets]
-                    })
+                        const newAssets = assets.slice(0, allowedCount);
+                        return [...prev, ...newAssets];
+                    });
 
-                    fileStorage.set("file-data", assets[0].base64?.toString() || "")
-                    fileStorage.set("file-uri", assets[0].uri?.toString() || "")
-                    console.log("Selected images:", assets.map(a => a.uri))
+                    fileStorage.set('file-data', assets[0].base64?.toString() || '');
+                    fileStorage.set('file-uri', assets[0].uri?.toString() || '');
+                    console.log(
+                        'Selected images:',
+                        assets.map(a => a.uri),
+                    );
                 }
             }
-        })
-    }, [])
+        });
+    }, []);
 
     const openCamera = useCallback(() => {
         const options: CameraOptions = {
-            mediaType: "photo",
+            mediaType: 'photo',
             includeBase64: true,
-        }
+        };
         launchCamera(options, (response: ImagePickerResponse) => {
             if (response.didCancel) {
-                console.log("User cancelled camera")
-                fileStorage.clearAll()
+                console.log('User cancelled camera');
+                fileStorage.clearAll();
             } else if (response.errorCode) {
-                console.log("Camera Error: ", response.errorMessage)
-                fileStorage.clearAll()
+                console.log('Camera Error: ', response.errorMessage);
+                fileStorage.clearAll();
             } else {
-                const assets = response?.assets as Asset[]
+                const assets = response?.assets as Asset[];
                 if (assets && assets.length > 0) {
                     setImgData(prev => {
-                        const currentCount = prev.length
-                        const allowedCount = 4 - currentCount
+                        const currentCount = prev.length;
+                        const allowedCount = 4 - currentCount;
                         if (allowedCount <= 0) {
-                            ToastAndroid.show("Maximum 4 images allowed", ToastAndroid.SHORT)
-                            return prev
+                            ToastAndroid.show('Maximum 4 images allowed', ToastAndroid.SHORT);
+                            return prev;
                         }
-                        const newAssets = assets.slice(0, allowedCount)
-                        return [...prev, ...newAssets]
-                    })
+                        const newAssets = assets.slice(0, allowedCount);
+                        return [...prev, ...newAssets];
+                    });
                     // Optionally store the first captured image's data
-                    fileStorage.set("file-data", assets[0].base64?.toString() || "")
-                    fileStorage.set("file-uri", assets[0].uri?.toString() || "")
-                    console.log("Captured images:", assets.map(a => a.uri))
+                    fileStorage.set('file-data', assets[0].base64?.toString() || '');
+                    fileStorage.set('file-uri', assets[0].uri?.toString() || '');
+                    console.log(
+                        'Captured images:',
+                        assets.map(a => a.uri),
+                    );
                 }
             }
-        })
-    }, [])
+        });
+    }, []);
 
     const selectPhoto = useCallback(() => {
-        Alert.alert(
-            "Upload Photo",
-            "Select an option",
-            [
-                { text: "Take Photo", onPress: openCamera },
-                { text: "Choose from Gallery", onPress: openGallery },
-                { text: "Cancel", style: "cancel" }
-            ]
-        )
-    }, [openCamera, openGallery])
+        Alert.alert('Upload Photo', 'Select an option', [
+            { text: 'Take Photo', onPress: openCamera },
+            { text: 'Choose from Gallery', onPress: openGallery },
+            { text: 'Cancel', style: 'cancel' },
+        ]);
+    }, [openCamera, openGallery]);
 
     const removeImage = useCallback((index: number) => {
-        setImgData(prev => prev.filter((_, i) => i !== index))
-    }, [])
+        setImgData(prev => prev.filter((_, i) => i !== index));
+    }, []);
 
     const removeAllImages = useCallback(() => {
-        setImgData([])
-        fileStorage.delete("file-data")
-        fileStorage.delete("file-uri")
-    }, [])
+        setImgData([]);
+        fileStorage.delete('file-data');
+        fileStorage.delete('file-uri');
+    }, []);
 
     const fetchProgressRangeCap = async () => {
-        const formData = new FormData()
+        const formData = new FormData();
 
-        formData.append("project_id", formData1.projectId?.split(",")[1])
+        formData.append('project_id', formData1.projectId?.split(',')[1]);
 
-        await axios.post(ADDRESSES.FETCH_PROJECT_RANGE, formData, {
-            headers: {
-                "Content-Type": "multipart/form-data",
-                "auth_key": AUTH_KEY
-            }
-        }).then(res => {
-            console.log("Project Ranges CAP === ", res?.data)
-            if (res?.data?.status === 1) {
-                // setProjectRangeCaps(res?.data?.message)
-                const [a, b] = getWorkRange(res?.data?.message) ?? [];
-                console.log("AAAAAAAAAAa, BBBBBBBBBB", a, b)
-                setCheckErr(formData1.progress < a || formData1.progress > b);
-            }
-        }).catch(err => {
-            console.log("Project Ranges CAP ERRRR === ", err)
-            ToastAndroid.show("Some error occurred while fetching Project Ranges.", ToastAndroid.SHORT)
-        })
-    }
+        await axios
+            .post(ADDRESSES.FETCH_PROJECT_RANGE, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    auth_key: AUTH_KEY,
+                },
+            })
+            .then(res => {
+                console.log('Project Ranges CAP === ', res?.data);
+                if (res?.data?.status === 1) {
+                    // setProjectRangeCaps(res?.data?.message)
+                    const [a, b] = getWorkRange(res?.data?.message) ?? [];
+                    console.log('AAAAAAAAAAa, BBBBBBBBBB', a, b);
+                    setCheckErr(formData1.progress < a || formData1.progress > b);
+                }
+            })
+            .catch(err => {
+                console.log('Project Ranges CAP ERRRR === ', err);
+                ToastAndroid.show(
+                    'Some error occurred while fetching Project Ranges.',
+                    ToastAndroid.SHORT,
+                );
+            });
+    };
 
     useEffect(() => {
-        fetchProgressRangeCap()
-    }, [formData1.projectId, formData1.progress])
+        fetchProgressRangeCap();
+    }, [formData1.projectId, formData1.progress]);
 
     const updateProjectProgressDetails = useCallback(async () => {
-        setLoading(true)
-        const formData = new FormData()
-        formData.append('approval_no', formData1.projectId?.split(",")[0] || '')
-        formData.append('progress_percent', formData1.progress)
-        formData.append('lat', location?.latitude!)
-        formData.append('long', location.longitude!)
-        formData.append('address', geolocationFetchedAddress)
-        formData.append('actual_date_comp', '2025-04-04')
-        formData.append('remarks', formData1.remarks)
+        setLoading(true);
+        const formData = new FormData();
+        formData.append('approval_no', formData1.projectId?.split(',')[0] || '');
+        formData.append('progress_percent', formData1.progress);
+        formData.append('lat', location?.latitude!);
+        formData.append('long', location.longitude!);
+        formData.append('address', geolocationFetchedAddress);
+        formData.append('actual_date_comp', '2025-04-04');
+        formData.append('remarks', formData1.remarks);
 
-        console.log("FORM DATA UPDATE ", formData)
+        console.log('FORM DATA UPDATE ', formData);
 
         // Process each image to ensure its size is under 2MB (2 * 1024 * 1024 bytes)
         const processedImages = await Promise.all(
             imgData.map(async (asset, index) => {
                 if (asset.fileSize && asset.fileSize > 2 * 1024 * 1024) {
                     // Reduce dimensions by 80% (adjust factor as needed)
-                    const targetWidth = asset.width ? Math.round(asset.width * 0.8) : 800
-                    const targetHeight = asset.height ? Math.round(asset.height * 0.8) : 600
+                    const targetWidth = asset.width ? Math.round(asset.width * 0.8) : 800;
+                    const targetHeight = asset.height
+                        ? Math.round(asset.height * 0.8)
+                        : 600;
                     try {
                         const resizedImage = await ImageResizer.createResizedImage(
                             asset.uri!,
                             targetWidth,
                             targetHeight,
-                            "JPEG",
-                            80,       // quality (0-100)
-                            0,        // rotation
-                            null,     // outputPath (null uses cache folder)
-                            true,    // keepMeta
-                            {}        // options
-                        )
+                            'JPEG',
+                            80, // quality (0-100)
+                            0, // rotation
+                            null, // outputPath (null uses cache folder)
+                            true, // keepMeta
+                            {}, // options
+                        );
                         return {
                             ...asset,
                             uri: resizedImage.uri,
-                            fileName: resizedImage.name || asset.fileName || `progress_pic_${index}.jpg`,
-                            type: "image/jpeg"
-                        }
+                            fileName:
+                                resizedImage.name ||
+                                asset.fileName ||
+                                `progress_pic_${index}.jpg`,
+                            type: 'image/jpeg',
+                        };
                     } catch (err) {
-                        console.log("Image resizing error", err)
-                        return asset
+                        console.log('Image resizing error', err);
+                        return asset;
                     }
                 }
-                return asset
-            })
-        )
+                return asset;
+            }),
+        );
 
         // Append processed images to formData
         processedImages.forEach((asset, index) => {
-            formData.append("progress_pic[]", {
+            formData.append('progress_pic[]', {
                 uri: asset.uri!,
-                type: asset.type || "image/jpeg",
+                type: asset.type || 'image/jpeg',
                 name: asset.fileName || `progress_pic_${index}.jpg`,
-            } as any)
-        })
+            } as any);
+        });
 
-        formData.append('created_by', loginStore?.user_id)
+        formData.append('created_by', loginStore?.user_id);
 
         // await axios.post(`${ADDRESSES.PROJECT_PROGRESS_UPDATE}`, formData, {
         //     headers: {
@@ -409,12 +469,22 @@ const HomeScreen = () => {
         //     console.log("Upload error:", err)
         // })
 
-        setLoading(false)
-    }, [formData1, imgData, loginStore, removeAllImages, handleFormChange])
+        setLoading(false);
+    }, [formData1, imgData, loginStore, removeAllImages, handleFormChange]);
 
     const saveLocally = useCallback(async () => {
-        if (!formData1.projectId || !formData1.progress || ((100 - progressComplet) === parseInt(formData1.progress, 10) ? !formData1.remarks : false) || imgData.length === 0) {
-            ToastAndroid.show("Please fill all fields and add at least one photo.", ToastAndroid.SHORT)
+        if (
+            !formData1.projectId ||
+            !formData1.progress ||
+            (100 - progressComplete === parseInt(formData1.progress, 10)
+                ? !formData1.remarks
+                : false) ||
+            imgData.length === 0
+        ) {
+            ToastAndroid.show(
+                'Please fill all fields and add at least one photo.',
+                ToastAndroid.SHORT,
+            );
             return;
         }
         try {
@@ -426,22 +496,24 @@ const HomeScreen = () => {
                 // Copy file from temporary URI to DocumentDirectoryPath (permanent storage)
                 await RNFS.copyFile(asset.uri!, newPath);
                 // Ensure the URI has a file:// prefix
-                const permanentUri = newPath.startsWith("file://") ? newPath : "file://" + newPath;
+                const permanentUri = newPath.startsWith('file://')
+                    ? newPath
+                    : 'file://' + newPath;
                 permanentUris.push(permanentUri);
             }
 
             // Retrieve existing projects from projectStorage
             let storedProjects: any[] = [];
-            const projectsData = await projectStorage.getString("projects");
+            const projectsData = await projectStorage.getString('projects');
             if (projectsData) {
                 storedProjects = JSON.parse(projectsData);
             }
 
             // Create a new project object with permanent image URIs
             const newProject: ProjectStoreModel = {
-                projectId: formData1.projectId?.split(",")[0],
+                projectId: formData1.projectId?.split(',')[0],
                 progress: +formData1.progress,
-                "progress_pic[]": permanentUris,
+                'progress_pic[]': permanentUris,
                 lat: location?.latitude!,
                 lng: location.longitude!,
                 locationAddress: geolocationFetchedAddress,
@@ -450,45 +522,45 @@ const HomeScreen = () => {
             };
 
             console.log(newProject, 'newProjectnewProject', formData1.remarks);
-            
 
             storedProjects.push(newProject);
 
             // Save the updated projects list to projectStorage
-            await projectStorage.set("projects", JSON.stringify(storedProjects));
+            await projectStorage.set('projects', JSON.stringify(storedProjects));
 
-            ToastAndroid.show("Project saved in device.", ToastAndroid.SHORT);
+            ToastAndroid.show('Project saved in device.', ToastAndroid.SHORT);
             removeAllImages();
             setFormData1({
-                projectId: "",
-                progress: "",
-                latitude: "",
-                longitude: "",
-                locationAddress: "",
-                actualDateOfCompletion: "",
-                remarks: "",
+                projectId: '',
+                progress: '',
+                latitude: '',
+                longitude: '',
+                locationAddress: '',
+                actualDateOfCompletion: '',
+                remarks: '',
+                date: new Date(),
             });
-            setFetchedProjectDetails(() => "");
+            setFetchedProjectDetails(() => '');
         } catch (err) {
-            console.log("Error saving locally:", err);
-            ToastAndroid.show("Error saving project locally.", ToastAndroid.SHORT);
+            console.log('Error saving locally:', err);
+            ToastAndroid.show('Error saving project locally.', ToastAndroid.SHORT);
         }
-    }, [formData1, imgData, removeAllImages])
+    }, [formData1, imgData, removeAllImages]);
 
     const onRefresh = () => {
-        setRefreshing(true)
+        setRefreshing(true);
 
-        fetchProjectsList()
-        setImgData([])
-        fileStorage.delete("file-data")
-        fileStorage.delete("file-uri")
-        setFetchedProjectDetails(() => "")
+        fetchProjectsList();
+        setImgData([]);
+        fileStorage.delete('file-data');
+        fileStorage.delete('file-uri');
+        setFetchedProjectDetails(() => '');
 
         setTimeout(() => {
-            setRefreshing(false)
-            ToastAndroid.show("Home Refreshed.", ToastAndroid.SHORT)
-        }, 2000)
-    }
+            setRefreshing(false);
+            ToastAndroid.show('Home Refreshed.', ToastAndroid.SHORT);
+        }, 2000);
+    };
 
     const getWorkRange = (projectRangeCaps: any[]) => {
         if (!fetchedProjectDetails) return null;
@@ -496,7 +568,9 @@ const HomeScreen = () => {
         const projectDetails = JSON.parse(fetchedProjectDetails);
         const progImgLength = projectDetails?.prog_img?.length || 0;
         const nextVisitNo = (progImgLength + 1).toString();
-        const rangeObj = projectRangeCaps?.find(item => +item?.visit_no === +nextVisitNo);
+        const rangeObj = projectRangeCaps?.find(
+            item => +item?.visit_no === +nextVisitNo,
+        );
 
         if (!rangeObj) return null;
         const { work_per_st, work_per_end } = rangeObj;
@@ -505,18 +579,36 @@ const HomeScreen = () => {
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
-            <ScrollView keyboardShouldPersistTaps='handled' style={{ backgroundColor: theme.colors.background }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
+            <ScrollView
+                keyboardShouldPersistTaps="handled"
+                style={{ backgroundColor: theme.colors.background }}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                }>
                 <Header />
                 <View style={{ padding: 30, gap: 5, flex: 1 }}>
-                    <Text variant='titleLarge' style={{ color: theme.colors.secondary }}>
+                    <Text variant="titleLarge" style={{ color: theme.colors.secondary }}>
                         {strings.projectDropdownLabel}
                     </Text>
                     <Dropdown
-                        style={[styles.dropdown, { width: '100%', borderColor: theme.colors.secondary, backgroundColor: theme.colors.secondaryContainer }]}
-                        placeholderStyle={[styles.placeholderStyle, { color: theme.colors.onBackground }]}
-                        selectedTextStyle={[styles.selectedTextStyle, { color: theme.colors.primary }]}
+                        style={[
+                            styles.dropdown,
+                            {
+                                width: '100%',
+                                borderColor: theme.colors.secondary,
+                                backgroundColor: theme.colors.secondaryContainer,
+                            },
+                        ]}
+                        placeholderStyle={[
+                            styles.placeholderStyle,
+                            { color: theme.colors.onBackground },
+                        ]}
+                        selectedTextStyle={[
+                            styles.selectedTextStyle,
+                            { color: theme.colors.primary },
+                        ]}
                         inputSearchStyle={[styles.inputSearchStyle, { borderRadius: 10 }]}
-                        containerStyle={{ alignSelf: "auto", borderRadius: 10 }}
+                        containerStyle={{ alignSelf: 'auto', borderRadius: 10 }}
                         iconStyle={styles.iconStyle}
                         data={projectsList}
                         search
@@ -527,75 +619,99 @@ const HomeScreen = () => {
                         searchPlaceholder="Search Project..."
                         value={formData1?.projectId}
                         onChange={item => {
-                            console.log("Selected project:", item)
-                            handleFormChange("projectId", item?.value)
-                            fetchProgressDone(item?.value.split(',')[0])
-                            handleFormChange("progress", "");
-                            handleFormChange("remarks", "");
+                            console.log('Selected project:', item);
+                            handleFormChange('projectId', item?.value);
+                            fetchProgressDone(item?.value.split(',')[0]);
+                            handleFormChange('progress', '');
+                            handleFormChange('remarks', '');
                         }}
-                        renderLeftIcon={() => (
-                            <Icon size={25} source={"creation"} />
-                        )}
+                        renderLeftIcon={() => <Icon size={25} source={'creation'} />}
                     />
                     <ButtonPaper
-                        icon={"cloud-search-outline"}
-                        mode='contained'
+                        icon={'cloud-search-outline'}
+                        mode="contained"
                         onPress={async () => await fetchProjectDetails()}
                         style={{ marginTop: 15, paddingVertical: 8 }}
                         disabled={!formData1.projectId || loading}
-                        loading={loading}
-                    >
+                        loading={loading}>
                         {strings.fetchProgress}
                     </ButtonPaper>
 
-
-                    {
-                        fetchedProjectDetails &&
-                        <View style={{
-                            paddingVertical: 5
-                        }}>
-                            <Text variant='titleLarge'>Project Details</Text>
+                    {fetchedProjectDetails && (
+                        <View
+                            style={{
+                                paddingVertical: 5,
+                            }}>
+                            <Text variant="titleLarge">Project Details</Text>
                             <InputPaper
                                 label="District"
-                                leftIcon='map-marker-radius-outline'
+                                leftIcon="map-marker-radius-outline"
                                 keyboardType="default"
-                                value={fetchedProjectDetails && JSON.parse(fetchedProjectDetails)?.message[0]?.dist_name}
-                                onChangeText={(txt: any) => handleFormChange("dist_name", txt)}
-                                customStyle={{ backgroundColor: theme.colors.background, marginTop: 10 }}
+                                value={
+                                    fetchedProjectDetails &&
+                                    JSON.parse(fetchedProjectDetails)?.message[0]?.dist_name
+                                }
+                                onChangeText={(txt: any) => handleFormChange('dist_name', txt)}
+                                customStyle={{
+                                    backgroundColor: theme.colors.background,
+                                    marginTop: 10,
+                                }}
                                 disabled
                             />
                             <InputPaper
                                 label="Block"
-                                leftIcon='map-legend'
+                                leftIcon="map-legend"
                                 keyboardType="default"
-                                value={fetchedProjectDetails && JSON.parse(fetchedProjectDetails)?.message[0]?.block_name}
-                                onChangeText={(txt: any) => handleFormChange("block_name", txt)}
-                                customStyle={{ backgroundColor: theme.colors.background, marginTop: 10 }}
+                                value={
+                                    fetchedProjectDetails &&
+                                    JSON.parse(fetchedProjectDetails)?.message[0]?.block_name
+                                }
+                                onChangeText={(txt: any) => handleFormChange('block_name', txt)}
+                                customStyle={{
+                                    backgroundColor: theme.colors.background,
+                                    marginTop: 10,
+                                }}
                                 disabled
                             />
                             <InputPaper
                                 label="Scheme"
-                                leftIcon='file-document-outline'
+                                leftIcon="file-document-outline"
                                 keyboardType="default"
-                                value={fetchedProjectDetails && JSON.parse(fetchedProjectDetails)?.message[0]?.scheme_name}
-                                onChangeText={(txt: any) => handleFormChange("scheme_name", txt)}
-                                customStyle={{ backgroundColor: theme.colors.background, marginTop: 10 }}
+                                value={
+                                    fetchedProjectDetails &&
+                                    JSON.parse(fetchedProjectDetails)?.message[0]?.scheme_name
+                                }
+                                onChangeText={(txt: any) =>
+                                    handleFormChange('scheme_name', txt)
+                                }
+                                customStyle={{
+                                    backgroundColor: theme.colors.background,
+                                    marginTop: 10,
+                                }}
                                 disabled
                                 multiline
                             />
                             <InputPaper
                                 label="Sector"
-                                leftIcon='developer-board'
+                                leftIcon="developer-board"
                                 keyboardType="default"
-                                value={fetchedProjectDetails && JSON.parse(fetchedProjectDetails)?.message[0]?.sector_name}
-                                onChangeText={(txt: any) => handleFormChange("sector_name", txt)}
-                                customStyle={{ backgroundColor: theme.colors.background, marginTop: 10 }}
+                                value={
+                                    fetchedProjectDetails &&
+                                    JSON.parse(fetchedProjectDetails)?.message[0]?.sector_name
+                                }
+                                onChangeText={(txt: any) =>
+                                    handleFormChange('sector_name', txt)
+                                }
+                                customStyle={{
+                                    backgroundColor: theme.colors.background,
+                                    marginTop: 10,
+                                }}
                                 disabled
                             />
 
                             <ProjectGrid fetchedProjectDetails={fetchedProjectDetails} />
                         </View>
-                    }
+                    )}
 
                     {/* <View>
                         <Text>{JSON.stringify(Number(progressComplet), null, 2)}</Text>
@@ -604,56 +720,48 @@ const HomeScreen = () => {
                         <Text>{JSON.stringify((100 - Number(progressComplet)), null, 2)}</Text>
                     </View> */}
 
-
-
                     <View style={{ marginVertical: 10 }}>
-                        {/* Progress Percentage Text (Left Above the Bar) */}
                         <Text
                             style={{
                                 color: theme.colors.primary,
-                                fontWeight: "bold",
-                                marginBottom: 5 // Spacing between text and bar
-                            }}
-                        >
-                            {progressComplet}% {strings.complete}
+                                fontWeight: 'bold',
+                                marginBottom: 5,
+                            }}>
+                            {progressComplete}% {strings.complete}
                         </Text>
 
-                        {/* Progress Bar */}
                         <ProgressBar
-                            progress={progressComplet / 100}
+                            progress={progressComplete / 100}
                             color={theme.colors.primary}
                             style={{ height: 12, borderRadius: 6 }}
                         />
                     </View>
-
 
                     {formData1.projectId && (
                         <InputPaper
                             error={checkErr}
                             label="Project Progress..."
                             maxLength={10}
-                            leftIcon='progress-clock'
+                            leftIcon="progress-clock"
                             keyboardType="number-pad"
                             value={formData1.progress}
                             // onChangeText={(txt: any) => handleFormChange("progress", txt)}
                             onChangeText={(txt: any) => {
-                                // Allow only numbers and ensure max value is 30
-                                handleFormChange("remarks", "");
+                                handleFormChange('remarks', '');
                                 let num = parseInt(txt, 10);
-                                if (!isNaN(num) && num <= 100 - progressComplet) {
-                                    handleFormChange("progress", txt);
-                                } else if (txt === "") {
-                                    handleFormChange("progress", ""); // Allow clearing input
+                                if (!isNaN(num) && num <= 100 - progressComplete) {
+                                    handleFormChange('progress', txt);
+                                } else if (txt === '') {
+                                    handleFormChange('progress', '');
                                 } else {
-                                    handleFormChange("progress", ""); // Reset field if value > 30
+                                    handleFormChange('progress', '');
                                 }
                             }}
-                            // disabled={progressComplet === 100}
                             customStyle={{ backgroundColor: theme.colors.background }}
                         />
                     )}
 
-                    {(100 - Number(progressComplet)) === Number(formData1.progress) && (
+                    {100 - Number(progressComplete) === Number(formData1.progress) && (
                         <>
                             <TextInput
                                 error={checkErr}
@@ -662,42 +770,76 @@ const HomeScreen = () => {
                                 // leftIcon='progress-clock'
                                 // keyboardType="number-pad"
                                 value={formData1.remarks}
-                                onChangeText={(txt: any) => handleFormChange("remarks", txt)}
+                                onChangeText={(txt: any) => handleFormChange('remarks', txt)}
                                 // disabled={progressComplet === 100}
                                 style={{ backgroundColor: theme.colors.background }}
                             />
-
-
                         </>
                     )}
 
-                
-                    
+                    <ButtonPaper
+                        icon={'calendar-month-outline'}
+                        mode="contained"
+                        buttonColor={theme.colors.tertiary}
+                        onPress={() => setOpenDate(true)}
+                        style={{ marginTop: 15, paddingVertical: 8 }}
+                        disabled={!formData1.projectId}>
+                        {strings.dateText}: {formData1.date?.toLocaleDateString('en-GB')}
+                    </ButtonPaper>
+
+                    <DatePicker
+                        modal
+                        mode="date"
+                        open={openDate}
+                        date={formData1.date}
+                        onConfirm={date => {
+                            setOpenDate(false);
+                            handleFormChange('date', date);
+                        }}
+                        onCancel={() => {
+                            setOpenDate(false);
+                        }}
+                    />
 
                     <ButtonPaper
-                        icon={"camera"}
-                        mode='contained'
+                        icon={'camera'}
+                        mode="contained"
                         onPress={selectPhoto}
                         style={{ marginTop: 15, paddingVertical: 8 }}
-                        disabled={!formData1.projectId}
-                    >
+                        disabled={!formData1.projectId}>
                         {strings.uploadPhotoBtnLabel}
                     </ButtonPaper>
-                    <Text variant='bodySmall' style={{
-                        color: theme.colors.onBackground,
-                        fontFamily: strings.fontItalic
-                    }}>{strings.uploadPhotoBtnSubText}</Text>
+                    <Text
+                        variant="bodySmall"
+                        style={{
+                            color: theme.colors.onBackground,
+                            fontFamily: strings.fontItalic,
+                        }}>
+                        {strings.uploadPhotoBtnSubText}
+                    </Text>
 
                     {imgData.length > 0 && (
                         <ScrollView horizontal style={{ marginTop: 15 }}>
                             {imgData.map((asset, index) => (
-                                <View key={asset.uri || index} style={{ marginRight: 10, position: 'relative' }}>
-                                    <Image source={{ uri: asset.uri! }} style={styles.image} resizeMode="contain" />
+                                <View
+                                    key={asset.uri || index}
+                                    style={{ marginRight: 10, position: 'relative' }}>
+                                    <Image
+                                        source={{ uri: asset.uri! }}
+                                        style={styles.image}
+                                        resizeMode="contain"
+                                    />
                                     <TouchableOpacity
                                         onPress={() => removeImage(index)}
-                                        style={[styles.removeIconContainer, { backgroundColor: theme.colors.errorContainer }]}
-                                    >
-                                        <Icon size={20} color={theme.colors.onErrorContainer} source={"trash-can-outline"} />
+                                        style={[
+                                            styles.removeIconContainer,
+                                            { backgroundColor: theme.colors.errorContainer },
+                                        ]}>
+                                        <Icon
+                                            size={20}
+                                            color={theme.colors.onErrorContainer}
+                                            source={'trash-can-outline'}
+                                        />
                                     </TouchableOpacity>
                                 </View>
                             ))}
@@ -705,76 +847,93 @@ const HomeScreen = () => {
                     )}
 
                     <ButtonPaper
-                        icon={"progress-clock"}
-                        mode='outlined'
+                        icon={'progress-clock'}
+                        mode="outlined"
                         onPress={() => {
-                            Alert.alert("Alert", "Are you sure you want to submit the details?", [
-                                { "text": strings.noTxt, onPress: () => null },
-                                {
-                                    "text": strings.yesTxt, onPress: async () => {
-                                        await updateProjectProgressDetails()
-                                    }
-                                }
-                            ])
+                            Alert.alert(
+                                'Alert',
+                                'Are you sure you want to submit the details?',
+                                [
+                                    { text: strings.noTxt, onPress: () => null },
+                                    {
+                                        text: strings.yesTxt,
+                                        onPress: async () => {
+                                            await updateProjectProgressDetails();
+                                        },
+                                    },
+                                ],
+                            );
                         }}
                         style={{ marginTop: 15, paddingVertical: 8 }}
                         loading={loading}
-                        disabled={!formData1.progress || !formData1.projectId || loading || checkErr || imgData?.length === 0
-                            || ((100 - progressComplet) === parseInt(formData1.progress, 10) ? !formData1.remarks : false)}
-                    >
+                        disabled={
+                            !formData1.progress ||
+                            !formData1.projectId ||
+                            loading ||
+                            checkErr ||
+                            imgData?.length === 0 ||
+                            (100 - progressComplete === parseInt(formData1.progress, 10)
+                                ? !formData1.remarks
+                                : false)
+                        }>
                         Update Progress
                     </ButtonPaper>
 
                     <ButtonPaper
-                        icon={"content-save-outline"}
-                        mode='contained'
+                        icon={'content-save-outline'}
+                        mode="contained"
                         buttonColor={theme.colors.tertiary}
                         onPress={() => {
-                            Alert.alert("Alert", "Are you sure you want to save the details?", [
-                                { "text": strings.noTxt, onPress: () => null },
-                                { "text": strings.yesTxt, onPress: () => saveLocally() }
-                            ])
+                            Alert.alert(
+                                'Alert',
+                                'Are you sure you want to save the details?',
+                                [
+                                    { text: strings.noTxt, onPress: () => null },
+                                    { text: strings.yesTxt, onPress: () => saveLocally() },
+                                ],
+                            );
                         }}
                         style={{ marginTop: 15, paddingVertical: 8 }}
                         disabled={
-                            imgData?.length === 0
-                            || !formData1.progress
-                            || !formData1.projectId
-                            || !location.latitude
-                            || !location.longitude
-                            || ((100 - progressComplet) === parseInt(formData1.progress, 10) ? !formData1.remarks : false)
-                            || !geolocationFetchedAddress
-                        }
-                    >
+                            imgData?.length === 0 ||
+                            !formData1.progress ||
+                            !formData1.projectId ||
+                            !location.latitude ||
+                            !location.longitude ||
+                            (100 - progressComplete === parseInt(formData1.progress, 10)
+                                ? !formData1.remarks
+                                : false) ||
+                            !geolocationFetchedAddress
+                        }>
                         {strings.saveText}
                     </ButtonPaper>
                 </View>
             </ScrollView>
         </SafeAreaView>
-    )
-}
+    );
+};
 
-export default HomeScreen
+export default HomeScreen;
 
 const styles = StyleSheet.create({
     dropdown: {
         minHeight: 100,
         maxHeight: 100,
-        alignSelf: "center",
+        alignSelf: 'center',
         paddingHorizontal: 30,
         borderRadius: 20,
         borderWidth: 1,
-        marginTop: 5
+        marginTop: 5,
     },
     placeholderStyle: {
         fontSize: 16,
         marginLeft: 16,
-        fontFamily: strings.fontName
+        fontFamily: strings.fontName,
     },
     selectedTextStyle: {
         fontSize: 16,
         marginLeft: 16,
-        fontFamily: strings.fontName
+        fontFamily: strings.fontName,
     },
     iconStyle: {
         width: 20,
@@ -783,7 +942,7 @@ const styles = StyleSheet.create({
     inputSearchStyle: {
         height: 40,
         fontSize: 16,
-        fontFamily: strings.fontName
+        fontFamily: strings.fontName,
     },
     image: {
         width: 100,
@@ -800,31 +959,30 @@ const styles = StyleSheet.create({
         padding: 2,
     },
 
-
-    container: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      },
-      openButton: {
-        padding: 10,
-        backgroundColor: "#007bff",
-        borderRadius: 5,
-      },
-      buttonText: {
-        color: "#fff",
-        fontSize: 16,
-      },
-      modalContainer: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
-        zIndex: 1000,
-      },
-      modalContent: {
-        backgroundColor: "#fff",
-        padding: 20,
-        borderRadius: 10,
-      },
-})
+    // container: {
+    //     flex: 1,
+    //     justifyContent: "center",
+    //     alignItems: "center",
+    // },
+    // openButton: {
+    //     padding: 10,
+    //     backgroundColor: "#007bff",
+    //     borderRadius: 5,
+    // },
+    // buttonText: {
+    //     color: "#fff",
+    //     fontSize: 16,
+    // },
+    // modalContainer: {
+    //     flex: 1,
+    //     justifyContent: "center",
+    //     alignItems: "center",
+    //     backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
+    //     zIndex: 1000,
+    // },
+    // modalContent: {
+    //     backgroundColor: "#fff",
+    //     padding: 20,
+    //     borderRadius: 10,
+    // },
+});
