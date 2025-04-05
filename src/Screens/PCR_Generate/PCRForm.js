@@ -31,41 +31,37 @@ const options = [
 ]
 
 const initialValues = {
-  project_id: '',
-  admin_approval_dt: '',
-  td_pdf: '',
-  agency_name: '',
-  sector_name: '',
-  wo_dt: '',
-  wo_pdf: '',
-  wo_value: '',
-  compl: '',
-
-  amt_put_to_tender: '',
-  block_name: '',
-  dist_name: '',
+  contractor_name_dtls: '',
   fin_year: '',
   scheme_name: '',
+  e_nit_no: '',
+  work_order_dtl: '',
+  wo_date: '',
+  amt_put_to_tender: '',
+  wo_value: '',
+  stipulated_dt: '',
+  actual_date_comp: '',
+  gross_value: '',
+  final_value: '',
+  remarks: '',
 };
-
-
 
 const validationSchema = Yup.object({
   // project_id: Yup.string().required('Project ID / Approval Number is Required'),
-  admin_approval_dt: Yup.string().required('Tender Invited On is Required'),
-  td_pdf: Yup.string().required('Tender Notice is Required'),
-  agency_name: Yup.string().required('Tender Inviting Authority is Required'),
-  sector_name: Yup.string().required('Tender Matured On is Required'),
-  wo_dt: Yup.string().required('Work Order Issued On is Required'),
-  wo_pdf: Yup.string().required('Work Order Copy is Required'),
-  wo_value: Yup.string().required('Work Order Value is Required'),
-  compl: Yup.string().required('Date of Completion (As per Work Order) is Required'),
 
-  amt_put_to_tender: Yup.string().required('Amount Put to Tender is Required'),
-  block_name: Yup.string().required('Block is Required'),
-  dist_name: Yup.string().required('Additional Performance Security is Required'),
-  fin_year: Yup.string().required('financial Year is Required'),
-  scheme_name: Yup.string().required('Date Of Refund is Required'),
+  contractor_name_dtls:  Yup.string().required('Contractor Name & Details is Required'),
+  fin_year:  Yup.string().required('Financial Year is Required'),
+  scheme_name:  Yup.string().required('Name Of Work is Required'),
+  e_nit_no:  Yup.string().required('e-NIT No. is Required'),
+  work_order_dtl:  Yup.string().required('Work Order Details is Required'),
+  wo_date:  Yup.string().required('Work Order Details Date is Required'),
+  amt_put_to_tender:  Yup.string().required('Amount Put to Tender is Required'),
+  wo_value:  Yup.string().required('Tender Amount is Required'),
+  stipulated_dt:  Yup.string().required('Stipulated Date of Completion is Required'),
+  actual_date_comp:  Yup.string().required('Actual Date of gross_valueetion is Required'),
+  gross_value:  Yup.string().required('Gross Value of Work Done is Required'),
+  final_value:  Yup.string().required('Final Bill Value is Required'),
+  remarks:  Yup.string().required('Remarks is Required'),
 
 
 });
@@ -96,10 +92,7 @@ function PCRForm() {
   const [errorpdf_1, setErrorpdf_1] = useState("");
   const [errorpdf_2, setErrorpdf_2] = useState("");
 
-  useEffect(()=>{
-    console.log(operation_status, 'loadFormData', sl_no, 'kkkk', params?.id);
-    
-  }, [])
+
 
 
   const fundAddedList = async (approvalNo_Para) => {
@@ -171,17 +164,17 @@ function PCRForm() {
     }
   };
 
-  const loadFormData = async (project_id) => {
+  const loadFormData = async (approval_no) => {
     // console.log(project_id, 'responsedata');
     setLoading(true); // Set loading state
 
     const formData = new FormData();
 
-    formData.append("approval_no", project_id);
+    formData.append("approval_no", approval_no);
 
     try {
       const response = await axios.post(
-        url + 'index.php/webApi/Tender/progress_list',
+        url + 'index.php/webApi/Utilization/projCompCertiSingledata',
         formData,
         {
           headers: {
@@ -190,11 +183,27 @@ function PCRForm() {
         }
       );
 
-      console.log(response?.data, 'responsedata');
       
       if (response?.data.status > 0) {
         setLoading(false);
         setGetMsgData(response?.data?.message)
+        console.log(response?.data, 'projCompCertiSingledataxxxxxxxxxxxxx', response?.data?.message?.contractor_name_dtls);
+
+        setValues({
+          contractor_name_dtls: response?.data?.message?.contractor_name_dtls,
+          fin_year: response?.data?.message?.fin_year,
+          scheme_name: response?.data?.message?.scheme_name,
+          e_nit_no: response?.data?.message?.e_nit_no,
+          work_order_dtl: response?.data?.message?.work_order_dtl,
+          wo_date: response?.data?.message?.wo_date,
+          amt_put_to_tender: response?.data?.message?.amt_put_to_tender,
+          wo_value: response?.data?.message?.wo_value,
+          stipulated_dt: response?.data?.message?.stipulated_dt,
+          actual_date_comp: response?.data?.comp_date_actual?.actual_date_comp,
+          gross_value: response?.data?.message?.gross_value,
+          final_value: response?.data?.message?.final_value,
+          remarks: response?.data?.message?.remarks,
+        })
         
         // setGetStatusData(response?.data?.prog_img)
         // setFolderProgres(response?.data?.folder_name)
@@ -238,25 +247,24 @@ function PCRForm() {
         }
       );
 
-      console.log(response.data.message.agency_name, 'responsedataTenderffffffffffff');
       
       if (response?.data.status > 0) {
         setLoading(false);
         setGetMsgData(response?.data?.message)
         setValues({
-          admin_approval_dt: response?.data?.message[0]?.admin_approval_dt,
-          agency_name: response?.data?.message[0]?.agency_name,
-          amt_put_to_tender: response?.data?.message[0]?.amt_put_to_tender,
-          block_name: response?.data?.message[0]?.block_name,
-          dist_name: response?.data?.message[0]?.dist_name,
+          contractor_name_dtls: response?.data?.message[0]?.contractor_name_dtls,
           fin_year: response?.data?.message[0]?.fin_year,
           scheme_name: response?.data?.message[0]?.scheme_name,
-          sector_name: response?.data?.message[0]?.sector_name,
-          // wo_dt: response.data.message.wo_date,
-          // wo_value: response.data.message.wo_value,
-          // compl: response.data.message.comp_date_apprx,
-          // td_pdf: response.data.message.tender_notice,
-          // wo_pdf: response.data.message.wo_copy,
+          e_nit_no: response?.data?.message[0]?.e_nit_no,
+          work_order_dtl: response?.data?.message[0]?.work_order_dtl,
+          wo_date: response?.data?.message[0]?.wo_date,
+          amt_put_to_tender: response?.data?.message[0]?.amt_put_to_tender,
+          wo_value: response?.data?.message[0]?.wo_value,
+          stipulated_dt: response?.data?.message[0]?.stipulated_dt,
+          actual_date_comp: response?.data?.comp_date_actual[0]?.actual_date_comp,
+          gross_value: response?.data?.message[0]?.gross_value,
+          final_value: response?.data?.message[0]?.final_value,
+          remarks: response?.data?.message[0]?.remarks,
         })
       }
 
@@ -273,106 +281,48 @@ function PCRForm() {
   };
 
     useEffect(()=>{
-
-      fetchProjectId()
-      // loadFormEditData(1, 1)
+      if(params?.id < 1){
+        fetchProjectId()
+      }
+      
+      if(params?.id > 0){
+        setShowForm(true)
+        loadFormData(params?.id)
+      }
   
     }, [])
 
 
-    const onChange = (e) => {
-      setRadioType(e)
-    }
-
-  const saveFormData = async () => {
-    setLoading(true); // Set loading state
   
-    const formData = new FormData();
-
-    // Append each field to FormData
-    // formData.append("approval_no", params?.id);
-    formData.append("approval_no", approvalNo);
-    formData.append("tender_date", formik.values.admin_approval_dt);
-    formData.append("tender_notice", formik.values.td_pdf); // Ensure this is a file if applicable
-    formData.append("invite_auth", formik.values.agency_name);
-    formData.append("mat_date", formik.values.sector_name);
-    formData.append("wo_date", formik.values.wo_dt);
-    formData.append("wo_copy", formik.values.wo_pdf);
-    formData.append("wo_value", formik.values.wo_value);
-    formData.append("comp_date_apprx", formik.values.compl);
-
-    formData.append("amt_put_to_tender", formik.values.amt_put_to_tender);
-    formData.append("tender_status", radioType);
-    formData.append("block_name", formik.values.block_name);
-    formData.append("dist_nameurity", formik.values.dist_name);
-    formData.append("fin_year", formik.values.fin_year);
-    formData.append("date_of_refund", formik.values.scheme_name);
-    
-
-    formData.append("created_by", userDataLocalStore.user_id);
-
-
-  
-    console.log(formik.values.block, "FormData:", formData);
-
-    try {
-      const response = await axios.post(
-        `${url}index.php/webApi/Tender/tend_add`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            'auth_key': auth_key // Important for FormData
-          },
-        }
-      );
-  
-      setLoading(false);
-      formik.resetForm();
-      // fundAddedList(approvalNo)
-      Message("success", "Updated successfully.");
-      
-    } catch (error) {
-      // setLoading(false);
-      Message("error", "Error Submitting Form:");
-      console.error("Error submitting form:", error);
-    }
-
-  };
 
   const updateFormData = async () => {
     // setLoading(true); // Set loading state
-
   
     const formData = new FormData();
 
-    
-    formData.append("tender_date", formik.values.admin_approval_dt);
-    formData.append("tender_notice", formik.values.td_pdf);  //////////
-    formData.append("invite_auth", formik.values.agency_name);
-    formData.append("mat_date", formik.values.sector_name);
-    formData.append("wo_date", formik.values.wo_dt);
-    formData.append("wo_copy", formik.values.wo_pdf);
-    formData.append("wo_value", formik.values.wo_value);
-    formData.append("comp_date_apprx", formik.values.compl);
+    formData.append("approval_no", approvalNo);
+    formData.append("contractor_name_dtls", formik.values.contractor_name_dtls);
+    formData.append("fin_year", formik.values.fin_year);  //////////
+    formData.append("scheme_name", formik.values.scheme_name);
+    formData.append("e_nit_no", formik.values.e_nit_no);
+    formData.append("work_order_dtl", formik.values.work_order_dtl);
 
-    formData.append("tender_status", radioType);
-    formData.append("amt_put_to_tender", formik.values.amt_put_to_tender);
-    formData.append("block_name", formik.values.block_name);
-    formData.append("dist_nameurity", formik.values.dist_name);
-    formData.append("fin_year", formik.values.fin_year);
-    formData.append("date_of_refund", formik.values.scheme_name);
+    formData.append("work_order_dt", formik.values.wo_date);
+    formData.append("amt_put_totender", formik.values.amt_put_to_tender);
+    formData.append("work_order_value", formik.values.wo_value);
+    formData.append("stipulated_dt_comp", formik.values.stipulated_dt);
+    formData.append("actual_dt_com", formik.values.actual_date_comp);
 
-    formData.append("approval_no", params?.id);
-    formData.append("sl_no", sl_no);
-    formData.append("modified_by", userDataLocalStore.user_id);
+    formData.append("gross_value", formik.values.gross_value);
+    formData.append("final_value", formik.values.final_value);
+    formData.append("remarks", formik.values.remarks);
+    formData.append("created_by", userDataLocalStore.user_id);
 
-  
     console.log("formDataformData", formData);
 
     try {
       const response = await axios.post(
-        `${url}index.php/webApi/Tender/tend_edit`,
+        `${url}index.php/webApi/Utilization/pcrcertificateadd`,
         formData,
         {
           headers: {
@@ -381,7 +331,7 @@ function PCRForm() {
           },
         }
       );
-      console.log(response, 'response');
+      console.log(response, 'pcrcertificateadd');
       
       // setLoading(false);
       Message("success", "Updated successfully.");
@@ -389,7 +339,7 @@ function PCRForm() {
       // navigate(`/home/tender_formality`);
       // fundAddedList(params?.id)
 
-      formik.resetForm();
+      // formik.resetForm();
     } catch (error) {
       // setLoading(false);
       Message("error", "Error Submitting Form:");
@@ -427,13 +377,7 @@ function PCRForm() {
     // if(operation_status == 'edit'){
       
     // }
-    if(params?.id > 0){
-      // loadFormEditData(params?.id, sl_no)
-      // loadFormData(params?.id)
-      // fundAddedList(params?.id)
-      setApprovalNo(params?.id)
-      setShowForm(true);
-    }
+
 
     const userData = localStorage.getItem("user_dt");
     if (userData) {
@@ -472,33 +416,7 @@ function PCRForm() {
   //   }
   // };
 
-  // const handleFileChange_pdf_2 = (event) => {
-
-  //   const file = event.target.files[0]; // Get the selected file
-
-  //   if (file) {
-  //     const fileSizeMB = file.size / (1024 * 1024); // Convert bytes to MB
-  //     const fileType = file.type; // Get file MIME type
-
-  //     // Check if file is a PDF
-  //     if (fileType !== "application/pdf") {
-  //       setErrorpdf_2("Only PDF files are allowed.");
-  //       return;
-  //     }
-
-  //     // Check if file size exceeds 20MB
-  //     if (fileSizeMB > 2) {
-  //       setErrorpdf_2("File size should not exceed 2MB.");
-  //       return;
-  //     }
-
-  //     setErrorpdf_2("");
-  //     console.log("File is valid:", file.name);
-  //     formik.setFieldValue("wo_pdf", file);
-  //     setFilePreview_2(URL.createObjectURL(file)); // Create a preview URL
-  //     // Proceed with file upload or further processing
-  //   }
-  // };
+  
     
   
 
@@ -507,64 +425,72 @@ function PCRForm() {
       <div class="py-5 mx-auto w-full lg:py-5">
 
 
-      <Heading title={'Project Details'} button={'Y'} />
+      
+      {params?.id < 1 &&(
+        <>
+        
+        <Heading title={'Project Details'} button={'Y'} />
         <Spin
-          indicator={<LoadingOutlined spin />}
-          size="large"
-          className="text-gray-500 dark:text-gray-400"
-          spinning={loading}
-        >
+        indicator={<LoadingOutlined spin />}
+        size="large"
+        className="text-gray-500 dark:text-gray-400"
+        spinning={loading}
+      >
 
-          
-            <div class="grid gap-4 sm:grid-cols-12 sm:gap-6 mb-5">
+        
+          <div class="grid gap-4 sm:grid-cols-12 sm:gap-6 mb-5">
 
-              <div class="sm:col-span-4">
-                
-
-             
-              <>
-              <label for="fin_yr" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Project ID / Approval Number</label>
-              <Select
-              placeholder="Choose Project ID"
-              onChange={(value) => {
-              loadFormData(value)
-              // fundAddedList(value)
-              setApprovalNo(value)
-              setShowForm(true)
-              loadFormEditData(value)
-              }}
-              style={{ width: "100%" }}
-              >
-              <Select.Option value="" disabled> Choose Project ID </Select.Option>
-              {projectId.map(data => (
-              <Select.Option key={data.approval_no} value={data.approval_no}>
-              {data.project_id} - {data.approval_no}
-              </Select.Option>
-              ))}
-              </Select>
-              </>
+            <div class="sm:col-span-4">
+              
 
            
-              
+            <>
+            <label for="fin_yr" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Project ID / Approval Number</label>
+            <Select
+            placeholder="Choose Project ID"
+            onChange={(value) => {
+            loadFormData(value)
+            // fundAddedList(value)
+            setApprovalNo(value)
+            setShowForm(true)
+            loadFormEditData(value)
+            }}
+            style={{ width: "100%" }}
+            >
+            <Select.Option value="" disabled> Choose Project ID </Select.Option>
+            {projectId.map(data => (
+            <Select.Option key={data.approval_no} value={data.approval_no}>
+            {data.project_id} - {data.approval_no}
+            </Select.Option>
+            ))}
+            </Select>
+            </>
 
-              </div>
-
-
-              
-
-              
-              
+         
+            
 
             </div>
 
-          
-        </Spin>
 
+            
+
+            
+            
+
+          </div>
+
+        
+      </Spin>
+        </>
+        
+      )}
+        
+        {/* {JSON.stringify(formValues, null, 2)} */}
        
 
         {showForm  &&(
         <>
-      <Heading title={'PCR Project Details'} button={'N'}/>
+      <Heading title={'PCR Project Details'} button={params?.id < 1 ? 'N' : 'Y'}/>
         <form onSubmit={formik.handleSubmit}>
           <div class="grid gap-4 sm:grid-cols-12 sm:gap-6">
 
@@ -572,17 +498,33 @@ function PCRForm() {
 
             <div class="sm:col-span-4">
               <TDInputTemplate
-                type="date"
-                placeholder="Admin Approval Date"
-                label="Admin Approval Date"
-                name="admin_approval_dt"
-                formControlName={formik.values.admin_approval_dt}
+                type="text"
+                placeholder="Contractor Name & Details"
+                label="Contractor Name & Details"
+                name="contractor_name_dtls"
+                formControlName={formik.values.contractor_name_dtls}
                 handleChange={formik.handleChange}
                 handleBlur={formik.handleBlur}
                 mode={1}
               />
-              {formik.errors.admin_approval_dt && formik.touched.admin_approval_dt && (
-                <VError title={formik.errors.admin_approval_dt} />
+              {formik.errors.contractor_name_dtls && formik.touched.contractor_name_dtls && (
+                <VError title={formik.errors.contractor_name_dtls} />
+              )}
+            </div>
+
+            <div class="sm:col-span-4">
+              <TDInputTemplate
+                placeholder="Financial Year..."
+                type="text"
+                label="Financial Year"
+                name="fin_year"
+                formControlName={formik.values.fin_year}
+                handleChange={formik.handleChange}
+                handleBlur={formik.handleBlur}
+                mode={1}
+              />
+              {formik.errors.fin_year && formik.touched.fin_year && (
+                <VError title={formik.errors.fin_year} />
               )}
             </div>
           
@@ -590,17 +532,66 @@ function PCRForm() {
             
             <div class="sm:col-span-4">
               <TDInputTemplate
-                placeholder="Agency Name"
+                placeholder="Name Of Work"
                 type="text"
-                label="Agency Name"
-                name="agency_name"
-                formControlName={formik.values.agency_name}
+                label="Name Of Work"
+                name="scheme_name"
+                formControlName={formik.values.scheme_name}
                 handleChange={formik.handleChange}
                 handleBlur={formik.handleBlur}
                 mode={1}
               />
-              {formik.errors.agency_name && formik.touched.agency_name && (
-                <VError title={formik.errors.agency_name} />
+              {formik.errors.scheme_name && formik.touched.scheme_name && (
+                <VError title={formik.errors.scheme_name} />
+              )}
+            </div>
+            
+            <div class="sm:col-span-4">
+              <TDInputTemplate
+                placeholder="e-NIT No."
+                type="text"
+                label="e-NIT No."
+                name="e_nit_no"
+                formControlName={formik.values.e_nit_no}
+                handleChange={formik.handleChange}
+                handleBlur={formik.handleBlur}
+                mode={1}
+              />
+              {formik.errors.e_nit_no && formik.touched.e_nit_no && (
+                <VError title={formik.errors.e_nit_no} />
+              )}
+            </div>
+            
+            <div class="sm:col-span-4">
+              <TDInputTemplate
+                placeholder="Work Order Details"
+                type="text"
+                label="Work Order Details"
+                name="work_order_dtl"
+                formControlName={formik.values.work_order_dtl}
+                handleChange={formik.handleChange}
+                handleBlur={formik.handleBlur}
+                mode={1}
+              />
+              {formik.errors.work_order_dtl && formik.touched.work_order_dtl && (
+                <VError title={formik.errors.work_order_dtl} />
+              )}
+            </div>
+
+
+            <div class="sm:col-span-4">
+              <TDInputTemplate
+                placeholder="Work Order Details Date"
+                type="date"
+                label="Work Order Details Date"
+                name="wo_date"
+                formControlName={formik.values.wo_date}
+                handleChange={formik.handleChange}
+                handleBlur={formik.handleBlur}
+                mode={1}
+              />
+              {formik.errors.wo_date && formik.touched.wo_date && (
+                <VError title={formik.errors.wo_date} />
               )}
             </div>
 
@@ -622,107 +613,17 @@ function PCRForm() {
 
 
 
-          <div class="sm:col-span-4">
-              <TDInputTemplate
-                placeholder="Block..."
-                type="text"
-                label="Block"
-                name="block_name"
-                formControlName={formik.values.block_name}
-                handleChange={formik.handleChange}
-                handleBlur={formik.handleBlur}
-                mode={1}
-              />
-              {formik.errors.block_name && formik.touched.block_name && (
-                <VError title={formik.errors.block_name} />
-              )}
-            </div>
+          
 
-            <div class="sm:col-span-4">
-              <TDInputTemplate
-                placeholder="District..."
-                type="text"
-                label="District"
-                name="dist_name"
-                formControlName={formik.values.dist_name}
-                handleChange={formik.handleChange}
-                handleBlur={formik.handleBlur}
-                mode={1}
-              />
-              {formik.errors.dist_name && formik.touched.dist_name && (
-                <VError title={formik.errors.dist_name} />
-              )}
-            </div>
-
-            <div class="sm:col-span-4">
-              <TDInputTemplate
-                placeholder="Financial Year..."
-                type="text"
-                label="Financial Year"
-                name="fin_year"
-                formControlName={formik.values.fin_year}
-                handleChange={formik.handleChange}
-                handleBlur={formik.handleBlur}
-                mode={1}
-              />
-              {formik.errors.fin_year && formik.touched.fin_year && (
-                <VError title={formik.errors.fin_year} />
-              )}
-            </div>
-
-            <div class="sm:col-span-4">
-              <TDInputTemplate
-                placeholder="Scheme Name..."
-                type="text"
-                label="Scheme Name"
-                name="scheme_name"
-                formControlName={formik.values.scheme_name}
-                handleChange={formik.handleChange}
-                handleBlur={formik.handleBlur}
-                mode={1}
-              />
-              {formik.errors.scheme_name && formik.touched.scheme_name && (
-                <VError title={formik.errors.scheme_name} />
-              )}
-            </div>
-
-            <div class="sm:col-span-4">
-              <TDInputTemplate
-                placeholder="Sector Name"
-                type="text"
-                label="Sector Name"
-                name="sector_name"
-                formControlName={formik.values.sector_name}
-                handleChange={formik.handleChange}
-                handleBlur={formik.handleBlur}
-                mode={1}
-              />
-              {formik.errors.sector_name && formik.touched.sector_name && (
-                <VError title={formik.errors.sector_name} />
-              )}
-            </div>
-            <div class="sm:col-span-4">
-              <TDInputTemplate
-                placeholder="Work Order Issued On"
-                type="date"
-                label="Work Order Issued On"
-                name="wo_dt"
-                formControlName={formik.values.wo_dt}
-                handleChange={formik.handleChange}
-                handleBlur={formik.handleBlur}
-                mode={1}
-              />
-              {formik.errors.wo_dt && formik.touched.wo_dt && (
-                <VError title={formik.errors.wo_dt} />
-              )}
-            </div>
-           
             
+
+            
+
             <div class="sm:col-span-4">
               <TDInputTemplate
-                placeholder="Type Work Order Value..."
+                placeholder="Tender Amount"
                 type="number"
-                label="Work Order Value"
+                label="Tender Amount"
                 name="wo_value"
                 formControlName={formik.values.wo_value}
                 handleChange={formik.handleChange}
@@ -733,32 +634,101 @@ function PCRForm() {
                 <VError title={formik.errors.wo_value} />
               )}
             </div>
+
             <div class="sm:col-span-4">
               <TDInputTemplate
-                placeholder="Date of Completion (As per Work Order)"
+                placeholder="Stipulated Date of Completion"
                 type="date"
-                label="Date of Completion (As per Work Order)"
-                name="compl"
-                formControlName={formik.values.compl}
+                label="Stipulated Date of Completion"
+                name="stipulated_dt"
+                formControlName={formik.values.stipulated_dt}
                 handleChange={formik.handleChange}
                 handleBlur={formik.handleBlur}
                 mode={1}
               />
-              {formik.errors.compl && formik.touched.compl && (
-                <VError title={formik.errors.compl} />
+              {formik.errors.stipulated_dt && formik.touched.stipulated_dt && (
+                <VError title={formik.errors.stipulated_dt} />
               )}
             </div>
+            <div class="sm:col-span-4">
+              <TDInputTemplate
+                placeholder="Actual Date of gross_valueetion (Extend)"
+                type="date"
+                label="Actual Date of gross_valueetion (Extend)"
+                name="actual_date_comp"
+                formControlName={formik.values.actual_date_comp}
+                handleChange={formik.handleChange}
+                handleBlur={formik.handleBlur}
+                mode={1}
+              />
+              {formik.errors.actual_date_comp && formik.touched.actual_date_comp && (
+                <VError title={formik.errors.actual_date_comp} />
+              )}
+            </div>
+           
+            
+            
+            <div class="sm:col-span-4">
+              <TDInputTemplate
+                placeholder="Gross Value of Work Done"
+                type="number"
+                label="Gross Value of Work Done"
+                name="gross_value"
+                formControlName={formik.values.gross_value}
+                handleChange={formik.handleChange}
+                handleBlur={formik.handleBlur}
+                mode={1}
+              />
+              {formik.errors.gross_value && formik.touched.gross_value && (
+                <VError title={formik.errors.gross_value} />
+              )}
+            </div>
+
+
+            <div class="sm:col-span-4">
+              <TDInputTemplate
+                placeholder="Final Bill Value"
+                type="number"
+                label="Final Bill Value"
+                name="final_value"
+                formControlName={formik.values.final_value}
+                handleChange={formik.handleChange}
+                handleBlur={formik.handleBlur}
+                mode={1}
+              />
+              {formik.errors.final_value && formik.touched.final_value && (
+                <VError title={formik.errors.final_value} />
+              )}
+            </div>
+
+            <div class="sm:col-span-12">
+                        <TDInputTemplate
+                          type="text"
+                          placeholder="Remarks Text.."
+                          label="Remarks"
+                          name="remarks"
+                          formControlName={formik.values.remarks}
+                          handleChange={formik.handleChange}
+                          handleBlur={formik.handleBlur}
+                          mode={3}
+                        />
+                        {formik.errors.remarks && formik.touched.remarks && (
+                          <VError title={formik.errors.remarks} />
+                        )}
+                      </div>
         <div className="sm:col-span-12 flex justify-center gap-4 mt-4">
         {params.id < 1 &&(
+          <>
           <BtnComp title={'Reset'} type="reset" 
         onClick={() => { 
           formik.resetForm();
         }}
         width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
-        )}
+       
         
-        {/* <button type="submit">Search</button> */}
         <BtnComp type={'submit'} title={'Update'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
+        </>
+      )}
          </div>
           </div>
 

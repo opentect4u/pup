@@ -8,6 +8,8 @@ import { useParams } from "react-router"
 import { Spin } from 'antd';
 import TableHeader from '../../Components/TableHeader';
 import TableRow from '../../Components/TableRow';
+import { getPrintCommonHeader_PCR } from '../../Components/PrintCommonHeader_PCR';
+import { toWords } from 'number-to-words';
 
 function PCRView() {
   const navigate = useNavigate();
@@ -20,6 +22,7 @@ function PCRView() {
   const rowsPerPage = 5;
   const [searchQuery, setSearchQuery] = useState('');
   const [pageName, setPageName] = useState('');
+  const [printOutDataState, setPrintOutDataState] = useState([]);
 
   const fetchTableDataList_Fn = async () => {
     setLoading(true);
@@ -28,7 +31,7 @@ function PCRView() {
     };
     try {
       const response = await axios.post(
-        url + 'index.php/webApi/Tender/tender_list', cread,
+        url + '/index.php/webApi/Utilization/projCompCertilist', cread,
         {
           headers: {
             'auth_key': auth_key,
@@ -37,8 +40,11 @@ function PCRView() {
       );
 
       if (response?.data?.status > 0) {
+
+        console.log(response.data.message, 'projCompCertilist');
+        
         setTableDataList(response.data.message);
-        setFolderName(response.data.folder_name);
+        // setFolderName(response.data.folder_name);
         setPageName('PCRView');
       } else {
         setTableDataList([]);
@@ -97,6 +103,248 @@ function PCRView() {
     });
   };
 
+  const printData = async (approval_no) => {
+
+    setLoading(true); // Set loading state
+    
+        const formData = new FormData();
+    
+        formData.append("approval_no", approval_no);
+    
+        try {
+          const response = await axios.post(
+            url + 'index.php/webApi/Utilization/projCompCertiSingledata',
+            formData,
+            {
+              headers: {
+                'auth_key': auth_key,
+              },
+            }
+          );
+          
+          if (response?.data.status > 0) {
+            setLoading(false);
+            setPrintOutDataState(response?.data?.message)
+            console.log(response?.data, 'projCompCertiSingledataxxxxxxxxxxxxx', response?.data?.message);
+            printData_out(response?.data?.message)
+    
+          }
+    
+          if (response?.data.status < 1) {
+            setLoading(false);
+            setPrintOutDataState([])
+          }
+    
+        } catch (error) {
+          setLoading(false);
+          console.error("Error fetching data:", error); // Handle errors properly
+        }
+
+    
+};
+
+const printData_out = (printOutData) => {
+  const printWindow = window.open("", "", "width=800,height=600");
+  printWindow.document.write(`
+    <html>
+    <head>
+      <title>Completion Certificate</title>
+      <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+          }
+        .container {
+          max-width: 800px;
+          margin: auto;
+          padding:15px;
+          border: none;
+        }
+        .header {
+          border-bottom: #000 solid 2px;
+          display: inline-block;
+          width: 100%;
+          padding-bottom: 7px; margin: 0 0 15px 0;
+        }
+        .1stTd{width:30%;}
+        .2ndTh{width:70%;}
+
+        .1stTd_sign{width:50%; text-align: center;}
+        .2ndTh_sign{width:50%; text-align: center;}
+
+        .1stTd_sub{width:30%;}
+        .2ndTh_sub{width:70%;}
+        .details-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 20px;
+        }
+        .details-table th, .details-table td {
+          border: none;
+          padding: 5px 5px 15px 5px;
+          text-align: left;
+        }
+
+        .details-table_sign {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 30px; margin-bottom: 30px;
+          border: none;
+        }
+        .details-table_sign th, .details-table_sign td {
+          border: none;
+          padding: 5px 5px 15px 5px;
+          text-align: center;
+        }
+
+        .sub_table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 0;
+        }
+        .sub_table th, .sub_table td {
+          border: none;
+          padding: 0;
+          text-align: left;
+        }
+        .footer {
+          margin-top: 30px;
+          text-align: center;
+          font-weight: bold;
+        }
+          span.bold{font-weight: 700;}
+
+        .logo{text-align: center; padding: 0 0 10px 0;}
+        .logo img{width:80px;}
+        h3{text-align: center; font-size: 14px; font-weight: 700; padding: 0 0 5px 0; margin: 0; line-height: 15px;}
+        h2{text-align: center; font-size: 14px; font-weight: 700; padding: 0 0 5px 0; margin: 0; line-height: 15px;}
+        p{text-align: center; font-size: 12px; font-weight: 400; padding: 0 0 5px 0; margin: 0; line-height: 15px;}
+        p span.left{float:left;}
+        p span.right{float:right;}
+        h3.comple_title{text-align: center; font-size: 14px; font-weight: 600; padding: 0 0 5px 0; margin:0; line-height: 15px; text-decoration: underline;}
+        p.comple_text{text-align: justify; font-size: 12px; font-weight: 400; padding: 0 0 15px 0; margin: 0; line-height: 15px;}
+        p.comple_text_sub{text-align: left; font-size: 12px; font-weight: 400; padding: 0 0 8px 0; margin: 0; line-height: 15px;}
+        
+          table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 11px;
+          }
+          th, td {
+            border: 1px solid black;
+            padding: 3px;
+            text-align: left;
+            font-size: 11px;
+          }
+            /* Ensure borders appear in print */
+          @media print {
+            table, th, td {
+              border: 1px solid black;
+              font-size: 10px;
+            }
+            th, td {
+            padding: 3px;
+          }
+            p.disclam{font-size: 10px; padding: 10px 0 5px 0; text-align: center; font-weight: 700;}
+            .header {
+          border-bottom: #000 solid 2px;
+          display: inline-block;
+          width: 100%;
+          padding-bottom: 7px;
+          }
+          .1stTd{width:30%;}
+          .2ndTh{width:70%;}
+
+          .1stTd_sign{width:50%; text-align: center;}
+          .2ndTh_sign{width:50%; text-align: center;}
+
+          
+          .1stTd_sub{width:30%;}
+          .2ndTh_sub{width:70%;}
+          span.bold{font-weight: 700;}
+          .sub_table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 0;
+        }
+        .sub_table th, .sub_table td {
+          border: none;
+          padding: 0;
+          text-align: left;
+        }
+        h3.comple_title{text-align: center; font-size: 14px; font-weight: 600; padding: 0 0 5px 0; margin:0; line-height: 15px; text-decoration: underline;}
+        p.comple_text{text-align: justify; font-size: 12px; font-weight: 400; padding: 0 0 15px 0; margin: 0; line-height: 15px;}
+        p.comple_text_sub{text-align: left; font-size: 12px; font-weight: 400; padding: 0 0 8px 0; margin: 0; line-height: 15px;}
+          }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        ${getPrintCommonHeader_PCR()}
+        <h3 class="comple_title">COMPLETION CERTIFICATE</h3>
+        <p class="comple_text">This is to certify that <strong>${printOutData.contractor_name_dtls}</strong> is a working contract of this office. The Contractor 
+        was entrusted with the following work which has been completed in all respect during financial year ${printOutData.fin_year}.
+        </p>
+        <p class="comple_text_sub">The following information are given regarding the above noted work:-</p>
+        <table class="details-table">
+          <tr><th class="1stTd">1. Name of Work:</th><td class="2ndTh">${printOutData.scheme_name}</td></tr>
+          <tr><th>2. e-NIT No.:</th><td><span class="bold">${printOutData.e_nit_no}</span> </td></tr>
+          <tr><th>3. Work Order Details:</th><td>${printOutData.work_order_dtl}, Dated: ${printOutData.work_order_dt}</td></tr>
+          <tr><th>4. Amount Put to Tender:</th><td><table class="sub_table">
+          <tr><th class="1stTd_sub"><span class="bold">₹ ${printOutData.amt_put_totender}</span></th>
+          <td class="2ndTh_sub">
+          Rupees ${toWords(printOutData.amt_put_totender).charAt(0).toUpperCase() + toWords(printOutData.amt_put_totender).slice(1)} Only
+          </td></tr>
+        </table>
+        </td></tr>
+          <tr><th>5. Tendered Amount:</th><td><table class="sub_table">
+          <tr><th class="1stTd_sub">₹ ${printOutData.work_order_value}</th><td class="2ndTh_sub">
+          Rupees ${toWords(printOutData.work_order_value).charAt(0).toUpperCase() + toWords(printOutData.work_order_value).slice(1)} Only
+          </td></tr>
+        </table></td></tr>
+          <tr><th>6. Stipulated Date of Completion:</th><td>${printOutData.stipulated_dt_comp}</td></tr>
+          <tr><th>7. Actual Date of Completion (Extend):</th><td><span class="bold">${printOutData.actual_dt_com}</span></td></tr>
+          <tr><th>8. Gross Value of Work Done (1R/A & Final Bill):</th><td><table class="sub_table">
+          <tr><th class="1stTd_sub"><span class="bold">₹ ${printOutData.gross_value}</span></th><td class="2ndTh_sub">
+          Rupees ${toWords(printOutData.gross_value).charAt(0).toUpperCase() + toWords(printOutData.gross_value).slice(1)} Only
+          </td></tr>
+        </table></td></tr>
+          <tr><th>9. Final Bill Value (As per contract rate applicable):</th><td><table class="sub_table">
+          <tr><th class="1stTd_sub">₹ ${printOutData.final_value}</th><td class="2ndTh_sub">
+          Rupees ${toWords(printOutData.final_value).charAt(0).toUpperCase() + toWords(printOutData.final_value).slice(1)} Only
+          </td></tr>
+        </table></td></tr>
+          <tr><th>10. Remarks:</th><td>${printOutData.remarks}</td></tr>
+        </table>
+        <div class="footer">
+          “We wish every success to the contractor.”
+        </div>
+        <table class="details-table_sign">
+          <tr><th class="1stTd_sign">Assistant Engineer </br> 
+          Paschimanchal Unnayan Parshad </br>
+          Purulia</th><td class="2ndTh_sign">
+          Executive Engineer </br> 
+          Paschimanchal Unnayan Parshad </br>
+          Bankura
+          </td></tr>
+        </table>
+
+      </div>
+      <script>
+        window.print();
+      </script>
+    </body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.print();
+};
+
+
+const download = ()=>{
+  alert('down')
+}
+
   return (
     <section className="bg-slate-200 dark:bg-gray-900 p-3 sm:p-5">
       <div className="mx-auto max-w-screen-xl">
@@ -128,7 +376,7 @@ function PCRView() {
                 </div>
               </div>
               <div className="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-                <BtnComp bgColor="bg-white" color="text-blue-900" title="Add Tender" onClick={() => {
+                <BtnComp bgColor="bg-white" color="text-blue-900" title="Add PCR" onClick={() => {
                   navigate('pcr-add/0', {
                     state: { operation_status: 'add' },
                   });
@@ -138,11 +386,12 @@ function PCRView() {
             
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+              {/* {JSON.stringify(printOutDataState, null, 2)}  */}
               <TableHeader curentPage={pageName} />
                 
                 <tbody>
                   {currentTableData.map((data, index) => (
-                     <TableRow key={index} data={data} curentPage={pageName} navigate={navigate} handleChange={handleChange} handleUpload={handleUpload}/>
+                     <TableRow key={index} data={data} curentPage={pageName} navigate={navigate} handleChange={handleChange} handleUpload={handleUpload} printData={printData} download={download}/>
                   ))}
                 </tbody>
               </table>

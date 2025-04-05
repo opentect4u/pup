@@ -1,6 +1,6 @@
-import { DownloadOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
+import { DownloadOutlined, EditOutlined, EyeOutlined, FileExcelOutlined, PrinterOutlined } from '@ant-design/icons';
 
-const TableRow = ({ index, data, navigate, curentPage , handleChange, handleUpload}) => {
+const TableRow = ({ index, data, navigate, curentPage , handleChange, handleUpload, printData, download}) => {
 
   const pageTree = {
     page_1: 'AdApView',
@@ -167,18 +167,18 @@ const TableRow = ({ index, data, navigate, curentPage , handleChange, handleUplo
       <tr key={index} className="border-b dark:border-gray-700">
         <td className="px-4 py-3">{data?.project_id} </td>
         <td className="px-4 py-3">{data?.scheme_name}</td>
-        <td className="px-4 py-3">{data?.sector_name}</td>
         <td className="px-4 py-3">{data?.fin_year}</td>
         <td className="px-4 py-3">
           
-        <button type="button" className="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 
+        {/* <button type="button" className="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 
   focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1.5 text-center 
   me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 
   dark:focus:ring-blue-800"
             onClick={() => alert('Under Development')}
           >
             <DownloadOutlined />
-          </button>
+          </button> */}
+          <button onClick={() => { printData(data?.approval_no) }} className="downloadXL"><PrinterOutlined /> Print</button>
         </td>
         <td className="px-4 py-3">
         <input
@@ -193,12 +193,16 @@ const TableRow = ({ index, data, navigate, curentPage , handleChange, handleUplo
         Upload
       </button>
         </td>
+        <td className="px-4 py-3">
+          <button onClick={() => { download('pcr') }} className="downloadXL"><DownloadOutlined /> Download</button>
+        </td>
+
         <td scope="row" className="px-4 py-3">
           <button type="button" className="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 
   focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1.5 text-center 
   me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 
   dark:focus:ring-blue-800"
-            onClick={() => navigate(`/home/tender_formality/tfcrud/${data?.approval_no}`, {
+            onClick={() => navigate(`/home/pcr/pcr-add/${data?.approval_no}`, {
               state: { ...data, operation_status: 'edit' },
             })}
           >
