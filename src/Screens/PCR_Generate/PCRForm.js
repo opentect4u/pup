@@ -187,7 +187,9 @@ function PCRForm() {
       if (response?.data.status > 0) {
         setLoading(false);
         setGetMsgData(response?.data?.message)
-        console.log(response?.data, 'projCompCertiSingledataxxxxxxxxxxxxx', response?.data?.message?.contractor_name_dtls);
+
+        console.log(response?.data, 'vvvvvvvvvvvvvvvvvvvvvvv', response?.data?.message?.contractor_name_dtls);
+
 
         setValues({
           contractor_name_dtls: response?.data?.message?.contractor_name_dtls,
@@ -195,11 +197,11 @@ function PCRForm() {
           scheme_name: response?.data?.message?.scheme_name,
           e_nit_no: response?.data?.message?.e_nit_no,
           work_order_dtl: response?.data?.message?.work_order_dtl,
-          wo_date: response?.data?.message?.wo_date,
-          amt_put_to_tender: response?.data?.message?.amt_put_to_tender,
-          wo_value: response?.data?.message?.wo_value,
-          stipulated_dt: response?.data?.message?.stipulated_dt,
-          actual_date_comp: response?.data?.comp_date_actual?.actual_date_comp,
+          wo_date: response?.data?.message?.work_order_dt,
+          amt_put_to_tender: response?.data?.message?.amt_put_totender,
+          wo_value: response?.data?.message?.work_order_value,
+          stipulated_dt: response?.data?.message?.stipulated_dt_comp,
+          actual_date_comp: response?.data?.message?.actual_dt_com,
           gross_value: response?.data?.message?.gross_value,
           final_value: response?.data?.message?.final_value,
           remarks: response?.data?.message?.remarks,
@@ -231,7 +233,7 @@ function PCRForm() {
 
     console.log(approval_no, 'responsedata', sl_no);
     setLoading(true); // Set loading state
-
+    
     const formData = new FormData();
 
     formData.append("approval_no", approval_no);
@@ -249,6 +251,8 @@ function PCRForm() {
 
       
       if (response?.data.status > 0) {
+        console.log(response?.data?.message, 'projCompCertiSingledataxxxxxxxxxxxxx', response?.data?.message?.contractor_name_dtls);
+
         setLoading(false);
         setGetMsgData(response?.data?.message)
         setValues({
@@ -336,7 +340,7 @@ function PCRForm() {
       // setLoading(false);
       Message("success", "Updated successfully.");
       // loadFormEditData(params?.id, sl_no)
-      // navigate(`/home/tender_formality`);
+      navigate(`/home/pcr`);
       // fundAddedList(params?.id)
 
       // formik.resetForm();
@@ -350,21 +354,10 @@ function PCRForm() {
   
 
   const onSubmit = (values) => {
-    
-    
-    // if(errorpdf_1.length < 1 && errorpdf_2.length < 1){
-    //   if(params?.id > 0){
-    //     updateFormData()
-    //   } else {
-    //     saveFormData()
-    //   }
-    // }
     updateFormData()
-    
   };
 
   const formik = useFormik({
-      // initialValues:formValues,
       // initialValues,
       initialValues: formValues,
       onSubmit,
@@ -449,7 +442,7 @@ function PCRForm() {
             <Select
             placeholder="Choose Project ID"
             onChange={(value) => {
-            loadFormData(value)
+            // loadFormData(value)
             // fundAddedList(value)
             setApprovalNo(value)
             setShowForm(true)
@@ -652,9 +645,9 @@ function PCRForm() {
             </div>
             <div class="sm:col-span-4">
               <TDInputTemplate
-                placeholder="Actual Date of gross_valueetion (Extend)"
+                placeholder="Actual Date of Completion (Extend)"
                 type="date"
-                label="Actual Date of gross_valueetion (Extend)"
+                label="Actual Date of Completion (Extend)"
                 name="actual_date_comp"
                 formControlName={formik.values.actual_date_comp}
                 handleChange={formik.handleChange}

@@ -10,6 +10,16 @@ import TableHeader from '../../Components/TableHeader';
 import TableRow from '../../Components/TableRow';
 import { getPrintCommonHeader_PCR } from '../../Components/PrintCommonHeader_PCR';
 import { toWords } from 'number-to-words';
+import { Message } from '../../Components/Message';
+
+
+// const initialValues = {
+//   admin_appr_pdf: '',
+// };
+
+// const validationSchema = Yup.object({
+//   admin_appr_pdf: Yup.string().required('Administrative Approval(G.O) is Required'),
+// });
 
 function PCRView() {
   const navigate = useNavigate();
@@ -23,6 +33,9 @@ function PCRView() {
   const [searchQuery, setSearchQuery] = useState('');
   const [pageName, setPageName] = useState('');
   const [printOutDataState, setPrintOutDataState] = useState([]);
+  const [userDataLocalStore, setUserDataLocalStore] = useState([]);
+  const [PDFfolder_name, setPDFfolder_name] = useState('');
+
 
   const fetchTableDataList_Fn = async () => {
     setLoading(true);
@@ -41,9 +54,10 @@ function PCRView() {
 
       if (response?.data?.status > 0) {
 
-        console.log(response.data.message, 'projCompCertilist');
+        console.log(response.data, 'projCompCertilist');
         
-        setTableDataList(response.data.message);
+        setTableDataList(response?.data?.message);
+        setPDFfolder_name(response?.data?.folder_name)
         // setFolderName(response.data.folder_name);
         setPageName('PCRView');
       } else {
@@ -77,31 +91,107 @@ function PCRView() {
   };
 
 
-  const [file, setFile] = useState(null);
+  
 
   const handleChange = (e) => {
     setFile(e.target.files[0]);
   };
 
-  const handleUpload = () => {
-    if (!file) return alert("No file selected!");
 
-    const formData = new FormData();
-    formData.append("file", file);
+  const [file, setFile] = useState(null);
+  const [filePreview, setFilePreview] = useState(null);
+  const [errorpdf_1, setErrorpdf_1] = useState("");
 
-    // Example upload using fetch
-    fetch('/your-upload-api', {
-      method: 'POST',
-      body: formData,
-    })
-    .then(res => res.json())
-    .then(data => {
-      console.log("Upload successful", data);
-    })
-    .catch(err => {
-      console.error("Upload failed", err);
-    });
+  const [fileStates, setFileStates] = useState({});
+
+ 
+
+    useEffect(() => {
+    const userData = localStorage.getItem("user_dt");
+    if (userData) {
+    setUserDataLocalStore(JSON.parse(userData))
+    } else {
+    setUserDataLocalStore([])
+    }
+  
+    }, []);
+
+  const handleFileChange_pdf_1 = (event, approval_no) => {
+    const selectedFile = event.target.files[0];
+  
+    if (selectedFile) {
+      const fileSizeMB = selectedFile.size / (1024 * 1024);
+      const fileType = selectedFile.type;
+  
+      let error = "";
+      let preview = null;
+  
+      // Validate file type
+      if (fileType !== "application/pdf") {
+        error = "Only PDF files are allowed.";
+      } else if (fileSizeMB > 2) {
+        error = "File size should not exceed 2MB.";
+      } else {
+        preview = URL.createObjectURL(selectedFile);
+      }
+
+
+  
+      setFileStates(prev => ({
+        ...prev,
+        [approval_no]: {
+          file: error ? null : selectedFile,
+          preview,
+          error
+        }
+      }));
+    }
   };
+
+  const handleUpload = async (approval_no) => {
+    setLoading(true);
+    const rowData = fileStates[approval_no];
+  
+    if (!rowData || !rowData.file) {
+      return alert("No file selected!");
+    }
+    
+    console.log(rowData.file, 'rowDatafile', approval_no);
+    
+    const formData = new FormData();
+    formData.append("approval_no", approval_no);
+    formData.append("pcr_certificate", rowData.file);
+    formData.append("upload_by", userDataLocalStore.user_id);
+
+    console.log(formData, 'formDataformData');
+    
+    try {
+          const response = await axios.post(
+            `${url}index.php/webApi/Utilization/pcrUpload`,
+            formData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+                'auth_key': auth_key // Important for FormData
+              },
+            }
+          );
+          console.log(response, 'formDataformData');
+          
+          setLoading(false);
+          Message("success", "Upload PDF successfully.");
+          fetchTableDataList_Fn()
+
+        } catch (error) {
+          setLoading(false);
+          Message("error", "Not Uploading PDF");
+          console.error("Error submitting form:", error);
+        }
+    
+  };
+
+
+  
 
   const printData = async (approval_no) => {
 
@@ -341,7 +431,7 @@ const printData_out = (printOutData) => {
 };
 
 
-const download = ()=>{
+const download = (page, pdfName)=>{
   alert('down')
 }
 
@@ -354,6 +444,8 @@ const download = ()=>{
           className="text-gray-500 dark:text-gray-400"
           spinning={loading}
         >
+          {/* {JSON.stringify(printOutDataState, null, 2)} ////
+          {JSON.stringify(currentTableData, null, 2)}  */}
           <div className="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
             <div className="flex flex-col bg-blue-900 md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
               <h2 className='text-xl font-bold text-white'>PCR</h2>
@@ -386,12 +478,36 @@ const download = ()=>{
             
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-              {/* {JSON.stringify(printOutDataState, null, 2)}  */}
+              
               <TableHeader curentPage={pageName} />
                 
                 <tbody>
                   {currentTableData.map((data, index) => (
-                     <TableRow key={index} data={data} curentPage={pageName} navigate={navigate} handleChange={handleChange} handleUpload={handleUpload} printData={printData} download={download}/>
+                     <TableRow 
+                    //  data={data} 
+                    //  curentPage={pageName} 
+                    //  navigate={navigate} 
+                    //  handleFileChange_pdf_1={handleFileChange_pdf_1} 
+                    //  handleChange={handleChange} 
+                    //  handleUpload={handleUpload} 
+                    //  printData={printData} 
+                    //  download={download} 
+                    //  filePreview={filePreview}
+                    //  errorpdf_1={errorpdf_1}
+                    key={data.approval_no}
+  index={index}
+  data={data}
+  curentPage={pageName}
+  navigate={navigate}
+  handleFileChange_pdf_1={handleFileChange_pdf_1}
+  handleChange={handleChange}
+  handleUpload={handleUpload}
+  printData={printData}
+  download={download}
+  filePreview={fileStates[data.approval_no]?.preview}
+  errorpdf_1={fileStates[data.approval_no]?.error}
+  PDFfolder_name={PDFfolder_name}
+                     />
                   ))}
                 </tbody>
               </table>

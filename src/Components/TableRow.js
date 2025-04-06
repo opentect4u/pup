@@ -1,6 +1,21 @@
-import { DownloadOutlined, EditOutlined, EyeOutlined, FileExcelOutlined, PrinterOutlined } from '@ant-design/icons';
+import { DownloadOutlined, EditOutlined, EyeOutlined, FileExcelOutlined, FilePdfOutlined, PrinterOutlined } from '@ant-design/icons';
+import TDInputTemplate from './TDInputTemplate';
+import { folder_admin, url } from '../Assets/Addresses/BaseUrl';
 
-const TableRow = ({ index, data, navigate, curentPage , handleChange, handleUpload, printData, download}) => {
+
+const TableRow = ({ 
+  index,
+  data,
+  navigate,
+  curentPage,
+  handleChange,
+  handleFileChange_pdf_1,
+  handleUpload,
+  printData,
+  download,
+  filePreview,
+  errorpdf_1,
+  PDFfolder_name}) => {
 
   const pageTree = {
     page_1: 'AdApView',
@@ -169,8 +184,8 @@ const TableRow = ({ index, data, navigate, curentPage , handleChange, handleUplo
         <td className="px-4 py-3">{data?.scheme_name}</td>
         <td className="px-4 py-3">{data?.fin_year}</td>
         <td className="px-4 py-3">
-          
-        {/* <button type="button" className="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 
+
+          {/* <button type="button" className="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 
   focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1.5 text-center 
   me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 
   dark:focus:ring-blue-800"
@@ -180,21 +195,66 @@ const TableRow = ({ index, data, navigate, curentPage , handleChange, handleUplo
           </button> */}
           <button onClick={() => { printData(data?.approval_no) }} className="downloadXL"><PrinterOutlined /> Print</button>
         </td>
-        <td className="px-4 py-3">
-        <input
-        type="file"
-        onChange={handleChange}
-        className="mb-2"
-      />
-      <button
-        onClick={handleUpload}
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-      >
-        Upload
-      </button>
+        <td className="px-4 py-3" style={{width:250}}>
+
+        {data?.upload_status == 0 &&(
+          <div class="flex flex-col">
+          <div style={{ position: 'relative' }}>
+            
+            <TDInputTemplate
+  type="file"
+  name="admin_appr_pdf"
+  // placeholder="Upload PDF"
+  // label="Upload PDF"
+  id={`file-input-${data?.approval_no}`}
+  handleChange={(event) => handleFileChange_pdf_1(event, data?.approval_no)}
+  mode={1}
+/>
+
+            
+
+            {filePreview && (
+              <a
+                href={filePreview}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ position: "absolute", top: 16, right: 10 }}
+              >
+                <FilePdfOutlined style={{ fontSize: 22, color: "red" }} />
+              </a>
+            )}
+
+            {errorpdf_1 && (
+              <p style={{ color: "red", fontSize: 12 }}>{errorpdf_1}</p>
+            )}
+
+          </div>
+
+          {filePreview && (
+          <button onClick={()=>{handleUpload(data?.approval_no)}} className="downloadXL mt-3" style={{marginRight:0}}
+          >Upload </button>
+          )}
+          </div>
+        )}
+
+{data?.upload_status == 1 &&(
+          <div style={{color:'#3eb8bd', fontWeight:600}}>PDF Already Uploaded</div>
+        )}
+
+          
         </td>
         <td className="px-4 py-3">
-          <button onClick={() => { download('pcr') }} className="downloadXL"><DownloadOutlined /> Download</button>
+          {data?.upload_status == 1 &&(
+            <>
+            {/* <button onClick={() => { download('pcr', data?.pcr_certificate) }}><FilePdfOutlined style={{ fontSize: 22, color:"#3EB8BD"}} /></button> */}
+          <a href={url + PDFfolder_name + data?.pcr_certificate} target='_blank'><FilePdfOutlined style={{ fontSize: 22, color:"#3EB8BD"}} /></a>
+          </>
+          )}
+
+          {data?.upload_status == 0 &&(
+            <button ><FilePdfOutlined style={{ fontSize: 22, color:"#ccc"}} /></button>
+          )}
+          
         </td>
 
         <td scope="row" className="px-4 py-3">
