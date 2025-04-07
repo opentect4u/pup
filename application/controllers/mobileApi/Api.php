@@ -19,7 +19,7 @@ class Api extends CI_Controller {
             echo json_encode($response);
             exit;
         }
-        $this->validate_auth_key();
+       // $this->validate_auth_key();
     }
 
 	private function validate_auth_key() {
@@ -119,12 +119,14 @@ class Api extends CI_Controller {
 				'progress_percent'  => $progress_percent, // Store as JSON
 				'pic_path'          => $pic_path_json, // Store multiple image paths as JSON
 				'lat'               => $this->input->post('lat'),
-				'long'               => $this->input->post('long'),
+				'long'              => $this->input->post('long'),
 				'address'           => $this->input->post('address'),
+                'actual_date_comp'  => $this->input->post('actual_date_comp'),
+				'remarks'           => $this->input->post('remarks'),
 				'created_by'        => $this->input->post('created_by'),
 				'created_at'        => date('Y-m-d H:i:s'),
 			];
-		
+		    
 			$inserted = $this->db->insert('td_progress', $data);
 		
 			if ($inserted) {
@@ -161,11 +163,11 @@ class Api extends CI_Controller {
 		
 		$result_data = $this->Master->f_select('td_progress a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f,md_proj_imp_agency g,td_tender h', 'b.scheme_name,c.sector_desc as sector_name,b.project_id,e.dist_name,f.block_name,a.approval_no', array_merge($where, ['1 limit 1' => NULL]), NULL);
 		$image_data = $this->Master->f_select('td_progress a,td_admin_approval b', 'a.approval_no,a.visit_no,a.progress_percent,a.pic_path', array_merge($where2, ['1 limit 6' => NULL]), NULL);
-		
+		$progress_percent = $this->Master->f_select('td_progress', 'ifnull(sum(progress_percent),0) progress_percent', array('approval_no'=>$approval_no), 1);
 		
 		$response = (!empty($result_data)) 
-			? ['status' => 1, 'message' => $result_data,'prog_img'=>$image_data,'OPERATION_STATUS' => 'edit','folder_name'=>'uploads/progress_image/'] 
-			: ['status' => 0, 'message' => 'No data found'];
+			? ['status' => 1, 'message' => $result_data,'prog_img'=>$image_data,'progress_percent'=>$progress_percent->progress_percent,'OPERATION_STATUS' => 'edit','folder_name'=>'uploads/progress_image/'] 
+			: ['status' => 0, 'message' => 'No data found','progress_percent'=>$progress_percent->progress_percent];
 	
 		$this->output
 			->set_content_type('application/json')

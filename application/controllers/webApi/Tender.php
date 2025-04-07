@@ -309,7 +309,6 @@ class Tender extends CI_Controller {
 			$where3 = array_merge($where3, ['a.approval_no' => $approval_no]);
 		}
 		
-		//$result_data = $this->Master->f_select('td_admin_approval b,td_progress a,md_sector c,md_fin_year d,md_district e,md_block f,md_proj_imp_agency g,td_tender h', 'b.admin_approval_dt,b.scheme_name,c.sector_desc as sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no,g.agency_name', array_merge($where, ['1 limit 1' => NULL]), NULL);
 		$result_data = $this->db->query('SELECT 
 									b.admin_approval_dt, 
 									b.scheme_name, 
@@ -328,11 +327,13 @@ class Tender extends CI_Controller {
 								INNER JOIN md_block f ON b.block_id = f.block_id 
 								INNER JOIN md_proj_imp_agency g ON b.impl_agency = g.id 
 								WHERE b.approval_no = "'.$approval_no.'" LIMIT 1')->result();
-		$image_data = $this->Master->f_select('td_progress a,td_admin_approval b', 'a.approval_no,a.visit_no,a.progress_percent,a.pic_path,a.created_by as visit_by,a.created_at as visit_dt,a.address', array_merge($where2, ['1 limit 6' => NULL]), NULL);
+		$image_data = $this->Master->f_select('td_progress a,td_admin_approval b', 'a.approval_no,a.visit_no,a.progress_percent,a.pic_path,a.created_by as visit_by,a.created_at as visit_dt,a.address,a.actual_date_comp,a.remarks', array_merge($where2, ['1 limit 6' => NULL]), NULL);
 		$wo_date = $this->Master->f_select('td_admin_approval a,td_tender b', 'b.wo_date', array_merge($where3,['1 order by b.tender_date desc limit 1'=>NULL]), NULL);
+		$fund_total = $this->Master->f_select('td_fund_receive','ifnull(sum(sch_amt),0) tot_sch_amt,ifnull(sum(cont_amt),0) tot_cont_amt' ,array('approval_no' => $approval_no) , NULL);
+		$expense_total = $this->Master->f_select('td_expenditure','ifnull(sum(sch_amt),0) tot_sch_amt,ifnull(sum(cont_amt),0) tot_cont_amt' ,array('approval_no' => $approval_no) , NULL);
 		
 		$response = (!empty($result_data)) 
-			? ['status' => 1, 'message' => array_merge($result_data,$wo_date),'prog_img'=>$image_data,'OPERATION_STATUS' => 'edit','folder_name'=>'uploads/progress_image/'] 
+			? ['status' => 1, 'message' => array_merge($result_data,$wo_date),'prog_img'=>$image_data,'OPERATION_STATUS' => 'edit','folder_name'=>'uploads/progress_image/','fund_total'=>$fund_total,'expense_total'=>$expense_total] 
 			: ['status' => 0, 'message' => 'No data found'];
 	
 		$this->output

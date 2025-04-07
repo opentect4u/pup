@@ -142,6 +142,29 @@ class Mdapi extends CI_Controller {
 			->set_output(json_encode($response));
 	   }
 	}
+	public function projSubmitBy() {
+		
+		$result_data = $this->Master->f_select('md_proj_submit_by', array('sl_no','proj_submit_by',), NULL, NULL);
+		$response = (!empty($result_data)) 
+		? ['status' => 1, 'message' => $result_data] 
+		: ['status' => 0, 'message' => 'No data found'];
+		$this->output
+		->set_content_type('application/json')
+		->set_output(json_encode($response));
+	 
+	}
+
+	public function contRmrks() {
+		
+		$result_data = $this->Master->f_select('md_cont_remarks', array('sl_no','cont_rmrks',), NULL, NULL);
+		$response = (!empty($result_data)) 
+		? ['status' => 1, 'message' => $result_data] 
+		: ['status' => 0, 'message' => 'No data found'];
+		$this->output
+		->set_content_type('application/json')
+		->set_output(json_encode($response));
+	 
+	}
 	//////// *************    API FOR FUND MASTER  ************* ////////
 	public function fundAdd() {
 		$query = $this->db->get_where('md_fund', ['fund_type' => trim($this->input->post('fund_type'))]);
@@ -551,6 +574,58 @@ class Mdapi extends CI_Controller {
 			];
 	
 			$id = $this->Master->f_insert('md_designation', $data);
+			$message = ($id > 0) ? 'Added Successfully!' : 'Something Went Wrong';
+		}
+		// Send JSON response
+		echo json_encode([
+			'status' => ($id > 0) ? 1 : 0,
+			'message' => $message
+		]);
+	}
+	public function projsubbysave() {
+		$sl_no = $this->input->post('sl_no');
+		$proj_submit_by = trim($this->input->post('proj_submit_by'));
+		$user = $this->input->post('modified_by') ?: $this->input->post('created_by');
+	
+		// Check if department name is empty
+		if ($proj_submit_by == '' || $user == '' || $sl_no == '') {
+			echo json_encode([
+				'status' => 0,
+				'message' => 'Required fields missing'
+			]);
+			return;
+		}
+	
+		// Check if department name already exists (excluding the current record in case of edit)
+		$query = $this->db->get_where('md_proj_submit_by', ['proj_submit_by' => $proj_submit_by]);
+		if ($query->num_rows() > 0 ) {
+			echo json_encode([
+				'status' => 0,
+				'message' => 'Already Exists'
+			]);
+			return;
+		}
+	
+		if (!empty($sl_no) && $sl_no > 0) {
+			// **Edit Mode**
+			$data = [
+				'proj_submit_by' => $proj_submit_by,
+				'modified_by' => $user,
+				'modified_at' => date('Y-m-d h:i:s')
+			];
+			$where = ['sl_no' => $sl_no];
+	
+			$id = $this->Master->f_edit('md_proj_submit_by', $data, $where);
+			$message = ($id > 0) ? 'Updated Successfully!' : 'Something Went Wrong';
+		} else {
+			// **Add Mode**
+			$data = [
+				'proj_submit_by' => $proj_submit_by,
+				'created_by' => $user,
+				'created_at' => date('Y-m-d h:i:s')
+			];
+	
+			$id = $this->Master->f_insert('md_proj_submit_by', $data);
 			$message = ($id > 0) ? 'Added Successfully!' : 'Something Went Wrong';
 		}
 		// Send JSON response

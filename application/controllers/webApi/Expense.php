@@ -40,8 +40,35 @@ class Expense extends CI_Controller {
 	public function get_added_expense_list() {
 		
 		$approval_no = $this->input->post('approval_no') ;
-		$where = array('approval_no' => $approval_no,'order by payment_no ASC'); 
-		$result_data = $this->Master->f_select('td_expenditure', 'payment_no,approval_no,payment_date,payment_to,sch_amt,cont_amt,sch_remark,cont_remark', $where, NULL);
+		//$where = array('approval_no' => $approval_no,'order by payment_no ASC'); 
+	//	$result_data = $this->Master->f_select('td_expenditure', 'payment_no,approval_no,payment_date,payment_to,sch_amt,cont_amt,sch_remark,cont_remark', $where, NULL);
+		$result_data = $this->db->query("SELECT 
+										e.approval_no,
+										e.payment_no,
+										e.payment_date,
+										e.payment_to,
+										e.sch_amt,
+										e.cont_amt,
+										e.sch_remark,
+										e.created_by,
+										e.created_at,
+										GROUP_CONCAT(r.cont_rmrks ORDER BY r.cont_rmrks SEPARATOR ', ') AS cont_remark
+									FROM td_expenditure e
+									LEFT JOIN td_expenditure_cntg_rmrks c 
+										ON e.approval_no = c.approval_no 
+										AND e.payment_no = c.payment_no
+									LEFT JOIN md_cont_remarks r 
+										ON c.cont_rmrks_sl_no = r.sl_no
+									WHERE e.approval_no = $approval_no  
+									GROUP BY e.approval_no,
+											e.payment_no,
+											e.payment_date,
+											e.payment_to,
+											e.sch_amt,
+											e.cont_amt,
+											e.sch_remark,
+											e.created_by,
+											e.created_at")->result();
 		$response = (!empty($result_data)) 
 			? ['status' => 1, 'message' => $result_data,'OPERATION_STATUS' => 'add'] 
 			: ['status' => 0, 'message' => 'No data found'];
@@ -78,12 +105,28 @@ class Expense extends CI_Controller {
 			'sch_amt' => $this->input->post('sch_amt'),
 			'cont_amt' => $this->input->post('cont_amt'),
 			'sch_remark' => $this->input->post('sch_remark'),
-			'cont_remark' => $this->input->post('cont_remark'),
 			'created_by' => $this->input->post('created_by'),
 			'created_at' => date('Y-m-d h:i:s'),
 		];
-	
+		
 		$id = $this->db->insert('td_expenditure', $data);
+		$cont_remark_str = $this->input->post('cont_remark');
+		$cont_remark = !empty($cont_remark_str) ? explode(',', $cont_remark_str) : [];
+
+		if (!empty($cont_remark)) {
+			$batch_data = [];
+			foreach ($cont_remark as $value) {
+				$batch_data[] = [
+					'approval_no' => $this->input->post('approval_no'),
+					'payment_no' => $app_res_data[0]->payment_no,
+					'payment_date' => $this->input->post('payment_date'),
+					'cont_rmrks_sl_no' => trim($value) // Trim to remove extra spaces
+				];
+			}
+			if (!empty($batch_data)) {
+				$this->db->insert_batch('td_expenditure_cntg_rmrks', $batch_data);
+			}
+		}
 	    if($id){
 			echo json_encode([
 				'status' => 1,
@@ -104,9 +147,16 @@ class Expense extends CI_Controller {
 		$where['payment_no'] = $this->input->post('payment_no');
 		$where['payment_date'] = $this->input->post('payment_date');
 	
-		$result_data = $this->Master->f_select('td_expenditure', '*', $where, 1);
+		$result_data = $this->Master->f_select('td_expenditure', 'approval_no,payment_no,payment_date,payment_to,sch_amt,cont_amt,sch_remark', $where, 1);
+		$cont_remark_data = $this->Master->f_select('td_expenditure_cntg_rmrks', 'cont_rmrks_sl_no', array('approval_no' => $this->input->post('approval_no'), 'payment_no' => $this->input->post('payment_no')), NULL);
+		$cont_remark = array_map(function($row) {
+			return $row->cont_rmrks_sl_no;
+		}, $cont_remark_data);
+		
+		// Convert to JSON format (if needed)
+		$json_format = $cont_remark;
 		$response = (!empty($result_data)) 
-			? ['status' => 1, 'message' => $result_data] 
+			? ['status' => 1, 'message' => $result_data, 'cont_remark' => $json_format] 
 			: ['status' => 0, 'message' => 'No data found'];
 	
 		$this->output
@@ -117,50 +167,75 @@ class Expense extends CI_Controller {
 	public function expense_edit() {
 
 		$this->form_validation->set_rules('approval_no', 'Approval No', 'required');
-		$this->form_validation->set_rules('modified_by', 'created_by', 'required');
-		$this->form_validation->set_rules('payment_no', 'payment_no', 'required');
-		$this->form_validation->set_rules('payment_date', 'payment_date', 'required');
-		
+		$this->form_validation->set_rules('modified_by', 'Modified By', 'required');
+		$this->form_validation->set_rules('payment_no', 'Payment No', 'required');
+		$this->form_validation->set_rules('payment_date', 'Payment Date', 'required');
+
 		if ($this->form_validation->run() == FALSE) {
 			echo json_encode([
 				'status' => 0,
 				'message' => validation_errors()
 			]);
-		}else{
-			// Prepare data array for update
+		} else {
+			// Prepare data for update in `td_expenditure`
 			$data = [
 				'payment_to' => $this->input->post('payment_to'),
 				'sch_amt' => $this->input->post('sch_amt'),
 				'cont_amt' => $this->input->post('cont_amt'),
 				'sch_remark' => $this->input->post('sch_remark'),
-				'cont_remark' => $this->input->post('cont_remark'),
 				'modified_by' => $this->input->post('modified_by'),
 				'modified_at' => date('Y-m-d H:i:s')
 			];
-		
-			// Define where condition for update
+
+			// Define WHERE condition for update
 			$where = [
 				'approval_no' => $this->input->post('approval_no'),
 				'payment_no' => $this->input->post('payment_no'),
-				'payment_date'=> $this->input->post('payment_date'),
+				'payment_date' => $this->input->post('payment_date'),
 			];
-		
-			// Update data in the database
+
+			// Update the main table `td_expenditure`
 			$res = $this->Master->f_edit('td_expenditure', $data, $where);
-		    if($res > 0) {
+
+			// Handle multi-select `cont_remark` update in `td_expenditure_cntg_rmrks`
+			$cont_remark_str = $this->input->post('cont_remark');
+			$cont_remark = !empty($cont_remark_str) ? explode(',', $cont_remark_str) : [];
+
+			if (!empty($cont_remark)) {
+				// Step 1: Delete old remarks for the given `approval_no` and `payment_no`
+				$this->db->where($where);
+				$this->db->delete('td_expenditure_cntg_rmrks');
+
+				// Step 2: Insert new remarks
+				$batch_data = [];
+				foreach ($cont_remark as $value) {
+					$batch_data[] = [
+						'approval_no' => $this->input->post('approval_no'),
+						'payment_no' => $this->input->post('payment_no'),
+						'payment_date' => $this->input->post('payment_date'),
+						'cont_rmrks_sl_no' => trim($value) // Trim spaces
+					];
+				}
+
+				if (!empty($batch_data)) {
+					$this->db->insert_batch('td_expenditure_cntg_rmrks', $batch_data);
+				}
+			}
+
+			if ($res > 0) {
 				echo json_encode([
 					'status' => 1,
-					'message' => 'updated successfully!'
+					'message' => 'Updated successfully!'
 				]);
-		   }else{
+			} else {
 				echo json_encode([
 					'status' => 0,
 					'message' => 'Something Went Wrong!'
 				]);
 			}
-	    }
-	
-    }
+		}
+			
+	}
 	
 	
 }

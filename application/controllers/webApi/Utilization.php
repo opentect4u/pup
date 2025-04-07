@@ -299,6 +299,223 @@ class Utilization extends CI_Controller {
 		]);
 	  }
 	}
+
+	public function projCompCertiReq() {
+		
+		$approval_no = $this->input->post('approval_no');
+		// $where = ['a.approval_no = b.approval_no' => NULL,'a.approval_no' => $approval_no];
+		// $result_data = $this->db->query('SELECT 
+		// 							b.admin_approval_dt, 
+		// 							b.scheme_name, 
+		// 							c.sector_desc AS sector_name, 
+		// 							d.fin_year, 
+		// 							b.project_id, 
+		// 							e.dist_name, 
+		// 							f.block_name, 
+		// 							a.approval_no, 
+		// 							g.agency_name
+		// 						FROM td_admin_approval b 
+		// 						LEFT JOIN td_progress a ON a.approval_no = b.approval_no 
+		// 						INNER JOIN md_sector c ON b.sector_id = c.sl_no 
+		// 						INNER JOIN md_fin_year d ON b.fin_year = d.sl_no 
+		// 						INNER JOIN md_district e ON b.district_id = e.dist_code 
+		// 						INNER JOIN md_block f ON b.block_id = f.block_id 
+		// 						INNER JOIN md_proj_imp_agency g ON b.impl_agency = g.id 
+		// 						WHERE b.approval_no = "'.$approval_no.'" LIMIT 1')->result();
+		// $wo_date = $this->Master->f_select('td_admin_approval a,td_tender b', 'b.wo_date,b.amt_put_to_tender,b.wo_value,b.comp_date_apprx as stipulated_dt', array_merge($where,['1 order by b.tender_date desc limit 1'=>NULL]), NULL);
+
+		$sql = "SELECT 
+            b.admin_approval_dt, 
+            b.scheme_name, 
+            c.sector_desc AS sector_name, 
+            d.fin_year, 
+            b.project_id, 
+            e.dist_name, 
+            f.block_name, 
+            g.agency_name,
+            t.wo_date,
+            t.amt_put_to_tender,
+            t.wo_value,
+            t.comp_date_apprx AS stipulated_dt
+        FROM td_admin_approval b
+        LEFT JOIN td_progress a ON a.approval_no = b.approval_no
+        INNER JOIN md_sector c ON b.sector_id = c.sl_no
+        INNER JOIN md_fin_year d ON b.fin_year = d.sl_no
+        INNER JOIN md_district e ON b.district_id = e.dist_code
+        INNER JOIN md_block f ON b.block_id = f.block_id
+        INNER JOIN md_proj_imp_agency g ON b.impl_agency = g.id
+        LEFT JOIN (
+            SELECT *
+            FROM td_tender
+            WHERE approval_no = $approval_no
+            ORDER BY tender_date DESC
+            LIMIT 1
+        ) t ON t.approval_no = b.approval_no
+        WHERE b.approval_no = $approval_no
+        LIMIT 1";
+        $result_data = $this->db->query($sql)->result();
+		$actualdtres = $this->Master->f_select('td_progress', 'actual_date_comp', array('approval_no'=>$approval_no,'1 order by visit_no desc limit 1'=>NULL), NULL);
+		
+		$response = (!empty($result_data)) 
+			? ['status' => 1, 'message' => $result_data,'comp_date_actual'=>$actualdtres] 
+			: ['status' => 0, 'message' => 'No data found'];
+	
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
+    }
+
+	public function pcrcertificateadd() {
+	    
+		$this->form_validation->set_rules('approval_no', 'Approval No', 'required');
+		$this->form_validation->set_rules('contractor_name_dtls', 'contractor_name_dtls', 'required');
+		$this->form_validation->set_rules('fin_year', 'fin_year', 'required');
+		$this->form_validation->set_rules('scheme_name', 'scheme_name', 'required');
+		$this->form_validation->set_rules('e_nit_no', 'e_nit_no', 'required');
+		$this->form_validation->set_rules('work_order_dtl', 'work_order_dtl', 'required');
+		$this->form_validation->set_rules('work_order_dt', 'work_order_dt', 'required');
+		$this->form_validation->set_rules('amt_put_totender', 'amt_put_totender', 'required');
+		$this->form_validation->set_rules('work_order_value', 'work_order_value', 'required');
+		$this->form_validation->set_rules('stipulated_dt_comp', 'stipulated_dt_comp', 'required');
+		$this->form_validation->set_rules('actual_dt_com', 'actual_dt_com', 'required');
+		$this->form_validation->set_rules('gross_value', 'gross_value', 'required');
+		$this->form_validation->set_rules('final_value', 'final_value', 'required');
+		$this->form_validation->set_rules('remarks', 'remarks', 'required');
+		
+		if ($this->form_validation->run() == FALSE) {
+			echo json_encode([
+				'status' => 0,
+				'message' => validation_errors()
+			]);
+		}else{
+				$data = [
+					'approval_no' => $this->input->post('approval_no'),
+					'contractor_name_dtls' => $this->input->post('contractor_name_dtls'),
+					'fin_year' => $this->input->post('fin_year'),
+					'scheme_name' => $this->input->post('scheme_name'),
+					'e_nit_no' => $this->input->post('e_nit_no'),
+					'work_order_dtl' => $this->input->post('work_order_dtl'),
+					'work_order_dt'  => $this->input->post('work_order_dt'),
+					'amt_put_totender' => $this->input->post('amt_put_totender'),
+					'work_order_value' => $this->input->post('work_order_value'),
+					'stipulated_dt_comp'  => $this->input->post('stipulated_dt_comp'),
+					'actual_dt_com' => $this->input->post('actual_dt_com'),
+					'gross_value' => $this->input->post('gross_value'),
+					'final_value'  => $this->input->post('final_value'),
+					'remarks' => $this->input->post('remarks'),
+					'created_by' => $this->input->post('created_by'),
+					'created_at' => date('Y-m-d h:i:s'),
+				];
+	
+				$id = $this->db->insert('td_proj_comp_report', $data);
+
+				$response = (!empty($id)) 
+				? ['status' => 1, 'message' => 'Added Successfully'] 
+				: ['status' => 0, 'message' => 'No data found'];	
+				$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
+	    }
+	}
+
+	
+	public function projCompCertilist() {
+		
+		$select = 'a.approval_no,b.project_id,a.contractor_name_dtls,a.fin_year,a.scheme_name,a.e_nit_no,a.work_order_dtl,a.work_order_dt,a.amt_put_totender,a.work_order_value,
+		           a.stipulated_dt_comp,a.actual_dt_com,a.gross_value,a.final_value,a.remarks,a.upload_status,a.pcr_certificate';
+	    $where = array('a.approval_no = b.approval_no' => NULL);			   			
+		
+		$result_data = $this->Master->f_select('td_proj_comp_report a,td_admin_approval b',$select, $where, NULL);
+		$response = (!empty($result_data)) 
+		? ['status' => 1, 'message' => $result_data,'folder_name'=>'uploads/pcr/'] 
+		: ['status' => 0, 'message' => 'No data found'];
+		$this->output
+		->set_content_type('application/json')
+		->set_output(json_encode($response));
+	 
+	}
+	public function projCompCertiSingledata() {
+
+		$this->form_validation->set_rules('approval_no', 'Approval No', 'required');
+		if ($this->form_validation->run() == FALSE) {
+			echo json_encode([
+				'status' => 0,
+				'message' => validation_errors()
+			]);
+		}else{
+			$select = 'a.approval_no,b.project_id,a.contractor_name_dtls,a.fin_year,a.scheme_name,a.e_nit_no,a.work_order_dtl,a.work_order_dt,a.amt_put_totender,a.work_order_value,
+					a.stipulated_dt_comp,a.actual_dt_com,a.gross_value,a.final_value,a.remarks,a.upload_status,a.pcr_certificate';
+			$where = array('a.approval_no = b.approval_no' => NULL,'a.approval_no' => $this->input->post('approval_no'));			   			
+			$result_data = $this->Master->f_select('td_proj_comp_report a,td_admin_approval b',$select, $where, 1);
+			$response = (!empty($result_data)) 
+			? ['status' => 1, 'message' => $result_data,'folder_name'=>'uploads/pcr/'] 
+			: ['status' => 0, 'message' => 'No data found'];
+			$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
+		}
+	 
+	}
+
+	public function pcrUpload() {
+		$upload_paths = []; // Store file paths
+	
+		// Load Upload Library
+		$this->load->library('upload');
+		// File fields to process
+		$file_fields = ['pcr_certificate'];
+		$this->form_validation->set_rules('approval_no', 'Approval No', 'required');
+		$this->form_validation->set_rules('upload_by', 'upload_by', 'required');
+		
+		if ($this->form_validation->run() == FALSE) {
+			echo json_encode([
+				'status' => 0,
+				'message' => validation_errors()
+			]);
+		}else{
+	
+		foreach ($file_fields as $field) {
+			if (!empty($_FILES[$field]['name'])) {
+				$config['upload_path']   = './uploads/pcr/'; // Folder to store files
+				$config['allowed_types'] = 'pdf'; // Allow only PDFs
+				$config['max_size']      = 20480; // Max file size (2MB)
+				$config['encrypt_name']  = TRUE; // Encrypt filename for security
+	
+				$this->upload->initialize($config); // Initialize config for each file
+	
+				if (!$this->upload->do_upload($field)) {
+					echo json_encode([
+						'status' => false,
+						'message' => "Error uploading {$field}: " . $this->upload->display_errors()
+					]);
+					return;
+				}
+				// Store new file name
+				$fileData = $this->upload->data();
+				$upload_paths[$field] = $fileData['file_name'];
+			} 
+		}
+		// Prepare data array for update
+		$data = [
+			'pcr_certificate' => $upload_paths['pcr_certificate'],
+			'upload_status' => '1',
+			'upload_by' => $this->input->post('upload_by'),
+			'upload_at' => date('Y-m-d H:i:s')
+		];
+	
+		// Define where condition for update
+		$where = [
+			'approval_no' => $this->input->post('approval_no')
+		];
+		// Update data in the database
+		$this->Master->f_edit('td_proj_comp_report', $data, $where);
+	
+		echo json_encode([
+			'status' => true,
+			'message' => 'updated successfully!'
+		]);
+	  }
+	}
 	
 	
 }
