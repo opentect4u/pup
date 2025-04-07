@@ -314,7 +314,7 @@ class Tender extends CI_Controller {
 									b.scheme_name, 
 									c.sector_desc AS sector_name, 
 									d.fin_year, 
-									b.project_id, 
+									b.project_id,b.sch_amt,b.cont_amt,
 									e.dist_name, 
 									f.block_name, 
 									a.approval_no, 

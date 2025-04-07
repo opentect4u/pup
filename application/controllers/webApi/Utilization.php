@@ -299,6 +299,17 @@ class Utilization extends CI_Controller {
 		]);
 	  }
 	}
+	public function getProjListForPcr(){
+
+		  $sql = "select approval_no,project_id FROM td_admin_approval where approval_no not in (select approval_no from td_proj_comp_report)";
+		  $result_data = $this->db->query($sql)->result();
+		  $response = (!empty($result_data)) 
+		  ? ['status' => 1, 'message' => array_merge($result_data)] 
+		  : ['status' => 0, 'message' => 'No data found'];
+		  $this->output
+		  ->set_content_type('application/json')
+		  ->set_output(json_encode($response));
+	}
 
 	public function projCompCertiReq() {
 		
@@ -515,6 +526,130 @@ class Utilization extends CI_Controller {
 			'message' => 'updated successfully!'
 		]);
 	  }
+	}
+
+	public function dtprojforUtil() {
+		
+		$this->form_validation->set_rules('approval_no', 'Approval No', 'required');
+		
+		if ($this->form_validation->run() == FALSE) {
+			echo json_encode([
+				'status' => 0,
+				'message' => validation_errors()
+			]);
+		}else{
+			$approval_no = $this->input->post('approval_no') ;
+				$sql = "SELECT 
+				b.scheme_name, 
+				c.sector_desc AS sector_name, 
+				d.fin_year, 
+				b.project_id, 
+				e.dist_name, 
+				f.block_name, 
+				g.agency_name
+			FROM td_admin_approval b
+			INNER JOIN md_sector c ON b.sector_id = c.sl_no
+			INNER JOIN md_fin_year d ON b.fin_year = d.sl_no
+			INNER JOIN md_district e ON b.district_id = e.dist_code
+			INNER JOIN md_block f ON b.block_id = f.block_id
+			INNER JOIN md_proj_imp_agency g ON b.impl_agency = g.id
+			WHERE b.approval_no = $approval_no";
+			$result_data = $this->db->query($sql)->result();
+			$select = 'sum(sch_amt) fund_rece_sch_amt,sum(cont_amt) fund_rece_cont_amt ,sum(sch_amt)+
+			sum(cont_amt) as fund_recv_tot_amt';
+			$where = array('approval_no ' => $this->input->post('approval_no'));			   			
+			$res_fund = $this->Master->f_select('td_fund_receive',$select, $where, 0);
+			$select1 = 'sum(sch_amt) expen_sch_amt,sum(cont_amt) expen_cont_amt ,sum(sch_amt)+
+			sum(cont_amt) as expen_tot_amt';
+			$res_expense = $this->Master->f_select('td_expenditure',$select1, $where, 0);
+		
+			$response = (!empty($res_fund)) 
+			? ['status' => 1, 'message' => array_merge($result_data,$res_fund,$res_expense)] 
+			: ['status' => 0, 'message' => 'No data found'];
+			$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
+		}
+	} 
+
+	public function uticertificateadd() {
+	    
+		$this->form_validation->set_rules('approval_no', 'Approval No', 'required');
+		$this->form_validation->set_rules('sche_exp_letter_dt', 'sche_exp_letter_dt', 'required');
+		$this->form_validation->set_rules('expen_sch_amt', 'expen_sch_amt', 'required');
+		$this->form_validation->set_rules('cont_exp_letter_dt', 'cont_exp_letter_dt', 'required');
+		$this->form_validation->set_rules('expen_cont_amt', 'expen_cont_amt', 'required');
+		$this->form_validation->set_rules('recv_sche_amt', 'recv_sche_amt', 'required');
+		$this->form_validation->set_rules('recv_cont_amt', 'recv_cont_amt', 'required');
+		$this->form_validation->set_rules('fin_year', 'fin_year', 'required');
+		$this->form_validation->set_rules('scheme_name', 'scheme_name', 'required');
+		$this->form_validation->set_rules('created_by', 'created_by', 'required');
+		
+		if ($this->form_validation->run() == FALSE) {
+			echo json_encode([
+				'status' => 0,
+				'message' => validation_errors()
+			]);
+		}else{
+				$data = [
+					'approval_no' => $this->input->post('approval_no'),
+					'sche_exp_letter_dt' => $this->input->post('sche_exp_letter_dt'),
+					'expen_sch_amt' => $this->input->post('expen_sch_amt'),
+					'cont_exp_letter_dt' => $this->input->post('cont_exp_letter_dt'),
+					'expen_cont_amt' => $this->input->post('expen_cont_amt'),
+					'recv_sche_amt' => $this->input->post('recv_sche_amt'),
+					'recv_cont_amt'  => $this->input->post('recv_cont_amt'),
+					'fin_year' => $this->input->post('fin_year'),
+					'scheme_name' => $this->input->post('scheme_name'),
+					'created_by' => $this->input->post('created_by'),
+					'created_at' => date('Y-m-d h:i:s'),
+				];
+	
+				$id = $this->db->insert('td_utilization_certificate', $data);
+
+				$response = (!empty($id)) 
+				? ['status' => 1, 'message' => 'Added Successfully'] 
+				: ['status' => 0, 'message' => 'No data found'];	
+				$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
+	    }
+	}
+
+	public function getcertificateData() {
+		
+		$this->form_validation->set_rules('approval_no', 'Approval No', 'required');
+		if ($this->form_validation->run() == FALSE) {
+			echo json_encode([
+				'status' => 0,
+				'message' => validation_errors()
+			]);
+		}else{
+			$approval_no = $this->input->post('approval_no');
+			$select = 'a.approval_no,a.sche_exp_letter_dt,a.expen_sch_amt,a.cont_exp_letter_dt,a.expen_cont_amt,a.recv_sche_amt,a.recv_cont_amt,a.fin_year,a.scheme_name,b.project_id';
+			$where = array('a.approval_no = b.approval_no' => NULL,'a.approval_no ' => $this->input->post('approval_no'));			   			
+			$result_data = $this->Master->f_select('td_utilization_certificate a,td_admin_approval b',$select, $where, 1);
+		
+			$response = (!empty($result_data)) 
+			? ['status' => 1, 'message' => $result_data]
+			: ['status' => 0, 'message' => 'No data found'];
+			$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
+		}
+	}
+	public function certificatlist() {
+
+			$select = 'a.approval_no,b.project_id,a.sche_exp_letter_dt,a.expen_sch_amt,a.cont_exp_letter_dt,a.expen_cont_amt,a.recv_sche_amt,a.recv_cont_amt,a.fin_year,a.scheme_name';
+			$where = array('a.approval_no = b.approval_no' => NULL );			   			
+			$result_data = $this->Master->f_select('td_utilization_certificate a,td_admin_approval b',$select, $where, 0);
+		   
+			$response = (!empty($result_data)) 
+			? ['status' => 1, 'message' => array_merge($result_data)] 
+			: ['status' => 0, 'message' => 'No data found'];
+			$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
 	}
 	
 	
