@@ -74,11 +74,16 @@ const items = [
     key: "EXP",
     icon: <DollarCircleFilled />,
   },
-  {
-    label: <Link to={"uc"}>Utilization Certificate </Link>,
-    key: "UC",
-    icon: <FileFilled />,
-  }
+  // {
+  //   label: <Link to={"uc"}>Utilization Certificate </Link>,
+  //   key: "UC",
+  //   icon: <FileFilled />,
+  // },
+  // {
+  //   label: <Link to={"uc_c"}>Utilization Certificate New </Link>,
+  //   key: "UC_C",
+  //   icon: <FileFilled />,
+  // }
 ];
 
 const MasterAccordion = () => (
@@ -176,6 +181,30 @@ const ReportAccordion = () => (
   </Collapse>
 );
 
+const UtilizationAccordion = () => (
+  <Collapse accordion>
+    <Panel header="Utilization Certificate" key="1" >
+      <ul>
+        <li>
+          <Link to={"uc_c"}>Utilization Certificate Generate </Link>
+        </li>
+        <li>
+          <Link to={"uc"}>Utilization Certificate</Link>
+        </li>
+        {/* <li>
+          <Link to={"master/add-source-fund"}>Source Of Fund</Link>
+        </li>
+        <li>
+          <Link to={"master/implementing-agency"}>Implementing Agency</Link>
+        </li>
+        <li>
+          <Link to={"master/account-head-list"}>Account Head List</Link>
+        </li> */}
+      </ul>
+    </Panel>
+  </Collapse>
+);
+
 function Sidebar() {
   const [current, setCurrent] = useState("home");
   const [userDataLocalStore, setUserDataLocalStore] = useState([]);
@@ -220,6 +249,7 @@ function Sidebar() {
         />
         {userDataLocalStore.user_type != "U" && (
         <>
+        <UtilizationAccordion />
         <MasterAccordion />
         <UserAccordion />
         </>

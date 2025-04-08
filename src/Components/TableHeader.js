@@ -8,6 +8,7 @@ const TableHeader = ({ curentPage }) => {
     page_5: 'FundExpView',
     page_6: 'UCView',
     page_7: 'PCRView',
+    page_8: 'UC_Generate',
   }
 
   if (curentPage === pageTree.page_1) {
@@ -123,6 +124,23 @@ const TableHeader = ({ curentPage }) => {
       </thead>
     );
   }
+
+  if (curentPage === pageTree.page_8) {
+      return (
+        <thead className="text-xs text-gray-700 uppercase bg-slate-200">
+          <tr>
+            <th className="px-4 py-3">Project ID</th>
+            <th className="px-4 py-3">Schematic Name</th>
+            <th className="px-4 py-3">Financial Year</th>
+            <th className="px-4 py-3">Generate Certificate</th>
+            {/* <th className="px-4 py-3">Upload PDF (PDF Max Size 2 MB)</th>
+            <th className="px-4 py-3">Download</th> */}
+            {/* <th className="px-4 py-3">View</th> */}
+          </tr>
+        </thead>
+      );
+    }
+  
 
   return null; // Default case if no condition matches
 };

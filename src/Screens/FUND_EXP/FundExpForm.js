@@ -72,7 +72,6 @@ function FundExpForm() {
       .positive('Schematic Amount must be greater than zero')
       .max(balanceSchematicAmount, `Amount must be within ${balanceSchematicAmount}`)
       .required('Schematic Amount is required'),
-    // cont_amt_one: Yup.string().required('Contigency Amount is Required'),
     cont_amt_one: Yup.number()
       .typeError('Contigency Amount must be a number')
       .positive('Contigency Amount must be greater than zero')

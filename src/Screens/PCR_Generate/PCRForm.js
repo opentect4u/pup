@@ -95,50 +95,13 @@ function PCRForm() {
 
 
 
-  const fundAddedList = async (approvalNo_Para) => {
-    setLoading(true); // Set loading state
-    console.log(approvalNo, 'approvalNoapprovalNoapprovalNoapprovalNo');
-    
-    
-    const formData = new FormData();
-    formData.append("approval_no", approvalNo_Para);
 
-    try {
-      const response = await axios.post(
-        `${url}index.php/webApi/Tender/tender_list_proj`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            'auth_key': auth_key // Important for FormData
-          },
-        }
-      );
-
-      console.log("approvalNoapprovalNoapprovalNoapprovalNo", response?.data);
-
-      if(response.data.status > 0){
-        setFundStatus(response?.data?.message)
-        setLoading(false);
-      }
-
-      if(response.data.status < 1){
-        setFundStatus([])
-        setLoading(false);
-      }
-    } catch (error) {
-      setLoading(false);
-      Message("error", "Error Submitting Form:");
-      console.error("Error submitting form:", error);
-    }
-
-  };
 
   const fetchProjectId = async () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        url + 'index.php/webApi/Admapi/get_approval_no',
+        url + 'index.php/webApi/Utilization/getProjListForPcr',
         {}, // Empty body
         {
           headers: {
@@ -419,7 +382,7 @@ function PCRForm() {
 
 
       
-      {params?.id < 1 &&(
+      {/* {params?.id < 1 &&( */}
         <>
         
         <Heading title={'Project Details'} button={'Y'} />
@@ -436,7 +399,7 @@ function PCRForm() {
             <div class="sm:col-span-4">
               
 
-           
+            {params?.id < 1 &&(
             <>
             <label for="fin_yr" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Project ID / Approval Number</label>
             <Select
@@ -458,6 +421,18 @@ function PCRForm() {
             ))}
             </Select>
             </>
+            )}
+
+              {params?.id > 0 &&(
+              <TDInputTemplate
+              type="text"
+              label="Project ID / Approval Number"
+              formControlName={getMsgData.project_id +'-'+ getMsgData.approval_no}
+              mode={1}
+              disabled={true}
+              />
+
+              )}
 
          
             
@@ -476,14 +451,14 @@ function PCRForm() {
       </Spin>
         </>
         
-      )}
+      {/* )} */}
         
         {/* {JSON.stringify(formValues, null, 2)} */}
        
 
         {showForm  &&(
         <>
-      <Heading title={'PCR Project Details'} button={params?.id < 1 ? 'N' : 'Y'}/>
+      <Heading title={'PCR Project Details'} button={'N'}/>
         <form onSubmit={formik.handleSubmit}>
           <div class="grid gap-4 sm:grid-cols-12 sm:gap-6">
 

@@ -1,9 +1,11 @@
 import LOGO from "../Assets/Images/logo.png"
+
+{/* <div class="logo">
+        <img src="${LOGO}" class="mr-3 sm:h-16" alt="Logo" style="width:80px; text-align:center;"/>
+      </div> */}
+
 export const getPrintCommonHeader_PCR = () => {
     return `
-      <div class="logo">
-        <img src="${LOGO}" class="mr-3 sm:h-16" alt="Logo" style="width:80px; text-align:center;"/>
-      </div>
       <div class="header">
       <h3>Government Of West Bengal</h3>
       <h3>Paschimanchal Unnayan Parshad</h3>

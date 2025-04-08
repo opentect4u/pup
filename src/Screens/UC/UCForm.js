@@ -31,25 +31,23 @@ const options = [
 ]
 
 const initialValues = {
-  issued_by: '',
+  // issued_by: '',
   certificate_path: '',
-  issued_to: '',
-  cont_amt_one: '',
+  // issued_to: '',
+  // cont_amt_one: '',
+  purpose_field:'',
   exp_text: '',
-  certificate_date: '',
+  // certificate_date: '',
   photo_com_report: '',
+  
 };
 
 
+const purposeOfCertificate = [
+  {sl_no: 1, name: 'Schematic', value: 'S' },
+  {sl_no:2,  name: 'Contigency', value: 'C' },
+]
 
-// const validationSchema = Yup.object({
-//   issued_by: Yup.string().required('Issued By is Required'),
-//   issued_to: Yup.string().required('Issued To is Required'),
-//   certificate_path: Yup.string().required('Utilization Certificate is Required'),
-//   certificate_date: Yup.string().required('Certificate Date is Required'),
-//   photo_com_report: Yup.string().required('Photograph Of Completed Report is Required'),
-//   exp_text: Yup.string().required('Remarks is Required'),
-// });
 
 
 
@@ -84,11 +82,12 @@ function UCForm() {
 
   const validationSchema = useMemo(() => 
     Yup.object({
-      issued_by: Yup.string().required('Issued By is Required'),
-      issued_to: Yup.string().required('Issued To is Required'),
+      // issued_by: Yup.string().required('Issued By is Required'),
+      // issued_to: Yup.string().required('Issued To is Required'),
       certificate_path: Yup.mixed().required('Utilization Certificate is Required'),
-      certificate_date: Yup.string().required('Certificate Date is Required'),
+      // certificate_date: Yup.string().required('Certificate Date is Required'),
       exp_text: Yup.string().required('Remarks is Required'),
+      purpose_field:  Yup.string().required('Type Of Certificate is Required'),
       photo_com_report: radioType === 'Y' 
         ? Yup.mixed().required('Photograph Of Completed Report is Required') 
         : Yup.mixed().notRequired(),
@@ -151,10 +150,11 @@ function UCForm() {
   
       // // Append each field to FormData
       formData.append("approval_no", approvalNo);
-      formData.append("issued_by", formik.values.issued_by);
+      formData.append("issued_by", '');
       formData.append("certificate_path", formik.values.certificate_path); // Ensure this is a file if applicable
-      formData.append("issued_to", formik.values.issued_to);
-      formData.append("certificate_date", formik.values.certificate_date);
+      formData.append("certi_type", formik.values.purpose_field); // Ensure this is a file if applicable
+      formData.append("issued_to", '');
+      formData.append("certificate_date", '');
       formData.append("remarks", formik.values.exp_text);
       formData.append("is_final", radioType);
       formData.append("final_pic", formik.values.photo_com_report);
@@ -196,28 +196,18 @@ function UCForm() {
       const formData = new FormData();
   
       
-      formData.append("issued_by", formik.values.issued_by);
-      formData.append("issued_to", formik.values.issued_to);  //////////
+      formData.append("issued_by", '');
+      formData.append("issued_to", '');  //////////
       formData.append("certificate_path", formik.values.certificate_path);
-      formData.append("certificate_date", formik.values.certificate_date);
-      formData.append("exp_text", formik.values.exp_text);
+      formData.append("certi_type", formik.values.purpose_field); // Ensure this is a file if applicable
+      formData.append("certificate_date", '');
+      formData.append("remarks", formik.values.exp_text);
   
   
       formData.append("approval_no", params?.id);
       formData.append("certificate_no", certificate_no);
       formData.append("modified_by", userDataLocalStore.user_id);
 
-// approval_no, //
-// certificate_no, //
-// modified_by //
-
-// certificate_date,
-// certificate_path,
-// issued_by,
-// issued_to,
-// remarks,
-
-  
     
       console.log("formDataformData", formData);
   
@@ -362,10 +352,11 @@ function UCForm() {
       if (response?.data.status > 0) {
         setLoading(false);
         setValues({
-          issued_by: response?.data?.message?.issued_by,
-          issued_to: response?.data?.message?.issued_to,
+          // issued_by: response?.data?.message?.issued_by,
+          // issued_to: response?.data?.message?.issued_to,
+          purpose_field: response?.data?.message?.certi_type	,
           certificate_path: response?.data?.message?.certificate_path,
-          certificate_date:  response?.data?.message?.certificate_date,
+          // certificate_date:  response?.data?.message?.certificate_date,
           exp_text: response?.data?.message?.remarks,
         })
 
@@ -651,12 +642,12 @@ function UCForm() {
           //   }
           ></Column>
 
-          <Column
+          {/* <Column
           field="certificate_date"
           header="Date"
-          ></Column>
+          ></Column> */}
 
-          <Column
+          {/* <Column
           field="issued_by"
           header="Issued By"
           ></Column>
@@ -664,6 +655,16 @@ function UCForm() {
           <Column
           field="issued_to"
           header="Issued To"
+          ></Column> */}
+
+<Column
+          // field="instl_amt"
+          header="Type Of Certificate"
+          body={(rowData) => (
+            <>
+            {rowData.certi_type == 'S'? 'Schematic': 'Contigency'}
+            </>
+            )}
           ></Column>
 
 
@@ -745,7 +746,7 @@ function UCForm() {
         <Heading title={"Utilization Certificate Details"} button={'N'}/>
         <form onSubmit={formik.handleSubmit}>
         <div class="grid gap-4 sm:grid-cols-12 sm:gap-6">
-          <div class="sm:col-span-3">
+          {/* <div class="sm:col-span-3">
             <TDInputTemplate
               type="text"
               placeholder="Issued By"
@@ -775,34 +776,43 @@ function UCForm() {
             {formik.errors.issued_to && formik.touched.issued_to && (
               <VError title={formik.errors.issued_to} />
             )}
-          </div>
+          </div> */}
+
+<div class="sm:col-span-4">
+              
+
+              <label for="head_acc" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Type Of Certificate</label>
+              {/* {JSON.stringify(headAccountDropList, null, 2)} */}
+              <Select
+                placeholder="Choose Purpose Of Certificate"
+                value={formik.values.purpose_field || undefined} // Ensure default empty state
+                onChange={(value) => {
+                  formik.setFieldValue("purpose_field", value)
+                }}
+                onBlur={formik.handleBlur}
+                style={{ width: "100%" }}
+                // name="purposeOfCertificate"
+              >
+                <Select.Option value="" disabled> Choose Purpose Of Certificate </Select.Option>
+                {purposeOfCertificate?.map(data => (
+                  <Select.Option key={data.value} value={data.value}>
+                    {data.name}
+                  </Select.Option>
+                ))}
+              </Select>
+
+              {formik.errors.purpose_field && formik.touched.purpose_field && (
+                <VError title={formik.errors.purpose_field} />
+              )}
+            </div>
         
           <div class="sm:col-span-3" style={{position:'relative'}}>
-            {/* <TDInputTemplate
-            type="file"
-            name="certificate_path"
-            placeholder="Utilization Certificate"
-            label="Utilization Certificate"
-            // label={fundStatus.length == 4? 'Project Completion Report' : fundStatus.length == 5? 'Photograph Of Completed Report' : 'Utilization Certificate'}
-            handleChange={(event) => {
-            formik.setFieldValue("certificate_path", event.currentTarget.files[0]);
-            }}
-            handleBlur={formik.handleBlur}
-            mode={1}
-            /> */}
-
+    
             <TDInputTemplate
               type="file"
               name="certificate_path"
               placeholder="Utilization Certificate"
               label="Utilization Certificate (PDF Max Size 2 MB)"
-              // handleChange={(event) => {
-              //   const file = event.currentTarget.files[0];
-              //   if (file) {
-              //   formik.setFieldValue("certificate_path", file);
-              //   setFilePreview_1(URL.createObjectURL(file)); // Create a preview URL
-              //   }
-              // }}
               handleChange={(event) => {
                 handleFileChange_pdf_1(event)
               }}
@@ -832,7 +842,7 @@ function UCForm() {
              {errorpdf_1 && <p style={{ color: "red", fontSize:12 }}>{errorpdf_1}</p>}
           </div>
 
-          <div class="sm:col-span-3">
+          {/* <div class="sm:col-span-3">
             <TDInputTemplate
               type="date"
               placeholder="Certificate Date goes here.."
@@ -846,7 +856,7 @@ function UCForm() {
             {formik.errors.certificate_date && formik.touched.certificate_date && (
               <VError title={formik.errors.certificate_date} />
             )}
-          </div>
+          </div> */}
 
           <div class="sm:col-span-12">
             <TDInputTemplate

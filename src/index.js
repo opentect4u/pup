@@ -45,6 +45,9 @@ import Project_Submitted_By_Form from './Screens/MASTER/Project_Submitted_By_For
 import PCRView from './Screens/PCR_Generate/PCRView';
 import PCRComp from './Screens/PCR_Generate/PCRComp';
 import PCRForm from './Screens/PCR_Generate/PCRForm';
+import UC_Comp from './Screens/UC_Generate/UC_Comp';
+import UC_View from './Screens/UC_Generate/UC_View';
+import UC_Form from './Screens/UC_Generate/UC_Form';
 // import Financial_Report__test from './Screens/REPORTS/Financial_Report__test';
 // import FundRelView__test from './Screens/FUND_RELEASE/FundRelView__test';
 
@@ -148,6 +151,20 @@ const router = createBrowserRouter([
             //   path: "tftenderlist",
             //   element: <TFTenderList />,
             // }
+          ]
+        },
+        {
+          path: "uc_c",
+          element: <UC_Comp />,
+          children: [
+            {
+              path: "",
+              element: <UC_View />,
+            },
+            {
+              path: "uc-add/:id",
+              element: <UC_Form />,
+            }
           ]
         },
         {
