@@ -59,7 +59,7 @@ class Master extends CI_Model {
     public function f_insert($table_name, $data_array) {
 
         $this->db->insert($table_name, $data_array);
-        return $this->db->affected_rows();
+        return $this->db->insert_id();
 
     }
 

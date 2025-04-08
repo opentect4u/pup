@@ -79,7 +79,7 @@ class Utilization extends CI_Controller {
 		
 		$approval_no = $this->input->post('approval_no') ;
 		$where = array('approval_no' => $approval_no); 
-		$result_data = $this->Master->f_select('td_utilization', 'approval_no,certificate_no,certificate_date,certificate_path,issued_by,issued_to,remarks,is_final', $where, NULL);
+		$result_data = $this->Master->f_select('td_utilization', 'approval_no,certificate_no,certificate_date,certificate_path,issued_by,issued_to,remarks,is_final,certi_type', $where, NULL);
 		$final_pic = $this->Master->f_select('td_proj_final_pic', 'final_pic', $where, NULL);
 		$query = $this->db->get_where('td_utilization', ['approval_no' => $this->input->post('approval_no'),'is_final'=>'Y']);
 		if($query->num_rows() == 0) {
@@ -102,7 +102,7 @@ class Utilization extends CI_Controller {
 		               'b.fin_year = d.sl_no' => NULL,'b.district_id = e.dist_code' => NULL,
 					   'b.block_id = f.block_id' => NULL,'1 group by b.admin_approval_dt,b.scheme_name,sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no'=>NULL);
 		
-		$result_data = $this->Master->f_select('td_utilization a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f', 'b.admin_approval_dt,b.scheme_name,c.sector_desc as sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no', $where, NULL);
+		$result_data = $this->Master->f_select('td_utilization a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f', 'b.admin_approval_dt,b.scheme_name,c.sector_desc as sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no,a.certi_type', $where, NULL);
 
 		if (!empty($result_data)) {
 			echo json_encode(['status' => 1, 'message' => $result_data,'folder_name'=>'uploads/fund/']);
@@ -153,6 +153,7 @@ class Utilization extends CI_Controller {
 			'approval_no' => $this->input->post('approval_no'),
 			'certificate_no' => $app_res_data->certificate_no,
 			'certificate_date' => $this->input->post('certificate_date'),
+			'certi_type' => $this->input->post('certi_type'),
 			'certificate_path' => $upload_paths['certificate_path'],
 			'issued_by' => $this->input->post('issued_by'),
 			'issued_to' => $this->input->post('issued_to'),
@@ -203,7 +204,7 @@ class Utilization extends CI_Controller {
 		echo json_encode([
 			'status' => 1,
 			'data' => 'Files uploaded successfully!',
-			'file_paths' => $upload_path
+			'file_paths' => $upload_paths
 		]);
 	}
 
@@ -216,7 +217,7 @@ class Utilization extends CI_Controller {
 		$where['approval_no'] = $approval_no;
 		$where['certificate_no'] = $certificate_no;
 	
-		$result_data = $this->Master->f_select('td_utilization', 'approval_no,certificate_no,certificate_date,certificate_path,issued_by,issued_to,remarks,is_final', $where, 1);
+		$result_data = $this->Master->f_select('td_utilization', 'approval_no,certificate_no,certificate_date,certificate_path,issued_by,issued_to,remarks,is_final,certi_type', $where, 1);
 	
 		$response = (!empty($result_data)) 
 			? ['status' => 1, 'message' => $result_data] 
@@ -237,9 +238,9 @@ class Utilization extends CI_Controller {
 		$file_fields = ['certificate_path'];
 		$this->form_validation->set_rules('approval_no', 'Approval No', 'required');
 		$this->form_validation->set_rules('modified_by', 'Modified By', 'required');
-		$this->form_validation->set_rules('issued_by', 'Issued By', 'required');
-		$this->form_validation->set_rules('issued_to', 'Issued To', 'required');
-		$this->form_validation->set_rules('certificate_date', 'Certificate date', 'required');
+	//	$this->form_validation->set_rules('issued_by', 'Issued By', 'required');
+	//	$this->form_validation->set_rules('issued_to', 'Issued To', 'required');
+	//	$this->form_validation->set_rules('certificate_date', 'Certificate date', 'required');
 		
 		if ($this->form_validation->run() == FALSE) {
 			echo json_encode([
@@ -272,6 +273,7 @@ class Utilization extends CI_Controller {
 		// Prepare data array for update
 		$data = [
 			'certificate_date' => $this->input->post('certificate_date'),
+			'certi_type' => $this->input->post('certi_type'),
 			'issued_by' => $this->input->post('issued_by'),
 			'issued_to' => $this->input->post('issued_to'),
 			'remarks'  => $this->input->post('remarks'),
@@ -294,7 +296,7 @@ class Utilization extends CI_Controller {
 		$this->Master->f_edit('td_utilization', $data, $where);
 	
 		echo json_encode([
-			'status' => true,
+			'status' => 1,
 			'message' => 'Utilization updated successfully!'
 		]);
 	  }
@@ -314,26 +316,7 @@ class Utilization extends CI_Controller {
 	public function projCompCertiReq() {
 		
 		$approval_no = $this->input->post('approval_no');
-		// $where = ['a.approval_no = b.approval_no' => NULL,'a.approval_no' => $approval_no];
-		// $result_data = $this->db->query('SELECT 
-		// 							b.admin_approval_dt, 
-		// 							b.scheme_name, 
-		// 							c.sector_desc AS sector_name, 
-		// 							d.fin_year, 
-		// 							b.project_id, 
-		// 							e.dist_name, 
-		// 							f.block_name, 
-		// 							a.approval_no, 
-		// 							g.agency_name
-		// 						FROM td_admin_approval b 
-		// 						LEFT JOIN td_progress a ON a.approval_no = b.approval_no 
-		// 						INNER JOIN md_sector c ON b.sector_id = c.sl_no 
-		// 						INNER JOIN md_fin_year d ON b.fin_year = d.sl_no 
-		// 						INNER JOIN md_district e ON b.district_id = e.dist_code 
-		// 						INNER JOIN md_block f ON b.block_id = f.block_id 
-		// 						INNER JOIN md_proj_imp_agency g ON b.impl_agency = g.id 
-		// 						WHERE b.approval_no = "'.$approval_no.'" LIMIT 1')->result();
-		// $wo_date = $this->Master->f_select('td_admin_approval a,td_tender b', 'b.wo_date,b.amt_put_to_tender,b.wo_value,b.comp_date_apprx as stipulated_dt', array_merge($where,['1 order by b.tender_date desc limit 1'=>NULL]), NULL);
+		
 
 		$sql = "SELECT 
             b.admin_approval_dt, 
@@ -572,18 +555,36 @@ class Utilization extends CI_Controller {
 		}
 	} 
 
-	public function uticertificateadd() {
-	    
+	public function uticertificatesave() {
+
+	    $this->form_validation->set_rules('sl_no', 'sl_no', 'required');
 		$this->form_validation->set_rules('approval_no', 'Approval No', 'required');
-		$this->form_validation->set_rules('sche_exp_letter_dt', 'sche_exp_letter_dt', 'required');
-		$this->form_validation->set_rules('expen_sch_amt', 'expen_sch_amt', 'required');
-		$this->form_validation->set_rules('cont_exp_letter_dt', 'cont_exp_letter_dt', 'required');
-		$this->form_validation->set_rules('expen_cont_amt', 'expen_cont_amt', 'required');
-		$this->form_validation->set_rules('recv_sche_amt', 'recv_sche_amt', 'required');
-		$this->form_validation->set_rules('recv_cont_amt', 'recv_cont_amt', 'required');
+		$this->form_validation->set_rules('certi_type', 'certi_type', 'required');
+		$this->form_validation->set_rules('recv_sche_amt', 'recv_sche_amt', 'required|numeric');
+		$this->form_validation->set_rules('recv_cont_amt', 'recv_cont_amt', 'required|numeric');
 		$this->form_validation->set_rules('fin_year', 'fin_year', 'required');
 		$this->form_validation->set_rules('scheme_name', 'scheme_name', 'required');
 		$this->form_validation->set_rules('created_by', 'created_by', 'required');
+
+		// Array field validations
+		//var_dump($_POST['exp_letter_dt']);die();
+		// $exp_letter_dt = $this->input->post('exp_letter_dt');
+		// $exp_amt = $this->input->post('exp_amt');
+
+		// if (is_array($exp_letter_dt) && is_array($exp_amt)) {
+		// 	foreach ($exp_letter_dt as $index => $value) {
+		// 		$this->form_validation->set_rules(
+		// 			"exp_letter_dt[$index]",
+		// 			"Expenditure Letter Date (Row " . ($index + 1) . ")",
+		// 			'required'
+		// 		);
+		// 		$this->form_validation->set_rules(
+		// 			"exp_amt[$index]",
+		// 			"Expenditure Amount (Row " . ($index + 1) . ")",
+		// 			'required|numeric'
+		// 		);
+		// 	}
+		// }
 		
 		if ($this->form_validation->run() == FALSE) {
 			echo json_encode([
@@ -591,28 +592,108 @@ class Utilization extends CI_Controller {
 				'message' => validation_errors()
 			]);
 		}else{
+			$sl_no = $this->input->post('sl_no') ;
+			if (!empty($sl_no) && $sl_no > 0) {
 				$data = [
 					'approval_no' => $this->input->post('approval_no'),
-					'sche_exp_letter_dt' => $this->input->post('sche_exp_letter_dt'),
-					'expen_sch_amt' => $this->input->post('expen_sch_amt'),
-					'cont_exp_letter_dt' => $this->input->post('cont_exp_letter_dt'),
-					'expen_cont_amt' => $this->input->post('expen_cont_amt'),
+					'certi_type' => $this->input->post('certi_type'),
 					'recv_sche_amt' => $this->input->post('recv_sche_amt'),
 					'recv_cont_amt'  => $this->input->post('recv_cont_amt'),
 					'fin_year' => $this->input->post('fin_year'),
 					'scheme_name' => $this->input->post('scheme_name'),
+					'margin_bal' => $this->input->post('margin_bal'),
+					'bal_amt' => $this->input->post('bal_amt'),
+					'vide_no' => $this->input->post('vide_no'),
+					'vide_dt' => $this->input->post('vide_dt'),
+					'next_year' => $this->input->post('next_year'),
+					'modified_by' => $this->input->post('created_by'),
+					'modified_at' => date('Y-m-d h:i:s'),
+				];
+				
+				$where = ['sl_no' => $sl_no];
+				$id = $this->Master->f_edit('td_utilization_certificate', $data, $where);
+				
+				$this->db->where(['utilization_certi_slno'=>$sl_no]);
+				$this->db->delete('td_expenditure_cntg_rmrks');
+
+				$batch_data = [];
+				//if($id > 0){
+					$exp_letter_dt = $this->input->post('exp_letter_dt'); // will return array value
+					$exp_amt = $this->input->post('exp_amt');   // will return array value
+				    // Step 2: Insert new remarks
+					$batch_data = [];
+					if (is_array($exp_letter_dt) && is_array($exp_amt)) {
+						$count = count($exp_letter_dt);
+					
+						for ($i = 0; $i < $count; $i++) {
+							$batch_data[] = [
+								'approval_no' => $this->input->post('approval_no'),
+								'utilization_certi_slno' => $sl_no,
+								'exp_letter_dt' => $exp_letter_dt[$i] ?? null,
+								'exp_amt' => $exp_amt[$i] ?? null,
+								// remove cont_rmrks_sl_no if not used
+							];
+						}
+					
+						if (!empty($batch_data)) {
+							$this->db->insert_batch('td_expenditure_cntg_rmrks', $batch_data);
+						}
+					}
+			    //}
+				$response = (!empty($id)) 
+				? ['status' => 1, 'message' => 'Updated Successfully'] 
+				: ['status' => 0, 'message' => 'Something went wrong'];	
+				$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
+
+			}else{
+				$data = [
+					'approval_no' => $this->input->post('approval_no'),
+					'certi_type' => $this->input->post('certi_type'),
+					'recv_sche_amt' => $this->input->post('recv_sche_amt'),
+					'recv_cont_amt'  => $this->input->post('recv_cont_amt'),
+					'fin_year' => $this->input->post('fin_year'),
+					'scheme_name' => $this->input->post('scheme_name'),
+					'margin_bal' => $this->input->post('margin_bal'),
+					'bal_amt' => $this->input->post('bal_amt'),
+					'vide_no' => $this->input->post('vide_no'),
+					'vide_dt' => $this->input->post('vide_dt'),
+					'next_year' => $this->input->post('next_year'),
 					'created_by' => $this->input->post('created_by'),
 					'created_at' => date('Y-m-d h:i:s'),
 				];
 	
-				$id = $this->db->insert('td_utilization_certificate', $data);
+				$id = $this->Master->f_insert('td_utilization_certificate', $data);
+
+				if($id > 0){
+					$exp_data_json = $this->input->post('exp_letter_dt');
+                    $exp_data = json_decode($exp_data_json, true); 
+				    // Step 2: Insert new remarks
+					$batch_data = [];
+					if (is_array($exp_data)) {
+						foreach ($exp_data as $row) {
+							$batch_data[] = [
+								'approval_no' => $this->input->post('approval_no'),
+								'utilization_certi_slno' => $id,
+								'exp_letter_dt' => $row['input1'] ?? null, // input1 = exp_letter_dt
+								'exp_amt' => $row['input2'] ?? null         // input2 = exp_amt
+							];
+						}
+					
+						if (!empty($batch_data)) {
+							$this->db->insert_batch('td_utilizationcerti_funddtls', $batch_data);
+						}
+					}
+			    }
 
 				$response = (!empty($id)) 
 				? ['status' => 1, 'message' => 'Added Successfully'] 
-				: ['status' => 0, 'message' => 'No data found'];	
+				: ['status' => 0, 'message' => 'Something went wrong'];	
 				$this->output
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
+			}
 	    }
 	}
 
@@ -626,12 +707,20 @@ class Utilization extends CI_Controller {
 			]);
 		}else{
 			$approval_no = $this->input->post('approval_no');
-			$select = 'a.approval_no,a.sche_exp_letter_dt,a.expen_sch_amt,a.cont_exp_letter_dt,a.expen_cont_amt,a.recv_sche_amt,a.recv_cont_amt,a.fin_year,a.scheme_name,b.project_id';
-			$where = array('a.approval_no = b.approval_no' => NULL,'a.approval_no ' => $this->input->post('approval_no'));			   			
+			$sl_no = $this->input->post('sl_no');
+			$select = 'a.approval_no,a.certi_type,a.recv_sche_amt,a.recv_cont_amt,
+						a.margin_bal,a.fin_year,a.scheme_name,a.bal_amt,
+						a.vide_no,a.vide_dt,a.next_year,b.project_id';
+			$where = array('a.approval_no = b.approval_no' => NULL,'a.approval_no ' => $this->input->post('approval_no'),'a.sl_no' => $sl_no);			   			
 			$result_data = $this->Master->f_select('td_utilization_certificate a,td_admin_approval b',$select, $where, 1);
+			$select1 = 'exp_letter_dt,exp_amt';
+			$where1 = array('utilization_certi_slno' => $sl_no);	
+			$result_data1 = $this->Master->f_select('td_utilizationcerti_funddtls',$select1, $where1, 0);
+			$result_exp_from_certificate = $this->Master->f_select('td_utilizationcerti_funddtls',array('sum(exp_amt) as tot_exp_amt'), $where1, 1);
+			$result_data->tot_exp_amt = $result_exp_from_certificate->tot_exp_amt;
 		
 			$response = (!empty($result_data)) 
-			? ['status' => 1, 'message' => $result_data]
+			? ['status' => 1, 'message' => $result_data,'fund_dtls'=>$result_data1]
 			: ['status' => 0, 'message' => 'No data found'];
 			$this->output
 			->set_content_type('application/json')
@@ -640,7 +729,7 @@ class Utilization extends CI_Controller {
 	}
 	public function certificatlist() {
 
-			$select = 'a.approval_no,b.project_id,a.sche_exp_letter_dt,a.expen_sch_amt,a.cont_exp_letter_dt,a.expen_cont_amt,a.recv_sche_amt,a.recv_cont_amt,a.fin_year,a.scheme_name';
+			$select = 'a.sl_no,a.approval_no,b.project_id,a.recv_sche_amt,a.recv_cont_amt,a.fin_year,a.scheme_name';
 			$where = array('a.approval_no = b.approval_no' => NULL );			   			
 			$result_data = $this->Master->f_select('td_utilization_certificate a,td_admin_approval b',$select, $where, 0);
 		   
@@ -650,6 +739,131 @@ class Utilization extends CI_Controller {
 			$this->output
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
+	}
+	
+	public function dtforannexture() {
+		
+		$this->form_validation->set_rules('approval_no', 'Approval No', 'required');
+		
+		if($this->form_validation->run() == FALSE) {
+			echo json_encode([
+				'status' => 0,
+				'message' => validation_errors()
+			]);
+		}else{
+			$approval_no = $this->input->post('approval_no') ;
+				$sql = "SELECT 
+				a.project_id,
+				a.admin_approval_dt,(a.sch_amt + a.cont_amt) as total_amt,
+				e.dist_name,c.amt_put_to_tender
+			FROM td_admin_approval a
+			INNER JOIN md_district e ON a.district_id = e.dist_code
+			INNER JOIN td_tender c ON c.approval_no = a.approval_no
+			WHERE a.approval_no = $approval_no  AND c.tender_date = (
+				SELECT MAX(tender_date)
+				FROM td_tender
+				WHERE approval_no = $approval_no
+			)";
+
+			$result_data = $this->db->query($sql)->row();
+			$select = '(sum(sch_amt)+
+			sum(cont_amt)) as fund_recv_tot_amt';
+			$where = array('approval_no ' => $this->input->post('approval_no'));			   			
+			$res_fund = $this->Master->f_select('td_fund_receive',$select, $where, 1);
+
+			$allotment_no_dt = $this->Master->f_select('td_fund_receive', array("GROUP_CONCAT(CONCAT(allot_order_no, ', dt ', DATE_FORMAT(allot_order_dt, '%d-%m-%Y')) SEPARATOR ' and ') AS allotment_no_and_dt"), array('approval_no' => $this->input->post('approval_no')), 1);
+			$result_data->fund_recv_tot_amt = $res_fund->fund_recv_tot_amt;
+			$result_data->allotment_no_and_dt =$allotment_no_dt->allotment_no_and_dt;
+			$response = (!empty($res_fund)) 
+			? ['status' => 1, 'message' => $result_data] 
+			: ['status' => 0, 'message' => 'No data found'];
+			$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
+		}
+	} 
+
+	public function annexturesave() {
+
+	    $this->form_validation->set_rules('sl_no', 'sl_no', 'required');
+		$this->form_validation->set_rules('approval_no', 'Approval No', 'required');
+		$this->form_validation->set_rules('utilization_certi_no', 'utilization_certi_no', 'required');
+		$this->form_validation->set_rules('district', 'district', 'required');
+		$this->form_validation->set_rules('scheme', 'scheme', 'required');
+		$this->form_validation->set_rules('admin_approval_no', 'admin_approval_no', 'required');
+		$this->form_validation->set_rules('adm_approval_dt', 'adm_approval_dt', 'required');
+		$this->form_validation->set_rules('tender_amt', 'tender_amt', 'required');
+		$this->form_validation->set_rules('fund_recv_allot_no', 'fund_recv_allot_no', 'required');
+		$this->form_validation->set_rules('fund_recv_amt', 'fund_recv_amt', 'required');
+		$this->form_validation->set_rules('payment_made', 'payment_made', 'required');
+		$this->form_validation->set_rules('claim', 'claim', 'required');
+		$this->form_validation->set_rules('contingency', 'contingency', 'required');
+		$this->form_validation->set_rules('net_claim', 'net_claim', 'required');
+		$this->form_validation->set_rules('physical_progress', 'physical_progress', 'required');
+		$this->form_validation->set_rules('remarks', 'remarks', 'required');
+		$this->form_validation->set_rules('created_by', 'created_by', 'required');
+
+		if ($this->form_validation->run() == FALSE) {
+			echo json_encode([
+				'status' => 0,
+				'message' => validation_errors()
+			]);
+		}else{
+			$sl_no = $this->input->post('sl_no') ;
+			if (!empty($sl_no) && $sl_no > 0) {
+				$data = [
+					'approval_no' => $this->input->post('approval_no'),
+					'certi_type' => $this->input->post('certi_type'),
+					'recv_sche_amt' => $this->input->post('recv_sche_amt'),
+					'recv_cont_amt'  => $this->input->post('recv_cont_amt'),
+					'fin_year' => $this->input->post('fin_year'),
+					'scheme_name' => $this->input->post('scheme_name'),
+					'margin_bal' => $this->input->post('margin_bal'),
+					'bal_amt' => $this->input->post('bal_amt'),
+					'vide_no' => $this->input->post('vide_no'),
+					'vide_dt' => $this->input->post('vide_dt'),
+					'next_year' => $this->input->post('next_year'),
+					'modified_by' => $this->input->post('created_by'),
+					'modified_at' => date('Y-m-d h:i:s'),
+				];
+				
+				$where = ['sl_no' => $sl_no];
+				$id = $this->Master->f_edit('td_utilization_certificate', $data, $where);
+	
+				$response = (!empty($id)) 
+				? ['status' => 1, 'message' => 'Updated Successfully'] 
+				: ['status' => 0, 'message' => 'Something went wrong'];	
+				$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
+
+			}else{
+				$data = [
+					'approval_no' => $this->input->post('approval_no'),
+					'certi_type' => $this->input->post('certi_type'),
+					'recv_sche_amt' => $this->input->post('recv_sche_amt'),
+					'recv_cont_amt'  => $this->input->post('recv_cont_amt'),
+					'fin_year' => $this->input->post('fin_year'),
+					'scheme_name' => $this->input->post('scheme_name'),
+					'margin_bal' => $this->input->post('margin_bal'),
+					'bal_amt' => $this->input->post('bal_amt'),
+					'vide_no' => $this->input->post('vide_no'),
+					'vide_dt' => $this->input->post('vide_dt'),
+					'next_year' => $this->input->post('next_year'),
+					'created_by' => $this->input->post('created_by'),
+					'created_at' => date('Y-m-d h:i:s'),
+				];
+	
+				$id = $this->Master->f_insert('td_utilization_certificate', $data);
+
+				$response = (!empty($id)) 
+				? ['status' => 1, 'message' => 'Added Successfully'] 
+				: ['status' => 0, 'message' => 'Something went wrong'];	
+				$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
+			}
+	    }
 	}
 	
 	
