@@ -233,8 +233,9 @@ function FundRelForm() {
         
         // setLoading(false);
         Message("success", "Updated successfully.");
-        loadFormEditData(params?.id, receive_no, receive_date)
+        // loadFormEditData(params?.id, receive_no, receive_date)
         // navigate(`/home/tender_formality`);
+        setValues(initialValues)
         fundAddedList(params?.id)
   
         formik.resetForm();

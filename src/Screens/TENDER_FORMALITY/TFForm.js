@@ -42,6 +42,7 @@ const initialValues = {
   compl: '',
 
   amt_put_tender: '',
+  e_nit_no: '',
   dlp: '',
   add_per_sec: '',
   emd: '',
@@ -60,8 +61,8 @@ const validationSchema = Yup.object({
   wo_pdf: Yup.string().required('Work Order Copy is Required'),
   wo_value: Yup.string().required('Work Order Value is Required'),
   compl: Yup.string().required('Date of Completion (As per Work Order) is Required'),
-
   amt_put_tender: Yup.string().required('Amount Put to Tender is Required'),
+  e_nit_no: Yup.string().required('e-NIT No is Required'),
   dlp: Yup.string().required('DLP is Required'),
   add_per_sec: Yup.string().required('Additional Performance Security is Required'),
   emd: Yup.string().required('EMD/Security Deposit is Required'),
@@ -190,7 +191,7 @@ function TFForm() {
         }
       );
 
-      console.log(response?.data, 'responsedata');
+      // console.log(response?.data, 'responsedata______progress_list');
       
       if (response?.data.status > 0) {
         setLoading(false);
@@ -239,7 +240,7 @@ function TFForm() {
         }
       );
 
-      console.log(response?.data?.message, 'responsedataTender');
+      console.log(response?.data?.message, 'responsedataTender_editttttt');
       
       if (response?.data.status > 0) {
         setLoading(false);
@@ -248,6 +249,7 @@ function TFForm() {
           td_dt: response?.data?.message?.tender_date,
           tia: response.data.message.invite_auth,
           amt_put_tender: response.data.message.amt_put_to_tender,
+          e_nit_no: response.data.message.e_nit_no,
           options:  setRadioType(response.data.message.tender_status),
           dlp: response.data.message.dlp,
           add_per_sec: response.data.message.add_per_security,
@@ -308,7 +310,7 @@ function TFForm() {
     formData.append("add_per_security", formik.values.add_per_sec);
     formData.append("emd", formik.values.emd);
     formData.append("date_of_refund", formik.values.date_refund);
-    
+    formData.append("e_nit_no", formik.values.e_nit_no);
 
     formData.append("created_by", userDataLocalStore.user_id);
 
@@ -359,6 +361,7 @@ function TFForm() {
 
     formData.append("tender_status", radioType);
     formData.append("amt_put_to_tender", formik.values.amt_put_tender);
+    formData.append("e_nit_no", formik.values.e_nit_no);
     formData.append("dlp", formik.values.dlp);
     formData.append("add_per_security", formik.values.add_per_sec);
     formData.append("emd", formik.values.emd);
@@ -386,7 +389,8 @@ function TFForm() {
       
       // setLoading(false);
       Message("success", "Updated successfully.");
-      loadFormEditData(params?.id, sl_no)
+      setValues(initialValues)
+      // loadFormEditData(params?.id, sl_no)
       // navigate(`/home/tender_formality`);
       fundAddedList(params?.id)
 
@@ -730,6 +734,11 @@ function TFForm() {
           ></Column>
 
           <Column
+          field="e_nit_no"
+          header="e-NIT No"
+          ></Column>
+
+          <Column
           field="amt_put_to_tender"
           header="Amount Put to Tender"
           ></Column>
@@ -892,6 +901,22 @@ function TFForm() {
               />
               {formik.errors.tia && formik.touched.tia && (
                 <VError title={formik.errors.tia} />
+              )}
+            </div>
+
+            <div class="sm:col-span-4">
+              <TDInputTemplate
+                type="text"
+                placeholder="e-NIT No...."
+                label="e-NIT No"
+                name="e_nit_no"
+                formControlName={formik.values.e_nit_no}
+                handleChange={formik.handleChange}
+                handleBlur={formik.handleBlur}
+                mode={1}
+              />
+              {formik.errors.e_nit_no && formik.touched.e_nit_no && (
+                <VError title={formik.errors.e_nit_no} />
               )}
             </div>
 

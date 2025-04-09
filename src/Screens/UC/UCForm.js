@@ -31,13 +31,10 @@ const options = [
 ]
 
 const initialValues = {
-  // issued_by: '',
   certificate_path: '',
-  // issued_to: '',
-  // cont_amt_one: '',
+  annexure_path: '',
   purpose_field:'',
   exp_text: '',
-  // certificate_date: '',
   photo_com_report: '',
   
 };
@@ -82,10 +79,8 @@ function UCForm() {
 
   const validationSchema = useMemo(() => 
     Yup.object({
-      // issued_by: Yup.string().required('Issued By is Required'),
-      // issued_to: Yup.string().required('Issued To is Required'),
       certificate_path: Yup.mixed().required('Utilization Certificate is Required'),
-      // certificate_date: Yup.string().required('Certificate Date is Required'),
+      annexure_path: Yup.mixed().required('Annexure is Required'),
       exp_text: Yup.string().required('Remarks is Required'),
       purpose_field:  Yup.string().required('Type Of Certificate is Required'),
       photo_com_report: radioType === 'Y' 
@@ -152,6 +147,7 @@ function UCForm() {
       formData.append("approval_no", approvalNo);
       formData.append("issued_by", '');
       formData.append("certificate_path", formik.values.certificate_path); // Ensure this is a file if applicable
+      formData.append("annexture_certi", formik.values.annexure_path); // Ensure this is a file if applicable
       formData.append("certi_type", formik.values.purpose_field); // Ensure this is a file if applicable
       formData.append("issued_to", '');
       formData.append("certificate_date", '');
@@ -199,6 +195,7 @@ function UCForm() {
       formData.append("issued_by", '');
       formData.append("issued_to", '');  //////////
       formData.append("certificate_path", formik.values.certificate_path);
+      formData.append("annexture_certi", formik.values.annexure_path);
       formData.append("certi_type", formik.values.purpose_field); // Ensure this is a file if applicable
       formData.append("certificate_date", '');
       formData.append("remarks", formik.values.exp_text);
@@ -226,10 +223,10 @@ function UCForm() {
         
         // setLoading(false);
         Message("success", "Updated successfully.");
-        loadFormEditData(params?.id, certificate_no)
-        // navigate(`/home/tender_formality`);
+        setValues(initialValues)
+        // loadFormEditData(params?.id, certificate_no)
         fundAddedList(params?.id)
-  
+        
         formik.resetForm();
       } catch (error) {
         // setLoading(false);
@@ -305,9 +302,6 @@ function UCForm() {
       if (response?.data.status > 0) {
         setLoading(false);
         setGetMsgData(response?.data?.message)
-        
-        // setGetStatusData(response?.data?.prog_img)
-        // setFolderProgres(response?.data?.folder_name)
 
       }
 
@@ -352,11 +346,9 @@ function UCForm() {
       if (response?.data.status > 0) {
         setLoading(false);
         setValues({
-          // issued_by: response?.data?.message?.issued_by,
-          // issued_to: response?.data?.message?.issued_to,
-          purpose_field: response?.data?.message?.certi_type	,
+          annexure_path: response?.data?.message?.annexture_certi === null ? '' : response?.data?.message?.annexture_certi,
+          purpose_field: response?.data?.message?.certi_type,
           certificate_path: response?.data?.message?.certificate_path,
-          // certificate_date:  response?.data?.message?.certificate_date,
           exp_text: response?.data?.message?.remarks,
         })
 
@@ -440,6 +432,36 @@ function UCForm() {
         // Proceed with file upload or further processing
       }
     };
+
+
+    const handleFileChange_pdf_2 = (event) => {
+
+      const file = event.target.files[0]; // Get the selected file
+  
+      if (file) {
+        const fileSizeMB = file.size / (1024 * 1024); // Convert bytes to MB
+        const fileType = file.type; // Get file MIME type
+  
+        // Check if file is a PDF
+        if (fileType !== "application/pdf") {
+          setErrorpdf_1("Only PDF files are allowed.");
+          return;
+        }
+  
+        // Check if file size exceeds 2MB
+        if (fileSizeMB > 2) {
+          setErrorpdf_1("File size should not exceed 2MB.");
+          return;
+        }
+  
+        setErrorpdf_1("");
+        console.log("File is valid:", file.name);
+        formik.setFieldValue("annexure_path", file);
+        setFilePreview_1(URL.createObjectURL(file)); // Create a preview URL
+        // Proceed with file upload or further processing
+      }
+    };
+    
     
   return (
     <section class="bg-white p-5 dark:bg-gray-900">
@@ -617,7 +639,7 @@ function UCForm() {
 						className="text-gray-500 dark:text-gray-400"
 						spinning={loading}
 					>
-            {/* {JSON.stringify(fundStatus, null, 2)} */}
+            {/* {JSON.stringify(formValues, null, 2)} */}
         {/* {fundStatus?.length > 0 &&( */}
           <>
           <Heading title={"Utilization Certificate History"} button={'N'}/>
@@ -673,6 +695,14 @@ function UCForm() {
           header="Allotment Order No."
           body={(rowData) => (
           <a href={url + folder_certificate + rowData?.certificate_path} target='_blank'><FilePdfOutlined style={{fontSize:22, color:'red'}} /></a>
+          )}
+          ></Column>
+
+          <Column
+          // field="instl_amt"
+          header="Annexure"
+          body={(rowData) => (
+          <a href={url + folder_certificate + rowData?.annexture_certi} target='_blank'><FilePdfOutlined style={{fontSize:22, color:'red'}} /></a>
           )}
           ></Column>
 
@@ -838,6 +868,42 @@ function UCForm() {
 
             {formik.errors.certificate_path && formik.touched.certificate_path && (
               <VError title={formik.errors.certificate_path} />
+            )}
+             {errorpdf_1 && <p style={{ color: "red", fontSize:12 }}>{errorpdf_1}</p>}
+          </div>
+
+          <div class="sm:col-span-3" style={{position:'relative'}}>
+    
+            <TDInputTemplate
+              type="file"
+              name="annexure_path"
+              placeholder="Annexure"
+              label="Annexure (PDF Max Size 2 MB)"
+              handleChange={(event) => {
+                handleFileChange_pdf_2(event)
+              }}
+              handleBlur={formik.handleBlur}
+              mode={1}
+              />
+
+            {filePreview_1 && (
+            <a href={filePreview_1} target="_blank" rel="noopener noreferrer" style={{position:'absolute', top:37, right:10}}>
+            <FilePdfOutlined style={{ fontSize: 22, color: "red" }} />
+            </a>
+            )}
+
+            {formValues.annexure_path.length > 0 &&(
+            <>
+            {filePreview_1 === null && (
+            <a href={url + folder_certificate + formValues.annexure_path} target='_blank' style={{position:'absolute', top:37, right:10}}>
+            <FilePdfOutlined style={{fontSize:22, color:'red'}} /></a>
+            )}
+            </>
+            )}
+
+
+            {formik.errors.annexure_path && formik.touched.annexure_path && (
+              <VError title={formik.errors.annexure_path} />
             )}
              {errorpdf_1 && <p style={{ color: "red", fontSize:12 }}>{errorpdf_1}</p>}
           </div>

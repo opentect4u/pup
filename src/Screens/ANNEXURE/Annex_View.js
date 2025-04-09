@@ -11,6 +11,8 @@ import TableRow from '../../Components/TableRow';
 import { getPrintCommonHeader_PCR } from '../../Components/PrintCommonHeader_PCR';
 import { toWords } from 'number-to-words';
 import { Message } from '../../Components/Message';
+import { getPrintCommonHeader_UC } from '../../Components/PrintCommonHeader_UC';
+import { getPrintCommonHeader_Annexure } from '../../Components/PrintCommonHeader_Annexure';
 
 
 // const initialValues = {
@@ -21,7 +23,7 @@ import { Message } from '../../Components/Message';
 //   admin_appr_pdf: Yup.string().required('Administrative Approval(G.O) is Required'),
 // });
 
-function PCRView() {
+function Annex_View() {
   const navigate = useNavigate();
   const [tableDataList, setTableDataList] = useState([]);
   const [folderName, setFolderName] = useState('');
@@ -35,16 +37,20 @@ function PCRView() {
   const [printOutDataState, setPrintOutDataState] = useState([]);
   const [userDataLocalStore, setUserDataLocalStore] = useState([]);
   const [PDFfolder_name, setPDFfolder_name] = useState('');
-
+  const [scematicContiTotal, setScematicContiTotal] = useState('');
+  const [printFund_dtls, setPrintFund_dtls] = useState([]);
 
   const fetchTableDataList_Fn = async () => {
     setLoading(true);
-    const cread = {
-        fin_year: '0',
-    };
+    // approval_no,sl_no
+    const formData = new FormData();
+
+    formData.append("sl_no", 0);
+    formData.append("approval_no", 0);
+    
     try {
       const response = await axios.post(
-        url + 'index.php/webApi/Utilization/projCompCertilist', cread,
+        url + 'index.php/webApi/Utilization/GetannextureData', formData,
         {
           headers: {
             'auth_key': auth_key,
@@ -52,14 +58,14 @@ function PCRView() {
         }
       );
 
+      console.log(response?.data?.message, 'projCompCertilist');
       if (response?.data?.status > 0) {
-
-        console.log(response.data, 'projCompCertilist');
         
         setTableDataList(response?.data?.message);
         setPDFfolder_name(response?.data?.folder_name)
         // setFolderName(response.data.folder_name);
-        setPageName('PCRView');
+        // setPageName('Annex_View');
+        setPageName('annexure');
       } else {
         setTableDataList([]);
         setFolderName('');
@@ -76,8 +82,8 @@ function PCRView() {
 
   // **Search Filter Logic**
   const filteredTableData = tableDataList.filter((data) =>
-    data.project_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    data.scheme_name.toLowerCase().includes(searchQuery.toLowerCase())
+    data.admin_approval_no.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    data.scheme.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const totalPages = Math.ceil(filteredTableData.length / rowsPerPage);
@@ -193,17 +199,18 @@ function PCRView() {
 
   
 
-  const printData = async (approval_no) => {
+  const printData = async (approval_no, sl_no) => {
 
     setLoading(true); // Set loading state
     
         const formData = new FormData();
     
         formData.append("approval_no", approval_no);
+        formData.append("sl_no", sl_no);
     
         try {
           const response = await axios.post(
-            url + 'index.php/webApi/Utilization/projCompCertiSingledata',
+            url + 'index.php/webApi/Utilization/GetannextureData',
             formData,
             {
               headers: {
@@ -214,9 +221,11 @@ function PCRView() {
           
           if (response?.data.status > 0) {
             setLoading(false);
-            setPrintOutDataState(response?.data?.message)
-            console.log(response?.data, 'projCompCertiSingledataxxxxxxxxxxxxx', response?.data?.message);
-            printData_out(response?.data?.message)
+            setPrintOutDataState(response?.data?.message[0]);
+            // setPrintFund_dtls(response?.data?.fund_dtls);
+            // setScematicContiTotal(Number(response?.data?.message?.expen_sch_amt || 0) + Number(response?.data?.message?.expen_cont_amt || 0))
+            console.log(response?.data?.message[0].sl_no, 'projCompCertiSingledataxxxxxxxxxxxxx', response?.data?.fund_dtls);
+            printData_out(response?.data?.message[0], response?.data?.fund_dtls)
     
           }
     
@@ -233,20 +242,30 @@ function PCRView() {
     
 };
 
-const printData_out = (printOutData) => {
+const printData_out = (printOutData, fund_dtls) => {
+  
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const [year, month, day] = dateString.split('-');
+    return `${day}-${month}-${year}`;
+  };
+
+
   const printWindow = window.open("", "", "width=800,height=600");
   printWindow.document.write(`
     <html>
     <head>
-      <title>Completion Certificate (Contractor Name: ${printOutData.contractor_name_dtls})</title>
+      <title>Annexure 1 (Administrative Approval No.: ${printOutData?.admin_approval_no})</title>
       <style>
         body {
             font-family: Arial, sans-serif;
             font-size: 11px;
+            margin:0;
+            padding:0;
           }
         .container {
-          max-width: 800px;
-          margin: auto;
+          max-width: 100%;
+          margin:0 auto;
           padding:15px;
           border: none;
         }
@@ -254,136 +273,124 @@ const printData_out = (printOutData) => {
           border-bottom: #000 solid 2px;
           display: inline-block;
           width: 100%;
-          padding-bottom: 7px; margin: 0 0 15px 0;
-        }
-        .1stTd{width:30%;}
-        .2ndTh{width:70%;}
-
-        .1stTd_sign{width:50%; text-align: center;}
-        .2ndTh_sign{width:50%; text-align: center;}
-
-        .1stTd_sub{width:40%;}
-        .2ndTh_sub{width:60%;}
-        
-        .details-table {
-          width: 100%;
-          border-collapse: collapse;
-          margin-top: 20px;
-        }
-        .details-table th, .details-table td {
-          border: none;
-          padding: 5px 5px 5px 5px;
-          text-align: left;
+          padding-bottom: 7px; margin: 0 0 8px 0;
         }
 
-        .details-table_sign {
-          width: 100%;
-          border-collapse: collapse;
-          margin-top: 30px; margin-bottom: 30px;
-          border: none;
-        }
-        .details-table_sign th, .details-table_sign td {
-          border: none;
-          padding: 5px 5px 5px 5px;
-          text-align: center;
-        }
-
-        .sub_table {
-          width: 100%;
-          border-collapse: collapse;
-          margin-top: 0;
-          border: none;
-        }
-        
-        .sub_table tbody td {
-          border: none;
-          padding: 0 !important;
-          text-align: left;
-          width: 40%;
-        }
-
-        .sub_table tbody td {
-          border: none;
-          padding: 0 !important;
-          text-align: left;
-          width: 60%;
-        }
-
-        .footer {
-          margin-top: 30px;
-          text-align: center;
-          font-weight: bold;
-        }
-          span.bold{font-weight: 700;}
-
-        .logo{text-align: center; padding: 0 0 10px 0;}
-        .logo img{width:80px;}
-        h3{text-align: center; font-size: 14px; font-weight: 700; padding: 0 0 5px 0; margin: 0; line-height: 15px;}
-        h2{text-align: center; font-size: 14px; font-weight: 700; padding: 0 0 5px 0; margin: 0; line-height: 15px;}
-        p{text-align: center; font-size: 12px; font-weight: 400; padding: 0 0 5px 0; margin: 0; line-height: 15px;}
-        p span.left{float:left;}
-        p span.right{float:right;}
-        h3.comple_title{text-align: center; font-size: 14px; font-weight: 600; padding: 0 0 5px 0; margin:0; line-height: 15px; text-decoration: underline;}
-        p.comple_text{text-align: justify; font-size: 12px; font-weight: 400; padding: 0 0 15px 0; margin: 0; line-height: 15px;}
-        p.comple_text_sub{text-align: left; font-size: 12px; font-weight: 400; padding: 0 0 8px 0; margin: 0; line-height: 15px;}
-        
           table {
             border-collapse: collapse;
             width: 100%;
             font-size: 11px;
           }
           th, td {
-            border: 1px solid black;
+            border: none;
             padding: 3px;
             text-align: left;
             font-size: 11px;
           }
+       
+        
+        .details-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 20px;
+        }
+        .details-table th{
+          border:#333 solid 1px;
+          padding: 5px 5px 5px 5px;
+          text-align: left; vertical-align: top; width:70%;
+        }
+
+        .details-table td {
+          border:#333 solid 1px;
+          padding: 5px 5px 5px 5px;
+          text-align: left; vertical-align:top; width:30%;
+        }
+
+
+        
+        span.bold{font-weight: 700;}
+
+        .logo{text-align: center; padding: 0 0 10px 0;}
+        .logo img{width:80px;}
+        h3{text-align: center; font-size: 14px; font-weight: 700; padding: 0 0 5px 0; margin: 0; line-height: 15px;}
+        h2{text-align: center; font-size: 14px; font-weight: 700; padding: 0 0 5px 0; margin: 0; line-height: 15px;}
+        p{text-align: left; font-size: 12px; font-weight: 400; padding: 0 0 5px 0; margin: 0; line-height: 15px;}
+        p span.left{float:left;}
+        p span.right{float:right;}
+        h3.comple_title{text-align: center; font-size: 14px; font-weight: 600; padding: 0 0 5px 0; margin:0; line-height: 15px; text-decoration: underline;}
+        p.comple_text{text-align: justify; font-size: 12px; font-weight: 400; padding: 0 0 15px 0; margin: 0; line-height: 15px;}
+        p.comple_text_sub{text-align: left; font-size: 12px; font-weight: 400; padding: 0 0 8px 0; margin: 0; line-height: 15px;}
+        p.r_text{text-align: left; font-size: 12px; font-weight: 400; padding: 0 0 0 0; margin: 0; line-height: 18px;}
+ 
+        .details-table_sign {
+          width: 100%;
+          border-collapse: collapse;
+          font-weight:400;
+          margin-top:60px; margin-bottom: 30px;
+          border: none;
+        }
+        .details-table_sign th, .details-table_sign td {
+          border: none;
+          padding: 5px 5px 5px 5px;
+          text-align: center; font-weight:400;
+        }
+
+         .footer {
+          margin-top: 30px;
+          text-align: left;
+          font-weight: 400;
+        }
+
+        .border__{border: #333 solid 1px !important;}
+        .border_bottom_none{border-left:#333 solid 1px !important; border-right:#333 solid 1px !important;}
+        .border_bottom{border-left:#333 solid 1px !important; border-right:#333 solid 1px !important; border-bottom:#333 solid 1px !important;}
+        .border_All{border:#333 solid 1px !important;}
+
             /* Ensure borders appear in print */
           @media print {
             table, th, td {
-              border: 1px solid black;
+              border: none;
               font-size: 10px;
             }
             th, td {
             padding: 3px;
           }
+            
+          p.r_text{text-align: left; font-size: 12px; font-weight: 400; padding: 0 0 0 0; margin: 0; line-height: 18px;}
+
+        .details-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 20px;
+        }
+        .details-table td{
+          border:#333 solid 1px;
+          padding: 5px;
+          text-align: left; vertical-align: top; width:70%;
+        }
+
+        .details-table td {
+          border:#333 solid 1px;
+          padding: 5px; width:30%;
+          text-align: left; vertical-align: top;
+        }
+
             p.disclam{font-size: 10px; padding: 10px 0 5px 0; text-align: center; font-weight: 700;}
             .header {
           border-bottom: #000 solid 2px;
           display: inline-block;
           width: 100%;
-          padding-bottom: 7px;
+          padding-bottom: 7px; margin: 0 0 8px 0;
           }
-          .1stTd{width:30%;}
-          .2ndTh{width:70%;}
-
-          .1stTd_sign{width:50%; text-align: center;}
-          .2ndTh_sign{width:50%; text-align: center;}
-
           
-          .1stTd_sub{width:40%;}
-          .2ndTh_sub{width:60%;}
+
+           .footer {
+          margin-top: 30px;
+          text-align: left;
+          font-weight: 400;
+        }
           span.bold{font-weight: 700;}
-
-          .sub_table {
-          border: none;
-          width: 100%;
-          border-collapse: collapse;
-          margin-top: 0;
-        }
-        .sub_table tbody td {
-          border: none;
-          padding: 0 !important;
-          text-align: left;
-          width: 40%;
-        }
-
-        .sub_table tbody td {
-          border: none;
-          padding: 0 !important;
-          text-align: left;
-          width: 60%;
-        }
+          
         h3.comple_title{text-align: center; font-size: 14px; font-weight: 600; padding: 0 0 5px 0; margin:0; line-height: 15px; text-decoration: underline;}
         p.comple_text{text-align: justify; font-size: 12px; font-weight: 400; padding: 0 0 15px 0; margin: 0; line-height: 15px;}
         p.comple_text_sub{text-align: left; font-size: 12px; font-weight: 400; padding: 0 0 8px 0; margin: 0; line-height: 15px;}
@@ -392,80 +399,70 @@ const printData_out = (printOutData) => {
     </head>
     <body>
       <div class="container">
-        ${getPrintCommonHeader_PCR()}
-        <h3 class="comple_title">COMPLETION CERTIFICATE</h3>
-        <p class="comple_text">This is to certify that <strong>${printOutData.contractor_name_dtls}</strong> is a working contract of this office. The Contractor 
-        was entrusted with the following work which has been completed in all respect during financial year ${printOutData.fin_year}.
-        </p>
-        <p class="comple_text_sub">The following information are given regarding the above noted work:-</p>
+        ${getPrintCommonHeader_Annexure()}
         <table class="details-table">
-          <tr><th class="1stTd">1. Name of Work:</th><td class="2ndTh">
-          <table class="sub_table">
-          <tr><th>${printOutData.scheme_name}</th></tr>
-        </table>
-        </td></tr>
-          <tr><th>2. e-NIT No.:</th><td> 
-          <table class="sub_table">
-          <tr><th><span class="bold">${printOutData.e_nit_no}</span></th></tr>
-        </table>
-          </td></tr>
-          <tr><th>3. Work Order Details:</th><td>
-          <table class="sub_table">
-          <tr><th>${printOutData.work_order_dtl}, Dated: ${printOutData.work_order_dt}</th></tr>
-        </table>
-          </td></tr>
-          <tr><th>4. Amount Put to Tender:</th><td><table class="sub_table">
-          <tr><th class="1stTd_sub"><span class="bold">₹ ${printOutData.amt_put_totender}</span></th>
-          <td class="2ndTh_sub">
-          Rupees ${toWords(printOutData.amt_put_totender).charAt(0).toUpperCase() + toWords(printOutData.amt_put_totender).slice(1)} Only
-          </td></tr>
-        </table>
-        </td></tr>
-          <tr><th>5. Tendered Amount:</th><td><table class="sub_table">
-          <tr><th class="1stTd_sub">₹ ${printOutData.work_order_value}</th><td class="2ndTh_sub">
-          Rupees ${toWords(printOutData.work_order_value).charAt(0).toUpperCase() + toWords(printOutData.work_order_value).slice(1)} Only
-          </td></tr>
-        </table></td></tr>
-          <tr><th>6. Stipulated Date of Completion:</th><td>
-          <table class="sub_table">
-          <tr><th>${printOutData.stipulated_dt_comp}</th></tr>
-        </table>
-        </td></tr>
-          <tr><th>7. Actual Date of Completion (Extend):</th><td>
-          <table class="sub_table">
-          <tr><th><span class="bold">${printOutData.actual_dt_com}</span></th></tr>
-        </table>
-          </td></tr>
-          <tr><th>8. Gross Value of Work Done (1R/A & Final Bill):</th><td><table class="sub_table">
-          <tr><th class="1stTd_sub"><span class="bold">₹ ${printOutData.gross_value}</span></th><td class="2ndTh_sub">
-          Rupees ${toWords(printOutData.gross_value).charAt(0).toUpperCase() + toWords(printOutData.gross_value).slice(1)} Only
-          </td></tr>
-        </table></td></tr>
-          <tr><th>9. Final Bill Value (As per contract rate applicable):</th><td><table class="sub_table">
-          <tr><th class="1stTd_sub">₹ ${printOutData.final_value}</th><td class="2ndTh_sub">
-          Rupees ${toWords(printOutData.final_value).charAt(0).toUpperCase() + toWords(printOutData.final_value).slice(1)} Only
-          </td></tr>
-        </table></td></tr>
-          <tr><th>10. Remarks:</th><td>
-          <table class="sub_table">
-          <tr><th><span class="bold">${printOutData.remarks}</span></th></tr>
-        </table>
-        </td></tr>
-        </table>
-        <div class="footer">
-          “We wish every success to the contractor.”
-        </div>
-        <table class="details-table_sign">
-          <tr><th class="1stTd_sign">Assistant Engineer </br> 
-          Paschimanchal Unnayan Parshad </br>
-          Purulia</th><td class="2ndTh_sign">
-          Executive Engineer </br> 
-          Paschimanchal Unnayan Parshad </br>
-          Bankura
-          </td></tr>
+          <tr>
+          <td>Sl No</td>
+          <td>District</td>
+          <td>Administrative Approval No.</td>
+		  <td>Administrative Approval Date</td>
+		<td>Administrative Approval Amount</td>
+			  <td>Tender Amount(in Rs.)</td>
+			  <td>Allotment No. & Date of Fund Received</td>
+			  <td>Fund Received Amounte</td>
+			  <td>Payment Made(in Rs.)</td>
+			  <td>Claim(in Rs.)</td>
+			  <td>Contigency(in Rs.)</td>
+			  <td>Net Claim(in Rs.)</td>
+			  <td>Present Physical Progress</td>
+			  <td>Remarks</td>
+          </tr>
+          <tr>
+            <td>${printOutData?.sl_no}</td>
+            <td>${printOutData?.district}</td>
+            <td>${printOutData?.admin_approval_no}</td>
+            <td>${formatDate(printOutData?.adm_approval_dt)}</td>
+            <td>${printOutData?.admin_approval_amt}</td>
+            <td>${printOutData?.tender_amt}</td>
+            <td>${printOutData?.fund_recv_allot_no}</td>
+            <td>${printOutData?.fund_recv_amt}</td>
+            <td>${printOutData?.payment_made}</td>
+            <td>${printOutData?.claim}</td>
+            <td>${printOutData?.contingency}</td>
+            <td>${printOutData?.net_claim}</td>
+            <td>${printOutData?.physical_progress}%</td>
+            <td>${printOutData?.remarks}</td>
+          </tr>
+
+          <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>Total</td>
+            <td>${printOutData?.net_claim}</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+          </tr>
+          
         </table>
 
-      </div>
+        <table class="details-table_sign">
+          <tr><th class="1stTd_sign">Account Officer </br> 
+          Paschimanchal Unnayan Parshad</th><td class="2ndTh_sign">
+          Executive Engineer </br> 
+          Paschimanchal Unnayan Parshad
+          </td></tr>
+        </table>
+        
+        
+        
       <script>
         window.print();
       </script>
@@ -477,9 +474,7 @@ const printData_out = (printOutData) => {
 };
 
 
-const download = (page, pdfName)=>{
-  alert('down')
-}
+
 
   return (
     <section className="bg-slate-200 dark:bg-gray-900 p-3 sm:p-5">
@@ -494,7 +489,7 @@ const download = (page, pdfName)=>{
           {JSON.stringify(currentTableData, null, 2)}  */}
           <div className="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
             <div className="flex flex-col bg-blue-900 md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
-              <h2 className='text-xl font-bold text-white'>PCR</h2>
+              <h2 className='text-xl font-bold text-white'>Annexure List</h2>
               <div className="w-full md:w-1/2">
                 <label htmlFor="simple-search" className="sr-only">Search</label>
                 <div className="relative w-full">
@@ -507,15 +502,15 @@ const download = (page, pdfName)=>{
                     type="text"
                     id="simple-search"
                     className="bg-blue-950 border border-blue-900 text-white text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    placeholder="Search by Project ID or Scheme Name"
+                    placeholder="Search by Administrative Approval No. or Scheme Name"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
               </div>
               <div className="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-                <BtnComp bgColor="bg-white" color="text-blue-900" title="Add PCR" onClick={() => {
-                  navigate('pcr-add/0', {
+                <BtnComp bgColor="bg-white" color="text-blue-900" title="Add Annexure" onClick={() => {
+                  navigate('annex-add/0', {
                     state: { operation_status: 'add' },
                   });
                 }} />
@@ -549,7 +544,7 @@ const download = (page, pdfName)=>{
   handleChange={handleChange}
   handleUpload={handleUpload}
   printData={printData}
-  download={download}
+  // download={download}
   filePreview={fileStates[data.approval_no]?.preview}
   errorpdf_1={fileStates[data.approval_no]?.error}
   PDFfolder_name={PDFfolder_name}
@@ -578,4 +573,4 @@ const download = (page, pdfName)=>{
   );
 }
 
-export default PCRView;
+export default Annex_View;

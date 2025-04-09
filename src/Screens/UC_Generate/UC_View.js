@@ -279,7 +279,7 @@ const printData_out = (printOutData, fund_dtls) => {
   printWindow.document.write(`
     <html>
     <head>
-      <title>Completion Certificate</title>
+      <title>GFR 19-A(Projrct ID: ${printOutData?.project_id})</title>
       <style>
         body {
             font-family: Arial, sans-serif;
@@ -311,13 +311,13 @@ const printData_out = (printOutData, fund_dtls) => {
         }
         .details-table th{
           border: none;
-          padding: 5px 5px 15px 5px;
+          padding: 5px 5px 5px 5px;
           text-align: left; vertical-align: top; width:70%;
         }
 
         .details-table td {
           border: none;
-          padding: 5px 5px 15px 5px;
+          padding: 5px 5px 5px 5px;
           text-align: left; vertical-align:top; width:30%;
         }
 
@@ -386,7 +386,7 @@ const printData_out = (printOutData, fund_dtls) => {
         }
         .details-table_sign th, .details-table_sign td {
           border: none;
-          padding: 5px 5px 15px 5px;
+          padding: 5px 5px 5px 5px;
           text-align: center;
         }
 
@@ -592,7 +592,7 @@ const download = (page, pdfName)=>{
                 </div>
               </div>
               <div className="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-                <BtnComp bgColor="bg-white" color="text-blue-900" title="Add Utilization Certificate" onClick={() => {
+                <BtnComp bgColor="bg-white" color="text-blue-900" title="Generate Utilization Certificate" onClick={() => {
                   navigate('uc-add/0', {
                     state: { operation_status: 'add' },
                   });

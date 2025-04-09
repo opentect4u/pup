@@ -158,7 +158,7 @@ function PCRForm() {
           contractor_name_dtls: response?.data?.message?.contractor_name_dtls,
           fin_year: response?.data?.message?.fin_year,
           scheme_name: response?.data?.message?.scheme_name,
-          e_nit_no: response?.data?.message?.e_nit_no,
+          e_nit_no: response?.data?.message?.e_nit_no === null ? '' : response?.data?.message?.e_nit_no,
           work_order_dtl: response?.data?.message?.work_order_dtl,
           wo_date: response?.data?.message?.work_order_dt,
           amt_put_to_tender: response?.data?.message?.amt_put_totender,
@@ -222,7 +222,7 @@ function PCRForm() {
           contractor_name_dtls: response?.data?.message[0]?.contractor_name_dtls,
           fin_year: response?.data?.message[0]?.fin_year,
           scheme_name: response?.data?.message[0]?.scheme_name,
-          e_nit_no: response?.data?.message[0]?.e_nit_no,
+          e_nit_no: response?.data?.message[0]?.e_nit_no === null ? '' : response?.data?.message[0]?.e_nit_no,
           work_order_dtl: response?.data?.message[0]?.work_order_dtl,
           wo_date: response?.data?.message[0]?.wo_date,
           amt_put_to_tender: response?.data?.message[0]?.amt_put_to_tender,
@@ -271,7 +271,7 @@ function PCRForm() {
     formData.append("contractor_name_dtls", formik.values.contractor_name_dtls);
     formData.append("fin_year", formik.values.fin_year);  //////////
     formData.append("scheme_name", formik.values.scheme_name);
-    formData.append("e_nit_no", formik.values.e_nit_no);
+    formData.append("e_nit_no", getMsgData[0]?.e_nit_no);
     formData.append("work_order_dtl", formik.values.work_order_dtl);
 
     formData.append("work_order_dt", formik.values.wo_date);
@@ -285,7 +285,7 @@ function PCRForm() {
     formData.append("remarks", formik.values.remarks);
     formData.append("created_by", userDataLocalStore.user_id);
 
-    console.log("formDataformData", formData);
+    console.log("formDataformData", getMsgData[0]?.e_nit_no);
 
     try {
       const response = await axios.post(
@@ -473,6 +473,7 @@ function PCRForm() {
                 formControlName={formik.values.contractor_name_dtls}
                 handleChange={formik.handleChange}
                 handleBlur={formik.handleBlur}
+                disabled={params.id > 0 ? true : false}
                 mode={1}
               />
               {formik.errors.contractor_name_dtls && formik.touched.contractor_name_dtls && (
@@ -489,6 +490,7 @@ function PCRForm() {
                 formControlName={formik.values.fin_year}
                 handleChange={formik.handleChange}
                 handleBlur={formik.handleBlur}
+                disabled={params.id > 0 ? true : false}
                 mode={1}
               />
               {formik.errors.fin_year && formik.touched.fin_year && (
@@ -507,6 +509,7 @@ function PCRForm() {
                 formControlName={formik.values.scheme_name}
                 handleChange={formik.handleChange}
                 handleBlur={formik.handleBlur}
+                disabled={params.id > 0 ? true : false}
                 mode={1}
               />
               {formik.errors.scheme_name && formik.touched.scheme_name && (
@@ -523,6 +526,7 @@ function PCRForm() {
                 formControlName={formik.values.e_nit_no}
                 handleChange={formik.handleChange}
                 handleBlur={formik.handleBlur}
+                disabled={true}
                 mode={1}
               />
               {formik.errors.e_nit_no && formik.touched.e_nit_no && (
@@ -539,6 +543,7 @@ function PCRForm() {
                 formControlName={formik.values.work_order_dtl}
                 handleChange={formik.handleChange}
                 handleBlur={formik.handleBlur}
+                disabled={params.id > 0 ? true : false}
                 mode={1}
               />
               {formik.errors.work_order_dtl && formik.touched.work_order_dtl && (
@@ -556,6 +561,7 @@ function PCRForm() {
                 formControlName={formik.values.wo_date}
                 handleChange={formik.handleChange}
                 handleBlur={formik.handleBlur}
+                disabled={params.id > 0 ? true : false}
                 mode={1}
               />
               {formik.errors.wo_date && formik.touched.wo_date && (
@@ -572,6 +578,7 @@ function PCRForm() {
                 formControlName={formik.values.amt_put_to_tender}
                 handleChange={formik.handleChange}
                 handleBlur={formik.handleBlur}
+                disabled={params.id > 0 ? true : false}
                 mode={1}
               />
               {formik.errors.amt_put_to_tender && formik.touched.amt_put_to_tender && (
@@ -596,6 +603,7 @@ function PCRForm() {
                 formControlName={formik.values.wo_value}
                 handleChange={formik.handleChange}
                 handleBlur={formik.handleBlur}
+                disabled={params.id > 0 ? true : false}
                 mode={1}
               />
               {formik.errors.wo_value && formik.touched.wo_value && (
@@ -612,6 +620,7 @@ function PCRForm() {
                 formControlName={formik.values.stipulated_dt}
                 handleChange={formik.handleChange}
                 handleBlur={formik.handleBlur}
+                disabled={params.id > 0 ? true : false}
                 mode={1}
               />
               {formik.errors.stipulated_dt && formik.touched.stipulated_dt && (
@@ -627,6 +636,7 @@ function PCRForm() {
                 formControlName={formik.values.actual_date_comp}
                 handleChange={formik.handleChange}
                 handleBlur={formik.handleBlur}
+                disabled={params.id > 0 ? true : false}
                 mode={1}
               />
               {formik.errors.actual_date_comp && formik.touched.actual_date_comp && (
@@ -645,6 +655,7 @@ function PCRForm() {
                 formControlName={formik.values.gross_value}
                 handleChange={formik.handleChange}
                 handleBlur={formik.handleBlur}
+                disabled={params.id > 0 ? true : false}
                 mode={1}
               />
               {formik.errors.gross_value && formik.touched.gross_value && (
@@ -662,6 +673,7 @@ function PCRForm() {
                 formControlName={formik.values.final_value}
                 handleChange={formik.handleChange}
                 handleBlur={formik.handleBlur}
+                disabled={params.id > 0 ? true : false}
                 mode={1}
               />
               {formik.errors.final_value && formik.touched.final_value && (
@@ -678,6 +690,7 @@ function PCRForm() {
                           formControlName={formik.values.remarks}
                           handleChange={formik.handleChange}
                           handleBlur={formik.handleBlur}
+                          disabled={params.id > 0 ? true : false}
                           mode={3}
                         />
                         {formik.errors.remarks && formik.touched.remarks && (

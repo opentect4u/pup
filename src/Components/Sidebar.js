@@ -30,11 +30,6 @@ const items = [
     icon: <FileFilled />,
   },
   {
-    label: <Link to={"pcr"}>PCR </Link>,
-    key: "PCR",
-    icon: <FileFilled />,
-  },
-  {
     label: <Link to={"pr"}>Progress Report </Link>,
     key: "PR",
     icon: <FileFilled />,
@@ -85,6 +80,20 @@ const items = [
   //   icon: <FileFilled />,
   // }
 ];
+
+const items_pcr = [
+  {
+    label: <Link to={"pcr"}>PCR </Link>,
+    key: "PCR",
+    icon: <FileFilled />,
+  },
+  // {
+  //   label: <Link to={"annex"}>Add Annexure </Link>,
+  //   key: "annex",
+  //   icon: <FileFilled />,
+  // }
+];
+
 
 const MasterAccordion = () => (
   <Collapse accordion>
@@ -189,21 +198,18 @@ const UtilizationAccordion = () => (
           <Link to={"uc_c"}>Utilization Certificate Generate </Link>
         </li>
         <li>
+          <Link to={"annex"}>Add Annexure</Link>
+        </li>
+        <li>
           <Link to={"uc"}>Utilization Certificate</Link>
         </li>
-        {/* <li>
-          <Link to={"master/add-source-fund"}>Source Of Fund</Link>
-        </li>
-        <li>
-          <Link to={"master/implementing-agency"}>Implementing Agency</Link>
-        </li>
-        <li>
-          <Link to={"master/account-head-list"}>Account Head List</Link>
-        </li> */}
+
       </ul>
     </Panel>
   </Collapse>
 );
+
+
 
 function Sidebar() {
   const [current, setCurrent] = useState("home");
@@ -250,8 +256,15 @@ function Sidebar() {
         {userDataLocalStore.user_type != "U" && (
         <>
         <UtilizationAccordion />
+        <Menu
+          onClick={(e)=>onClick(e)}
+          selectedKeys={[current]}
+          mode="vertical"
+          items={items_pcr}
+        />
         <MasterAccordion />
         <UserAccordion />
+        
         </>
         )}
         <ReportAccordion />

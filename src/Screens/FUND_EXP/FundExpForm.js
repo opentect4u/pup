@@ -230,7 +230,8 @@ function FundExpForm() {
         
         // setLoading(false);
         Message("success", "Updated successfully.");
-        loadFormEditData(params?.id, payment_no, payment_date)
+        // loadFormEditData(params?.id, payment_no, payment_date)
+        setValues(initialValues)
         fundAddedList(params?.id)
         // navigate(`/home/tender_formality`);
   

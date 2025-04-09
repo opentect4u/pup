@@ -292,8 +292,8 @@ function UC_Form() {
         setGetMsgData(response?.data?.message)
         setValues({
           fin_year: response?.data?.message[0]?.fin_year,
-          schematic_amount_release: response?.data?.message[1]?.fund_rece_sch_amt,
-          contigency_amount_release: response?.data?.message[1]?.fund_rece_cont_amt,
+          schematic_amount_release: response?.data?.message[1]?.fund_rece_sch_amt === null ? 0 : response?.data?.message[1]?.fund_rece_sch_amt,
+          contigency_amount_release: response?.data?.message[1]?.fund_rece_cont_amt === null ? 0 : response?.data?.message[1]?.fund_rece_cont_amt,
           scheme_name: response?.data?.message[0]?.scheme_name,
 
           purpose_field: '',
@@ -307,6 +307,7 @@ function UC_Form() {
 
       if (response?.data.status < 1) {
         setLoading(false);
+
         setGetMsgData([])
       }
 
@@ -324,6 +325,7 @@ function UC_Form() {
       
       if(params?.id > 0){
         setShowForm(true)
+        navigate(`/home/uc_c`);
         // loadFormData(params?.id)
       }
   
@@ -787,7 +789,7 @@ function UC_Form() {
           {index >= 1 && (
             <div class="sm:col-span-4 mt-7">
    
-      <BtnComp title={'Remove'} onClick={() => handleRemoveRow(row.id)} width={'w-1/6'} bgColor={'bg-red-700'} />
+      <BtnComp title={'Remove'} onClick={() => handleRemoveRow(row.id)} width={'w-1/1'} bgColor={'bg-red-700'} />
       </div>
     )}
 
@@ -805,7 +807,7 @@ function UC_Form() {
 <div class="sm:col-span-4 mt-0">
       
       
-      <BtnComp title={'Add'} onClick={handleAddRow} width={'w-1/6'} bgColor={'bg-blue-900'} />
+      <BtnComp title={'Add'} onClick={handleAddRow} width={'w-1/1'} bgColor={'bg-blue-900'} />
       </div>
       <div class="sm:col-span-4 mt-0">
       
@@ -846,9 +848,10 @@ function UC_Form() {
     
             
             
-            <Heading title={'Print Preview'} button={'N'}/>  
-        <div className="sm:col-span-12 flex justify-center gap-4 mt-0 print_out_txt">
-        
+            {/* <Heading title={'Print Preview'} button={'N'}/>   */}
+        <div className="sm:col-span-12 justify-center gap-4 mt-0">
+        <Heading title={'Print Preview'} button={'N'}/>  
+        <div className="print_out_txt">
   <p className="text-justify">
     Certified that out of Rs.&nbsp;
     <span className="inline-block w-60 align-middle">
@@ -941,6 +944,7 @@ function UC_Form() {
       />
     </span>.
   </p>
+  </div>
 </div>
         <div className="sm:col-span-12 flex justify-center gap-4 mt-4">
         {params.id < 1 &&(

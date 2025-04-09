@@ -48,8 +48,9 @@ import PCRForm from './Screens/PCR_Generate/PCRForm';
 import UC_Comp from './Screens/UC_Generate/UC_Comp';
 import UC_View from './Screens/UC_Generate/UC_View';
 import UC_Form from './Screens/UC_Generate/UC_Form';
-// import Financial_Report__test from './Screens/REPORTS/Financial_Report__test';
-// import FundRelView__test from './Screens/FUND_RELEASE/FundRelView__test';
+import Annex_Comp from './Screens/ANNEXURE/Annex_Comp';
+import Annex_View from './Screens/ANNEXURE/Annex_View';
+import Annex_Form from './Screens/ANNEXURE/Annex_Form';
 
 const FundRelForm =lazy(()=>import('./Screens/FUND_RELEASE/FundRelForm'))
 const Sign_in =lazy(()=>import('./Screens/Auth/Sign_in'))
@@ -164,6 +165,20 @@ const router = createBrowserRouter([
             {
               path: "uc-add/:id",
               element: <UC_Form />,
+            }
+          ]
+        },
+        {
+          path: "annex",
+          element: <Annex_Comp />,
+          children: [
+            {
+              path: "",
+              element: <Annex_View />,
+            },
+            {
+              path: "annex-add/:id",
+              element: <Annex_Form />,
             }
           ]
         },

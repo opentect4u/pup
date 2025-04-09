@@ -9,6 +9,7 @@ const TableHeader = ({ curentPage }) => {
     page_6: 'UCView',
     page_7: 'PCRView',
     page_8: 'UC_Generate',
+    page_9: 'annexure',
   }
 
   if (curentPage === pageTree.page_1) {
@@ -133,6 +134,22 @@ const TableHeader = ({ curentPage }) => {
             <th className="px-4 py-3">Schematic Name</th>
             <th className="px-4 py-3">Financial Year</th>
             <th className="px-4 py-3">Generate Certificate</th>
+            {/* <th className="px-4 py-3">Upload PDF (PDF Max Size 2 MB)</th>
+            <th className="px-4 py-3">Download</th> */}
+            {/* <th className="px-4 py-3">View</th> */}
+          </tr>
+        </thead>
+      );
+    }
+
+    if (curentPage === pageTree.page_9) {
+      return (
+        <thead className="text-xs text-gray-700 uppercase bg-slate-200">
+          <tr>
+            <th className="px-4 py-3">Administrative Approval No.</th>
+            <th className="px-4 py-3">Schematic Name</th>
+            <th className="px-4 py-3">District</th>
+            <th className="px-4 py-3">Generate Annexure</th>
             {/* <th className="px-4 py-3">Upload PDF (PDF Max Size 2 MB)</th>
             <th className="px-4 py-3">Download</th> */}
             {/* <th className="px-4 py-3">View</th> */}
