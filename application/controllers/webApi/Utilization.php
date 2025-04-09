@@ -79,7 +79,7 @@ class Utilization extends CI_Controller {
 		
 		$approval_no = $this->input->post('approval_no') ;
 		$where = array('approval_no' => $approval_no); 
-		$result_data = $this->Master->f_select('td_utilization', 'approval_no,certificate_no,certificate_date,certificate_path,issued_by,issued_to,remarks,is_final,certi_type', $where, NULL);
+		$result_data = $this->Master->f_select('td_utilization', 'approval_no,certificate_no,certificate_date,certificate_path,annexture_certi,issued_by,issued_to,remarks,is_final,certi_type', $where, NULL);
 		$final_pic = $this->Master->f_select('td_proj_final_pic', 'final_pic', $where, NULL);
 		$query = $this->db->get_where('td_utilization', ['approval_no' => $this->input->post('approval_no'),'is_final'=>'Y']);
 		if($query->num_rows() == 0) {
@@ -100,7 +100,7 @@ class Utilization extends CI_Controller {
 		
 		$where = array('a.approval_no = b.approval_no' => NULL,'b.sector_id = c.sl_no' => NULL,
 		               'b.fin_year = d.sl_no' => NULL,'b.district_id = e.dist_code' => NULL,
-					   'b.block_id = f.block_id' => NULL,'1 group by b.admin_approval_dt,b.scheme_name,sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no'=>NULL);
+					   'b.block_id = f.block_id' => NULL,'1 group by b.admin_approval_dt,b.scheme_name,sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no,a.certi_type'=>NULL);
 		
 		$result_data = $this->Master->f_select('td_utilization a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f', 'b.admin_approval_dt,b.scheme_name,c.sector_desc as sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no,a.certi_type', $where, NULL);
 
@@ -119,7 +119,7 @@ class Utilization extends CI_Controller {
 		// Load Upload Library
 		$this->load->library('upload');
 		// File fields to process
-		$file_fields = ['certificate_path'];
+		$file_fields = ['certificate_path','annexture_certi'];
 	    $app_res_data = $this->Master->f_select('td_utilization','IFNULL(MAX(certificate_no), 0) + 1 AS certificate_no',array('approval_no'=>$this->input->post('approval_no')),1);
 		
 		foreach ($file_fields as $field) {
@@ -155,6 +155,7 @@ class Utilization extends CI_Controller {
 			'certificate_date' => $this->input->post('certificate_date'),
 			'certi_type' => $this->input->post('certi_type'),
 			'certificate_path' => $upload_paths['certificate_path'],
+			'annexture_certi' => $upload_paths['annexture_certi'],
 			'issued_by' => $this->input->post('issued_by'),
 			'issued_to' => $this->input->post('issued_to'),
 			'remarks'  => $this->input->post('remarks'),
@@ -217,7 +218,7 @@ class Utilization extends CI_Controller {
 		$where['approval_no'] = $approval_no;
 		$where['certificate_no'] = $certificate_no;
 	
-		$result_data = $this->Master->f_select('td_utilization', 'approval_no,certificate_no,certificate_date,certificate_path,issued_by,issued_to,remarks,is_final,certi_type', $where, 1);
+		$result_data = $this->Master->f_select('td_utilization', 'approval_no,certificate_no,certificate_date,certificate_path,annexture_certi,issued_by,issued_to,remarks,is_final,certi_type', $where, 1);
 	
 		$response = (!empty($result_data)) 
 			? ['status' => 1, 'message' => $result_data] 
@@ -235,7 +236,7 @@ class Utilization extends CI_Controller {
 		$this->load->library('upload');
 	
 		// File fields to process
-		$file_fields = ['certificate_path'];
+		$file_fields = ['certificate_path','annexture_certi'];
 		$this->form_validation->set_rules('approval_no', 'Approval No', 'required');
 		$this->form_validation->set_rules('modified_by', 'Modified By', 'required');
 	//	$this->form_validation->set_rules('issued_by', 'Issued By', 'required');
@@ -285,6 +286,10 @@ class Utilization extends CI_Controller {
 		if (!empty($upload_paths['certificate_path'])) {
 			$data['certificate_path'] = $upload_paths['certificate_path'];
 		}
+		if (!empty($upload_paths['annexture_certi'])) {
+			$data['annexture_certi'] = $upload_paths['annexture_certi'];
+		}
+		
 	
 		// Define where condition for update
 		$where = [
@@ -329,7 +334,7 @@ class Utilization extends CI_Controller {
             g.agency_name,
             t.wo_date,
             t.amt_put_to_tender,
-            t.wo_value,
+            t.wo_value,t.e_nit_no,
             t.comp_date_apprx AS stipulated_dt
         FROM td_admin_approval b
         LEFT JOIN td_progress a ON a.approval_no = b.approval_no
@@ -753,7 +758,7 @@ class Utilization extends CI_Controller {
 		}else{
 			$approval_no = $this->input->post('approval_no') ;
 				$sql = "SELECT 
-				a.project_id,
+				a.project_id,a.scheme_name,
 				a.admin_approval_dt,(a.sch_amt + a.cont_amt) as total_amt,
 				e.dist_name,c.amt_put_to_tender
 			FROM td_admin_approval a
@@ -772,8 +777,15 @@ class Utilization extends CI_Controller {
 			$res_fund = $this->Master->f_select('td_fund_receive',$select, $where, 1);
 
 			$allotment_no_dt = $this->Master->f_select('td_fund_receive', array("GROUP_CONCAT(CONCAT(allot_order_no, ', dt ', DATE_FORMAT(allot_order_dt, '%d-%m-%Y')) SEPARATOR ' and ') AS allotment_no_and_dt"), array('approval_no' => $this->input->post('approval_no')), 1);
+			//** */  Get Data from utilization certificate list   ***// 
+			$sch_fund = $this->Master->f_select('td_utilization_certificate a,td_utilizationcerti_funddtls b','ifnull(sum(exp_amt),0) as payment_made', array('a.sl_no = b.utilization_certi_slno'=>NULL,'certi_type'=> 'S','a.approval_no'=>$this->input->post('approval_no')), 1);
+			$cont_fund = $this->Master->f_select('td_utilization_certificate a,td_utilizationcerti_funddtls b','ifnull(sum(exp_amt),0) as cont_amt', array('a.sl_no = b.utilization_certi_slno'=>NULL,'certi_type'=> 'C','a.approval_no'=>$this->input->post('approval_no')), 1);
+
+
 			$result_data->fund_recv_tot_amt = $res_fund->fund_recv_tot_amt;
-			$result_data->allotment_no_and_dt =$allotment_no_dt->allotment_no_and_dt;
+			$result_data->allotment_no_and_dt = $allotment_no_dt->allotment_no_and_dt;
+			$result_data->payment_made = $sch_fund->payment_made;
+			$result_data->cont_amt = $cont_fund->cont_amt;
 			$response = (!empty($res_fund)) 
 			? ['status' => 1, 'message' => $result_data] 
 			: ['status' => 0, 'message' => 'No data found'];
@@ -787,11 +799,11 @@ class Utilization extends CI_Controller {
 
 	    $this->form_validation->set_rules('sl_no', 'sl_no', 'required');
 		$this->form_validation->set_rules('approval_no', 'Approval No', 'required');
-		$this->form_validation->set_rules('utilization_certi_no', 'utilization_certi_no', 'required');
 		$this->form_validation->set_rules('district', 'district', 'required');
 		$this->form_validation->set_rules('scheme', 'scheme', 'required');
 		$this->form_validation->set_rules('admin_approval_no', 'admin_approval_no', 'required');
 		$this->form_validation->set_rules('adm_approval_dt', 'adm_approval_dt', 'required');
+		$this->form_validation->set_rules('admin_approval_amt', 'admin_approval_amt', 'required');
 		$this->form_validation->set_rules('tender_amt', 'tender_amt', 'required');
 		$this->form_validation->set_rules('fund_recv_allot_no', 'fund_recv_allot_no', 'required');
 		$this->form_validation->set_rules('fund_recv_amt', 'fund_recv_amt', 'required');
@@ -812,23 +824,27 @@ class Utilization extends CI_Controller {
 			$sl_no = $this->input->post('sl_no') ;
 			if (!empty($sl_no) && $sl_no > 0) {
 				$data = [
-					'approval_no' => $this->input->post('approval_no'),
-					'certi_type' => $this->input->post('certi_type'),
-					'recv_sche_amt' => $this->input->post('recv_sche_amt'),
-					'recv_cont_amt'  => $this->input->post('recv_cont_amt'),
-					'fin_year' => $this->input->post('fin_year'),
-					'scheme_name' => $this->input->post('scheme_name'),
-					'margin_bal' => $this->input->post('margin_bal'),
-					'bal_amt' => $this->input->post('bal_amt'),
-					'vide_no' => $this->input->post('vide_no'),
-					'vide_dt' => $this->input->post('vide_dt'),
-					'next_year' => $this->input->post('next_year'),
+					'district' => $this->input->post('district'),
+					'scheme' => $this->input->post('scheme'),
+					'admin_approval_no'  => $this->input->post('admin_approval_no'),
+					'adm_approval_dt' => $this->input->post('adm_approval_dt'),
+					'tender_amt' => $this->input->post('tender_amt'),
+					'fund_recv_allot_no' => $this->input->post('fund_recv_allot_no'),
+					'fund_recv_amt' => $this->input->post('fund_recv_amt'),
+					'payment_made' => $this->input->post('payment_made'),
+					'claim' => $this->input->post('claim'),
+					'contingency' => $this->input->post('contingency'),
+					'shematic'=> $this->input->post('shematic'),
+					'net_claim' => $this->input->post('net_claim'),
+					'claim' => $this->input->post('claim'),
+					'physical_progress' => $this->input->post('physical_progress'),
+					'remarks' => $this->input->post('remarks'),
 					'modified_by' => $this->input->post('created_by'),
 					'modified_at' => date('Y-m-d h:i:s'),
 				];
 				
-				$where = ['sl_no' => $sl_no];
-				$id = $this->Master->f_edit('td_utilization_certificate', $data, $where);
+				$where = ['sl_no' => $sl_no,'approval_no' => $this->input->post('approval_no')];
+				$id = $this->Master->f_edit('td_uti_annexure', $data, $where);
 	
 				$response = (!empty($id)) 
 				? ['status' => 1, 'message' => 'Updated Successfully'] 
@@ -840,21 +856,26 @@ class Utilization extends CI_Controller {
 			}else{
 				$data = [
 					'approval_no' => $this->input->post('approval_no'),
-					'certi_type' => $this->input->post('certi_type'),
-					'recv_sche_amt' => $this->input->post('recv_sche_amt'),
-					'recv_cont_amt'  => $this->input->post('recv_cont_amt'),
-					'fin_year' => $this->input->post('fin_year'),
-					'scheme_name' => $this->input->post('scheme_name'),
-					'margin_bal' => $this->input->post('margin_bal'),
-					'bal_amt' => $this->input->post('bal_amt'),
-					'vide_no' => $this->input->post('vide_no'),
-					'vide_dt' => $this->input->post('vide_dt'),
-					'next_year' => $this->input->post('next_year'),
+					'district' => $this->input->post('district'),
+					'scheme' => $this->input->post('scheme'),
+					'admin_approval_no'  => $this->input->post('admin_approval_no'),
+					'adm_approval_dt' => $this->input->post('adm_approval_dt'),
+					'admin_approval_amt' => $this->input->post('admin_approval_amt'),
+					'tender_amt' => $this->input->post('tender_amt'),
+					'fund_recv_allot_no' => $this->input->post('fund_recv_allot_no'),
+					'fund_recv_amt' => $this->input->post('fund_recv_amt'),
+					'payment_made' => $this->input->post('payment_made'),
+					'claim' => $this->input->post('claim'),
+					'contingency' => $this->input->post('contingency'),
+					'net_claim' => $this->input->post('net_claim'),
+					'claim' => $this->input->post('claim'),
+					'physical_progress' => $this->input->post('physical_progress'),
+					'remarks' => $this->input->post('remarks'),
 					'created_by' => $this->input->post('created_by'),
 					'created_at' => date('Y-m-d h:i:s'),
 				];
 	
-				$id = $this->Master->f_insert('td_utilization_certificate', $data);
+				$id = $this->Master->f_insert('td_uti_annexure', $data);
 
 				$response = (!empty($id)) 
 				? ['status' => 1, 'message' => 'Added Successfully'] 
@@ -865,6 +886,33 @@ class Utilization extends CI_Controller {
 			}
 	    }
 	}
+
+	public function GetannextureData() {
+		$this->form_validation->set_rules('sl_no', 'sl_no', 'required');
+		$this->form_validation->set_rules('approval_no', 'Approval No', 'required');
+	   if ($this->form_validation->run() == FALSE) {
+			echo json_encode([
+				'status' => 0,
+				'message' => validation_errors()
+			]);
+		}else{
+			$where = null;
+        if ($this->input->post('approval_no') > 0 && $this->input->post('sl_no') > 0) {
+			$where = array('approval_no' => $this->input->post('approval_no'),'sl_no' => $this->input->post('sl_no'));
+		}
+		$select = 'sl_no,approval_no,district,scheme,admin_approval_no,adm_approval_dt,admin_approval_amt,tender_amt,fund_recv_allot_no,fund_recv_amt,payment_made,claim,contingency,net_claim,physical_progress,remarks';
+		$result_data = $this->Master->f_select('td_uti_annexure',$select, $where, 0);
+	   
+		$response = (!empty($result_data)) 
+		? ['status' => 1, 'message' => array_merge($result_data)] 
+		: ['status' => 0, 'message' => 'No data found'];
+		$this->output
+		->set_content_type('application/json')
+		->set_output(json_encode($response));
+		}
+    }
+
+	               
 	
 	
 }

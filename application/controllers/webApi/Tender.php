@@ -94,6 +94,7 @@ class Tender extends CI_Controller {
 			'approval_no' => $this->input->post('approval_no'),
 			'sl_no' => $app_res_data->sl_no,
 			'tender_date' => $this->input->post('tender_date'),
+			'e_nit_no' => $this->input->post('e_nit_no'),
 			'tender_notice' => $upload_paths['tender_notice'],
 			'invite_auth' => $this->input->post('invite_auth'),
 			'mat_date' => $this->input->post('mat_date'),
@@ -249,6 +250,7 @@ class Tender extends CI_Controller {
 	
 			// Prepare data array for update
 			$data = [
+				'e_nit_no' => $this->input->post('e_nit_no'),
 				'tender_date' => $this->input->post('tender_date'),
 				'invite_auth' => $this->input->post('invite_auth'),
 				'mat_date' => $this->input->post('mat_date'),
