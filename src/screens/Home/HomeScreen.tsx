@@ -71,6 +71,7 @@ const HomeScreen = () => {
     const [fetchedProjectDetails, setFetchedProjectDetails] = useState(() => '');
     const [progressComplete, setProgressComplete] = useState(() => Number(0));
     const [openDate, setOpenDate] = useState(() => false);
+    const [dateFinal, setDateFinal] = useState(() => '');
 
     // Set projectId to null instead of "" to indicate no selection
     const [formData1, setFormData1] = useState({
@@ -79,9 +80,9 @@ const HomeScreen = () => {
         latitude: '',
         longitude: '',
         locationAddress: '',
-        actualDateOfCompletion: '',
+        // actual_date_comp: '',
         remarks: '',
-        date: new Date(),
+        actual_date_comp: '',
     });
     // const [projectRangeCaps, setProjectRangeCaps] = useState<any[]>(() => [])
     const [checkErr, setCheckErr] = useState(() => false);
@@ -386,10 +387,10 @@ const HomeScreen = () => {
         formData.append('lat', location?.latitude!);
         formData.append('long', location.longitude!);
         formData.append('address', geolocationFetchedAddress);
-        formData.append('actual_date_comp', '2025-04-04');
+        formData.append('actual_date_comp', dateFinal);
         formData.append('remarks', formData1.remarks);
 
-        console.log('FORM DATA UPDATE ', formData);
+        console.log(dateFinal, 'FORM DATA UPDATE', formData);
 
         // Process each image to ensure its size is under 2MB (2 * 1024 * 1024 bytes)
         const processedImages = await Promise.all(
@@ -441,33 +442,33 @@ const HomeScreen = () => {
 
         formData.append('created_by', loginStore?.user_id);
 
-        // await axios.post(`${ADDRESSES.PROJECT_PROGRESS_UPDATE}`, formData, {
-        //     headers: {
-        //         "Content-Type": "multipart/form-data",
-        //         "auth_key": AUTH_KEY
-        //     }
-        // }).then(res => {
-        //     console.log("Response:", res?.data)
-        //     if (res?.data?.status === 1) {
-        //         Alert.alert("Approval Photo", "Approval project photo(s) uploaded successfully.")
-        //         removeAllImages()
-        //         setFormData1({
-        //             projectId: "",
-        //             progress: "",
-        //             latitude: "",
-        //             longitude: "",
-        //             locationAddress: "",
-        //             actualDateOfCompletion: "",
-        //             remarks: "",
-        //         })
-        //         setProgressComplet(Number(0))
-        //         setFetchedProjectDetails(() => "")
-        //     } else {
-        //         ToastAndroid.show("Sending details with photo error.", ToastAndroid.SHORT)
-        //     }
-        // }).catch(err => {
-        //     console.log("Upload error:", err)
-        // })
+        await axios.post(`${ADDRESSES.PROJECT_PROGRESS_UPDATE}`, formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+                "auth_key": AUTH_KEY
+            }
+        }).then(res => {
+            console.log("Response:", res?.data)
+            if (res?.data?.status === 1) {
+                Alert.alert("Approval Photo", "Approval project photo(s) uploaded successfully.")
+                removeAllImages()
+                setFormData1({
+                    projectId: "",
+                    progress: "",
+                    latitude: "",
+                    longitude: "",
+                    locationAddress: "",
+                    actual_date_comp: '',
+                    remarks: "",
+                })
+                setProgressComplete(Number(0))
+                setFetchedProjectDetails(() => "")
+            } else {
+                ToastAndroid.show("Sending details with photo error.", ToastAndroid.SHORT)
+            }
+        }).catch(err => {
+            console.log("Upload error:", err)
+        })
 
         setLoading(false);
     }, [formData1, imgData, loginStore, removeAllImages, handleFormChange]);
@@ -478,7 +479,8 @@ const HomeScreen = () => {
             !formData1.progress ||
             (100 - progressComplete === parseInt(formData1.progress, 10)
                 ? !formData1.remarks
-                : false) ||
+                : false)  ||
+                (100 - progressComplete === parseInt(formData1.progress, 10) ? dateFinal.length == 0 : false) ||
             imgData.length === 0
         ) {
             ToastAndroid.show(
@@ -517,7 +519,7 @@ const HomeScreen = () => {
                 lat: location?.latitude!,
                 lng: location.longitude!,
                 locationAddress: geolocationFetchedAddress,
-                actualDateOfCompletion: new Date('2025-04-04'),
+                actual_date_comp: dateFinal,
                 remarks: formData1.remarks,
             };
 
@@ -536,9 +538,9 @@ const HomeScreen = () => {
                 latitude: '',
                 longitude: '',
                 locationAddress: '',
-                actualDateOfCompletion: '',
+                // actual_date_comp: '',
                 remarks: '',
-                date: new Date(),
+                actual_date_comp: '',
             });
             setFetchedProjectDetails(() => '');
         } catch (err) {
@@ -624,6 +626,8 @@ const HomeScreen = () => {
                             fetchProgressDone(item?.value.split(',')[0]);
                             handleFormChange('progress', '');
                             handleFormChange('remarks', '');
+                            setDateFinal('')
+                            
                         }}
                         renderLeftIcon={() => <Icon size={25} source={'creation'} />}
                     />
@@ -748,6 +752,8 @@ const HomeScreen = () => {
                             // onChangeText={(txt: any) => handleFormChange("progress", txt)}
                             onChangeText={(txt: any) => {
                                 handleFormChange('remarks', '');
+                                setDateFinal('')
+                                // handleFormChange('date', '');
                                 let num = parseInt(txt, 10);
                                 if (!isNaN(num) && num <= 100 - progressComplete) {
                                     handleFormChange('progress', txt);
@@ -774,32 +780,42 @@ const HomeScreen = () => {
                                 // disabled={progressComplet === 100}
                                 style={{ backgroundColor: theme.colors.background }}
                             />
-                        </>
-                    )}
 
-                    <ButtonPaper
+
+<ButtonPaper
                         icon={'calendar-month-outline'}
                         mode="contained"
                         buttonColor={theme.colors.tertiary}
                         onPress={() => setOpenDate(true)}
-                        style={{ marginTop: 15, paddingVertical: 8 }}
+                        // style={{ marginTop: 15, paddingVertical: 8}}
+                        style={{ marginTop: 15, paddingVertical: 8, backgroundColor: theme.colors.primary,}}
                         disabled={!formData1.projectId}>
-                        {strings.dateText}: {formData1.date?.toLocaleDateString('en-GB')}
+                        {strings.dateText}  { dateFinal}
                     </ButtonPaper>
 
                     <DatePicker
                         modal
                         mode="date"
                         open={openDate}
-                        date={formData1.date}
+                        date={new Date()}
                         onConfirm={date => {
                             setOpenDate(false);
                             handleFormChange('date', date);
+                            console.log(date.toISOString().split('T')[0], 'datedatedate');
+                            setDateFinal(date.toISOString().split('T')[0])
                         }}
                         onCancel={() => {
                             setOpenDate(false);
+                            setDateFinal('')
                         }}
                     />
+
+
+
+                        </>
+                    )}
+
+                    
 
                     <ButtonPaper
                         icon={'camera'}
@@ -874,7 +890,8 @@ const HomeScreen = () => {
                             imgData?.length === 0 ||
                             (100 - progressComplete === parseInt(formData1.progress, 10)
                                 ? !formData1.remarks
-                                : false)
+                                : false) ||
+                            (100 - progressComplete === parseInt(formData1.progress, 10) ? dateFinal.length == 0 : false)
                         }>
                         Update Progress
                     </ButtonPaper>
@@ -903,6 +920,7 @@ const HomeScreen = () => {
                             (100 - progressComplete === parseInt(formData1.progress, 10)
                                 ? !formData1.remarks
                                 : false) ||
+                            (100 - progressComplete === parseInt(formData1.progress, 10) ? dateFinal.length == 0 : false) ||
                             !geolocationFetchedAddress
                         }>
                         {strings.saveText}
