@@ -470,7 +470,7 @@ function Annex_Form() {
             <div class="sm:col-span-4">
               <TDInputTemplate
                 placeholder="Administrative Approval No."
-                type="number"
+                type="text"
                 label="Administrative Approval No."
                 name="adminApprovalNo"
                 formControlName={formik.values.adminApprovalNo}
@@ -551,7 +551,7 @@ function Annex_Form() {
               <TDInputTemplate
                 placeholder="Fund Received Amount"
                 type="number"
-                label="Fund Received Amounte"
+                label="Fund Received Amount"
                 name="fundRecAmounte"
                 formControlName={formik.values.fundRecAmounte}
                 handleChange={formik.handleChange}

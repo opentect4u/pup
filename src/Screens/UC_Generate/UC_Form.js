@@ -565,7 +565,7 @@ function UC_Form() {
 
         {showForm  &&(
         <>
-      <Heading title={'PCR Project Details'} button={'N'}/>
+      <Heading title={'Project Details'} button={'N'}/>
         <form onSubmit={formik.handleSubmit}>
           <div class="grid gap-4 sm:grid-cols-12 sm:gap-6">
 
@@ -573,10 +573,10 @@ function UC_Form() {
           <div class="sm:col-span-4">
               
 
-              <label for="head_acc" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Select Purpose Of Certificate</label>
+              <label for="head_acc" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Select Type Of Certificate</label>
               {/* {JSON.stringify(headAccountDropList, null, 2)} */}
               <Select
-                placeholder="Choose Purpose Of Certificate"
+                placeholder="Choose Type Of Certificate"
                 value={formik.values.purpose_field || undefined} // Ensure default empty state
                 onChange={(value) => {
                   formik.setFieldValue("purpose_field", value)

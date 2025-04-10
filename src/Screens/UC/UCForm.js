@@ -814,7 +814,7 @@ function UCForm() {
               <label for="head_acc" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Type Of Certificate</label>
               {/* {JSON.stringify(headAccountDropList, null, 2)} */}
               <Select
-                placeholder="Choose Purpose Of Certificate"
+                placeholder="Choose Type Of Certificate"
                 value={formik.values.purpose_field || undefined} // Ensure default empty state
                 onChange={(value) => {
                   formik.setFieldValue("purpose_field", value)
