@@ -115,7 +115,8 @@ switch (ENVIRONMENT)
  * NO TRAILING SLASH!
  */
 	$application_folder = 'application';
-
+	// Load Composer autoload
+	require_once __DIR__ . '/vendor/autoload.php';
 /*
  *---------------------------------------------------------------
  * VIEW DIRECTORY NAME
