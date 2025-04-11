@@ -70,6 +70,7 @@ const HomeScreen = () => {
     const [loading, setLoading] = useState(false);
     const [fetchedProjectDetails, setFetchedProjectDetails] = useState(() => '');
     const [progressComplete, setProgressComplete] = useState(() => Number(0));
+    const [progressCompleteAPI, setProgressCompleteAPI] = useState(() => Number(0));
     const [openDate, setOpenDate] = useState(() => false);
     const [dateFinal, setDateFinal] = useState(() => '');
 
@@ -196,8 +197,10 @@ const HomeScreen = () => {
                 // }))
                 // setProjectsList(newProjectsList)
                 setProgressComplete(res?.data?.progress_percent);
+                setProgressCompleteAPI(res?.data?.progress_percent);
             } else {
                 setProgressComplete(Number(0));
+                setProgressCompleteAPI(Number(0));
                 ToastAndroid.show('Percentage fetch error.', ToastAndroid.SHORT);
             }
         } catch (err) {
@@ -717,12 +720,12 @@ const HomeScreen = () => {
                         </View>
                     )}
 
-                    {/* <View>
-                        <Text>{JSON.stringify(Number(progressComplet), null, 2)}</Text>
-                        <Text>{JSON.stringify(Number(formData1.progress), null, 2)}</Text>
-                        <Text>{JSON.stringify(formData1.projectId?.split(",")[0], null, 2)}</Text>
-                        <Text>{JSON.stringify((100 - Number(progressComplet)), null, 2)}</Text>
-                    </View> */}
+                    <View>
+                        <Text>{JSON.stringify(formData1.progress, null, 2)}</Text>
+                        <Text>{JSON.stringify(progressComplete, null, 2)}</Text>
+                        {/* <Text>{JSON.stringify(formData1.projectId?.split(",")[0], null, 2)}</Text> */}
+                        {/* <Text>{JSON.stringify((100 - Number(progressComplet)), null, 2)}</Text> */}
+                    </View>
 
                     <View style={{ marginVertical: 10 }}>
                         <Text
@@ -751,16 +754,20 @@ const HomeScreen = () => {
                             value={formData1.progress}
                             // onChangeText={(txt: any) => handleFormChange("progress", txt)}
                             onChangeText={(txt: any) => {
+                                
                                 handleFormChange('remarks', '');
                                 setDateFinal('')
                                 // handleFormChange('date', '');
                                 let num = parseInt(txt, 10);
                                 if (!isNaN(num) && num <= 100 - progressComplete) {
                                     handleFormChange('progress', txt);
+                                    setProgressCompleteAPI(Number(formData1.progress)*10)
                                 } else if (txt === '') {
                                     handleFormChange('progress', '');
+                                    setProgressCompleteAPI(Number(0))
                                 } else {
                                     handleFormChange('progress', '');
+                                    setProgressCompleteAPI(Number(0))
                                 }
                             }}
                             customStyle={{ backgroundColor: theme.colors.background }}
