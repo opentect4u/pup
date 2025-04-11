@@ -251,7 +251,7 @@ const printData_out = (printOutData, fund_dtls) => {
   };
 
 
-  const printWindow = window.open("", "", "width=800,height=600");
+  const printWindow = window.open("", "_blank", "width=800,height=600");
   printWindow.document.write(`
     <html>
     <head>
@@ -470,7 +470,7 @@ const printData_out = (printOutData, fund_dtls) => {
     </html>
   `);
   printWindow.document.close();
-  printWindow.print();
+  // printWindow.print();
 };
 
 

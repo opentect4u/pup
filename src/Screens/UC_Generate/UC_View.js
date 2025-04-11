@@ -275,7 +275,7 @@ const printData_out = (printOutData, fund_dtls) => {
   const capitalizedExpAmtWords =
     expAmtWords.charAt(0).toUpperCase() + expAmtWords.slice(1);
 
-  const printWindow = window.open("", "", "width=800,height=600");
+  const printWindow = window.open("", "_blank", "width=800,height=600");
   printWindow.document.write(`
     <html>
     <head>
@@ -551,7 +551,7 @@ grants-in-ald/fund payable during the next year ${printOutData?.next_year}</p>
     </html>
   `);
   printWindow.document.close();
-  printWindow.print();
+  // printWindow.print();
 };
 
 

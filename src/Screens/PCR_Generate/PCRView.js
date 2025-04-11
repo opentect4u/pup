@@ -234,11 +234,11 @@ function PCRView() {
 };
 
 const printData_out = (printOutData) => {
-  const printWindow = window.open("", "", "width=800,height=600");
+  const printWindow = window.open("", "_blank", "width=800,height=600");
   printWindow.document.write(`
     <html>
     <head>
-      <title>Completion Certificate (Contractor Name: ${printOutData.contractor_name_dtls})</title>
+      <title>Completion Certificate (Contractor Name:${printOutData.contractor_name_dtls})</title>
       <style>
         body {
             font-family: Arial, sans-serif;
@@ -473,7 +473,7 @@ const printData_out = (printOutData) => {
     </html>
   `);
   printWindow.document.close();
-  printWindow.print();
+  // printWindow.print();
 };
 
 
