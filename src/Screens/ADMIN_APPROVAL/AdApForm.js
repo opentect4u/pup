@@ -25,6 +25,7 @@ const initialValues = {
   head_acc: '',
   dt_appr: '',
   proj_sub_by: '',
+  dtl_constituency:'',
   proj_imp_by: '',
   dis: '',
   block: '',
@@ -66,12 +67,30 @@ const validationSchema = Yup.object({
   sector_name: Yup.string().required('Sector is Required'),
   fin_yr: Yup.string().required('Financial Year is Required'),
   schm_amt: Yup.string().required('Schematic Amount is Required'),
-  cont_amt: Yup.string().required('Contigency Amount is Required'),
+  // cont_amt: Yup.string().required('Contigency Amount is Required'),
+  cont_amt: Yup.number()
+    .typeError('Contigency Amount must be a number')
+    .required('Contigency Amount is Required')
+    .positive('Contigency Amount must be greater than zero')
+    .test(
+      'is-three-percent',
+      'Contingency Amount should be 3% of Schematic Amount',
+      function (value) {
+        const { schm_amt } = this.parent;
+        if (!schm_amt || !value) return true; // Skip validation if either is missing
+        const expected = parseFloat(schm_amt) * 0.03;
+        return parseFloat(value).toFixed(2) <= expected.toFixed(2);
+      }
+    ),
+    // .max('balanceContigencyAmount', `Amount must be within balanceContigencyAmount`),
+    // .max(balanceContigencyAmount, `Amount must be within ${balanceContigencyAmount}`),
+    
   admin_appr_pdf: Yup.string().required('Administrative Approval(G.O) is Required'),
   proj_id: Yup.string().required('Project ID is Required'),
   head_acc: Yup.string().required('Head Account is Required'),
   dt_appr: Yup.string().required('Date of administrative approval is Required'),
   proj_sub_by: Yup.string().required('Project Submitted By is Required'),
+  dtl_constituency: Yup.string().required('Details of Constituency is Required'),
   proj_imp_by: Yup.string().required('Project implemented By is Required'),
   dis: Yup.string().required('District is Required'),
   block: Yup.string().required('Block is Required'),
@@ -917,7 +936,7 @@ function AdApForm() {
               )}
             </div>
             <div class="sm:col-span-4">
-              <label for="fin_yr" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Financial Year</label>
+              <label for="fin_yr" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Financial Year (Sanctioning Year of Project)</label>
               <Select
               showSearch // Search
                 placeholder="Choose Financial Year"
@@ -946,6 +965,7 @@ function AdApForm() {
                 <VError title={formik.errors.fin_yr} />
               )}
             </div>
+            
             <div className="sm:col-span-12 text-blue-900 text-md font-bold mt-3 -mb-2">
               Amount of administrative approval
             </div>
@@ -1086,16 +1106,7 @@ function AdApForm() {
             </div>
             
             <div class="sm:col-span-4">
-              {/* <TDInputTemplate
-                placeholder="Name goes here..."
-                type="text"
-                label="Project Submitted By"
-                name="proj_sub_by"
-                formControlName={formik.values.proj_sub_by}
-                handleChange={formik.handleChange}
-                handleBlur={formik.handleBlur}
-                mode={1}
-              /> */}
+
 <label for="dis" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Project Submitted By</label>
 
 <Select
@@ -1128,6 +1139,23 @@ function AdApForm() {
                 <VError title={formik.errors.proj_sub_by} />
               )}
             </div>
+
+            <div class="sm:col-span-4">
+              <TDInputTemplate
+                placeholder="Details of Constituency..."
+                type="text"
+                label="Details of Constituency"
+                name="dtl_constituency"
+                formControlName={formik.values.dtl_constituency}
+                handleChange={formik.handleChange}
+                handleBlur={formik.handleBlur}
+                mode={1}
+              />
+              {formik.errors.dtl_constituency && formik.touched.dtl_constituency && (
+                <VError title={formik.errors.dtl_constituency} />
+              )}
+            </div>
+
             <div class="sm:col-span-4">
 
 

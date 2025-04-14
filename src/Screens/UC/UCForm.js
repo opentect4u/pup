@@ -480,7 +480,7 @@ function UCForm() {
         
         {params?.id < 1 &&(
           <>
-          <label for="fin_yr" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Project ID / Approval Number</label>
+          <label for="fin_yr" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Project ID</label>
           <Select
           placeholder="Choose Project ID"
           onChange={(value) => {
@@ -494,7 +494,7 @@ function UCForm() {
           <Select.Option value="" disabled> Choose Project ID </Select.Option>
           {projectId.map(data => (
           <Select.Option key={data.approval_no} value={data.approval_no}>
-          {data.project_id} - {data.approval_no}
+          {data.project_id}
           </Select.Option>
           ))}
           </Select>
@@ -509,8 +509,8 @@ function UCForm() {
         <>
         <TDInputTemplate
         type="text"
-        label="Project ID / Approval Number"
-        formControlName={data.project_id +'-'+ data.approval_no}
+        label="Project ID"
+        formControlName={data.project_id}
         mode={1}
         disabled={true}
         />
