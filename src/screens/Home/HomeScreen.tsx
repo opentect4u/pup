@@ -387,6 +387,7 @@ const HomeScreen = () => {
         const formData = new FormData();
         formData.append('approval_no', formData1.projectId?.split(',')[0] || '');
         formData.append('progress_percent', formData1.progress);
+        formData.append('progressive_percent', (Number(progressComplete) + Number(formData1.progress)).toString());
         formData.append('lat', location?.latitude!);
         formData.append('long', location.longitude!);
         formData.append('address', geolocationFetchedAddress);
@@ -470,6 +471,7 @@ const HomeScreen = () => {
                 ToastAndroid.show("Sending details with photo error.", ToastAndroid.SHORT)
             }
         }).catch(err => {
+            console.log("Response:", err)
             console.log("Upload error:", err)
         })
 
@@ -720,31 +722,55 @@ const HomeScreen = () => {
                         </View>
                     )}
 
-                    <View>
-                        <Text>{JSON.stringify(formData1.progress, null, 2)}</Text>
-                        <Text>{JSON.stringify(progressComplete, null, 2)}</Text>
-                        {/* <Text>{JSON.stringify(formData1.projectId?.split(",")[0], null, 2)}</Text> */}
-                        {/* <Text>{JSON.stringify((100 - Number(progressComplet)), null, 2)}</Text> */}
-                    </View>
+
+
+
+
 
                     <View style={{ marginVertical: 10 }}>
-                        <Text
+
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 0 }}>
+<Text style={{ color: theme.colors.primary, fontWeight: 'bold' }}>
+{Number(progressComplete)}% {strings.complete}
+</Text>
+<Text style={{ color: theme.colors.primary, fontWeight: 'bold' }}>
+{/* {strings.current_prg} {Number(progressComplete) + Number(formData1.progress)}% */}
+{strings.current_prg} {Number(formData1.progress)}%
+</Text>
+</View>
+                        {/* <Text
                             style={{
                                 color: theme.colors.primary,
                                 fontWeight: 'bold',
                                 marginBottom: 5,
                             }}>
-                            {progressComplete}% {strings.complete}
+                            {Number(progressComplete)}% {strings.complete} | {strings.current_prg} {Number(progressComplete) + Number(formData1.progress)}%
+                        </Text> */}
+                        
+                        {Number(progressComplete) + Number(formData1.progress) > 100 && (
+                            <Text
+                            style={{
+                                color: theme.colors.error,
+                                fontWeight: 'bold',
+                                marginBottom: 5,
+                            }}>
+                            Don't exceed {100}% & not less than {progressComplete}%
                         </Text>
+                        )}
+                        
 
                         <ProgressBar
-                            progress={progressComplete / 100}
+                            progress={progressComplete / 100 +  Number(formData1.progress) / 100}
                             color={theme.colors.primary}
                             style={{ height: 12, borderRadius: 6 }}
                         />
+                        
                     </View>
 
                     {formData1.projectId && (
+                        <>
+
+                        
                         <InputPaper
                             error={checkErr}
                             label="Project Progress..."
@@ -758,20 +784,28 @@ const HomeScreen = () => {
                                 handleFormChange('remarks', '');
                                 setDateFinal('')
                                 // handleFormChange('date', '');
+                                                                
                                 let num = parseInt(txt, 10);
-                                if (!isNaN(num) && num <= 100 - progressComplete) {
+
+                                console.log(!isNaN(num), 'bbbbbbbbbbb', num, 'bbbbbbbbbbb', progressComplete, !isNaN(num) && num > progressComplete);
+
+                                // if (!isNaN(num) && num <= 100 - progressComplete) {
+                                // if (!isNaN(num) && num > progressComplete) {
                                     handleFormChange('progress', txt);
-                                    setProgressCompleteAPI(Number(formData1.progress)*10)
-                                } else if (txt === '') {
-                                    handleFormChange('progress', '');
-                                    setProgressCompleteAPI(Number(0))
-                                } else {
-                                    handleFormChange('progress', '');
-                                    setProgressCompleteAPI(Number(0))
-                                }
+                                    // setProgressCompleteAPI(Number(formData1.progress))
+                                // } 
+                                // else if (txt === '') {
+                                //     handleFormChange('progress', '');
+                                //     setProgressCompleteAPI(Number(0))
+                                // } 
+                                // else {
+                                //     handleFormChange('progress', '');
+                                //     setProgressCompleteAPI(Number(0))
+                                // }
                             }}
                             customStyle={{ backgroundColor: theme.colors.background }}
                         />
+                        </>
                     )}
 
                     {100 - Number(progressComplete) === Number(formData1.progress) && (
@@ -895,10 +929,13 @@ const HomeScreen = () => {
                             loading ||
                             checkErr ||
                             imgData?.length === 0 ||
-                            (100 - progressComplete === parseInt(formData1.progress, 10)
+                            Number(formData1.progress) < 1 ? true : false ||
+                            // (100 - progressComplete === parseInt(formData1.progress, 10)
+                            (Number(progressComplete) + Number(formData1.progress) >= 100 && Number(formData1.progress) + Number(progressComplete) > progressCompleteAPI
                                 ? !formData1.remarks
                                 : false) ||
-                            (100 - progressComplete === parseInt(formData1.progress, 10) ? dateFinal.length == 0 : false)
+                            // (100 - progressComplete === parseInt(formData1.progress, 10) ? dateFinal.length == 0 : false)
+                            (Number(progressComplete) + Number(formData1.progress) >= 100 && Number(formData1.progress) + Number(progressComplete) > progressCompleteAPI ? dateFinal.length == 0 : false)
                         }>
                         Update Progress
                     </ButtonPaper>
@@ -924,10 +961,13 @@ const HomeScreen = () => {
                             !formData1.projectId ||
                             !location.latitude ||
                             !location.longitude ||
-                            (100 - progressComplete === parseInt(formData1.progress, 10)
+                            // (100 - progressComplete === parseInt(formData1.progress, 10)
+                            (Number(progressComplete) + Number(formData1.progress) >= 100 && Number(formData1.progress) + Number(progressComplete) > progressCompleteAPI
+                            // (Number(progressComplete) + Number(formData1.progress) > 100 && Number(formData1.progress) + Number(progressComplete) > progressCompleteAPI
                                 ? !formData1.remarks
                                 : false) ||
-                            (100 - progressComplete === parseInt(formData1.progress, 10) ? dateFinal.length == 0 : false) ||
+                            // (100 - progressComplete === parseInt(formData1.progress, 10) ? dateFinal.length == 0 : false) ||
+                            (Number(progressComplete) + Number(formData1.progress) >= 100 && Number(formData1.progress) + Number(progressComplete) > progressCompleteAPI ? dateFinal.length == 0 : false) ||
                             !geolocationFetchedAddress
                         }>
                         {strings.saveText}
