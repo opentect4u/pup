@@ -117,6 +117,7 @@ class Api extends CI_Controller {
 				'approval_no'       => $this->input->post('approval_no'),
 				'visit_no'          => $app_res_data->visit_no,
 				'progress_percent'  => $progress_percent, // Store as JSON
+				'progressive_percent'  => $this->input->post('progressive_percent'), 
 				'pic_path'          => $pic_path_json, // Store multiple image paths as JSON
 				'lat'               => $this->input->post('lat'),
 				'long'              => $this->input->post('long'),
