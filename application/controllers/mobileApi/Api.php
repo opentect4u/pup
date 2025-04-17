@@ -117,12 +117,13 @@ class Api extends CI_Controller {
 				'approval_no'       => $this->input->post('approval_no'),
 				'visit_no'          => $app_res_data->visit_no,
 				'progress_percent'  => $progress_percent, // Store as JSON
-				'progressive_percent'  => $this->input->post('progressive_percent'), 
+				'progressive_percent' => $this->input->post('progressive_percent'), 
 				'pic_path'          => $pic_path_json, // Store multiple image paths as JSON
 				'lat'               => $this->input->post('lat'),
 				'long'              => $this->input->post('long'),
 				'address'           => $this->input->post('address'),
-                'actual_date_comp'  => $this->input->post('actual_date_comp'),
+                'actual_date_comp'  => strlen($this->input->post('actual_date_comp')) > 9 ? $this->input->post('actual_date_comp'):null,
+				'proj_comp_status'  =>strlen($this->input->post('actual_date_comp')) > 9 ? 1 : 0,
 				'remarks'           => $this->input->post('remarks'),
 				'created_by'        => $this->input->post('created_by'),
 				'created_at'        => date('Y-m-d H:i:s'),

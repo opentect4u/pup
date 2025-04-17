@@ -168,7 +168,7 @@ class Utilization extends CI_Controller {
 
 
 		if($this->input->post('is_final') == 'Y'){
-		$upload_path = [];
+		    $upload_path = [];
 			$file_fiel = ['final_pic'];
 		
 			foreach ($file_fiel as $field) {
@@ -321,8 +321,7 @@ class Utilization extends CI_Controller {
 	public function projCompCertiReq() {
 		
 		$approval_no = $this->input->post('approval_no');
-		
-
+	
 		$sql = "SELECT 
             b.admin_approval_dt, 
             b.scheme_name, 
@@ -354,7 +353,9 @@ class Utilization extends CI_Controller {
         LIMIT 1";
         $result_data = $this->db->query($sql)->result();
 		$actualdtres = $this->Master->f_select('td_progress', 'actual_date_comp', array('approval_no'=>$approval_no,'1 order by visit_no desc limit 1'=>NULL), NULL);
-		
+		$actualdtres = (!empty($actualdtres) && $actualdtres[0]->actual_date_comp != '0000-00-00') 
+    ? $actualdtres[0]->actual_date_comp 
+    : null;
 		$response = (!empty($result_data)) 
 			? ['status' => 1, 'message' => $result_data,'comp_date_actual'=>$actualdtres] 
 			: ['status' => 0, 'message' => 'No data found'];
@@ -363,6 +364,7 @@ class Utilization extends CI_Controller {
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
     }
+
 
 	public function pcrcertificateadd() {
 	    
