@@ -11,7 +11,8 @@ function BtnComp({
     rounded,
     type,
     border,
-    shadow
+    shadow,
+    disabled
   }) {
   
    const roundedBtn = rounded || 'rounded-md'
@@ -28,6 +29,7 @@ function BtnComp({
         type={typeBtn}
         class={cls}
         onClick={() => onClick()}
+        disabled ={disabled}
       >
         {title}
       </button>

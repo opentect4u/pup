@@ -356,20 +356,14 @@ function PRDetails() {
                           </>
                         )}
 
-{/* {getMsgData[1]?.comp_date_apprx} */}
 
-              {data?.proj_comp_status > 0 &&(
+              {/* {data?.proj_comp_status > 0 &&(
               <>
               {new Date(data?.actual_date_comp).getTime() / 60000 > new Date(getMsgData[1]?.comp_date_apprx).getTime() / 60000 &&(
               <>
-              
-
             <div class="bg-red-100 border-t-4 border-red-500 rounded-b text-red-900 px-4 py-3 shadow-md" role="alert">
             <div class="flex">
             <div class="py-0 mr-3">
-            {/* <svg class="fill-current h-6 w-6 text-red-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-            <path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z"/>
-            </svg> */}
             <ClockCircleOutlined class="fill-current h-0 w-6 text-red-500 mr-0 text-xl" />
             </div>
             <div>
@@ -383,22 +377,10 @@ function PRDetails() {
 
               {new Date(data?.actual_date_comp).getTime() / 60000 <= new Date(getMsgData[1]?.comp_date_apprx).getTime() / 60000 &&(
               <>
-              {/* <div className="p-2 mt-3 text-center text-sm text-green-700 bg-green-100 border border-green-300 rounded-lg font-semibold text-lg">
-              ✅ Project Delivered on Time. Great Job! <br/>
-              {(() => {
-              const diffDays = Math.floor((new Date(getMsgData[1]?.comp_date_apprx).getTime() - new Date(data?.actual_date_comp).getTime()) / (1000 * 60 * 60 * 24));
-              return diffDays === 0 
-              ? " Submitted on the Same Day!"
-              : ` Submitted ${diffDays} Day(s) early`;
-              })()}
-              </div> */}
 
             <div class="bg-green-100 border-t-4 border-green-500 rounded-b text-green-900 px-4 py-3 shadow-md" role="alert">
             <div class="flex">
             <div class="py-0 mr-3">
-            {/* <svg class="fill-current h-6 w-6 text-red-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-            <path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z"/>
-            </svg> */}
             <CheckCircleFilled class="fill-current h-0 w-6 text-green-500 mr-0 text-xl" />
             </div>
             <div>
@@ -418,7 +400,7 @@ function PRDetails() {
               </>
               )}
               </>
-              )}
+              )} */}
 
                       
                         

@@ -29,6 +29,8 @@ function Sign_in() {
 const navigate = useNavigate();
 const [loading, setLoading] = useState(false);
 
+const [loginBtnDisable, setLoginBtnDisable] = useState(false);
+
 
 const loginFnc = async () => {
   const formData = new FormData();
@@ -72,6 +74,7 @@ const loginFnc = async () => {
     Message("error", "Login Credentials Wrong...");
     // setLoading(false);
     // formik.resetForm();
+    setLoginBtnDisable(false)
     }
     
 
@@ -86,10 +89,10 @@ const loginFnc = async () => {
 
 const onSubmit = (values) => {
     // saveFormData()
-    console.log('Form data', values);
 
-    loginFnc()
-    
+    setLoginBtnDisable(true)
+
+      loginFnc()
   
 };
 
@@ -153,7 +156,7 @@ const formik = useFormik({
                 </a>
               </div> */}
 
-              <BtnComp type={'submit'} title="Sign in" onClick={() => { }} />
+              <BtnComp type={'submit'} title="Sign in" onClick={() => { }} disabled={loginBtnDisable} />
               {/* <p class="text-sm font-light text-gray-500 dark:text-gray-400">
                 Don’t have an account yet?{" "}
                 <a

@@ -854,23 +854,20 @@ function FundExpForm() {
               name="cont_remark"
               mode="tags"
               style={{ width: '100%' }}
-              // value={formik.values.cont_remark}  // Bind Formik state
               value={formik.values.cont_remark}
               onChange={(value) => {
                 formik.setFieldValue("cont_remark", value)
-                // handleChange_contigen(value)
               }} // Update Formik state
               handleChange={formik.handleChange}
-             
-              // handleBlur={formik.handleBlur}
               onBlur={() => formik.setFieldTouched("cont_remark", true)}
               tokenSeparators={[]}
               options={contigencyRemarks.map(item => ({
                 value: item.sl_no,
                 label: item.cont_rmrks
               }))}
-              filterOption={(input, option) => {
-                (option?.label ?? "").toLowerCase().includes(input.toLowerCase())}}
+              filterOption={(input, option) => 
+                (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+              }
               />
 
 {/* <Select

@@ -1229,7 +1229,7 @@ formik.setFieldValue('cont_amt', contAmt);
                 <VError title={formik.errors.proj_imp_by} />
               )}
             </div>
-            <div class="sm:col-span-4">
+            <div class="sm:col-span-4 contigencySelect">
 
             <label for="dis" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Choose District<span className="mandator_txt"> *</span></label>
             <Select
@@ -1251,8 +1251,6 @@ formik.setFieldValue('cont_amt', contAmt);
             formik.setFieldValue("gp_id", "");
             setGM_DropList([]);
             setGM_DropList_Load([])
-
-
             
             console.log(value, 'disdisdis');
             }}
@@ -1271,6 +1269,29 @@ formik.setFieldValue('cont_amt', contAmt);
             </Select.Option>
             ))}
             </Select>
+
+
+            {/* <Select
+            placeholder="Choose Contingency Remarks goes here..."
+            label="Choose Contingency Remarks"
+            name="dis"
+            mode="tags"
+            style={{ width: '100%' }}
+            value={formik.values.dis}
+            onChange={(value) => {
+            formik.setFieldValue("dis", value)
+            }} // Update Formik state
+            handleChange={formik.handleChange}
+            onBlur={() => formik.setFieldTouched("dis", true)}
+            tokenSeparators={[]}
+            options={districtDropList.map(item => ({
+            value: item.dist_code,
+            label: item.dist_name
+            }))}
+            filterOption={(input, option) => 
+            (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
+            /> */}
 
 
               {formik.errors.dis && formik.touched.dis && (
