@@ -357,7 +357,7 @@ function PRDetails() {
                         )}
 
 
-              {/* {data?.proj_comp_status > 0 &&(
+              {data?.proj_comp_status > 0 &&(
               <>
               {new Date(data?.actual_date_comp).getTime() / 60000 > new Date(getMsgData[1]?.comp_date_apprx).getTime() / 60000 &&(
               <>
@@ -400,7 +400,7 @@ function PRDetails() {
               </>
               )}
               </>
-              )} */}
+              )}
 
                       
                         
