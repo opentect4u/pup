@@ -25,7 +25,7 @@ const initialValues = {
   head_acc: '',
   dt_appr: '',
   proj_sub_by: '',
-  dtl_constituency:'',
+  project_submit_dtl:'',
   proj_imp_by: '',
   dis: '',
   block: '',
@@ -65,38 +65,54 @@ const validationSchema = Yup.object({
 
   scheme_name: Yup.string().required('Scheme name is Required'),
   sector_name: Yup.string().required('Sector is Required'),
-  fin_yr: Yup.string().required('Financial Year is Required'),
-  schm_amt: Yup.string().required('Schematic Amount is Required'),
-  // cont_amt: Yup.string().required('Contigency Amount is Required'),
-  cont_amt: Yup.number()
-    .typeError('Contigency Amount must be a number')
-    .required('Contigency Amount is Required')
-    .positive('Contigency Amount must be greater than zero')
-    .test(
-      'is-three-percent',
-      'Contingency Amount should be 3% of Schematic Amount',
-      function (value) {
-        const { schm_amt } = this.parent;
-        if (!schm_amt || !value) return true; // Skip validation if either is missing
-        const expected = parseFloat(schm_amt) * 0.03;
-        return parseFloat(value).toFixed(2) <= expected.toFixed(2);
-      }
-    ),
-    // .max('balanceContigencyAmount', `Amount must be within balanceContigencyAmount`),
-    // .max(balanceContigencyAmount, `Amount must be within ${balanceContigencyAmount}`),
+  fin_yr: Yup.string().required('Scanctioning Financial Year is Required'),
+  // schm_amt: Yup.string().required('Schematic Amount is Required'),
+  // cont_amt: Yup.number()
+  //   .typeError('Contigency Amount must be a number')
+  //   .required('Contigency Amount is Required')
+  //   .positive('Contigency Amount must be greater than zero')
+  //   .test(
+  //     'is-three-percent',
+  //     'Contingency Amount should be 3% of Schematic Amount',
+  //     function (value) {
+  //       const { schm_amt } = this.parent;
+  //       if (!schm_amt || !value) return true; // Skip validation if either is missing
+  //       const expected = parseFloat(schm_amt) * 0.03;
+  //       return parseFloat(value).toFixed(2) <= expected.toFixed(2);
+  //     }
+  //   ),
+
+  schm_amt: Yup.number()
+      .typeError('Schematic Amount must be a number')
+      .required('Schematic Amount is Required')
+      .positive('Schematic Amount must be greater than zero'),
+  
+    cont_amt: Yup.number()
+      .typeError('Contingency Amount must be a number')
+      .required('Contingency Amount is Required')
+      .positive('Contingency Amount must be greater than zero')
+      .test(
+        'is-three-percent',
+        'Contingency Amount should be 3% of Schematic Amount or Below',
+        function (value) {
+          const { schm_amt } = this.parent;
+          if (!schm_amt || !value) return true;
+          const expected = parseFloat(schm_amt) * 0.03;
+          return parseFloat(value) <= parseFloat(expected.toFixed(2));
+        }
+      ),
     
   admin_appr_pdf: Yup.string().required('Administrative Approval(G.O) is Required'),
   proj_id: Yup.string().required('Project ID is Required'),
   head_acc: Yup.string().required('Head Account is Required'),
   dt_appr: Yup.string().required('Date of administrative approval is Required'),
   proj_sub_by: Yup.string().required('Project Submitted By is Required'),
-  dtl_constituency: Yup.string().required('Details of Constituency is Required'),
+  project_submit_dtl: Yup.string().required('Details of Person/Organization by whom.. is Required'),
   proj_imp_by: Yup.string().required('Project implemented By is Required'),
   dis: Yup.string().required('District is Required'),
   block: Yup.string().required('Block is Required'),
 
   ps_id: Yup.string().required('Police Station is Required'),
-  // gp_id: Yup.string().required('Gram Panchayat is Required'),
 
   vet_dpr_pdf: Yup.string().required('Vetted DPR is Required'),
   src: Yup.string().required('Source of Fund is Required'),
@@ -551,6 +567,7 @@ function AdApForm() {
         head_acc: response.data.message.account_head,
         dt_appr: response.data.message.admin_approval_dt,
         proj_sub_by: response.data.message.project_submit,
+        project_submit_dtl: response.data.message.project_submit_dtl,
         proj_imp_by: response.data.message.impl_agency,
         dis: response.data.message.district_id,
         block: response.data.message.block_id,
@@ -580,7 +597,7 @@ function AdApForm() {
 
   const saveFormData = async () => {
 
-    setLoading(true);
+    // setLoading(true);
   
     const formData = new FormData();
   
@@ -595,6 +612,7 @@ function AdApForm() {
     formData.append("account_head", formik.values.head_acc);
     formData.append("admin_approval_dt", formik.values.dt_appr);
     formData.append("project_submit", formik.values.proj_sub_by);
+    formData.append("project_submit_dtl'", formik.values.project_submit_dtl);
     formData.append("impl_agency", formik.values.proj_imp_by);
     formData.append("district_id", formik.values.dis);
     formData.append("block_id", formik.values.block);
@@ -657,6 +675,7 @@ function AdApForm() {
     formData.append("account_head", formik.values.head_acc);
     formData.append("admin_approval_dt", formik.values.dt_appr);
     formData.append("project_submit", formik.values.proj_sub_by);
+    formData.append("project_submit_dtl", formik.values.project_submit_dtl);
     formData.append("impl_agency", formik.values.proj_imp_by);
     formData.append("district_id", formik.values.dis);
     formData.append("block_id", formik.values.block);
@@ -795,6 +814,23 @@ function AdApForm() {
     }
   };
 
+  useEffect(() => {
+    // if (formik.values.cont_amt) {
+    //   formik.validateField('cont_amt');
+    // }
+    // formik.validateField('schm_amt');
+    // formik.validateField('cont_amt');
+    // const total = 150;
+  
+    // formik.setFieldValue("cont_amt", total);
+
+    const schmAmt = formik.values.schm_amt; // Get the value of 'schm_amt'
+const contAmt = schmAmt * 0.03; // Calculate 3% of 'schm_amt'
+
+formik.setFieldValue('cont_amt', contAmt);
+
+  }, [formik.values.schm_amt]);
+
 
   return (
     <section class="bg-white p-5 dark:bg-gray-900">
@@ -813,7 +849,7 @@ function AdApForm() {
               <TDInputTemplate
                 placeholder="Choose Project ID"
                 type="text"
-                label="Project ID"
+                label={<>Project ID <span className="mandator_txt">*</span></>}
                 name="proj_id"
                 formControlName={formik.values.proj_id}
                 // handleChange={formik.handleChange}
@@ -859,7 +895,7 @@ function AdApForm() {
               <TDInputTemplate
                 placeholder="Date of administrative approval"
                 type="date"
-                label="Date of administrative approval"
+                label={<>Date of administrative approval<span className="mandator_txt"> *</span></>}
                 name="dt_appr"
                 formControlName={formik.values.dt_appr}
                 handleChange={formik.handleChange}
@@ -877,7 +913,7 @@ function AdApForm() {
               <TDInputTemplate
                 type="text"
                 placeholder="Scheme name goes here..."
-                label="Enter scheme name"
+                label={<>Enter scheme name<span className="mandator_txt"> *</span></>}
                 name="scheme_name"
                 formControlName={formik.values.scheme_name}
                 handleChange={formik.handleChange}
@@ -900,7 +936,7 @@ function AdApForm() {
                 mode={2}
               /> */}
 
-              <label for="sector_name" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Sector</label>
+              <label for="sector_name" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Sector<span className="mandator_txt"> *</span></label>
               <Select
               showSearch // Search
                 placeholder="Choose Sector"
@@ -936,7 +972,7 @@ function AdApForm() {
               )}
             </div>
             <div class="sm:col-span-4">
-              <label for="fin_yr" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Financial Year (Sanctioning Year of Project)</label>
+              <label for="fin_yr" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Scanctioning Financial Year<span className="mandator_txt"> *</span></label>
               <Select
               showSearch // Search
                 placeholder="Choose Financial Year"
@@ -953,7 +989,7 @@ function AdApForm() {
                 option?.children?.toLowerCase().includes(input.toLowerCase()) // Search
             } // Search
               >
-                <Select.Option value="" disabled> Choose Financial Year </Select.Option>
+                <Select.Option value="" disabled> Choose Scanctioning Financial Year </Select.Option>
                 {financialYearDropList?.map(data => (
                   <Select.Option key={data.sl_no} value={data.sl_no}>
                     {data.fin_year}
@@ -976,7 +1012,7 @@ function AdApForm() {
               <TDInputTemplate
                 placeholder="Schematic amount goes here..."
                 type="number"
-                label="Schematic Amount"
+                label={<>Schematic Amount<span className="mandator_txt"> *</span></>}
                 name="schm_amt"
                 formControlName={formik.values.schm_amt}
                 handleChange={formik.handleChange}
@@ -991,7 +1027,7 @@ function AdApForm() {
               <TDInputTemplate
                 placeholder="Contigency amount goes here..."
                 type="number"
-                label="Contigency Amount"
+                label={<>Contigency Amount<span className="mandator_txt"> *</span></>}
                 name="cont_amt"
                 formControlName={formik.values.cont_amt}
                 handleChange={formik.handleChange}
@@ -1006,7 +1042,7 @@ function AdApForm() {
               <TDInputTemplate
                 placeholder="Total amount goes here..."
                 type="number"
-                label="Total Amount"
+                label={<>Total Amount</>}
                 name="tot_amt"
                 formControlName={formik.values.tot_amt}
                 handleChange={formik.handleChange}
@@ -1041,7 +1077,7 @@ function AdApForm() {
               type="file"
               name="admin_appr_pdf"
               placeholder="Administrative Approval(G.O)"
-              label="Administrative Approval(G.O) (PDF Max Size 2 MB)"
+              label={<>Administrative Approval(G.O) (PDF Max Size 2 MB)<span className="mandator_txt"> *</span></>}
               // handleChange={(event) => {
               // formik.setFieldValue("vet_dpr_pdf", event.currentTarget.files[0]);
               // }}
@@ -1080,7 +1116,7 @@ function AdApForm() {
             <div class="sm:col-span-4">
               
 
-              <label for="head_acc" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Head Account</label>
+              <label for="head_acc" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Head Account<span className="mandator_txt"> *</span></label>
               {/* {JSON.stringify(headAccountDropList, null, 2)} */}
               <Select
                 placeholder="Choose Head Account"
@@ -1107,7 +1143,7 @@ function AdApForm() {
             
             <div class="sm:col-span-4">
 
-<label for="dis" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Project Submitted By</label>
+<label for="dis" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Project Submitted By<span className="mandator_txt"> *</span></label>
 
 <Select
   showSearch
@@ -1140,26 +1176,27 @@ function AdApForm() {
               )}
             </div>
 
-            <div class="sm:col-span-4">
+            <div class="sm:col-span-12">
               <TDInputTemplate
-                placeholder="Details of Constituency..."
+                placeholder="Type here..."
                 type="text"
-                label="Details of Constituency"
-                name="dtl_constituency"
-                formControlName={formik.values.dtl_constituency}
+                label='Details of Person/Organization by whom the project has beed submitted'
+                name="project_submit_dtl"
+                formControlName={formik.values.project_submit_dtl}
                 handleChange={formik.handleChange}
                 handleBlur={formik.handleBlur}
-                mode={1}
+                mode={3}
+                required={true}
               />
-              {formik.errors.dtl_constituency && formik.touched.dtl_constituency && (
-                <VError title={formik.errors.dtl_constituency} />
+              {formik.errors.project_submit_dtl && formik.touched.project_submit_dtl && (
+                <VError title={formik.errors.project_submit_dtl} />
               )}
             </div>
 
             <div class="sm:col-span-4">
 
 
-              <label for="dis" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Project implemented By</label>
+              <label for="dis" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Project implemented By<span className="mandator_txt"> *</span></label>
 
 
 <Select
@@ -1194,7 +1231,7 @@ function AdApForm() {
             </div>
             <div class="sm:col-span-4">
 
-            <label for="dis" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Choose District</label>
+            <label for="dis" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Choose District<span className="mandator_txt"> *</span></label>
             <Select
             showSearch // Search
             placeholder="Choose District"
@@ -1245,7 +1282,7 @@ function AdApForm() {
           
 
 
-              <label for="block" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Block</label>
+              <label for="block" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Block<span className="mandator_txt"> *</span></label>
               
           <Select
           showSearch
@@ -1292,7 +1329,7 @@ function AdApForm() {
     <div class="sm:col-span-4">
 
 
-    <label for="block" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Police Station</label>
+    <label for="block" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Police Station<span className="mandator_txt"> *</span></label>
 
     <Select
     showSearch
@@ -1332,7 +1369,7 @@ function AdApForm() {
     <div class="sm:col-span-4">
 
 
-        <label for="block" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Gram Panchayat</label>
+        <label for="block" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Gram Panchayat<span className="mandator_txt"> *</span></label>
 
         <Select
         showSearch
@@ -1372,7 +1409,7 @@ function AdApForm() {
               type="file"
               name="vet_dpr_pdf"
               placeholder="Vetted DPR"
-              label="Vetted DPR (PDF Max Size 1 GB)"
+              label={<>Vetted DPR (PDF Max Size 1 GB)<span className="mandator_txt"> *</span></>}
               handleChange={(event) => {
                 handleFileChange_pdf_2(event)
               }}
@@ -1415,7 +1452,7 @@ function AdApForm() {
                 mode={2}
               /> */}
 
-              <label for="src" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Source of Fund</label>
+              <label for="src" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Source of Fund<span className="mandator_txt"> *</span></label>
               <Select
                 placeholder="Choose Source of Fund"
                 value={formik.values.src || undefined} // Ensure default empty state
@@ -1443,7 +1480,7 @@ function AdApForm() {
               <TDInputTemplate
                 placeholder="Name goes here..."
                 type="text"
-                label="JL No."
+                label={<>JL No.<span className="mandator_txt"> *</span></>}
                 name="jl_no"
                 formControlName={formik.values.jl_no}
                 handleChange={formik.handleChange}
@@ -1459,7 +1496,7 @@ function AdApForm() {
               <TDInputTemplate
                 placeholder="Name goes here..."
                 type="text"
-                label="Mouza"
+                label={<>Mouza<span className="mandator_txt"> *</span></>}
                 name="mouza"
                 formControlName={formik.values.mouza}
                 handleChange={formik.handleChange}
@@ -1477,7 +1514,7 @@ function AdApForm() {
               <TDInputTemplate
                 placeholder="Name goes here..."
                 type="text"
-                label="Dag No."
+                label={<>Dag No.<span className="mandator_txt"> *</span></>}
                 name="dag_no"
                 formControlName={formik.values.dag_no}
                 handleChange={formik.handleChange}
@@ -1493,7 +1530,7 @@ function AdApForm() {
               <TDInputTemplate
                 placeholder="Name goes here..."
                 type="text"
-                label="Khatian No."
+                label={<>Khatian No.<span className="mandator_txt"> *</span></>}
                 name="khatian_no"
                 formControlName={formik.values.khatian_no}
                 handleChange={formik.handleChange}
@@ -1509,7 +1546,7 @@ function AdApForm() {
               <TDInputTemplate
                 placeholder="Name goes here..."
                 type="number"
-                label="Area (in Acre)"
+                label={<>Area (in Acre)<span className="mandator_txt"> *</span></>}
                 name="area"
                 formControlName={formik.values.area}
                 handleChange={formik.handleChange}

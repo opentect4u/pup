@@ -786,7 +786,7 @@ function FundRelForm() {
               <TDInputTemplate
                 type="number"
                 placeholder="Rs...."
-                label="Receipt of Installment (Rs.)"
+                label={<>Receipt of Installment (Rs.)<span className="mandator_txt"> *</span></>}
                 name="receipt_first"
                 formControlName={formik.values.receipt_first}
                 handleChange={formik.handleChange}
@@ -804,7 +804,7 @@ function FundRelForm() {
               <TDInputTemplate
                 type="text"
                 placeholder="Allotment Order No...."
-                label="Allotment Order No."
+                label={<>Allotment Order No.<span className="mandator_txt"> *</span></>}
                 name="allotment_order_no"
                 formControlName={formik.values.allotment_order_no}
                 handleChange={formik.handleChange}
@@ -821,7 +821,7 @@ function FundRelForm() {
             <TDInputTemplate
                 placeholder="Allotment Order Date goes here..."
                 type="date"
-                label="Allotment Order Date "
+                label={<>Allotment Order Date<span className="mandator_txt"> *</span></>}
                 name="allotment_order_date"
                 formControlName={formik.values.allotment_order_date}
                 handleChange={formik.handleChange}
@@ -841,7 +841,7 @@ function FundRelForm() {
               type="file"
               name="al1_pdf"
               placeholder="Upload Allotment Order"
-              label="Upload Allotment Order (PDF Max Size 2 MB)"
+              label={<>Upload Allotment Order (PDF Max Size 2 MB)<span className="mandator_txt"> *</span></>}
               // handleChange={(event) => {
               // formik.setFieldValue("al1_pdf", event.currentTarget.files[0]);
               // }}
@@ -883,7 +883,7 @@ function FundRelForm() {
               <TDInputTemplate
                 placeholder="Schematic Amount"
                 type="number"
-                label="Schematic Amount"
+                label={<>Schematic Amount<span className="mandator_txt"> *</span></>}
                 name="sch_amt_one"
                 formControlName={formik.values.sch_amt_one}
                 handleChange={formik.handleChange}
@@ -898,7 +898,7 @@ function FundRelForm() {
               <TDInputTemplate
                  placeholder="Contigency Amount"
                  type="number"
-                 label="Contigency Amount"
+                 label={<>Contigency Amount<span className="mandator_txt"> *</span></>}
                  name="cont_amt_one"
                  formControlName={formik.values.cont_amt_one}
                  handleChange={formik.handleChange}
@@ -931,7 +931,7 @@ function FundRelForm() {
             <TDInputTemplate
                 placeholder="Installment Date goes here..."
                 type="date"
-                label="Installment Date"
+                label={<>Installment Date<span className="mandator_txt"> *</span></>}
                 name="isntl_date"
                 formControlName={formik.values.isntl_date}
                 handleChange={formik.handleChange}

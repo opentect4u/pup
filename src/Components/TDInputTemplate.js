@@ -7,12 +7,24 @@ function TDInputTemplate(props) {
         htmlFor={props.name}
         className="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100"
       >
-        {props.mode != 3
+        {/* {props.mode != 3
           ? props.label
           : (props.label || "") +
             " (" +
             props.formControlName?.length +
-            "/500)"}
+            "/500)"} */}
+
+{props.mode != 3 ? (
+          props.label
+        ) : (
+          <>
+            {props.label || ""} 
+            {props.required && <span className="text-red-500"> *</span>}
+            {" (" + (props.formControlName?.length || 0) + "/500)"}
+          </>
+        )}
+
+
       </label>
       {props.mode == 1 && (
         <input

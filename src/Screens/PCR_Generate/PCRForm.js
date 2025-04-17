@@ -91,7 +91,7 @@ function PCRForm() {
   const [sl_no, setSl_no] = useState('');
   const [errorpdf_1, setErrorpdf_1] = useState("");
   const [errorpdf_2, setErrorpdf_2] = useState("");
-
+  const [projectCompletionDate, setProjectCompletionDate] = useState('');
 
 
 
@@ -151,7 +151,7 @@ function PCRForm() {
         setLoading(false);
         setGetMsgData(response?.data?.message)
 
-        console.log(response?.data, 'vvvvvvvvvvvvvvvvvvvvvvv', response?.data?.message?.contractor_name_dtls);
+        // console.log(response?.data, 'vvvvvvvvvvvvvvvvvvvvvvv', response?.data?.message?.contractor_name_dtls);
 
 
         setValues({
@@ -214,10 +214,12 @@ function PCRForm() {
 
       
       if (response?.data.status > 0) {
-        console.log(response?.data?.message, 'projCompCertiSingledataxxxxxxxxxxxxx', response?.data?.message?.contractor_name_dtls);
+        console.log(response?.data?.comp_date_actual, 'projCompCertiSingledataxxxxxxxxxxxxx', response?.data?.message?.contractor_name_dtls);
 
         setLoading(false);
         setGetMsgData(response?.data?.message)
+        setProjectCompletionDate(response?.data?.comp_date_actual)
+
         setValues({
           contractor_name_dtls: response?.data?.message[0]?.contractor_name_dtls,
           fin_year: response?.data?.message[0]?.fin_year,
@@ -228,7 +230,7 @@ function PCRForm() {
           amt_put_to_tender: response?.data?.message[0]?.amt_put_to_tender,
           wo_value: response?.data?.message[0]?.wo_value,
           stipulated_dt: response?.data?.message[0]?.stipulated_dt,
-          actual_date_comp: response?.data?.comp_date_actual[0]?.actual_date_comp,
+          actual_date_comp: response?.data?.comp_date_actual,
           gross_value: response?.data?.message[0]?.gross_value,
           final_value: response?.data?.message[0]?.final_value,
           remarks: response?.data?.message[0]?.remarks,
@@ -238,6 +240,7 @@ function PCRForm() {
       if (response?.data.status < 1) {
         setLoading(false);
         setGetMsgData([])
+        setProjectCompletionDate('')
       }
 
     } catch (error) {
@@ -278,14 +281,14 @@ function PCRForm() {
     formData.append("amt_put_totender", formik.values.amt_put_to_tender);
     formData.append("work_order_value", formik.values.wo_value);
     formData.append("stipulated_dt_comp", formik.values.stipulated_dt);
-    formData.append("actual_dt_com", formik.values.actual_date_comp);
+    formData.append("actual_dt_com", projectCompletionDate);
 
     formData.append("gross_value", formik.values.gross_value);
     formData.append("final_value", formik.values.final_value);
     formData.append("remarks", formik.values.remarks);
     formData.append("created_by", userDataLocalStore.user_id);
 
-    console.log("formDataformData", getMsgData[0]?.e_nit_no);
+    console.log("formDataformData", formData);
 
     try {
       const response = await axios.post(
@@ -386,12 +389,12 @@ function PCRForm() {
         <>
         
         <Heading title={'Project Details'} button={'Y'} />
-        <Spin
+        {/* <Spin
         indicator={<LoadingOutlined spin />}
         size="large"
         className="text-gray-500 dark:text-gray-400"
         spinning={loading}
-      >
+      > */}
 
         
           <div class="grid gap-4 sm:grid-cols-12 sm:gap-6 mb-5">
@@ -438,24 +441,40 @@ function PCRForm() {
             
 
             </div>
-
-
-            
-
-            
-            
-
           </div>
+          {/* </Spin> */}
+
+          {projectCompletionDate === null &&(
+          <Spin
+          indicator={<LoadingOutlined spin />}
+          size="large"
+          className="text-gray-500 dark:text-gray-400"
+          spinning={loading}
+          >
+          <div class="flex items-center p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+          <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+          </svg>
+          <span class="sr-only">Info</span>
+          <div>
+          This Project is not yet completed, so you cannot Generate the Project Completion Certificate (PCR) Report at this time.
+          </div>
+          </div>
+          </Spin>
+          )}
+
+
 
         
-      </Spin>
+      
         </>
         
       {/* )} */}
         
-        {/* {JSON.stringify(formValues, null, 2)} */}
+        {/* {JSON.stringify(projectCompletionDate, null, 2)} */}
        
-
+       {projectCompletionDate != null &&(
+        <>
         {showForm  &&(
         <>
       <Heading title={'PCR Project Details'} button={'N'}/>
@@ -630,13 +649,13 @@ function PCRForm() {
             <div class="sm:col-span-4">
               <TDInputTemplate
                 placeholder="Actual Date of Completion (Extend)"
-                type="date"
+                type="text"
                 label="Actual Date of Completion (Extend)"
                 name="actual_date_comp"
                 formControlName={formik.values.actual_date_comp}
                 handleChange={formik.handleChange}
                 handleBlur={formik.handleBlur}
-                disabled={params.id > 0 ? true : false}
+                disabled={true}
                 mode={1}
               />
               {formik.errors.actual_date_comp && formik.touched.actual_date_comp && (
@@ -716,6 +735,9 @@ function PCRForm() {
         </form>
         </>
         )}
+        </>
+       )}
+        
 
 
       </div>

@@ -781,7 +781,7 @@ function FundExpForm() {
             <TDInputTemplate
                 placeholder="Expenditure Date goes here..."
                 type="date"
-                label="Expenditure Date"
+                label={<>Expenditure Date<span className="mandator_txt"> *</span></>}
                 name="payment_date"
                 formControlName={formik.values.payment_date}
                 handleChange={formik.handleChange}
@@ -801,7 +801,7 @@ function FundExpForm() {
               <TDInputTemplate
                 placeholder="Schematic Amount"
                 type="number"
-                label="Schematic Amount"
+                label={<>Schematic Amount<span className="mandator_txt"> *</span></>}
                 name="sch_amt_one"
                 formControlName={formik.values.sch_amt_one}
                 handleChange={formik.handleChange}
@@ -816,7 +816,7 @@ function FundExpForm() {
               <TDInputTemplate
                  placeholder="Contigency Amount"
                  type="number"
-                 label="Contigency Amount"
+                 label={<>Contigency Amount<span className="mandator_txt"> *</span></>}
                  name="cont_amt_one"
                  formControlName={formik.values.cont_amt_one}
                  handleChange={formik.handleChange}
@@ -846,7 +846,7 @@ function FundExpForm() {
             </div>
 
             <div class="sm:col-span-6 contigencySelect">
-            <label for="sch_amt_one" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Choose Contigency Remarks</label>
+            <label for="sch_amt_one" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Choose Contigency Remarks<span className="mandator_txt"> *</span></label>
             
               <Select
               placeholder="Choose Contingency Remarks goes here..."
@@ -896,6 +896,7 @@ function FundExpForm() {
                 handleChange={formik.handleChange}
                 handleBlur={formik.handleBlur}
                 mode={3}
+                required={true}
               />
               {formik.errors.sch_remark && formik.touched.sch_remark && (
                 <VError title={formik.errors.sch_remark} />

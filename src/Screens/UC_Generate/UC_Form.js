@@ -573,7 +573,7 @@ function UC_Form() {
           <div class="sm:col-span-4">
               
 
-              <label for="head_acc" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Select Type Of Certificate</label>
+              <label for="head_acc" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Select Type Of Certificate<span className="mandator_txt"> *</span></label>
               {/* {JSON.stringify(headAccountDropList, null, 2)} */}
               <Select
                 placeholder="Choose Type Of Certificate"
@@ -602,7 +602,7 @@ function UC_Form() {
               <TDInputTemplate
                 placeholder="Financial Year..."
                 type="text"
-                label="Financial Year"
+                label={<>Financial Year<span className="mandator_txt"> *</span></>}
                 name="fin_year"
                 formControlName={formik.values.fin_year}
                 handleChange={formik.handleChange}
@@ -622,7 +622,7 @@ function UC_Form() {
               <TDInputTemplate
                 placeholder="Schematic Amount (Release)"
                 type="number"
-                label="Schematic Amount (Release)"
+                label={<>Schematic Amount (Release)<span className="mandator_txt"> *</span></>}
                 name="schematic_amount_release"
                 formControlName={formik.values.schematic_amount_release}
                 handleChange={formik.handleChange}
@@ -639,7 +639,7 @@ function UC_Form() {
               <TDInputTemplate
                 placeholder="Contigency Amount (Release)"
                 type="number"
-                label="Contigency Amount (Release)"
+                label={<>Contigency Amount (Release)<span className="mandator_txt"> *</span></>}
                 name="contigency_amount_release"
                 formControlName={formik.values.contigency_amount_release}
                 handleChange={formik.handleChange}
@@ -656,7 +656,7 @@ function UC_Form() {
               <TDInputTemplate
                 placeholder="Scheme Name"
                 type="text"
-                label="Scheme Name"
+                label={<>Scheme Name<span className="mandator_txt"> *</span></>}
                 name="scheme_name"
                 formControlName={formik.values.scheme_name}
                 handleChange={formik.handleChange}
@@ -672,7 +672,7 @@ function UC_Form() {
               <TDInputTemplate
                 placeholder="Margin Balance"
                 type="number"
-                label="Margin Balance"
+                label={<>Margin Balance<span className="mandator_txt"> *</span></>}
                 name="margin_Balance"
                 formControlName={formik.values.margin_Balance}
                 handleChange={formik.handleChange}
@@ -688,7 +688,7 @@ function UC_Form() {
               <TDInputTemplate
                 placeholder="Unutilized  Balance"
                 type="number"
-                label="Unutilized  Balancee"
+                label={<>Unutilized  Balancee<span className="mandator_txt"> *</span></>}
                 name="unutilized_Balance"
                 formControlName={formik.values.unutilized_Balance}
                 handleChange={formik.handleChange}
@@ -704,7 +704,7 @@ function UC_Form() {
               <TDInputTemplate
                 placeholder="Vide No."
                 type="text"
-                label="Vide No."
+                label={<>Vide No.<span className="mandator_txt"> *</span></>}
                 name="videNo"
                 formControlName={formik.values.videNo}
                 handleChange={formik.handleChange}
@@ -720,7 +720,7 @@ function UC_Form() {
               <TDInputTemplate
                 placeholder="Vide No. Date"
                 type="date"
-                label="Vide No. Date"
+                label={<>Vide No. Date<span className="mandator_txt"> *</span></>}
                 name="videNoDate"
                 formControlName={formik.values.videNoDate}
                 handleChange={formik.handleChange}
@@ -736,7 +736,7 @@ function UC_Form() {
               <TDInputTemplate
                 placeholder="Next Year"
                 type="text"
-                label="Next Year"
+                label={<>Next Year<span className="mandator_txt"> *</span></>}
                 name="nextYear"
                 formControlName={formik.values.nextYear}
                 handleChange={formik.handleChange}
@@ -757,7 +757,7 @@ function UC_Form() {
       {formRows.map((row, index) => (
         <div key={row.id} className="sm:col-span-12 grid gap-4 sm:grid-cols-12 mt-0">
           <div class="sm:col-span-4">
-          <label for="scheme_name" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Letter No. and Date</label>
+          <label for="scheme_name" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Letter No. and Date <span className="mandator_txt"> *</span></label>
           <input
             type="text"
             placeholder="Letter No. and Date"
@@ -772,7 +772,7 @@ function UC_Form() {
           )}
           </div>
           <div class="sm:col-span-4">
-          <label for="scheme_name" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Expense Amount</label>
+          <label for="scheme_name" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Expense Amount <span className="mandator_txt"> *</span></label>
           <input
             type="number"
             placeholder="Expense Amount"

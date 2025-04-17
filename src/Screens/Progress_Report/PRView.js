@@ -9,6 +9,10 @@ import { Spin } from 'antd';
 import TableHeader from '../../Components/TableHeader';
 import TableRow from '../../Components/TableRow';
 
+
+// var date_ofCompletion = new Date('2025-04-08');
+
+
 function PRView() {
   const navigate = useNavigate()
   const [tableDataList, setTableDataList] = useState([]);
@@ -96,14 +100,14 @@ function PRView() {
                 </div>
               </div>
             </div>
-            
+            {/* {JSON.stringify(currentTableData, null, 2)} */}
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
               <TableHeader curentPage={pageName} />
                 
                 <tbody>
                   {currentTableData.map((data, index) => (
-                    <TableRow key={index} data={data} curentPage={pageName} navigate={navigate} />
+                    <TableRow key={index} data={data} curentPage={pageName} navigate={navigate}/>
                   ))}
                 </tbody>
               </table>

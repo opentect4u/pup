@@ -10,7 +10,7 @@ import { useFormik } from "formik";
 import { Flex, Progress, Select, Spin } from "antd";
 import { Message } from "../../Components/Message";
 import { useNavigate, useParams } from "react-router"
-import { CalendarOutlined, CommentOutlined, FilePdfOutlined, LoadingOutlined } from "@ant-design/icons";
+import { CalendarOutlined, CheckCircleFilled, ClockCircleFilled, ClockCircleOutlined, CommentOutlined, FilePdfOutlined, LoadingOutlined } from "@ant-design/icons";
 import { FaMapMarker } from "react-icons/fa";
 import demoimg from "../../Assets/Images/demo.jpg";
 import { Image } from 'antd';
@@ -24,7 +24,8 @@ import { Image } from 'antd';
 
 // });
 
-var cumulativeProgress = 0;
+var date_ofCompletion = new Date('2025-04-10');
+// 2025-04-11
 
 
 
@@ -180,10 +181,11 @@ function PRDetails() {
 
               </div>
 
-
+              {/* {JSON.stringify(getMsgData[0], null, 2)} */}
               <div className="sm:col-span-12 text-blue-900 text-md font-bold mt-3 -mb-2">
                 Progress Details
               </div>
+              
 
               <div class="sm:col-span-4">
                 <TDInputTemplate
@@ -304,19 +306,18 @@ function PRDetails() {
 
                       <div class="flex flex-col justify-between p-4 leading-normal">
                         <h5 class="mb-0 text-sm font-bold text-gray-900 dark:text-white">Progress Status Phase {data?.visit_no}
-                          <span className="text-xs bg-gray-700 text-white p-1 ml-5 rounded-md">Work Status {data?.progress_percent}%</span> </h5>
+                          <span className="text-xs bg-gray-700 text-white p-1 ml-5 rounded-md">Work Status {data?.progressive_percent}%</span> </h5>
                         <Flex gap="small" vertical>
-                          <Progress percent={data?.progress_percent} />
-                          {/* <Progress percent={cumulativeProgress} /> */}
+                          <Progress percent={data?.progressive_percent} />
                           </Flex>
                         <p class="mb-3 font-normal items-center text-sm text-gray-700 dark:text-gray-400 flex">
-                          <span className="flex items-center font-bold mr-1"><CalendarOutlined style={{ color: '#3EB8BD', marginRight: 5, marginLeft: 3 }} /> Visit Date:</span> {data?.visit_dt}
-                          <span className="flex items-center font-bold mr-1"><FaMapMarker style={{ color: '#3EB8BD', marginRight: 5, marginLeft: 3 }} /> Visit By:</span> {data?.visit_by}
+                          <span className="flex items-center font-bold mr-1"><CalendarOutlined style={{ color: '#333', marginRight: 5, marginLeft: 3 }} /> Visit Date:</span> {data?.visit_dt}
+                          <span className="flex items-center font-bold ml-3"><FaMapMarker style={{ color: '#333', marginRight: 3, marginLeft: 3 }} /> Visit By:</span> {data?.visit_by}
                           
                           {data?.address ? (
                           <>
-                          <span className="flex items-center font-bold mr-1">
-                          <FaMapMarker style={{ color: '#3EB8BD', marginRight: 5, marginLeft: 3 }} />
+                          <span className="flex items-center font-bold ml-3">
+                          <FaMapMarker style={{ color: '#333', marginRight: 5, marginLeft: 3 }} />
                           Site Location:</span> {data.address}
                           </>
                           ) : (
@@ -330,28 +331,96 @@ function PRDetails() {
                               <Image width={80} className="mr-3 lightBox_thum" src={url + folderName + imgPath} />
                             </>
                           ))}
-                          {/* <Image width={80} className="rounded-full mr-3 lightBox_thum" src={demoimg} />
-          <Image width={80} className="rounded-full mr-3 lightBox_thum" src={demoimg} />
-          <Image width={80} className="rounded-full mr-3 lightBox_thum" src={demoimg} /> */}
                         </div>
                         
                           {data?.remarks.length > 0  &&(
-                            <>
-                            <p class="mb-0 font-normal items-center text-sm text-gray-700 dark:text-gray-400 flex mt-5">
+                          <>
+                          <div class="grid gap-4 sm:grid-cols-12 sm:gap-6 mb-5 mt-5 p-4 text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400">
+                          <div class="sm:col-span-4">
+                          <p class="mb-0 font-normal items-center text-sm flex mt-0">
                           <span className="flex items-center font-bold mr-1">
-                            <CalendarOutlined style={{ color: '#333', marginRight: 5, marginLeft: 3 }} /> Actual Date of Completion:</span> 
-                            {data?.actual_date_comp} 
-                          
-                        </p>
-                        <p class="mb-3 font-normal items-center text-sm text-gray-700 dark:text-gray-400 flex mt-2">
-                        
-                        <span className="flex items-center font-bold mr-1">
+                          <CalendarOutlined className="dark:text-green-400" style={{marginRight: 5, marginLeft: 3 }} /> Actual Date of Completion:</span> 
+                          {data?.actual_date_comp} 
+
+                          </p>
+                          </div>
+                          <div class="sm:col-span-4">
+                          <p class="mb-0 font-normal items-center text-sm flex mt-0">
+
+                          <span className="flex items-center font-bold mr-1">
                           {/* <FaMapMarker style={{ color: '#3EB8BD', marginRight: 5, marginLeft: 3 }} />  */}
-                          <CommentOutlined style={{ color: '#333', marginRight: 5, marginLeft: 3 }} /> Project Completion Remarks:</span> {data?.remarks}
-                        
-                      </p>
-                            </>
-                          )}
+                          <CommentOutlined className="dark:text-green-400" style={{marginRight: 5, marginLeft: 3 }} /> Project Completion Remarks:</span> {data?.remarks}
+                          </p>
+                          </div>
+                          </div>
+                          </>
+                        )}
+
+{/* {getMsgData[1]?.comp_date_apprx} */}
+
+              {data?.proj_comp_status > 0 &&(
+              <>
+              {new Date(data?.actual_date_comp).getTime() / 60000 > new Date(getMsgData[1]?.comp_date_apprx).getTime() / 60000 &&(
+              <>
+              
+
+            <div class="bg-red-100 border-t-4 border-red-500 rounded-b text-red-900 px-4 py-3 shadow-md" role="alert">
+            <div class="flex">
+            <div class="py-0 mr-3">
+            {/* <svg class="fill-current h-6 w-6 text-red-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+            <path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z"/>
+            </svg> */}
+            <ClockCircleOutlined class="fill-current h-0 w-6 text-red-500 mr-0 text-xl" />
+            </div>
+            <div>
+            <p class="font-bold">Oops! You Missed the Deadline! </p>
+            <p class="text-sm">Submitted {Math.ceil((new Date(data?.actual_date_comp).getTime() - new Date(getMsgData[1]?.comp_date_apprx).getTime()) / (1000 * 60 * 60 * 24))} Day(s) Late</p>
+            </div>
+            </div>
+            </div>
+              </>
+              )}
+
+              {new Date(data?.actual_date_comp).getTime() / 60000 <= new Date(getMsgData[1]?.comp_date_apprx).getTime() / 60000 &&(
+              <>
+              {/* <div className="p-2 mt-3 text-center text-sm text-green-700 bg-green-100 border border-green-300 rounded-lg font-semibold text-lg">
+              ✅ Project Delivered on Time. Great Job! <br/>
+              {(() => {
+              const diffDays = Math.floor((new Date(getMsgData[1]?.comp_date_apprx).getTime() - new Date(data?.actual_date_comp).getTime()) / (1000 * 60 * 60 * 24));
+              return diffDays === 0 
+              ? " Submitted on the Same Day!"
+              : ` Submitted ${diffDays} Day(s) early`;
+              })()}
+              </div> */}
+
+            <div class="bg-green-100 border-t-4 border-green-500 rounded-b text-green-900 px-4 py-3 shadow-md" role="alert">
+            <div class="flex">
+            <div class="py-0 mr-3">
+            {/* <svg class="fill-current h-6 w-6 text-red-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+            <path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z"/>
+            </svg> */}
+            <CheckCircleFilled class="fill-current h-0 w-6 text-green-500 mr-0 text-xl" />
+            </div>
+            <div>
+            <p class="font-bold">Project Delivered on Time. Great Job!  </p>
+            <p class="text-sm">
+            {(() => {
+              const diffDays = Math.floor((new Date(getMsgData[1]?.comp_date_apprx).getTime() - new Date(data?.actual_date_comp).getTime()) / (1000 * 60 * 60 * 24));
+              return diffDays === 0 
+              ? " Submitted on the Same Day!"
+              : ` Submitted ${diffDays} Day(s) early`;
+              })()}
+              </p>
+            </div>
+            </div>
+            </div>
+
+              </>
+              )}
+              </>
+              )}
+
+                      
                         
                       </div>
                     </div>

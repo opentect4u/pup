@@ -811,7 +811,7 @@ function UCForm() {
 <div class="sm:col-span-4">
               
 
-              <label for="head_acc" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Type Of Certificate</label>
+              <label for="head_acc" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Type Of Certificate<span className="mandator_txt"> *</span></label>
               {/* {JSON.stringify(headAccountDropList, null, 2)} */}
               <Select
                 placeholder="Choose Type Of Certificate"
@@ -842,7 +842,7 @@ function UCForm() {
               type="file"
               name="certificate_path"
               placeholder="Utilization Certificate"
-              label="Utilization Certificate (PDF Max Size 2 MB)"
+              label={<>Utilization Certificate (PDF Max Size 2 MB) <span className="mandator_txt"> *</span></>}
               handleChange={(event) => {
                 handleFileChange_pdf_1(event)
               }}
@@ -878,7 +878,7 @@ function UCForm() {
               type="file"
               name="annexure_path"
               placeholder="Annexure"
-              label="Annexure (PDF Max Size 2 MB)"
+              label={<>Annexure (PDF Max Size 2 MB) <span className="mandator_txt"> *</span></>}
               handleChange={(event) => {
                 handleFileChange_pdf_2(event)
               }}
@@ -934,6 +934,7 @@ function UCForm() {
               handleChange={formik.handleChange}
               handleBlur={formik.handleBlur}
               mode={3}
+              required={true}
             />
             {formik.errors.exp_text && formik.touched.exp_text && (
               <VError title={formik.errors.exp_text} />

@@ -434,7 +434,7 @@ function Annex_Form() {
               <TDInputTemplate
                 placeholder="District"
                 type="text"
-                label="District"
+                label={<>District<span className="mandator_txt"> *</span></>}
                 name="district"
                 formControlName={formik.values.district}
                 handleChange={formik.handleChange}
@@ -454,7 +454,7 @@ function Annex_Form() {
               <TDInputTemplate
                 placeholder="Scheme Name"
                 type="text"
-                label="Scheme Name"
+                label={<>Scheme Name<span className="mandator_txt"> *</span></>}
                 name="schemeName"
                 formControlName={formik.values.schemeName}
                 handleChange={formik.handleChange}
@@ -471,7 +471,7 @@ function Annex_Form() {
               <TDInputTemplate
                 placeholder="Administrative Approval No."
                 type="text"
-                label="Administrative Approval No."
+                label={<>Administrative Approval No.<span className="mandator_txt"> *</span></>}
                 name="adminApprovalNo"
                 formControlName={formik.values.adminApprovalNo}
                 handleChange={formik.handleChange}
@@ -487,7 +487,7 @@ function Annex_Form() {
               <TDInputTemplate
                 placeholder="Tendered Amount"
                 type="number"
-                label="Tendered Amount"
+                label={<>Tendered Amount<span className="mandator_txt"> *</span></>}
                 name="tenderedAmount"
                 formControlName={formik.values.tenderedAmount}
                 handleChange={formik.handleChange}
@@ -503,7 +503,7 @@ function Annex_Form() {
               <TDInputTemplate
                 placeholder="Administrative Approval Date"
                 type="date"
-                label="Administrative Approval Date"
+                label={<>Administrative Approval Date<span className="mandator_txt"> *</span></>}
                 name="adminApprovalDate"
                 formControlName={formik.values.adminApprovalDate}
                 handleChange={formik.handleChange}
@@ -519,7 +519,7 @@ function Annex_Form() {
               <TDInputTemplate
                 placeholder="Administrative Approval Amount"
                 type="number"
-                label="Administrative Approval Amount"
+                label={<>Administrative Approval Amount<span className="mandator_txt"> *</span></>}
                 name="adminApprovalAmount"
                 formControlName={formik.values.adminApprovalAmount}
                 handleChange={formik.handleChange}
@@ -535,7 +535,7 @@ function Annex_Form() {
               <TDInputTemplate
                 placeholder="Allotment No. & Date of Fund Received"
                 type="text"
-                label="Allotment No. & Date of Fund Received"
+                label={<>Allotment No. & Date of Fund Received<span className="mandator_txt"> *</span></>}
                 name="alltNoDateFundReceived"
                 formControlName={formik.values.alltNoDateFundReceived}
                 handleChange={formik.handleChange}
@@ -551,7 +551,7 @@ function Annex_Form() {
               <TDInputTemplate
                 placeholder="Fund Received Amount"
                 type="number"
-                label="Fund Received Amount"
+                label={<>Fund Received Amount <span className="mandator_txt"> *</span></>}
                 name="fundRecAmounte"
                 formControlName={formik.values.fundRecAmounte}
                 handleChange={formik.handleChange}
@@ -567,7 +567,7 @@ function Annex_Form() {
               <TDInputTemplate
                 placeholder="Payment Made"
                 type="number"
-                label="Payment Made"
+                label={<>Payment Made <span className="mandator_txt"> *</span></>}
                 name="payMade"
                 formControlName={formik.values.payMade}
                 handleChange={formik.handleChange}
@@ -583,7 +583,7 @@ function Annex_Form() {
               <TDInputTemplate
                 placeholder="Claim"
                 type="number"
-                label="Claim"
+                label={<>Claim <span className="mandator_txt"> *</span></>}
                 name="claim"
                 formControlName={formik.values.claim}
                 handleChange={formik.handleChange}
@@ -600,7 +600,7 @@ function Annex_Form() {
               <TDInputTemplate
                 placeholder="Contigency Amount"
                 type="number"
-                label="Contigency Amount"
+                label={<>Contigency Amount <span className="mandator_txt"> *</span></>}
                 name="contigencyAmount"
                 formControlName={formik.values.contigencyAmount}
                 handleChange={formik.handleChange}
@@ -616,7 +616,7 @@ function Annex_Form() {
               <TDInputTemplate
                 placeholder="Net Claim"
                 type="number"
-                label="Net Claim"
+                label={<>Net Claim <span className="mandator_txt"> *</span></>}
                 name="netClaim"
                 formControlName={formik.values.netClaim}
                 handleChange={formik.handleChange}
@@ -632,7 +632,7 @@ function Annex_Form() {
               <TDInputTemplate
                 placeholder="Present Physical Progress"
                 type="number"
-                label="Present Physical Progress"
+                label={<>Present Physical Progress <span className="mandator_txt"> *</span></>}
                 name="presentPhysicalProgress"
                 formControlName={formik.values.presentPhysicalProgress}
                 handleChange={formik.handleChange}
@@ -654,6 +654,7 @@ function Annex_Form() {
             handleChange={formik.handleChange}
             handleBlur={formik.handleBlur}
             mode={3}
+            required={true}
             />
             {formik.errors.remark && formik.touched.remark && (
             <VError title={formik.errors.remark} />

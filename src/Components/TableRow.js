@@ -1,6 +1,8 @@
 import { DownloadOutlined, EditOutlined, EyeOutlined, FileExcelOutlined, FilePdfOutlined, PrinterOutlined } from '@ant-design/icons';
 import TDInputTemplate from './TDInputTemplate';
 import { folder_admin, url } from '../Assets/Addresses/BaseUrl';
+import { FaExclamationTriangle, FaRunning } from 'react-icons/fa';
+
 
 
 const TableRow = ({ 
@@ -15,7 +17,8 @@ const TableRow = ({
   download,
   filePreview,
   errorpdf_1,
-  PDFfolder_name}) => {
+  PDFfolder_name,
+  date_ofCompletion}) => {
 
   const pageTree = {
     page_1: 'AdApView',
@@ -29,7 +32,9 @@ const TableRow = ({
     page_9: 'annexure',
   }
 
+  var date_ofCompletion = new Date('2025-04-09');
 
+  // const isPastCompletion = date_ofCompletion < new Date();
 
   if (curentPage === pageTree.page_1) {
     return (
@@ -81,13 +86,21 @@ const TableRow = ({
 
   if (curentPage === pageTree.page_3) {
     return (
-      <tr key={index} className="border-b dark:border-gray-700">
+<tr key={index} className="border-b dark:border-gray-700">
+
         <td className="px-4 py-3">{data.project_id}</td>
         <td className="px-4 py-3">{data.scheme_name}</td>
         <td className="px-4 py-3">{data.sector_name}</td>
         <td className="px-4 py-3">{data.fin_year}</td>
         <td className="px-4 py-3">{data.dist_name}</td>
-        <td className="px-4 py-3">{data.block_name}</td>
+        <td className="px-4 py-3">
+        <div style={{display:'flex'}}>
+        {data.block_name} 
+        {/* {new Date(data?.admin_approval_dt) > date_ofCompletion &&(
+          <FaRunning className="text-red-600 animate-bounce text-xl ml-2" />
+        ) } */}
+        </div>
+        </td>
         <td className="px-4 py-3">
           <button
             type="button"

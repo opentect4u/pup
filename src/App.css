@@ -13,6 +13,7 @@
   }
 }
 
+
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
@@ -126,6 +127,10 @@ textarea.bg-white {border: #ccc solid 1px;}
       border-radius: 15px;
       font-size: 14px;
       background:#eaeaea;}
+
+  .mandator_txt{color: red;}
+
+  .ant-progress-inner .ant-progress-bg{background: #d7a224;}
 
 @keyframes App-logo-spin {
   from {

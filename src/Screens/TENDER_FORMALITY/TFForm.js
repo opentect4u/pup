@@ -64,7 +64,8 @@ const validationSchema = Yup.object({
   amt_put_tender: Yup.string().required('Amount Put to Tender is Required'),
   e_nit_no: Yup.string().required('e-NIT No is Required'),
   dlp: Yup.string().required('DLP is Required'),
-  add_per_sec: Yup.string().required('Additional Performance Security is Required'),
+  // add_per_sec: Yup.string().required('Additional Performance Security is Required'),
+  add_per_sec: Yup.string(),
   emd: Yup.string().required('EMD/Security Deposit is Required'),
   date_refund: Yup.string().required('Date Of Refund is Required'),
 
@@ -831,7 +832,7 @@ function TFForm() {
               <TDInputTemplate
                 type="date"
                 placeholder="Tender Invited On"
-                label="Tender Invited On"
+                label={<>Tender Invited On<span className="mandator_txt"> *</span></>}
                 name="td_dt"
                 formControlName={formik.values.td_dt}
                 handleChange={formik.handleChange}
@@ -850,7 +851,7 @@ function TFForm() {
               type="file"
               name="td_pdf"
               placeholder="Tender Notice"
-              label="Tender Notice (PDF Max Size 2 MB)"
+              label={<>Tender Notice (PDF Max Size 2 MB)<span className="mandator_txt"> *</span></>}
               // handleChange={(event) => {
               //   const file = event.currentTarget.files[0];
               //   if (file) {
@@ -892,7 +893,7 @@ function TFForm() {
               <TDInputTemplate
                 placeholder="Tender Inviting Authority"
                 type="text"
-                label="Tender Inviting Authority"
+                label={<>Tender Inviting Authority<span className="mandator_txt"> *</span></>}
                 name="tia"
                 formControlName={formik.values.tia}
                 handleChange={formik.handleChange}
@@ -908,7 +909,7 @@ function TFForm() {
               <TDInputTemplate
                 type="text"
                 placeholder="e-NIT No...."
-                label="e-NIT No"
+                label={<>e-NIT No<span className="mandator_txt"> *</span></>}
                 name="e_nit_no"
                 formControlName={formik.values.e_nit_no}
                 handleChange={formik.handleChange}
@@ -924,7 +925,7 @@ function TFForm() {
               <TDInputTemplate
                 placeholder="Amount Put to Tender..."
                 type="number"
-                label="Amount Put to Tender"
+                label={<>Amount Put to Tender<span className="mandator_txt"> *</span></>}
                 name="amt_put_tender"
                 formControlName={formik.values.amt_put_tender}
                 handleChange={formik.handleChange}
@@ -950,8 +951,8 @@ function TFForm() {
           <div class="sm:col-span-4">
               <TDInputTemplate
                 placeholder="DLP..."
-                type="number"
-                label="DLP"
+                type="text"
+                label={<>DLP<span className="mandator_txt"> *</span></>}
                 name="dlp"
                 formControlName={formik.values.dlp}
                 handleChange={formik.handleChange}
@@ -967,7 +968,7 @@ function TFForm() {
               <TDInputTemplate
                 placeholder="Additional Performance Security..."
                 type="number"
-                label="Additional Performance Security"
+                label={<>Additional Performance Security</>}
                 name="add_per_sec"
                 formControlName={formik.values.add_per_sec}
                 handleChange={formik.handleChange}
@@ -983,7 +984,7 @@ function TFForm() {
               <TDInputTemplate
                 placeholder="EMD/Security Deposit..."
                 type="number"
-                label="EMD/Security Deposit"
+                label={<>EMD/Security Deposit<span className="mandator_txt"> *</span></>}
                 name="emd"
                 formControlName={formik.values.emd}
                 handleChange={formik.handleChange}
@@ -999,7 +1000,7 @@ function TFForm() {
               <TDInputTemplate
                 placeholder="Date Of Refund..."
                 type="date"
-                label="Date Of Refund"
+                label={<>Date Of Refund<span className="mandator_txt"> *</span></>}
                 name="date_refund"
                 formControlName={formik.values.date_refund}
                 handleChange={formik.handleChange}
@@ -1015,7 +1016,7 @@ function TFForm() {
               <TDInputTemplate
                 placeholder="Tender Matured On"
                 type="date"
-                label="Tender Matured On"
+                label={<>Tender Matured On<span className="mandator_txt"> *</span></>}
                 name="td_mt_dt"
                 formControlName={formik.values.td_mt_dt}
                 handleChange={formik.handleChange}
@@ -1030,7 +1031,7 @@ function TFForm() {
               <TDInputTemplate
                 placeholder="Work Order Issued On"
                 type="date"
-                label="Work Order Issued On"
+                label={<>Work Order Issued On<span className="mandator_txt"> *</span></>}
                 name="wo_dt"
                 formControlName={formik.values.wo_dt}
                 handleChange={formik.handleChange}
@@ -1048,7 +1049,7 @@ function TFForm() {
               type="file"
               name="wo_pdf"
               placeholder="Work Order Copy"
-              label="Work Order Copy (PDF Max Size 2 MB)"
+              label={<>Work Order Copy (PDF Max Size 2 MB)<span className="mandator_txt"> *</span></>}
               // handleChange={(event) => {
               //   const file = event.currentTarget.files[0];
               //   if (file) {
@@ -1089,7 +1090,7 @@ function TFForm() {
               <TDInputTemplate
                 placeholder="Type Work Order Value..."
                 type="number"
-                label="Work Order Value"
+                label={<>Work Order Value<span className="mandator_txt"> *</span></>}
                 name="wo_value"
                 formControlName={formik.values.wo_value}
                 handleChange={formik.handleChange}
@@ -1104,7 +1105,7 @@ function TFForm() {
               <TDInputTemplate
                 placeholder="Date of Completion (As per Work Order)"
                 type="date"
-                label="Date of Completion (As per Work Order)"
+                label={<>Date of Completion (As per Work Order)<span className="mandator_txt"> *</span></>}
                 name="compl"
                 formControlName={formik.values.compl}
                 handleChange={formik.handleChange}
