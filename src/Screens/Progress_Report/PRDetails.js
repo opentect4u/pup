@@ -333,7 +333,8 @@ function PRDetails() {
                           ))}
                         </div>
                         
-                          {data?.remarks.length > 0  &&(
+                        
+                        {data?.proj_comp_status > 0 &&(
                           <>
                           <div class="grid gap-4 sm:grid-cols-12 sm:gap-6 mb-5 mt-5 p-4 text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400">
                           <div class="sm:col-span-4">
