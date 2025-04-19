@@ -17,7 +17,6 @@ import { DataTable } from 'primereact/datatable';
 import Column from 'antd/es/table/Column';
 import { Toast } from "primereact/toast"
 
-
 const initialValues = {
   receipt_first: '',
   allotment_order_no: '',
