@@ -5,6 +5,7 @@ import {
   DollarCircleFilled,
   FileFilled,
   HomeFilled,
+  ProjectOutlined,
 } from "@ant-design/icons";
 import { Collapse, Menu } from "antd";
 import { Link } from "react-router-dom";
@@ -87,6 +88,11 @@ const items_pcr = [
     key: "PCR",
     icon: <FileFilled />,
   },
+  {
+    label: <Link to={"project-status"}>Project Status </Link>,
+    key: "pro_status",
+    icon: <ProjectOutlined />,
+  },,
   // {
   //   label: <Link to={"annex"}>Add Annexure </Link>,
   //   key: "annex",

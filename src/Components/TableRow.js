@@ -18,7 +18,8 @@ const TableRow = ({
   filePreview,
   errorpdf_1,
   PDFfolder_name,
-  date_ofCompletion}) => {
+  date_ofCompletion,
+  projectNotCompleted}) => {
 
   const pageTree = {
     page_1: 'AdApView',
@@ -30,9 +31,40 @@ const TableRow = ({
     page_7: 'PCRView',
     page_8: 'UC_Generate',
     page_9: 'annexure',
+    page_10: 'ProjectStatusView',
   }
 
-  var date_ofCompletion = new Date('2025-04-09');
+  const getDateStatus = (compDateStr, currentDateStr) => {
+    const compDate = new Date(compDateStr);
+    // const currentDate = new Date(currentDateStr);
+    const currentDate = currentDateStr;
+
+    // Set time to midnight to avoid partial day issues
+    compDate.setHours(0, 0, 0, 0);
+    currentDate.setHours(0, 0, 0, 0);
+
+    const msPerDay = 1000 * 60 * 60 * 24;
+    const delta = Math.floor((compDate - currentDate) / msPerDay);
+
+    if (delta < 0) {
+      // return `<span>The Date is Over by ${Math.abs(delta)} day(s).</span>`;
+      return <span className='overDate'>Date Over by {Math.abs(delta)} Day(s).</span>;
+    } else if (delta > 0) {
+      return <span className='notOverDate'>{delta} Day(s) Remaining.</span>;
+    } else {
+      return <span className='toProSubDate'>Today is Project Submission Day</span>;
+    }
+  };
+
+  function formatMultiData(data) {
+    const parts = data.split(',').map(part => part.trim());
+    return parts.length === 1 ? parts[0] : parts[0] + '..';
+  }
+
+    // useEffect(() => {
+    //   getDateStatus();
+    // }, []);
+  
 
   // const isPastCompletion = date_ofCompletion < new Date();
 
@@ -310,6 +342,45 @@ const TableRow = ({
         <td className="px-4 py-3">
           <button onClick={() => { printData(data?.approval_no, data?.sl_no) }} className="downloadXL"><PrinterOutlined /> Print</button>
         </td>
+      </tr>
+    );
+  }
+
+  if (curentPage === pageTree.page_10) {
+    return (
+<tr key={index} className="border-b dark:border-gray-700">
+
+        <td className="px-4 py-3">{data.project_id}</td>
+        <td className="px-4 py-3">{data.scheme_name}</td>
+        <td className="px-4 py-3">{data.sector_name}</td>
+        <td className="px-4 py-3">{data.comp_date_apprx}</td>
+        <td className="px-4 py-3">{formatMultiData(data.dist_name)}</td>
+        <td className="px-4 py-3">
+        <div style={{display:'flex'}}>
+        {formatMultiData(data.block_name)} 
+        </div>
+        </td>
+        {projectNotCompleted == true &&(
+        <td className="px-4 py-3">
+          {getDateStatus(data.comp_date_apprx, new Date())}
+        </td>
+        )}
+        {/* <td className="px-4 py-3">
+          <button
+            type="button"
+            className="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 
+        focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1.5 text-center 
+        me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 
+        dark:focus:ring-blue-800"
+            onClick={() => {
+              navigate(`/home/project-status/prostatus-details/${data.approval_no}`, {
+                state: { ...data, operation_status: 'edit' },
+              });
+            }}
+          >
+            <EyeOutlined />
+          </button>
+        </td> */}
       </tr>
     );
   }

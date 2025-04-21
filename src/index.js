@@ -51,6 +51,9 @@ import UC_Form from './Screens/UC_Generate/UC_Form';
 import Annex_Comp from './Screens/ANNEXURE/Annex_Comp';
 import Annex_View from './Screens/ANNEXURE/Annex_View';
 import Annex_Form from './Screens/ANNEXURE/Annex_Form';
+import ProjectStatusView from './Screens/Project_Status/ProjectStatusView';
+import ProjectStatusComp from './Screens/Project_Status/ProjectStatusComp';
+import ProjectStatusDetails from './Screens/Project_Status/ProjectStatusDetails';
 
 const FundRelForm =lazy(()=>import('./Screens/FUND_RELEASE/FundRelForm'))
 const Sign_in =lazy(()=>import('./Screens/Auth/Sign_in'))
@@ -256,6 +259,20 @@ const router = createBrowserRouter([
             {
               path: "prdetails/:id",
               element: <PRDetails />,
+            },
+          ]
+        },
+        {
+          path: "project-status",
+          element: <ProjectStatusComp />,
+          children: [
+            {
+                path: "",
+                element: <ProjectStatusView />,
+            },
+            {
+              path: "prostatus-details/:id",
+              element: <ProjectStatusDetails />,
             },
           ]
         },

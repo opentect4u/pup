@@ -1,4 +1,4 @@
-const TableHeader = ({ curentPage }) => {
+const TableHeader = ({ curentPage, projectNotCompleted }) => {
 
   const pageTree = {
     page_1: 'AdApView',
@@ -10,6 +10,7 @@ const TableHeader = ({ curentPage }) => {
     page_7: 'PCRView',
     page_8: 'UC_Generate',
     page_9: 'annexure',
+    page_10: 'ProjectStatusView',
   }
 
   if (curentPage === pageTree.page_1) {
@@ -153,6 +154,24 @@ const TableHeader = ({ curentPage }) => {
             {/* <th className="px-4 py-3">Upload PDF (PDF Max Size 2 MB)</th>
             <th className="px-4 py-3">Download</th> */}
             {/* <th className="px-4 py-3">View</th> */}
+          </tr>
+        </thead>
+      );
+    }
+
+    if (curentPage === pageTree.page_10) {
+      return (
+        <thead className="text-xs text-gray-700 uppercase bg-slate-200 dark:bg-gray-700 dark:text-gray-400">
+          <tr>
+            <th className="px-4 py-3">Project ID</th>
+            <th className="px-4 py-3">Schematic Name</th>
+            <th className="px-4 py-3">Sector Name</th>
+            <th className="px-4 py-3">Date of Completion</th>
+            <th className="px-4 py-3">District</th>
+            <th className="px-4 py-3">Block {projectNotCompleted}</th>
+            {projectNotCompleted == true &&(
+              <th className="px-4 py-3">Status</th>
+            )}
           </tr>
         </thead>
       );

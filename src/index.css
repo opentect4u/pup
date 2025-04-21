@@ -96,3 +96,12 @@ h2.text-white {color: #fff;}
     border-radius: 10px;
     padding: 15px;
     border: #d5d5d5 solid 1px;}
+
+  .projectStatus .ant-radio-group{margin-bottom: 0; background: none; padding: 0; box-shadow: none;}  
+  .projectStatus .ant-radio-group label{background: #fff; padding: 3px; border-radius: 40px;}
+
+
+.overDate{background: rgb(196, 7, 7); color: #fff; font-size: 11px; padding: 3px 5px; border-radius: 3px; font-weight: 600;}
+.notOverDate{background: rgb(83, 139, 19); color: #fff; font-size: 11px; padding: 3px 5px; border-radius: 3px; font-weight: 600;}
+.toProSubDate{background: rgb(189, 156, 9); color: #fff; font-size: 11px; padding: 3px 5px; border-radius: 3px; font-weight: 600;}
+  

@@ -9,7 +9,7 @@ import VError from '../../Components/VError';
 import axios from 'axios';
 import { auth_key, url } from '../../Assets/Addresses/BaseUrl';
 import { Message } from '../../Components/Message';
-import { FilePdfOutlined, LoadingOutlined, CalendarOutlined, EditOutlined } from '@ant-design/icons';
+import { FilePdfOutlined, LoadingOutlined, CalendarOutlined, EditOutlined, CommentOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { Select, Spin, Flex, Progress } from 'antd';
 import { FaMapMarker } from "react-icons/fa";
 import { Image } from 'antd';
@@ -30,21 +30,7 @@ const initialValues = {
 
 
 
-const validationSchema = Yup.object({
-  receipt_first: Yup.string().required('Receipt is Required'),
-  allotment_order_no: Yup.string().required('Allotment Order No. is Required'),
-  allotment_order_date: Yup.string().required('Allotment Order Date is Required'),
-  al1_pdf: Yup.string().required('Upload Allotment Order is Required'),
-  sch_amt_one: Yup.string().required('Schematic Amount is Required'),
-  cont_amt_one: Yup.string().required('Contigency Amount is Required'),
-  isntl_date: Yup.string().required('Installment Date is Required'),
-  tot_amt: Yup.string(),
-  // receipt_first: Yup.string(),
-  // al1_pdf: Yup.string(),
-  // sch_amt_one: Yup.string(),
-  // cont_amt_one: Yup.string(),
 
-});
 
 
 function FundRelForm() {
@@ -72,14 +58,42 @@ function FundRelForm() {
   const [filePreview_2, setFilePreview_2] = useState(null);
   const [userDataLocalStore, setUserDataLocalStore] = useState([]);
   const [errorpdf_1, setErrorpdf_1] = useState("");
+  const [sanctionSchemaContiAmt, setSanctionSchemaContiAmt] = useState([]);
+
+  const [useSchematicAmt, setUseSchematicAmt] = useState(0);
+  const [useContigencyAmt, setUseContigencyAmt] = useState(0);
 
 
+  const validationSchema = Yup.object({
+    receipt_first: Yup.string().required('Receipt is Required'),
+    allotment_order_no: Yup.string().required('Allotment Order No. is Required'),
+    allotment_order_date: Yup.string().required('Allotment Order Date is Required'),
+    al1_pdf: Yup.string().required('Upload Allotment Order is Required'),
+    // sch_amt_one: Yup.string().required('Schematic Amount is Required'),
+    sch_amt_one: Yup.number()
+          .typeError('Schematic Amount must be a number')
+          .positive('Schematic Amount must be greater than zero')
+          .max(`${sanctionSchemaContiAmt?.sch_amt - useSchematicAmt}`, `Amount must be within ${sanctionSchemaContiAmt?.sch_amt - useSchematicAmt}`)
+          .required('Schematic Amount is required'),
+    // cont_amt_one: Yup.string().required('Contigency Amount is Required'),
+    cont_amt_one: Yup.number()
+    .typeError('Contigency Amount must be a number')
+    // .positive('Contigency Amount must be greater than zero')
+    .max(`${sanctionSchemaContiAmt?.cont_amt - useContigencyAmt}`, `Amount must be within ${sanctionSchemaContiAmt?.cont_amt - useContigencyAmt}`)
+    .required('Contigency Amount is required'),
+    isntl_date: Yup.string().required('Installment Date is Required'),
+    tot_amt: Yup.string(),
+    // receipt_first: Yup.string(),
+    // al1_pdf: Yup.string(),
+    // sch_amt_one: Yup.string(),
+    // cont_amt_one: Yup.string(),
+  
+  });
 
 
     
     const fundAddedList = async (approvalNo_Para) => {
       setLoading(true); // Set loading state
-      console.log(approvalNo, 'approvalNoapprovalNoapprovalNoapprovalNo');
       
       
       const formData = new FormData();
@@ -121,6 +135,44 @@ function FundRelForm() {
       }
   
     };
+
+
+    const receivedSchemaContigenAmt = async (approvalNo_Para) => {
+      // console.log('fffffffffffapprovalNo', approvalNo_Para);
+      
+      const formData = new FormData();
+      formData.append("approval_no", approvalNo_Para);
+  
+      try {
+        const response = await axios.post(
+          `${url}index.php/webApi/Fund/proj_sanc_amt`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              'auth_key': auth_key // Important for FormData
+            },
+          }
+        );
+
+
+        if(response.data.status > 0){
+          console.log('fffffffffffapprovalNo', response?.data?.message);
+          
+          setSanctionSchemaContiAmt(response?.data?.message)
+        }
+
+        if(response.data.status < 1){
+          setSanctionSchemaContiAmt([])
+          Message("error", "Sanction Schematic & Contigency Amount is Emty..");
+        }
+      } catch (error) {
+        Message("error", "Error Submitting Form:");
+        console.error("Error submitting form:", error);
+      }
+  
+    };
+    
 
     const saveFormData = async () => {
       setLoading(true); // Set loading state
@@ -425,6 +477,7 @@ function FundRelForm() {
       loadFormData(params?.id)
       fundAddedList(params?.id)
       setApprovalNo(params?.id)
+      receivedSchemaContigenAmt(params?.id)
       setShowForm(true);
     }
   }, [])
@@ -458,7 +511,27 @@ function FundRelForm() {
                     // Proceed with file upload or further processing
                   }
                 };
-                            
+  
+
+        useEffect(() => {
+          if (fundStatus && Array.isArray(fundStatus)) {
+            const total = fundStatus.reduce(
+              (sum, item) => sum + (parseFloat(item?.sch_amt) || 0),
+              0
+            );
+            setUseSchematicAmt(total.toFixed(2)); // toFixed returns a string
+          }
+
+          if (fundStatus && Array.isArray(fundStatus)) {
+            const total = fundStatus.reduce(
+              (sum, item) => sum + (parseFloat(item?.cont_amt) || 0),
+              0
+            );
+            setUseContigencyAmt(total.toFixed(2)); // toFixed returns a string
+          }
+
+        }, [fundStatus]);              
+
     
   return (
     <section class="bg-white p-5 dark:bg-gray-900">
@@ -486,6 +559,7 @@ function FundRelForm() {
               onChange={(value) => {
               loadFormData(value)
               fundAddedList(value)
+              receivedSchemaContigenAmt(value)
               setApprovalNo(value)
               setShowForm(true)
               }}
@@ -645,10 +719,36 @@ function FundRelForm() {
             {/* {JSON.stringify(fundStatus, null, 2)} */}
 
             
-            
+          
 
         {fundStatus?.length > 0 &&(
           <>
+
+{/* {JSON.stringify(sanctionSchemaContiAmt, null, 2)} */}
+
+
+
+<div class="grid gap-4 sm:grid-cols-12 sm:gap-6 mb-5 mt-5 p-4 border-t-4 border-blue-800 text-blue-800 rounded-b bg-blue-50 dark:bg-gray-800 dark:text-green-400">
+{/* <div class="sm:col-span-12"><p class="font-bold">Our privacy policy has changed</p></div>   */}
+<div class="sm:col-span-4">
+<p class="mb-0 font-normal items-center text-sm flex mt-0">
+<span className="flex items-center font-bold mr-1">
+{/* <InfoCircleOutlined className="dark:text-green-400" style={{marginRight: 5, marginLeft: 3, fontSize:16 }} />  */}
+<svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+  <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+</svg>
+Sanction Schematic Amount:</span> ₹. {sanctionSchemaContiAmt?.sch_amt}
+</p>
+</div>
+<div class="sm:col-span-4">
+<p class="mb-0 font-normal items-center text-sm flex mt-0">
+<span className="flex items-center font-bold mr-1">
+{/* <InfoCircleOutlined className="dark:text-green-400" style={{marginRight: 5, marginLeft: 3 }} />  */}
+Sanction Contigency Amount:</span> ₹. {sanctionSchemaContiAmt?.cont_amt}
+</p>
+</div>
+</div>
+
           <Heading title={"Fund Receipt History"} button={'N'}/>
 
           <Toast ref={toast} />
@@ -706,16 +806,21 @@ function FundRelForm() {
           header="Schematic Amount"
           footer={
           <span style={{ fontWeight: "bold", color: "#0694A2" }}>
-          {fundStatus?.reduce((sum, item) => sum + (parseFloat(item?.sch_amt) || 0), 0).toFixed(2)}
+          {/* {fundStatus?.reduce((sum, item) => sum + (parseFloat(item?.sch_amt) || 0), 0).toFixed(2)} */}
+          {useSchematicAmt}
           </span>
           }
+
+          
+
           ></Column>
           <Column
           field="cont_amt"
           header="Contigency Amount"
           footer={
           <span style={{ fontWeight: "bold", color: "#0694A2" }}>
-          {fundStatus?.reduce((sum, item) => sum + (parseFloat(item?.cont_amt) || 0), 0).toFixed(2)}
+          {/* {fundStatus?.reduce((sum, item) => sum + (parseFloat(item?.cont_amt) || 0), 0).toFixed(2)} */}
+          {useContigencyAmt}
           </span>
           }
           ></Column>
@@ -760,6 +865,28 @@ function FundRelForm() {
 
           </DataTable>
 
+
+          <div class="grid gap-4 sm:grid-cols-12 sm:gap-6 mb-5 mt-2 p-4 border-t-4 border-yellow-800 text-yellow-800 rounded-b bg-yellow-50 dark:bg-gray-800 dark:text-green-400">
+{/* <div class="sm:col-span-12"><p class="font-bold">Our privacy policy has changed</p></div>   */}
+<div class="sm:col-span-4">
+<p class="mb-0 font-normal items-center text-sm flex mt-0">
+<span className="flex items-center font-bold mr-1">
+{/* <InfoCircleOutlined className="dark:text-green-400" style={{marginRight: 5, marginLeft: 3, fontSize:16 }} />  */}
+<svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+  <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+</svg>
+Balance Of Schematic Amount:</span> ₹. {sanctionSchemaContiAmt?.sch_amt - useSchematicAmt}
+</p>
+</div>
+<div class="sm:col-span-4">
+<p class="mb-0 font-normal items-center text-sm flex mt-0">
+<span className="flex items-center font-bold mr-1">
+{/* <InfoCircleOutlined className="dark:text-green-400" style={{marginRight: 5, marginLeft: 3 }} />  */}
+Balance Of Contigency Amount:</span> ₹. {sanctionSchemaContiAmt?.cont_amt - useContigencyAmt}
+</p>
+</div>
+</div>
+
         
           </>
         )}
@@ -768,7 +895,10 @@ function FundRelForm() {
        {/* {JSON.stringify(approvalNo, null, 2)} ////////
        {JSON.stringify(showForm, null, 2)} */}
        {/* fundStatus.length < 4 &&  */}
-       
+       {/* {JSON.stringify(sanctionSchemaContiAmt?.sch_amt - useSchematicAmt > 0, null, 2)} 
+       {JSON.stringify(sanctionSchemaContiAmt?.cont_amt - useContigencyAmt > 0, null, 2)} */}
+       {sanctionSchemaContiAmt?.sch_amt - useSchematicAmt > 0 &&(
+       <>
        {showForm  &&(
         <>
        <Heading title={"Fund Release/Receipt Details"} button={'N'}/>
@@ -966,6 +1096,8 @@ function FundRelForm() {
         {/* </Spin> */}
         </>
        )}
+       </>
+      )}
       </div>
     </section>
   )
