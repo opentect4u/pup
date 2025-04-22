@@ -19,7 +19,7 @@ const TableHeader = ({ curentPage, projectNotCompleted }) => {
         <tr>
           {/* <th className="px-4 py-3">Sl.No.</th> */}
           <th className="px-4 py-3">Project ID</th>
-          <th className="px-4 py-3">Approval No</th>
+          {/* <th className="px-4 py-3">Approval No</th> */}
           <th className="px-4 py-3">Date of Approval</th>
           <th className="px-4 py-3">Scheme Name</th>
           <th className="px-4 py-3">Sector</th>
@@ -147,7 +147,7 @@ const TableHeader = ({ curentPage, projectNotCompleted }) => {
       return (
         <thead className="text-xs text-gray-700 uppercase bg-slate-200">
           <tr>
-            <th className="px-4 py-3">Administrative Approval No.</th>
+            <th className="px-4 py-3">Administrative Project ID</th>
             <th className="px-4 py-3">Schematic Name</th>
             <th className="px-4 py-3">District</th>
             <th className="px-4 py-3">Generate Annexure</th>

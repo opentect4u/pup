@@ -74,7 +74,7 @@ function FundExpForm() {
       .required('Schematic Amount is required'),
     cont_amt_one: Yup.number()
       .typeError('Contigency Amount must be a number')
-      .positive('Contigency Amount must be greater than zero')
+      // .positive('Contigency Amount must be greater than zero')
       .max(balanceContigencyAmount, `Amount must be within ${balanceContigencyAmount}`)
       .required('Contigency Amount is required'),
     payment_date: Yup.string().required('Expenditure Date is Required'),
@@ -398,11 +398,11 @@ function FundExpForm() {
       if (response?.data.status > 0) {
         setLoading(false);
         setValues({
-          payment_date: response?.data?.message?.payment_date,
-          sch_amt_one: response.data.message.sch_amt,
-          cont_amt_one: response.data.message.cont_amt,
-          sch_remark:  response.data.message.sch_remark,
-          cont_remark: response?.data?.cont_remark,
+          payment_date: response?.data?.message?.payment_date != null ? response?.data?.message?.payment_date : '',
+          sch_amt_one: response.data.message.sch_amt != null ? response?.data?.message?.sch_amt : '',
+          cont_amt_one: response.data.message.cont_amt != null ? response?.data?.message?.cont_amt : '',
+          sch_remark:  response.data.message.sch_remark != null ? response?.data?.message?.sch_remark : '',
+          cont_remark: response?.data?.cont_remark != null ? response?.data?.message?.cont_remark : '',
         })
 
       }

@@ -73,7 +73,7 @@ const TableRow = ({
       <tr key={index} className="border-b dark:border-gray-700">
         {/* <td className="px-4 py-3">{(currentPage - 1) * rowsPerPage + index + 1} yyy</td> */}
         <td className="px-4 py-3">{data?.project_id}</td>
-        <td className="px-4 py-3">{data?.approval_no}</td>
+        {/* <td className="px-4 py-3">{data?.approval_no}</td> */}
         <td className="px-4 py-3">{data?.admin_approval_dt}</td>
         <td className="px-4 py-3">{data?.scheme_name}</td>
         <td className="px-4 py-3">{data?.sector_name}</td>
@@ -97,8 +97,8 @@ const TableRow = ({
         <td className="px-4 py-3">{data?.scheme_name}</td>
         <td className="px-4 py-3">{data?.sector_name}</td>
         <td className="px-4 py-3">{data?.fin_year}</td>
-        <td className="px-4 py-3">{data?.dist_name}</td>
-        <td className="px-4 py-3">{data?.block_name}</td>
+        <td className="px-4 py-3"> {formatMultiData(data?.dist_name != null ? data?.dist_name : '--')} </td>
+        <td className="px-4 py-3">{formatMultiData(data.block_name != null ? data?.block_name : '--') }</td>
         <td scope="row" className="px-4 py-3">
           <button type="button" className="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 
   focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1.5 text-center 
@@ -124,10 +124,10 @@ const TableRow = ({
         <td className="px-4 py-3">{data.scheme_name}</td>
         <td className="px-4 py-3">{data.sector_name}</td>
         <td className="px-4 py-3">{data.fin_year}</td>
-        <td className="px-4 py-3">{data.dist_name}</td>
+        <td className="px-4 py-3">{formatMultiData(data.dist_name != null ? data?.dist_name : '--')}</td>
         <td className="px-4 py-3">
         <div style={{display:'flex'}}>
-        {data.block_name} 
+        {formatMultiData(data.block_name != null ? data?.block_name : '--')}
         {/* {new Date(data?.admin_approval_dt) > date_ofCompletion &&(
           <FaRunning className="text-red-600 animate-bounce text-xl ml-2" />
         ) } */}
@@ -161,8 +161,8 @@ const TableRow = ({
         <td className="px-4 py-3">{data?.scheme_name}</td>
         <td className="px-4 py-3">{data?.sector_name}</td>
         <td className="px-4 py-3">{data?.fin_year}</td>
-        <td className="px-4 py-3">{data?.dist_name}</td>
-        <td className="px-4 py-3">{data?.block_name}</td>
+        <td className="px-4 py-3">{formatMultiData(data.dist_name != null ? data?.dist_name : '--')}</td>
+        <td className="px-4 py-3">{formatMultiData(data.block_name != null ? data?.block_name : '--')}</td>
         <td className="px-4 py-3">
           <button
             type="button"
@@ -186,8 +186,8 @@ const TableRow = ({
         <td className="px-4 py-3">{data.scheme_name}</td>
         <td className="px-4 py-3">{data.sector_name}</td>
         <td className="px-4 py-3">{data.fin_year}</td>
-        <td className="px-4 py-3">{data.dist_name}</td>
-        <td className="px-4 py-3">{data.block_name}</td>
+        <td className="px-4 py-3">{formatMultiData(data.dist_name != null ? data?.dist_name : '--')}</td>
+        <td className="px-4 py-3">{formatMultiData(data.block_name != null ? data?.block_name : '--')}</td>
         <td className="px-4 py-3">
           <button
             type="button"
@@ -208,8 +208,8 @@ const TableRow = ({
         <td className="px-4 py-3">{data?.scheme_name}</td>
         <td className="px-4 py-3">{data?.sector_name}</td>
         <td className="px-4 py-3">{data?.fin_year}</td>
-        <td className="px-4 py-3">{data?.dist_name}</td>
-        <td className="px-4 py-3">{data?.block_name}</td>
+        <td className="px-4 py-3">{formatMultiData(data.dist_name != null ? data?.dist_name : '--')}</td>
+        <td className="px-4 py-3">{formatMultiData(data.block_name != null ? data?.block_name : '--')}</td>
         <td className="px-4 py-3">
           <button type="button" className="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 
                         font-medium rounded-lg text-sm px-3 py-1.5"
@@ -354,10 +354,10 @@ const TableRow = ({
         <td className="px-4 py-3">{data.scheme_name}</td>
         <td className="px-4 py-3">{data.sector_name}</td>
         <td className="px-4 py-3">{data.comp_date_apprx}</td>
-        <td className="px-4 py-3">{formatMultiData(data.dist_name)}</td>
+        <td className="px-4 py-3">{formatMultiData(data.dist_name != null ? data?.dist_name : '--')}</td>
         <td className="px-4 py-3">
         <div style={{display:'flex'}}>
-        {formatMultiData(data.block_name)} 
+        {formatMultiData(data.block_name != null ? data?.block_name : '--')} 
         </div>
         </td>
         {projectNotCompleted == true &&(

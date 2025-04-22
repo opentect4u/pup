@@ -38,6 +38,7 @@ const loginFnc = async () => {
   // // Append each field to FormData
   formData.append("user_id", formik.values.email);
   formData.append("user_pwd", formik.values.pass); // Ensure this is a file if applicable
+  formData.append("login_type", 'W');
 
   console.log("FormData:", formData);
 
@@ -65,8 +66,19 @@ const loginFnc = async () => {
       user_status: response?.data?.message?.user_status,
       user_type: response?.data?.message?.user_type
     }))
-
-    navigate('home/')
+    
+    if(response?.data?.message?.user_type === 'S'){
+      navigate('home/admin_approval')
+    } else if(response?.data?.message?.user_type === 'A'){
+      navigate('home/admin_approval')
+    } else if(response?.data?.message?.user_type === 'AC'){
+      navigate('home/fund_expense')
+    } else if(response?.data?.message?.user_type === 'F'){
+      navigate('home/tender_formality')
+    } else {
+      navigate('home/')
+    }
+    
 
     }
 

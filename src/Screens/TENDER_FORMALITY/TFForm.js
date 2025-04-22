@@ -57,9 +57,23 @@ const validationSchema = Yup.object({
   td_pdf: Yup.string().required('Tender Notice is Required'),
   tia: Yup.string().required('Tender Inviting Authority is Required'),
   td_mt_dt: Yup.string().required('Tender Matured On is Required'),
-  wo_dt: Yup.string().required('Work Order Issued On is Required'),
+  // wo_dt: Yup.string().required('Work Order Issued On is Required'),
+  wo_dt: Yup.string()
+  .required('Work Order Issued On is Required')
+  .test(
+    'wo_dt-before-compl',
+    'Work Order Issued On must be before Date of Completion',
+    function (value) {
+      const { compl } = this.parent;
+      if (!value || !compl) return true; // Skip validation if one is missing
+      const woDate = new Date(value);
+      const complDate = new Date(compl);
+      return woDate < complDate; // wo_dt must be strictly less than compl
+    }
+  ),
+
   wo_pdf: Yup.string().required('Work Order Copy is Required'),
-  wo_value: Yup.string().required('Work Order Value is Required'),
+  wo_value: Yup.number().required('Work Order Value is Required'),
   compl: Yup.string().required('Date of Completion (As per Work Order) is Required'),
   amt_put_tender: Yup.string().required('Amount Put to Tender is Required'),
   e_nit_no: Yup.string().required('e-NIT No is Required'),
@@ -68,8 +82,6 @@ const validationSchema = Yup.object({
   add_per_sec: Yup.string(),
   emd: Yup.string().required('EMD/Security Deposit is Required'),
   date_refund: Yup.string().required('Date Of Refund is Required'),
-
-
 });
 
 function TFForm() {
@@ -247,21 +259,21 @@ function TFForm() {
         setLoading(false);
         // setGetMsgData(response?.data?.message)
         setValues({
-          td_dt: response?.data?.message?.tender_date,
-          tia: response.data.message.invite_auth,
-          amt_put_tender: response.data.message.amt_put_to_tender,
-          e_nit_no: response.data.message.e_nit_no,
+          td_dt: response?.data?.message?.tender_date != null ? response?.data?.message?.tender_date : '',
+          tia: response.data.message.invite_auth != null ? response?.data?.message?.invite_auth : '',
+          amt_put_tender: response.data.message.amt_put_to_tender != null ? response?.data?.message?.amt_put_to_tender : '',
+          e_nit_no: response.data.message.e_nit_no != null ? response?.data?.message?.e_nit_no : '',
           options:  setRadioType(response.data.message.tender_status),
-          dlp: response.data.message.dlp,
-          add_per_sec: response.data.message.add_per_security,
-          emd: response.data.message.emd,
-          date_refund: response.data.message.date_of_refund,
-          td_mt_dt: response.data.message.mat_date,
-          wo_dt: response.data.message.wo_date,
-          wo_value: response.data.message.wo_value,
-          compl: response.data.message.comp_date_apprx,
-          td_pdf: response.data.message.tender_notice,
-          wo_pdf: response.data.message.wo_copy,
+          dlp: response.data.message.dlp != null ? response?.data?.message?.dlp : '',
+          add_per_sec: response.data.message.add_per_security != null ? response?.data?.message?.add_per_security : '',
+          emd: response.data.message.emd != null ? response?.data?.message?.emd : '',
+          date_refund: response.data.message.date_of_refund != null ? response?.data?.message?.date_of_refund : '',
+          td_mt_dt: response.data.message.mat_date != null ? response?.data?.message?.mat_date : '',
+          wo_dt: response.data.message.wo_date != null ? response?.data?.message?.wo_date : '',
+          wo_value: response.data.message.wo_value != null ? response?.data?.message?.wo_value : '',
+          compl: response.data.message.comp_date_apprx != null ? response?.data?.message?.comp_date_apprx : '',
+          td_pdf: response.data.message.tender_notice != null ? response?.data?.message?.tender_notice : '',
+          wo_pdf: response.data.message.wo_copy != null ? response?.data?.message?.wo_copy : '',
         })
       }
 

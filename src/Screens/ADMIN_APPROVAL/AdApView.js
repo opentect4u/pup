@@ -22,6 +22,16 @@ function AdApView() {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 5;
   const [pageName, setPageName] = useState('');
+  const [userDataLocalStore, setUserDataLocalStore] = useState([]);
+
+  useEffect(() => {
+    const userData = localStorage.getItem("user_dt");
+    if (userData) {
+    setUserDataLocalStore(JSON.parse(userData))
+    } else {
+    setUserDataLocalStore([])
+    }
+    }, []);
 
   const fetchTableDataList_Fn = async () => {
     setLoading(true);
@@ -109,10 +119,12 @@ function AdApView() {
                   />
                 </div>
               </div>
-
+              {userDataLocalStore.user_type != 'A' &&(
               <div className="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
                 <BtnComp bgColor="bg-white" color="text-blue-900" title="Add Project" onClick={() => { navigate('AdApcrud/0'); }} />
               </div>
+              )}
+              
             </div>
 
             <div className="overflow-x-auto">

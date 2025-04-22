@@ -65,7 +65,10 @@ function FundRelForm() {
 
 
   const validationSchema = Yup.object({
-    receipt_first: Yup.string().required('Receipt is Required'),
+    receipt_first: Yup.number()
+    .required('Receipt is Required')
+    .typeError('Amount must be a number')
+    .positive('Amount must be greater than zero'),
     allotment_order_no: Yup.string().required('Allotment Order No. is Required'),
     allotment_order_date: Yup.string().required('Allotment Order Date is Required'),
     al1_pdf: Yup.string().required('Upload Allotment Order is Required'),
@@ -414,14 +417,14 @@ function FundRelForm() {
       if (response?.data.status > 0) {
         setLoading(false);
         setValues({
-          receipt_first: response?.data?.message?.instl_amt,
-          allotment_order_no: response?.data?.message?.allot_order_no,
-          allotment_order_date : response?.data?.message?.allot_order_dt,
-          al1_pdf: response.data.message.allotment_no,
-          sch_amt_one: response.data.message.sch_amt,
-          cont_amt_one: response.data.message.cont_amt,
-          tot_amt: response.data.message.tender_notice,
-          isntl_date: response.data.message.receive_date,
+          receipt_first: response?.data?.message?.instl_amt != null ? response?.data?.message?.instl_amt : '',
+          allotment_order_no: response?.data?.message?.allot_order_no != null ? response?.data?.message?.allot_order_no : '',
+          allotment_order_date : response?.data?.message?.allot_order_dt != null ? response?.data?.message?.allot_order_dt : '',
+          al1_pdf: response.data.message.allotment_no != null ? response?.data?.message?.allotment_no : '',
+          sch_amt_one: response.data.message.sch_amt != null ? response?.data?.message?.sch_amt : '',
+          cont_amt_one: response.data.message.cont_amt != null ? response?.data?.message?.cont_amt : '',
+          tot_amt: response.data.message.tender_notice != null ? response?.data?.message?.tender_notice : '',
+          isntl_date: response.data.message.receive_date != null ? response?.data?.message?.receive_date : '',
         })
       }
 

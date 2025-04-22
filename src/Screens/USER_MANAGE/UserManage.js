@@ -15,9 +15,10 @@ import Radiobtn from "../../Components/Radiobtn";
 
 const userTypes = {
   S: 'Super Admin',
-  A: 'Admin',
+  A: 'Admin (District Admin)',
   U: 'User',
-  F: 'Field User',
+  F: 'Field User (Engineer)',
+  AC: 'Accountant',
 };
 
 const reset_pass = [
@@ -44,9 +45,10 @@ const user_status_form = [
 
 const userTypes_Form = [
   { user_val: "S", userTypeNam: "Super Admin" },
-  { user_val: "A", userTypeNam: "Admin" },
+  { user_val: "A", userTypeNam: "Admin (District Admin)" },
   { user_val: "U", userTypeNam: "User" },
-  { user_val: "F", userTypeNam: "Field User" },
+  { user_val: "F", userTypeNam: "Field User (Engineer)" },
+  { user_val: "AC", userTypeNam: "Accountant" },
 ];
 
 const userStatus = {
@@ -762,10 +764,11 @@ function UserManage() {
                         <td className="px-4 py-3">{data?.dist_name}</td>
 
                         <td className="px-4 py-3">
-                          {data?.user_type === 'U' ? userTypes.U : 
-                          data?.user_type === 'S' ? userTypes.S : 
-                          data?.user_type === 'F' ? userTypes.S : 
-                          data?.user_type === 'A' ? userTypes.A : 'Unknown'}
+                          {data?.user_type === 'S' ? userTypes.S : 
+                          data?.user_type === 'A' ? userTypes.A : 
+                          data?.user_type === 'U' ? userTypes.U : 
+                          data?.user_type === 'F' ? userTypes.F : 
+                          data?.user_type === 'AC' ? userTypes.AC : 'Unknown'}
                         </td>
                         <td className="px-4 py-3">
                           {/* userStatus */}

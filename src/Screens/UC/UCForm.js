@@ -341,15 +341,16 @@ function UCForm() {
         }
       );
 
-      console.log(response?.data?.message, 'fffffffffjjhkuuuuuuuuuuuuuujhjk');
+      // console.log(response?.data?.message, 'fffffffffjjhkuuuuuuuuuuuuuujhjk');
       
       if (response?.data.status > 0) {
         setLoading(false);
         setValues({
-          annexure_path: response?.data?.message?.annexture_certi === null ? '' : response?.data?.message?.annexture_certi,
-          purpose_field: response?.data?.message?.certi_type,
-          certificate_path: response?.data?.message?.certificate_path,
-          exp_text: response?.data?.message?.remarks,
+          // annexure_path: response?.data?.message?.annexture_certi === null ? '' : response?.data?.message?.annexture_certi,
+          annexure_path: response?.data?.message?.annexture_certi != null ? response?.data?.message?.annexture_certi : '',
+          purpose_field: response?.data?.message?.certi_type != null ? response?.data?.message?.certi_type : '',
+          certificate_path: response?.data?.message?.certificate_path != null ? response?.data?.message?.certificate_path : '',
+          exp_text: response?.data?.message?.remarks != null ? response?.data?.message?.remarks : '',
         })
 
       }
@@ -776,37 +777,7 @@ function UCForm() {
         <Heading title={"Utilization Certificate Details"} button={'N'}/>
         <form onSubmit={formik.handleSubmit}>
         <div class="grid gap-4 sm:grid-cols-12 sm:gap-6">
-          {/* <div class="sm:col-span-3">
-            <TDInputTemplate
-              type="text"
-              placeholder="Issued By"
-              label="Issued By"
-              name="issued_by"
-              formControlName={formik.values.issued_by}
-              handleChange={formik.handleChange}
-              handleBlur={formik.handleBlur}
-              mode={1}
-            />
-            {formik.errors.issued_by && formik.touched.issued_by && (
-              <VError title={formik.errors.issued_by} />
-            )}
-          </div>
-
-          <div class="sm:col-span-3">
-            <TDInputTemplate
-              placeholder="Issued To"
-              type="text"
-              label="Issued To"
-              name="issued_to"
-              formControlName={formik.values.issued_to}
-              handleChange={formik.handleChange}
-              handleBlur={formik.handleBlur}
-              mode={1}
-            />
-            {formik.errors.issued_to && formik.touched.issued_to && (
-              <VError title={formik.errors.issued_to} />
-            )}
-          </div> */}
+         
 
 <div class="sm:col-span-4">
               
@@ -836,7 +807,7 @@ function UCForm() {
               )}
             </div>
         
-          <div class="sm:col-span-3" style={{position:'relative'}}>
+          <div class="sm:col-span-4" style={{position:'relative'}}>
     
             <TDInputTemplate
               type="file"
@@ -872,7 +843,7 @@ function UCForm() {
              {errorpdf_1 && <p style={{ color: "red", fontSize:12 }}>{errorpdf_1}</p>}
           </div>
 
-          <div class="sm:col-span-3" style={{position:'relative'}}>
+          <div class="sm:col-span-4" style={{position:'relative'}}>
     
             <TDInputTemplate
               type="file"
@@ -908,21 +879,7 @@ function UCForm() {
              {errorpdf_1 && <p style={{ color: "red", fontSize:12 }}>{errorpdf_1}</p>}
           </div>
 
-          {/* <div class="sm:col-span-3">
-            <TDInputTemplate
-              type="date"
-              placeholder="Certificate Date goes here.."
-              label="Certificate Date"
-              name="certificate_date"
-              formControlName={formik.values.certificate_date}
-              handleChange={formik.handleChange}
-              handleBlur={formik.handleBlur}
-              mode={1}
-            />
-            {formik.errors.certificate_date && formik.touched.certificate_date && (
-              <VError title={formik.errors.certificate_date} />
-            )}
-          </div> */}
+         
 
           <div class="sm:col-span-12">
             <TDInputTemplate
