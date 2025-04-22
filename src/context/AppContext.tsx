@@ -27,12 +27,13 @@ const AppContext = ({ children }: any) => {
   const [isLogin, setIsLogin] = useState<boolean>(() => false);
   const [isLoading, setIsLoading] = useState<boolean>(() => false);
 
-  const handleLogin = async (username: string, password: string) => {
+  const handleLogin = async (username: string, password: string , loginType: string) => {
     setIsLoading(true);
 
     const formData = new FormData();
     formData.append('user_id', username);
     formData.append('user_pwd', password);
+    formData.append('login_type', loginType);
 
     console.log('LOGIN-----USERNAME-----PASS', formData);
 

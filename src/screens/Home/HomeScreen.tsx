@@ -155,7 +155,8 @@ const HomeScreen = () => {
             if (res?.data?.status === 1) {
                 console.log('PROJECTS : ', res?.data);
                 const newProjectsList = res?.data?.message?.map((item: any) => ({
-                    label: `${item?.project_id} / ${item?.approval_no}\n${item?.scheme_name}`,
+                    // label: `${item?.project_id} / ${item?.approval_no}\n${item?.scheme_name}`,
+                    label: `${item?.project_id} \n${item?.scheme_name}`,
                     value: `${item?.approval_no},${item?.project_id}`,
                 }));
                 setProjectsList(newProjectsList);
@@ -596,6 +597,7 @@ const HomeScreen = () => {
                 <View style={{ padding: 30, gap: 5, flex: 1 }}>
                     <Text variant="titleLarge" style={{ color: theme.colors.secondary }}>
                         {strings.projectDropdownLabel}
+                        {/* {JSON.stringify(formData1, null, 2)} */}
                     </Text>
                     <Dropdown
                         style={[
@@ -727,15 +729,14 @@ const HomeScreen = () => {
 
 
 
-                    <View style={{ marginVertical: 10 }}>
+                    <View style={{ marginVertical: 10, marginBottom: 0 }}>
 
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 0 }}>
 <Text style={{ color: theme.colors.primary, fontWeight: 'bold' }}>
 {Number(progressComplete)}% {strings.complete}
 </Text>
 <Text style={{ color: theme.colors.primary, fontWeight: 'bold' }}>
-{/* {strings.current_prg} {Number(progressComplete) + Number(formData1.progress)}% */}
-{strings.current_prg} {Number(formData1.progress)}%
+{strings.current_prg} {Number(progressComplete) + Number(formData1.progress)}%
 </Text>
 </View>
                         {/* <Text
@@ -789,19 +790,7 @@ const HomeScreen = () => {
 
                                 console.log(!isNaN(num), 'bbbbbbbbbbb', num, 'bbbbbbbbbbb', progressComplete, !isNaN(num) && num > progressComplete);
 
-                                // if (!isNaN(num) && num <= 100 - progressComplete) {
-                                // if (!isNaN(num) && num > progressComplete) {
                                     handleFormChange('progress', txt);
-                                    // setProgressCompleteAPI(Number(formData1.progress))
-                                // } 
-                                // else if (txt === '') {
-                                //     handleFormChange('progress', '');
-                                //     setProgressCompleteAPI(Number(0))
-                                // } 
-                                // else {
-                                //     handleFormChange('progress', '');
-                                //     setProgressCompleteAPI(Number(0))
-                                // }
                             }}
                             customStyle={{ backgroundColor: theme.colors.background }}
                         />
@@ -814,8 +803,6 @@ const HomeScreen = () => {
                                 error={checkErr}
                                 label="Remarks..."
                                 maxLength={10}
-                                // leftIcon='progress-clock'
-                                // keyboardType="number-pad"
                                 value={formData1.remarks}
                                 onChangeText={(txt: any) => handleFormChange('remarks', txt)}
                                 // disabled={progressComplet === 100}

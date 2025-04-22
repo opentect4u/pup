@@ -27,6 +27,7 @@ const LoginScreen = () => {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
+    loginType: 'M',
   });
 
   const handleFormChange = (field: string, value: string) => {
@@ -109,7 +110,7 @@ const LoginScreen = () => {
             disabled={!formData.username || !formData.password || isLoading}
             loading={isLoading}
             mode="contained"
-            onPress={() => handleLogin(formData.username, formData.password)}
+            onPress={() => handleLogin(formData.username, formData.password, formData.loginType)}
             style={{
               marginTop: 15,
               paddingVertical: 8,
