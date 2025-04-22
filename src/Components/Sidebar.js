@@ -343,7 +343,7 @@ const UtilizationAccordion = () => (
         // items={items}
         items={
         userDataLocalStore.user_type === "F"
-        ? items.filter((item) => item.key === "TF")
+        ? items.filter((item) => item.key === "TF" || item.key === "PR")
         : []
         }
         />
@@ -370,7 +370,7 @@ const UtilizationAccordion = () => (
         <ReportAccordion />
         )}
 
-        <MasterAccordion userType={userDataLocalStore.user_type} />
+        {/* <MasterAccordion userType={userDataLocalStore.user_type} /> */}
 
         </>
       </div>

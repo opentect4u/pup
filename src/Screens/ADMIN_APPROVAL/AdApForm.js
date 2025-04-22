@@ -889,7 +889,7 @@ function AdApForm() {
 
               </div>
 
-              {params?.id > 0 && (
+              {/* {params?.id > 0 && (
                 <div class="sm:col-span-4">
                   <TDInputTemplate
                     // placeholder="Choose Project ID"
@@ -905,7 +905,7 @@ function AdApForm() {
                   />
 
                 </div>
-              )}
+              )} */}
 
               <div class="sm:col-span-4">
                 <TDInputTemplate
@@ -1196,7 +1196,7 @@ function AdApForm() {
               )}
 
 
-              <div class="sm:col-span-6">
+              <div class="sm:col-span-4">
 
 
                 <label for="dis" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Project implemented By<span className="mandator_txt"> *</span></label>
@@ -1232,7 +1232,7 @@ function AdApForm() {
                   <VError title={formik.errors.proj_imp_by} />
                 )}
               </div>
-              <div class="sm:col-span-6 contigencySelect">
+              <div class="sm:col-span-12 contigencySelect">
 
                 <label for="dis" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Choose District<span className="mandator_txt"> *</span></label>
 
@@ -1268,7 +1268,7 @@ function AdApForm() {
                   <VError title={formik.errors.dis} />
                 )}
               </div>
-              <div class="sm:col-span-6 contigencySelect">
+              <div class="sm:col-span-12 contigencySelect">
                 {/* {JSON.stringify(district_ID, null, 2)} ///  {JSON.stringify(block_ID, null, 2)} */}
 
 
@@ -1305,7 +1305,7 @@ function AdApForm() {
               </div>
 
 
-              <div class="sm:col-span-6 contigencySelect">
+              <div class="sm:col-span-12 contigencySelect">
 
 
                 <label for="block" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Police Station<span className="mandator_txt"> *</span></label>
@@ -1341,7 +1341,7 @@ function AdApForm() {
               </div>
 
 
-              <div class="sm:col-span-6 contigencySelect">
+              <div class="sm:col-span-12 contigencySelect">
 
 
                 <label for="block" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Gram Panchayat<span className="mandator_txt"> *</span></label>
@@ -1372,7 +1372,7 @@ function AdApForm() {
                 )}
               </div>
 
-              <div class="sm:col-span-6" style={{ position: 'relative' }}>
+              <div class="sm:col-span-12" style={{ position: 'relative' }}>
                 {/* {JSON.stringify(errorpdf_2 , null, 2)} */}
                 <TDInputTemplate
                   type="file"
