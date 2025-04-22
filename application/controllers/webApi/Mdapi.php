@@ -70,12 +70,12 @@ class Mdapi extends CI_Controller {
 	public function block() {
 		$json_data = file_get_contents("php://input");
 		$data = json_decode($json_data, true);
-		$where = array();
-		$dist_id = $data['dist_id'] ?? null;
-		if ($dist_id > 0) {
-			$where = array_merge($where, ['dist_id' => $dist_id]); 
-		}
-		$data = $this->Master->f_select('md_block', NULL, $where, NULL);
+		// $where = array();
+		// $dist_id = $data['dist_id'] ?? null;
+		// if ($dist_id > 0) {
+		// 	$where = array_merge($where, ['dist_id' => $dist_id]); 
+		// }
+		$data = $this->Master->f_select('md_block', NULL, NULL, NULL);
 		if (!empty($data)) {
 			echo json_encode(['status' => 1, 'message' => $data]);
 		} else {
@@ -101,38 +101,38 @@ class Mdapi extends CI_Controller {
 
 	public function get_ps() {
 	
-		$this->form_validation->set_rules('dist_id', 'District ', 'required');
-		$this->form_validation->set_rules('block_id', 'Block', 'required');
+		// $this->form_validation->set_rules('dist_id', 'District ', 'required');
+		// $this->form_validation->set_rules('block_id', 'Block', 'required');
 		
-		if ($this->form_validation->run() == FALSE) {
-			echo json_encode([
-				'status' => 0,
-				'message' => validation_errors()
-			]);
-		}else{
-			$where = array('dist_id' => $this->input->post('dist_id'));
-			$result_data = $this->Master->f_select('md_police_station', array('id','ps_name',), $where, NULL);
+		// if ($this->form_validation->run() == FALSE) {
+		// 	echo json_encode([
+		// 		'status' => 0,
+		// 		'message' => validation_errors()
+		// 	]);
+		// }else{
+			//$where = array('dist_id' => $this->input->post('dist_id'));
+			$result_data = $this->Master->f_select('md_police_station', array('id','ps_name',), NULL, NULL);
 			$response = (!empty($result_data)) 
 			? ['status' => 1, 'message' => $result_data] 
 			: ['status' => 0, 'message' => 'No data found'];
 			$this->output
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
-	   }
+	   //}
 	}
 	public function get_gp() {
 	
-		$this->form_validation->set_rules('dist_id', 'District ', 'required');
-		$this->form_validation->set_rules('block_id', 'Block', 'required');
+		// $this->form_validation->set_rules('dist_id', 'District ', 'required');
+		// $this->form_validation->set_rules('block_id', 'Block', 'required');
 		
-		if ($this->form_validation->run() == FALSE) {
-			echo json_encode([
-				'status' => 0,
-				'message' => validation_errors()
-			]);
-		}else{
-			$where = array('dist_id' => $this->input->post('dist_id'),'block_id' => $this->input->post('block_id'));
-			$result_data = $this->Master->f_select('md_gp', array('gp_id','gp_name',), $where, NULL);
+		// if ($this->form_validation->run() == FALSE) {
+		// 	echo json_encode([
+		// 		'status' => 0,
+		// 		'message' => validation_errors()
+		// 	]);
+		// }else{
+		// 	$where = array('dist_id' => $this->input->post('dist_id'),'block_id' => $this->input->post('block_id'));
+			$result_data = $this->Master->f_select('md_gp', array('gp_id','gp_name',), NULL, NULL);
 			
 			$response = (!empty($result_data)) 
 			? ['status' => 1, 'message' => $result_data] 
@@ -140,7 +140,7 @@ class Mdapi extends CI_Controller {
 			$this->output
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
-	   }
+	   //}
 	}
 	public function projSubmitBy() {
 		

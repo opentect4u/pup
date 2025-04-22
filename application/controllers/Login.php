@@ -40,43 +40,57 @@ class Login extends CI_Controller {
 		if($_SERVER['REQUEST_METHOD']=="POST"){
             //  $pass  = 123;
 			// echo password_hash($pass, PASSWORD_DEFAULT); die();
-			$user_id 	= $_POST['user_id'];
-			$user_pw 	= $_POST['user_pwd'];
-			$result     = $this->Master->f_select('td_user',array('user_status','pass'),array('user_id'=>$user_id,'user_status'=>'A'),1);
-			if($result){
-			if($result->user_status=='A'){
-			$match	 		= password_verify($user_pw,$result->pass);
-			if($match){
-				$result    = $this->Master->f_select('td_user',array('user_id','user_type','name','user_status'),array('user_id'=>$user_id),1);
-				$response = (!empty($result)) 
-			? ['status' => 1, 'message' => $result] 
-			: ['status' => 0, 'message' => 'No data found'];
-	
-				$this->output
-					->set_content_type('application/json')
-					->set_output(json_encode($response));
-
+			$this->form_validation->set_rules('user_id', 'user_id ', 'required');
+			$this->form_validation->set_rules('user_pwd', 'user_pwd', 'required');
+			$this->form_validation->set_rules('login_type', 'login_type', 'required');
+		
+			if($this->form_validation->run() == FALSE) {
+				echo json_encode([
+					'status' => 0,
+					'message' => validation_errors()
+				]);
+				return;
 			}else{
-						$response = ['status' => 0, 'message' => 'Password Not Match'];
-						$this->output
-							->set_content_type('application/json')
-							->set_output(json_encode($response));
-			    }
+						$user_id 	= $_POST['user_id'];
+						$user_pw 	= $_POST['user_pwd'];
+						$login_type = $this->input->post('login_type');
+						$result     = $this->Master->f_select('td_user',array('user_status','pass'),array('user_id'=>$user_id,'user_status'=>'A'),1);
+					
+						if($result){
+						if($result->user_status=='A'){
+						$match	 		= password_verify($user_pw,$result->pass);
+						if($match){
+							$result    = $this->Master->f_select('td_user',array('user_id','user_type','name','user_status'),array('user_id'=>$user_id),1);
+							$response = (!empty($result)) 
+						? ['status' => 1, 'message' => $result] 
+						: ['status' => 0, 'message' => 'No data found'];
+				
+							$this->output
+								->set_content_type('application/json')
+								->set_output(json_encode($response));
+
+						}else{
+									$response = ['status' => 0, 'message' => 'Password Not Match'];
+									$this->output
+										->set_content_type('application/json')
+										->set_output(json_encode($response));
+							}
+						}
+						else{
+							$response = ['status' => 0, 'message' => 'Invalid'];
+							$this->output
+								->set_content_type('application/json')
+								->set_output(json_encode($response));
+						}
+						}
+						else{
+							$response = ['status' => 0, 'message' => 'User not Found'];
+							$this->output
+								->set_content_type('application/json')
+								->set_output(json_encode($response));
+						}
 			}
-			else{
-				$response = ['status' => 0, 'message' => 'Invalid'];
-				$this->output
-					->set_content_type('application/json')
-					->set_output(json_encode($response));
-			   }
-			}
-		   else{
-			    $response = ['status' => 0, 'message' => 'User not Found'];
-				$this->output
-					->set_content_type('application/json')
-					->set_output(json_encode($response));
-			}
-		}
+	   }
     }
 	
 }

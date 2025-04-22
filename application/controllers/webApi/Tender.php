@@ -35,19 +35,59 @@ class Tender extends CI_Controller {
         }
     }
 
+	// public function tender_list() {
+		
+	// 	$where = array('a.approval_no = b.approval_no' => NULL,'b.sector_id = c.sl_no' => NULL,
+	// 	               'b.fin_year = d.sl_no' => NULL,'b.district_id = e.dist_code' => NULL,
+	// 				   'b.block_id = f.block_id' => NULL,'1 group by b.admin_approval_dt,b.scheme_name,sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no'=>NULL);
+		
+	// 	$result_data = $this->Master->f_select('td_tender a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f', 'b.admin_approval_dt,b.scheme_name,c.sector_desc as sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no', $where, NULL);
+	// 	echo $this->db->last_query();
+    //    die();
+	// 	if (!empty($result_data)) {
+	// 		echo json_encode(['status' => 1, 'message' => $result_data,'folder_name'=>'uploads/fund/']);
+	// 	} else {
+	// 		echo json_encode(['status' => 0, 'message' => 'No data found']);
+	// 	}
+    // }
 	public function tender_list() {
 		
-		$where = array('a.approval_no = b.approval_no' => NULL,'b.sector_id = c.sl_no' => NULL,
-		               'b.fin_year = d.sl_no' => NULL,'b.district_id = e.dist_code' => NULL,
-					   'b.block_id = f.block_id' => NULL,'1 group by b.admin_approval_dt,b.scheme_name,sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no'=>NULL);
-		
-		$result_data = $this->Master->f_select('td_tender a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f', 'b.admin_approval_dt,b.scheme_name,c.sector_desc as sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no', $where, NULL);
+	    $sql = "SELECT 
+				b.admin_approval_dt,
+				b.scheme_name,
+				c.sector_desc AS sector_name,
+				d.fin_year,
+				b.project_id,
+				GROUP_CONCAT(DISTINCT e.dist_name ORDER BY e.dist_name SEPARATOR ', ') AS dist_name,
+				GROUP_CONCAT(DISTINCT f.block_name ORDER BY f.block_name SEPARATOR ', ') AS block_name,
+				a.approval_no
+			FROM td_tender a
+			JOIN td_admin_approval b ON a.approval_no = b.approval_no
+			JOIN md_sector c ON b.sector_id = c.sl_no
+			JOIN md_fin_year d ON b.fin_year = d.sl_no
 
-		if (!empty($result_data)) {
-			echo json_encode(['status' => 1, 'message' => $result_data,'folder_name'=>'uploads/fund/']);
-		} else {
-			echo json_encode(['status' => 0, 'message' => 'No data found']);
-		}
+			-- Updated joins for multiple districts
+			LEFT JOIN td_admin_approval_dist bd ON b.approval_no = bd.approval_no
+			LEFT JOIN md_district e ON bd.dist_id = e.dist_code
+
+			-- Updated joins for multiple blocks
+			LEFT JOIN td_admin_approval_block bb ON b.approval_no = bb.approval_no
+			LEFT JOIN md_block f ON bb.block_id = f.block_id
+
+			GROUP BY 
+				b.admin_approval_dt,
+				b.scheme_name,
+				c.sector_desc,
+				d.fin_year,
+				b.project_id,
+				a.approval_no";
+					$result_data = $this->db->query($sql)->result(); 
+				
+			if (!empty($result_data)) {
+				echo json_encode(['status' => 1, 'message' => $result_data,'folder_name'=>'uploads/fund/']);
+			} else {
+				echo json_encode(['status' => 0, 'message' => 'No data found']);
+			}
     }
 	
 

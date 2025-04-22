@@ -348,5 +348,118 @@ class Report extends CI_Controller {
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
 	}
+
+	public function projetc_status_list(){
+
+		$report_type = $this->input->post('report_type');
+		if($report_type == 3){
+			$sql ="SELECT 
+								a.scheme_name, 
+								a.project_id, 
+								a.approval_no, 
+								e.sector_desc AS sector_name, 
+								f.fin_year,
+								b.comp_date_apprx,
+								GROUP_CONCAT(DISTINCT dist.dist_name ORDER BY dist.dist_name SEPARATOR ', ') AS dist_name,
+								GROUP_CONCAT(DISTINCT blk.block_name ORDER BY blk.block_name SEPARATOR ', ') AS block_name
+							FROM td_admin_approval a
+							JOIN td_tender b ON a.approval_no = b.approval_no
+							JOIN td_progress c ON b.approval_no = c.approval_no
+							JOIN td_proj_comp_report d ON c.approval_no = d.approval_no
+							JOIN md_sector e ON a.sector_id = e.sl_no
+							JOIN md_fin_year f ON a.fin_year = f.sl_no
+
+							-- Join for districts
+							LEFT JOIN td_admin_approval_dist adist ON a.approval_no = adist.approval_no
+							LEFT JOIN md_district dist ON adist.dist_id = dist.dist_code
+
+							-- Join for blocks
+							LEFT JOIN td_admin_approval_block ablock ON a.approval_no = ablock.approval_no
+							LEFT JOIN md_block blk ON ablock.block_id = blk.block_id
+
+							WHERE c.proj_comp_status = 1
+							GROUP BY 
+								a.scheme_name, 
+								a.project_id, 
+								a.approval_no, 
+								e.sector_desc, 
+								f.fin_year, 
+								b.comp_date_apprx";	
+           $result_data = $this->db->query($sql)->result();	
+		}else if($report_type == 2){
+               $sql ="SELECT 
+							a.scheme_name, 
+							a.project_id, 
+							a.approval_no, 
+							e.sector_desc AS sector_name, 
+							f.fin_year,
+							b.comp_date_apprx,
+							GROUP_CONCAT(DISTINCT dist.dist_name ORDER BY dist.dist_name SEPARATOR ', ') AS dist_name,
+							GROUP_CONCAT(DISTINCT blk.block_name ORDER BY blk.block_name SEPARATOR ', ') AS block_name
+						FROM td_admin_approval a
+						JOIN td_tender b ON a.approval_no = b.approval_no
+						JOIN td_progress c ON b.approval_no = c.approval_no
+						JOIN md_sector e ON a.sector_id = e.sl_no
+						JOIN md_fin_year f ON a.fin_year = f.sl_no
+
+						-- Join for multiple districts
+						LEFT JOIN td_admin_approval_dist adist ON a.approval_no = adist.approval_no
+						LEFT JOIN md_district dist ON adist.dist_id = dist.dist_code
+
+						-- Join for multiple blocks
+						LEFT JOIN td_admin_approval_block ablock ON a.approval_no = ablock.approval_no
+						LEFT JOIN md_block blk ON ablock.block_id = blk.block_id
+
+						WHERE NOT EXISTS (
+							SELECT 1 
+							FROM td_progress p 
+							WHERE p.approval_no = c.approval_no 
+							AND p.proj_comp_status = 1
+						)
+						GROUP BY a.approval_no, a.scheme_name, a.project_id, e.sector_desc, f.fin_year, b.comp_date_apprx
+						";	
+			$result_data = $this->db->query($sql)->result();				
+	   }else{
+		 $sql ="SELECT 
+					a.scheme_name, 
+					a.project_id, 
+					a.approval_no, 
+					e.sector_desc AS sector_name, 
+					f.fin_year,
+					b.comp_date_apprx,
+					GROUP_CONCAT(DISTINCT dist.dist_name ORDER BY dist.dist_name SEPARATOR ', ') AS dist_name,
+					GROUP_CONCAT(DISTINCT blk.block_name ORDER BY blk.block_name SEPARATOR ', ') AS block_name
+				FROM td_admin_approval a
+				JOIN td_tender b ON a.approval_no = b.approval_no
+				JOIN td_progress c ON b.approval_no = c.approval_no
+				JOIN md_sector e ON a.sector_id = e.sl_no
+				JOIN md_fin_year f ON a.fin_year = f.sl_no
+
+				-- Join for multiple districts
+				LEFT JOIN td_admin_approval_dist adist ON a.approval_no = adist.approval_no
+				LEFT JOIN md_district dist ON adist.dist_id = dist.dist_code
+
+				-- Join for multiple blocks
+				LEFT JOIN td_admin_approval_block ablock ON a.approval_no = ablock.approval_no
+				LEFT JOIN md_block blk ON ablock.block_id = blk.block_id
+				
+				WHERE NOT EXISTS (
+					SELECT 1 
+					FROM td_proj_comp_report r 
+					WHERE r.approval_no = a.approval_no
+				)
+				GROUP BY a.approval_no, a.scheme_name, a.project_id, e.sector_desc, f.fin_year, b.comp_date_apprx
+				" ;
+          $result_data = $this->db->query($sql)->result();	
+	    }
+	
+	
+		if (!empty($result_data)) {
+			echo json_encode(['status' => 1, 'message' => $result_data]);
+		} else {
+			echo json_encode(['status' => 0, 'message' => 'No data found']);
+		}
+
+	}
 	
 }

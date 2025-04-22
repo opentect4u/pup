@@ -144,11 +144,11 @@ class Admapi extends CI_Controller {
 								'project_submit' => $this->input->post('project_submit'),
 								'project_submit_dtl' => $this->input->post('project_submit_dtl'),
 								'impl_agency' => $this->input->post('impl_agency'),
-								'district_id' => $this->input->post('district_id'),
-								'block_id' => $this->input->post('block_id'),
+							//	'district_id' => $this->input->post('district_id'),
+							//	'block_id' => $this->input->post('block_id'),
 								'fund_id' => $this->input->post('fund_id'),
-								'ps_id' => $this->input->post('ps_id'),
-								'gp_id' => $this->input->post('gp_id'),
+							//	'ps_id' => $this->input->post('ps_id'),
+							//	'gp_id' => $this->input->post('gp_id'),
 								'jl_no' => $this->input->post('jl_no'),
 								'mouza' => $this->input->post('mouza'),
 								'dag_no' => $this->input->post('dag_no'),
@@ -159,6 +159,64 @@ class Admapi extends CI_Controller {
 							];
 						
 							$this->db->insert('td_admin_approval', $data);
+
+							$district_id = $this->input->post('district_id');
+							$district_id = !empty($district_id) ? explode(',', $district_id) : [];
+							if (!empty($district_id)) {
+								$batch_data = [];
+								foreach ($district_id as $value) {
+									$batch_data[] = [
+										'approval_no' => $app_res_data->approval_no,
+										'dist_id' => trim($value) // Trim to remove extra spaces
+									];
+								}
+								if (!empty($batch_data)) {
+									$this->db->insert_batch('td_admin_approval_dist', $batch_data);
+								}
+							}
+							$block_id = $this->input->post('block_id');
+							$block_id = !empty($block_id) ? explode(',', $block_id) : [];
+							if (!empty($block_id)) {
+								$batch_data = [];
+								foreach ($block_id as $value) {
+									$batch_data[] = [
+										'approval_no' => $app_res_data->approval_no,
+										'block_id' => trim($value) // Trim to remove extra spaces
+									];
+								}
+								if (!empty($batch_data)) {
+									$this->db->insert_batch('td_admin_approval_block', $batch_data);
+								}
+							}	
+							$ps_id = $this->input->post('ps_id');
+							$ps_id = !empty($ps_id) ? explode(',', $ps_id) : [];
+							if (!empty($ps_id)) {
+								$batch_data = [];
+								foreach ($ps_id as $value) {
+									$batch_data[] = [
+										'approval_no' => $app_res_data->approval_no,
+										'ps_id' => trim($value) // Trim to remove extra spaces
+									];
+								}
+								if (!empty($batch_data)) {
+									$this->db->insert_batch('td_admin_approval_ps', $batch_data);
+								}
+							}
+							$gp_id = $this->input->post('gp_id');
+							$gp_id = !empty($gp_id) ? explode(',', $gp_id) : [];
+							if (!empty($gp_id)) {
+								$batch_data = [];
+								foreach ($gp_id as $value) {
+									$batch_data[] = [
+										'approval_no' => $app_res_data->approval_no,
+										'gp_id' => trim($value) // Trim to remove extra spaces
+									];
+								}
+								if (!empty($batch_data)) {
+									$this->db->insert_batch('td_admin_approval_gp', $batch_data);
+								}
+							}
+								
 						
 							echo json_encode([
 								'status' => 1,
@@ -245,11 +303,11 @@ class Admapi extends CI_Controller {
 						'project_submit' => $this->input->post('project_submit'),
 						'project_submit_dtl' => $this->input->post('project_submit_dtl'),
 						'impl_agency' => $this->input->post('impl_agency'),
-						'district_id' => $this->input->post('district_id'),
-						'block_id' => $this->input->post('block_id'),
+						//'district_id' => $this->input->post('district_id'),
+						//'block_id' => $this->input->post('block_id'),
 						'fund_id' => $this->input->post('fund_id'),
-						'ps_id' => $this->input->post('ps_id'),
-						'gp_id' => $this->input->post('gp_id'),
+						//'ps_id' => $this->input->post('ps_id'),
+						//'gp_id' => $this->input->post('gp_id'),
 						'jl_no' => $this->input->post('jl_no'),
 						'mouza' => $this->input->post('mouza'),
 						'dag_no' => $this->input->post('dag_no'),
@@ -272,8 +330,72 @@ class Admapi extends CI_Controller {
 				
 					// Update data in the database
 					$res = $this->Master->f_edit('td_admin_approval', $data, $where);
+
+					$district_id = $this->input->post('district_id');
+					$district_id = !empty($district_id) ? explode(',', $district_id) : [];
+					if (!empty($district_id)) {
+						$this->db->where($where);
+				        $this->db->delete('td_admin_approval_dist');
+						$batch_data = [];
+						foreach ($district_id as $value) {
+							$batch_data[] = [
+								'approval_no' => $this->input->post('approval_no'),
+								'dist_id' => trim($value) // Trim to remove extra spaces
+							];
+						}
+						if (!empty($batch_data)) {
+							$this->db->insert_batch('td_admin_approval_dist', $batch_data);
+						}
+					}
+					$block_id = $this->input->post('block_id');
+							$block_id = !empty($block_id) ? explode(',', $block_id) : [];
+							if (!empty($block_id)) {
+								$this->db->where($where);
+				               $this->db->delete('td_admin_approval_block');
+								$batch_data = [];
+								foreach ($block_id as $value) {
+									$batch_data[] = [
+										'approval_no' => $this->input->post('approval_no'),
+										'block_id' => trim($value) // Trim to remove extra spaces
+									];
+								}
+								if (!empty($batch_data)) {
+									$this->db->insert_batch('td_admin_approval_block', $batch_data);
+								}
+							}	
+							$ps_id = $this->input->post('ps_id');
+							$ps_id = !empty($ps_id) ? explode(',', $ps_id) : [];
+							if (!empty($ps_id)) {
+								$this->db->where($where);
+				        $this->db->delete('td_admin_approval_ps');
+								$batch_data = [];
+								foreach ($ps_id as $value) {
+									$batch_data[] = [
+										'approval_no' => $this->input->post('approval_no'),
+										'ps_id' => trim($value) // Trim to remove extra spaces
+									];
+								}
+								if (!empty($batch_data)) {
+									$this->db->insert_batch('td_admin_approval_ps', $batch_data);
+								}
+							}
+							$gp_id = $this->input->post('gp_id');
+							$gp_id = !empty($gp_id) ? explode(',', $gp_id) : [];
+							if (!empty($gp_id)) {
+								$this->db->where($where);
+				                $this->db->delete('td_admin_approval_gp');
+								$batch_data = [];
+								foreach ($gp_id as $value) {
+									$batch_data[] = [
+										'approval_no' => $this->input->post('approval_no'),
+										'gp_id' => trim($value) // Trim to remove extra spaces
+									];
+								}
+								if (!empty($batch_data)) {
+									$this->db->insert_batch('td_admin_approval_gp', $batch_data);
+								}
+							}
 						if($res > 0) {
-					
 						echo json_encode([
 							'status' => 1,
 							'message' => 'Edited successfully!',
@@ -296,7 +418,7 @@ class Admapi extends CI_Controller {
 	public function adm_approv_list() {
 		$json_data = file_get_contents("php://input");
 		$data = json_decode($json_data, true);
-		$where = array('a.sector_id = b.sl_no' => NULL,'a.account_head = c.sl_no' => NULL,'a.ps_id = d.id' => NULL,'a.gp_id = e.gp_id' => NULL);
+		$where = array('a.sector_id = b.sl_no' => NULL,'a.account_head = c.sl_no' => NULL);
         // Check if JSON decoding was successful
 		if (!$data) {
 			echo json_encode([
@@ -326,8 +448,8 @@ class Admapi extends CI_Controller {
 			$where = array_merge($where, ['a.district_id' => $dist_id]); 
 		}
 		
-		$result_data = $this->Master->f_select('td_admin_approval a ,md_sector b ,md_account c,md_police_station d,md_gp e', 'a.approval_no,a.admin_approval_dt,a.scheme_name,b.sector_desc as sector_name,(a.sch_amt+a.cont_amt) as tot_amt,a.project_id,c.account_head,d.ps_name,e.gp_name,a.jl_no,a.mouza,a.dag_no,a.khatian_no,a.area', $where, NULL);
-		//echo $this->db->last_query();
+		$result_data = $this->Master->f_select('td_admin_approval a ,md_sector b ,md_account c', 'a.approval_no,a.admin_approval_dt,a.scheme_name,b.sector_desc as sector_name,(a.sch_amt+a.cont_amt) as tot_amt,a.project_id,c.account_head,a.jl_no,a.mouza,a.dag_no,a.khatian_no,a.area', $where, NULL);
+		//echo $this->db->last_query(); 
 		if (!empty($result_data)) {
 			echo json_encode(['status' => 1, 'message' => $result_data]);
 		} else {
@@ -347,13 +469,32 @@ class Admapi extends CI_Controller {
 			return;
 		}
 		$approval_no = $data['approval_no'] ?? null;
-	
 		
 		if ($approval_no > 0) {
 			$where = array_merge($where, ['a.approval_no' => $approval_no]); 
 		}
+		$dist_res = $this->Master->f_select('td_admin_approval_dist', 'dist_id', array('approval_no' => $approval_no), NULL);
+		$dist_data = array_map(function($row) {
+			return $row->dist_id;
+		}, $dist_res);
+		$block_res = $this->Master->f_select('td_admin_approval_block', 'block_id', array('approval_no' => $approval_no), NULL);
+		$block_data = array_map(function($row) {
+			return $row->block_id;
+		}, $block_res);	
+		$ps_res = $this->Master->f_select('td_admin_approval_ps', 'ps_id', array('approval_no' => $approval_no), NULL);
+		$ps_data = array_map(function($row) {
+			return $row->ps_id;
+		}, $ps_res);
+		$gp_res = $this->Master->f_select('td_admin_approval_gp', 'gp_id', array('approval_no' => $approval_no), NULL);
+		$gp_data = array_map(function($row) {
+			return $row->gp_id;
+		}, $gp_res);
 		
 		$result_data = $this->Master->f_select('td_admin_approval a ', '*', $where, 1);
+		$result_data->district_id = $dist_data;
+		$result_data->block_id = $block_data;
+		$result_data->ps_id = $ps_data;	
+		$result_data->gp_id = $gp_data;
 		if (!empty($result_data)) {
 			echo json_encode(['status' => 1, 'message' => $result_data]);
 		} else {

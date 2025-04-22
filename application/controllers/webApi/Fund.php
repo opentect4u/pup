@@ -136,7 +136,27 @@ class Fund extends CI_Controller {
 			->set_output(json_encode($response));
     }
 
-
+	public function proj_sanc_amt() {
+		$this->form_validation->set_rules('approval_no', 'Approval No', 'required');
+		
+		if ($this->form_validation->run() == FALSE) {
+			echo json_encode([
+				'status' => 0,
+				'message' => validation_errors()
+			]);
+		}else{
+		$approval_no = $this->input->post('approval_no');
+	    $where = array('approval_no' => $approval_no);
+		$result_data = $this->Master->f_select('td_admin_approval', 'sch_amt,cont_amt', $where, 1);
+		$response = (!empty($result_data)) 
+			? ['status' => 1, 'message' => $result_data] 
+			: ['status' => 0, 'message' => 'No data found'];
+	
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
+		}
+	}
     // ****************************  Fund Formalities  *******************   //
 	public function fund_add() {
 	
