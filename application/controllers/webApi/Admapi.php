@@ -58,7 +58,7 @@ class Admapi extends CI_Controller {
 		$this->form_validation->set_rules('fin_year', 'fin_year', 'required');
 		$this->form_validation->set_rules('sch_amt', 'sch_amt', 'required');
 		$this->form_validation->set_rules('cont_amt', 'cont_amt', 'required');
-	
+	    
 		if ($this->form_validation->run() == FALSE) {
 			echo json_encode([
 				'status' => 0,
@@ -106,7 +106,7 @@ class Admapi extends CI_Controller {
 								if (!empty($_FILES[$field]['name'])) {
 									$config['upload_path']   = './uploads/'; // Folder to store files
 									$config['allowed_types'] = 'pdf'; // Allow only PDFs
-									$config['max_size']      = 20480; // Max file size (2MB)
+									$config['max_size']      = 1048576; // Max file size (1GB)
 									$config['encrypt_name']  = TRUE; // Encrypt filename for security
 						
 									$this->upload->initialize($config); // Initialize config for each file
