@@ -58,20 +58,8 @@ function Annex_Form() {
   const [approvalNo, setApprovalNo] = useState('');
   const [userDataLocalStore, setUserDataLocalStore] = useState([]);
   const [sl_no, setSl_no] = useState('');
-  
-  // const [contigencyAmountExp, setContigencyAmountExp] = useState('');
-  // const [schematicAmountReleas, setSchematicAmountReleas] = useState('');
-  // const [contigencyAmountReleas, setContigencyAmountReleas] = useState('');
 
-  // const [SchematicCheclAmt, setSchematicCheclAmt] = useState(false);
-  // const [ContigencyCheclAmt, setContigencyCheclAmt] = useState(false);
-
- 
-
-  // const [formRows, setFormRows] = useState([{ id: 1 }]);
-
-  // const [formRows, setFormRows] = useState([{ id: 1, input1: "", input2: "" }]);
-  // const [errors, setErrors] = useState({});
+  // const approval_no_url = location.state?.approval_no_url || "";
 
 
   const validationSchema = Yup.object({
@@ -251,7 +239,17 @@ function Annex_Form() {
         navigate(`/home/annex`);
         // loadFormData(params?.id)
       }
+      
     }, [])
+
+
+    // useEffect(() => {
+    //   if (approval_no_url) {
+    //     setApprovalNo(approval_no_url);
+    //     setShowForm(true)
+    //     loadFormEditData(approval_no_url)
+    //   }
+    // }, [approval_no_url]);
 
 
   
@@ -368,6 +366,7 @@ function Annex_Form() {
             <label for="fin_yr" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Project ID</label>
             <Select
             placeholder="Choose Project ID"
+            // value={approval_no_url}
             onChange={(value) => {
             // loadFormData(value)
             // fundAddedList(value)

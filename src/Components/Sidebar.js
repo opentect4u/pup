@@ -253,9 +253,9 @@ const UtilizationAccordion = () => (
         <li>
           <Link to={"uc_c"}>Utilization Certificate Generate </Link>
         </li>
-        <li>
+        {/* <li>
           <Link to={"annex"}>Add Annexure</Link>
-        </li>
+        </li> */}
         <li>
           <Link to={"uc"}>Utilization Certificate</Link>
         </li>

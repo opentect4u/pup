@@ -135,9 +135,7 @@ const TableHeader = ({ curentPage, projectNotCompleted }) => {
             <th className="px-4 py-3">Schematic Name</th>
             <th className="px-4 py-3">Financial Year</th>
             <th className="px-4 py-3">Generate Certificate</th>
-            {/* <th className="px-4 py-3">Upload PDF (PDF Max Size 2 MB)</th>
-            <th className="px-4 py-3">Download</th> */}
-            {/* <th className="px-4 py-3">View</th> */}
+            {/* <th className="px-4 py-3">Action</th> */}
           </tr>
         </thead>
       );

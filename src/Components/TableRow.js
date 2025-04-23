@@ -2,6 +2,7 @@ import { DownloadOutlined, EditOutlined, EyeOutlined, FileExcelOutlined, FilePdf
 import TDInputTemplate from './TDInputTemplate';
 import { folder_admin, url } from '../Assets/Addresses/BaseUrl';
 import { FaExclamationTriangle, FaRunning } from 'react-icons/fa';
+import BtnComp from './BtnComp';
 
 
 
@@ -323,12 +324,18 @@ const TableRow = ({
   if (curentPage === pageTree.page_8) {
     return (
       <tr key={index} className="border-b dark:border-gray-700">
-        <td className="px-4 py-3">{data?.project_id} </td>
+        <td className="px-4 py-3">{data?.project_id} {JSON.stringify(data, null, 2)}</td>
         <td className="px-4 py-3">{data?.scheme_name}</td>
         <td className="px-4 py-3">{data?.fin_year}</td>
         <td className="px-4 py-3">
           <button onClick={() => { printData(data?.approval_no, data?.sl_no) }} className="downloadXL"><PrinterOutlined /> Print</button>
         </td>
+        {/* <td className="px-4 py-3">
+          <button onClick={() => { navigate('/home/annex/annex-add/0', {
+          state: { operation_status: 'add', approval_no_url: data?.sl_no },
+          })}} className="downloadXL"> Add Annexure</button>
+          
+        </td> */}
       </tr>
     );
   }

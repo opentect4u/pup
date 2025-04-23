@@ -224,7 +224,7 @@ function Annex_View() {
             setPrintOutDataState(response?.data?.message[0]);
             // setPrintFund_dtls(response?.data?.fund_dtls);
             // setScematicContiTotal(Number(response?.data?.message?.expen_sch_amt || 0) + Number(response?.data?.message?.expen_cont_amt || 0))
-            console.log(response?.data?.message[0].sl_no, 'projCompCertiSingledataxxxxxxxxxxxxx', response?.data?.fund_dtls);
+            console.log(response?.data?.message[0], 'projCompCertiSingledataxxxxxxxxxxxxx', response?.data?.fund_dtls);
             printData_out(response?.data?.message[0], response?.data?.fund_dtls)
     
           }

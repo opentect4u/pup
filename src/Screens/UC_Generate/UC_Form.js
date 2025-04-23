@@ -26,7 +26,7 @@ const initialValues = {
   scheme_name: '',
 
   purpose_field:'',
-  margin_Balance: '',
+  // margin_Balance: '',
   videNo: '',
   videNoDate: '',
   unutilized_Balance: '',
@@ -64,10 +64,11 @@ function UC_Form() {
   const [contigencyAmountExp, setContigencyAmountExp] = useState('');
   const [schematicAmountReleas, setSchematicAmountReleas] = useState('');
   const [contigencyAmountReleas, setContigencyAmountReleas] = useState('');
+  const [expenseData, setExpenseData] = useState('');
 
   const [SchematicCheclAmt, setSchematicCheclAmt] = useState(false);
   const [ContigencyCheclAmt, setContigencyCheclAmt] = useState(false);
-
+  const [totalExpenseAmt, setTotalExpenseAmt] = useState(false);
  
 
   // const [formRows, setFormRows] = useState([{ id: 1 }]);
@@ -78,25 +79,25 @@ function UC_Form() {
 
   const validationSchema = Yup.object({
     fin_year:  Yup.string().required('Financial Year is Required'),
-    
-    schematic_amount_release: Yup.number()
-          .typeError('Schematic Amount must be a number')
-          .positive('Schematic Amount must be greater than zero')
-          .max(schematicAmountReleas, `Amount must be within ${schematicAmountReleas}`)
-          .required('Schematic Amount (Release) is required'),
+    schematic_amount_release:  Yup.string().required('Schematic Amount is Required'),
+    // schematic_amount_release: Yup.number()
+    //       .typeError('Schematic Amount must be a number')
+    //       .positive('Schematic Amount must be greater than zero')
+    //       .max(schematicAmountReleas, `Amount must be within ${schematicAmountReleas}`)
+    //       .required('Schematic Amount (Release) is required'),
 
-    contigency_amount_release:  Yup.string().required('Contigency Amount (Release) is Required'),
+    contigency_amount_release: Yup.string().required('Contigency Amount (Release) is Required'),
 
-    contigency_amount_release: Yup.number()
-          .typeError('Contigency Amount must be a number')
-          .positive('Contigency Amount must be greater than zero')
-          .max(contigencyAmountReleas, `Amount must be within ${contigencyAmountReleas}`)
-          .required('Contigency Amount (Release) is required'),
+    // contigency_amount_release: Yup.number()
+    //       .typeError('Contigency Amount must be a number')
+    //       .positive('Contigency Amount must be greater than zero')
+    //       .max(contigencyAmountReleas, `Amount must be within ${contigencyAmountReleas}`)
+    //       .required('Contigency Amount (Release) is required'),
 
     scheme_name:  Yup.string().required('Scheme Name is Required'),
 
     purpose_field:  Yup.string().required('Select Purpose Of Certificate is Required'),
-    margin_Balance: Yup.string().required('Margin Balance is Required'),
+    // margin_Balance: Yup.string().required('Margin Balance is Required'),
     videNo: Yup.string().required('Vide No. is Required'),
     videNoDate: Yup.string().required('Vide No. Date is Required'),
     unutilized_Balance: Yup.string().required('Unutilized Balancee is Required'),
@@ -131,33 +132,7 @@ function UC_Form() {
 
 
 
-  // const handleSubmit = () => {
-  //   let isValid = true;
-  //   const newErrors = {};
-
-  //   formRows.forEach((row) => {
-  //     if (!row.input1 || !row.input2) {
-  //       isValid = false;
-  //       newErrors[row.id] = {
-  //         input1: !row.input1 ? "Required" : "",
-  //         input2: !row.input2 ? "Required" : "",
-  //       };
-  //     }
-
-  //     console.log(formRows, 'formRows');
-      
-
-
-  //   });
-
-  //   setErrors(newErrors);
-
-  //   if (isValid) {
-  //     console.log("Form Submitted", formRows);
-  //   } else {
-  //     console.log("Validation failed");
-  //   }
-  // };
+  
 
 
 
@@ -280,24 +255,24 @@ function UC_Form() {
 
       
       if (response?.data.status > 0) {
-        console.log(response?.data?.message, 'projCompCertiSingledataxxxxxxxxxxxxx');
+        console.log(response?.data, 'projCompCertiSingledataxxxxxxxxxxxxx', response?.data?.expen_data?.fund_rece_sch_amt);
 
         // setSchematicAmountExp(response?.data?.message[2]?.expen_sch_amt)
         // setContigencyAmountExp(response?.data?.message[2]?.expen_cont_amt)
 
         setSchematicAmountReleas(response?.data?.message[1]?.fund_rece_sch_amt)
         setContigencyAmountReleas(response?.data?.message[1]?.fund_rece_cont_amt)
+        setExpenseData(response?.data?.expen_data)
 
         setLoading(false);
         setGetMsgData(response?.data?.message)
         setValues({
           fin_year: response?.data?.message[0]?.fin_year,
-          schematic_amount_release: response?.data?.message[1]?.fund_rece_sch_amt === null ? 0 : response?.data?.message[1]?.fund_rece_sch_amt,
-          contigency_amount_release: response?.data?.message[1]?.fund_rece_cont_amt === null ? 0 : response?.data?.message[1]?.fund_rece_cont_amt,
-          scheme_name: response?.data?.message[0]?.scheme_name,
-
+          schematic_amount_release: response?.data?.expen_data?.fund_rece_sch_amt === null ? 0 : response?.data?.expen_data?.fund_rece_sch_amt,
+          contigency_amount_release: response?.data?.expen_data?.fund_rece_cont_amt === null ? 0 : response?.data?.expen_data?.fund_rece_cont_amt,
+          scheme_name: response?.data?.message[0]?.scheme_name === null ? 0 : response?.data?.message[0]?.scheme_name,
           purpose_field: '',
-          margin_Balance: '',
+          // margin_Balance: '',
           videNo: '',
           videNoDate: '',
           unutilized_Balance: '',
@@ -348,7 +323,8 @@ function UC_Form() {
     formData.append("fin_year", formik.values.fin_year);
     formData.append("scheme_name", formik.values.scheme_name);
 
-    formData.append("margin_bal", formik.values.margin_Balance);  //////////
+    // formData.append("margin_bal", formik.values.margin_Balance);  //////////
+    formData.append("margin_bal", '0');
 
     formData.append("bal_amt", formik.values.unutilized_Balance);
     formData.append("vide_no", formik.values.videNo);
@@ -356,10 +332,10 @@ function UC_Form() {
     formData.append("next_year", formik.values.nextYear);
     formData.append("created_by", userDataLocalStore.user_id);
 
-    console.log(formData, 'formData', formRows);
+    console.log(formData, 'projCompCertiSingledataxxxxxxxxxxxxx', formRows);
     
 
-    // alert()
+    alert()
 
     try {
       const response = await axios.post(
@@ -374,15 +350,12 @@ function UC_Form() {
       );
       console.log(response, 'pcrcertificateadd');
       
-      // setLoading(false);
+      setLoading(false);
       Message("success", "Updated successfully.");
-      // loadFormEditData(params?.id, sl_no)
       navigate(`/home/uc_c`);
-      // fundAddedList(params?.id)
 
-      // formik.resetForm();
     } catch (error) {
-      // setLoading(false);
+      setLoading(false);
       Message("error", "Error Submitting Form:");
       console.error("Error submitting form:", error);
     }
@@ -453,13 +426,18 @@ function UC_Form() {
     const checkSchematicAmount = () => {
       if (
         formik.values.purpose_field === 'S' &&
-        formik.values.schematic_amount_release < totalAmount
+        // formik.values.schematic_amount_release < totalAmount
+        expenseData?.expen_sch_amt < totalAmount
       ) {
         setSchematicCheclAmt(true);
       } else {
         setSchematicCheclAmt(false);
       }
     };
+
+    if(formik.values.purpose_field === 'S'){
+      formik.setFieldValue("unutilized_Balance", expenseData?.unutilize_sche_amt)
+    }
   
     checkSchematicAmount();
   }, [formik.values.purpose_field, formik.values.schematic_amount_release, totalAmount]);
@@ -469,17 +447,69 @@ function UC_Form() {
     const checkContigencyAmount = () => {
       if (
         formik.values.purpose_field === 'C' &&
-        formik.values.contigency_amount_release < totalAmount
+        // formik.values.contigency_amount_release < totalAmount
+        expenseData?.expen_cont_amt < totalAmount
       ) {
         setContigencyCheclAmt(true);
       } else {
         setContigencyCheclAmt(false);
       }
     };
+
+    if(formik.values.purpose_field === 'C'){
+      formik.setFieldValue("unutilized_Balance", expenseData?.unutilize_cont_amt)
+    }
   
     checkContigencyAmount();
   }, [formik.values.purpose_field, formik.values.contigency_amount_release, totalAmount]);
     
+  
+
+  function numberToIndianWords(num) {
+    const a = [
+      '', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven',
+      'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen',
+      'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'
+    ];
+    const b = [
+      '', '', 'Twenty', 'Thirty', 'Forty', 'Fifty',
+      'Sixty', 'Seventy', 'Eighty', 'Ninety'
+    ];
+  
+    const units = [
+      '', 'Thousand', 'Lakh', 'Crore', 'Arab', 'Kharab'
+    ];
+  
+    if (num === 0) return 'Zero';
+  
+    function getWords(n) {
+      if (n < 20) return a[n];
+      else if (n < 100) return b[Math.floor(n / 10)] + (n % 10 ? ' ' + a[n % 10] : '');
+      else return a[Math.floor(n / 100)] + ' Hundred' + (n % 100 ? ' ' + getWords(n % 100) : '');
+    }
+  
+    const parts = [];
+    let remaining = num;
+  
+    // First 3 digits (units/hundreds)
+    parts.push(remaining % 1000);
+    remaining = Math.floor(remaining / 1000);
+  
+    // Then pairs (thousand onwards)
+    while (remaining > 0) {
+      parts.push(remaining % 100);
+      remaining = Math.floor(remaining / 100);
+    }
+  
+    let word = '';
+    for (let i = parts.length - 1; i >= 0; i--) {
+      if (parts[i]) {
+        word += getWords(parts[i]) + (units[i] ? ' ' + units[i] : '') + ' ';
+      }
+    }
+  
+    return word.trim();
+  }
   
 
   return (
@@ -580,6 +610,7 @@ function UC_Form() {
                 value={formik.values.purpose_field || undefined} // Ensure default empty state
                 onChange={(value) => {
                   formik.setFieldValue("purpose_field", value)
+                  setTotalExpenseAmt(true)
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}
@@ -608,6 +639,7 @@ function UC_Form() {
                 handleChange={formik.handleChange}
                 handleBlur={formik.handleBlur}
                 mode={1}
+                disabled={true}
               />
               {formik.errors.fin_year && formik.touched.fin_year && (
                 <VError title={formik.errors.fin_year} />
@@ -628,6 +660,7 @@ function UC_Form() {
                 handleChange={formik.handleChange}
                 handleBlur={formik.handleBlur}
                 mode={1}
+                disabled={true}
               />
               {formik.errors.schematic_amount_release && formik.touched.schematic_amount_release && (
                 <VError title={formik.errors.schematic_amount_release} />
@@ -645,6 +678,7 @@ function UC_Form() {
                 handleChange={formik.handleChange}
                 handleBlur={formik.handleBlur}
                 mode={1}
+                disabled={true}
               />
               {formik.errors.contigency_amount_release && formik.touched.contigency_amount_release && (
                 <VError title={formik.errors.contigency_amount_release} />
@@ -662,13 +696,14 @@ function UC_Form() {
                 handleChange={formik.handleChange}
                 handleBlur={formik.handleBlur}
                 mode={1}
+                disabled={true}
               />
               {formik.errors.scheme_name && formik.touched.scheme_name && (
                 <VError title={formik.errors.scheme_name} />
               )}
             </div>
 
-            <div class="sm:col-span-4">
+            {/* <div class="sm:col-span-4">
               <TDInputTemplate
                 placeholder="Margin Balance"
                 type="number"
@@ -682,18 +717,28 @@ function UC_Form() {
               {formik.errors.margin_Balance && formik.touched.margin_Balance && (
                 <VError title={formik.errors.margin_Balance} />
               )}
+            </div> */}
+
+              <div class="sm:col-span-12">
+              <div class="p-4 mb-0 text-sm text-yellow-800 border-2 border-yellow-500 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300" role="alert">
+                <span class="font-bold"><svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+<path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+</svg></span>Comprehensive Overview of Remaining Unutilized Account Balances.
+              </div>
             </div>
+            
 
             <div class="sm:col-span-4">
               <TDInputTemplate
-                placeholder="Unutilized  Balance"
+                placeholder="Unutilized Balance"
                 type="number"
-                label={<>Unutilized  Balancee<span className="mandator_txt"> *</span></>}
+                label={<>Unutilized Balancee<span className="mandator_txt"> *</span></>}
                 name="unutilized_Balance"
                 formControlName={formik.values.unutilized_Balance}
                 handleChange={formik.handleChange}
                 handleBlur={formik.handleBlur}
                 mode={1}
+                disabled={true}
               />
               {formik.errors.unutilized_Balance && formik.touched.unutilized_Balance && (
                 <VError title={formik.errors.unutilized_Balance} />
@@ -752,54 +797,76 @@ function UC_Form() {
 
             <div className="sm:col-span-12 grid gap-4 sm:grid-cols-12 mt-0">
 
+            {totalExpenseAmt &&(
+      <div class="sm:col-span-12">
+      <div class="p-4 mb-0 text-sm text-blue-800 border-2 border-blue-500 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-300" role="alert">
+      <span class="font-bold"><svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+      <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+      </svg></span>Total {formik.values.purpose_field === 'S' ? 'Schematic' : 'Contigency'} Expenditure Amount is <span class="font-bold">Rs.{formik.values.purpose_field === 'S' ? expenseData?.expen_sch_amt : expenseData?.expen_cont_amt}</span>. (Expenses exceeding this amount are not permitted.)
 
+      
+      </div>
+      </div>
+      )}
             
       {formRows.map((row, index) => (
-        <div key={row.id} className="sm:col-span-12 grid gap-4 sm:grid-cols-12 mt-0">
-          <div class="sm:col-span-4">
-          <label for="scheme_name" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Letter No. and Date <span className="mandator_txt"> *</span></label>
-          <input
-            type="text"
-            placeholder="Letter No. and Date"
-            value={row.input1}
-            onChange={(e) => handleInputChange(row.id, "input1", e.target.value)}
-            className="bg-white border-2 border-slate-300 text-gray-800 text-sm rounded-md  focus:border-gray-400 active:border-sky-600 focus:ring-sky-600 focus:border-1 duration-500  w-full p-2 dark:bg-bg-white dark:border-gray-600 dark:placeholder-sky-500 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 flex items-center"
-          />
-          {errors[row.id] && (
-            <div className="text-red-500 text-sm mt-1">
-              {errors[row.id].input1 && <div>{errors[row.id].input1}</div>}
-            </div>
-          )}
-          </div>
-          <div class="sm:col-span-4">
-          <label for="scheme_name" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Expense Amount <span className="mandator_txt"> *</span></label>
-          <input
-            type="number"
-            placeholder="Expense Amount"
-            value={row.input2}
-            onChange={(e) => handleInputChange(row.id, "input2", e.target.value)}
-            className="bg-white border-2 border-slate-300 text-gray-800 text-sm rounded-md  focus:border-gray-400 active:border-sky-600 focus:ring-sky-600 focus:border-1 duration-500  w-full p-2 dark:bg-bg-white dark:border-gray-600 dark:placeholder-sky-500 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 flex items-center"
-          />
-          {errors[row.id] && (
-            <div className="text-red-500 text-sm mt-1">
-              {errors[row.id].input2 && <div>{errors[row.id].input2}</div>}
-            </div>
-          )}
-          </div>
-          {index >= 1 && (
-            <div class="sm:col-span-4 mt-7">
-   
+
+        <>
+      {/* <div class="p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400" role="alert">
+      <span class="font-medium">Info alert!</span> Change a few things up and try submitting again.
+      </div> */}
+      
+      
+
+      <div key={row.id} className="sm:col-span-12 grid gap-4 sm:grid-cols-12 mt-0">
+      <div class="sm:col-span-4">
+      <label for="scheme_name" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Letter No. and Date <span className="mandator_txt"> *</span></label>
+      <input
+      type="text"
+      placeholder="Letter No. and Date"
+      value={row.input1}
+      onChange={(e) => handleInputChange(row.id, "input1", e.target.value)}
+      className="bg-white border-2 border-slate-300 text-gray-800 text-sm rounded-md  focus:border-gray-400 active:border-sky-600 focus:ring-sky-600 focus:border-1 duration-500  w-full p-2 dark:bg-bg-white dark:border-gray-600 dark:placeholder-sky-500 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 flex items-center"
+      />
+      {errors[row.id] && (
+      <div className="text-red-500 text-sm mt-1">
+      {errors[row.id].input1 && <div>{errors[row.id].input1}</div>}
+      </div>
+      )}
+      </div>
+      <div class="sm:col-span-4">
+      <label for="scheme_name" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Expense Amount <span className="mandator_txt"> *</span></label>
+      <input
+      type="number"
+      placeholder="Expense Amount"
+      value={row.input2}
+      onChange={(e) => handleInputChange(row.id, "input2", e.target.value)}
+      className="bg-white border-2 border-slate-300 text-gray-800 text-sm rounded-md  focus:border-gray-400 active:border-sky-600 focus:ring-sky-600 focus:border-1 duration-500  w-full p-2 dark:bg-bg-white dark:border-gray-600 dark:placeholder-sky-500 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 flex items-center"
+      />
+      {errors[row.id] && (
+      <div className="text-red-500 text-sm mt-1">
+      {errors[row.id].input2 && <div>{errors[row.id].input2}</div>}
+      </div>
+      )}
+      </div>
+      {index >= 1 && (
+      <div class="sm:col-span-4 mt-7">
+
       <BtnComp title={'Remove'} onClick={() => handleRemoveRow(row.id)} width={'w-1/1'} bgColor={'bg-red-700'} />
       </div>
-    )}
+      )}
 
-          {/* {errors[row.id] && (
-            <div className="text-red-500 text-sm mt-1">
-              {errors[row.id].input1 && <div>{errors[row.id].input1}</div>}
-              {errors[row.id].input2 && <div>{errors[row.id].input2}</div>}
-            </div>
-          )} */}
-        </div>
+      {/* {errors[row.id] && (
+      <div className="text-red-500 text-sm mt-1">
+      {errors[row.id].input1 && <div>{errors[row.id].input1}</div>}
+      {errors[row.id].input2 && <div>{errors[row.id].input2}</div>}
+      </div>
+      )} */}
+      </div>
+        
+        </>
+        
+        
       ))}
 
 
@@ -811,8 +878,8 @@ function UC_Form() {
       </div>
       <div class="sm:col-span-4 mt-0">
       
-  <div className="text-lg font-semibold text-sky-700 dark:text-white">
-  <span className="block text-sm font-bold text-slate-500 dark:text-gray-100">Total Amount: </span>₹ {totalAmount.toFixed(2)}
+  <div className="text-sm font-bold text-sky-700 dark:text-white">
+  <span className="block text-xs font-bold text-slate-500 dark:text-gray-100">Total Amount: </span>₹ {totalAmount.toFixed(2)}
   </div>
   
   {/* {JSON.stringify(totalAmount.toFixed(2) , null, 2)} jjj
@@ -821,14 +888,14 @@ function UC_Form() {
 
 
 {formik.values.purpose_field === 'S' && SchematicCheclAmt && (
-  <span className="text-red-500 text-sm mt-1" style={{ fontWeight: '700' }}>
-    Expense Amount will not be greater than Schematic Amount Rs.{formik.values.schematic_amount_release}
+  <span className="text-red-500 text-xs mt-1" style={{ fontWeight: '700' }}>
+    Expense will not be greater than Schematic Expenditure Amount Rs.{expenseData?.expen_sch_amt}
   </span>
 )}
 
 {formik.values.purpose_field === 'C' && ContigencyCheclAmt && (
-  <span className="text-red-500 text-sm mt-1" style={{ fontWeight: '700' }}>
-    Expense Amount will not Grater than Contigency Amount Rs.{formik.values.contigency_amount_release}
+  <span className="text-red-500 text-xs mt-1" style={{ fontWeight: '700' }}>
+    Expense will not Grater than Contigency Expenditure Amount Rs.{expenseData?.expen_cont_amt}
   </span>
 )}
 
@@ -858,14 +925,16 @@ function UC_Form() {
       <TDInputTemplate
         placeholder="Total Of Schematic Expenses"
         type="number"
-        formControlName={totalAmount.toFixed(2)}
+        // formControlName={totalAmount.toFixed(2)}
+        formControlName={expenseData?.fund_recv_tot_amt}
         // value={totalAmount.toFixed(2)}
         name="totalScheConti_print"
         mode={1}
       />
     </span>
     /- (Rupees.
-   {toWords(totalAmount.toFixed(2)).charAt(0).toUpperCase() + toWords(totalAmount.toFixed(2)).slice(1).toLowerCase()}
+    {numberToIndianWords(Number(expenseData?.fund_recv_tot_amt) || 0)}
+   {/* {toWords(Number(expenseData?.fund_recv_tot_amt)).charAt(0).toUpperCase() + toWords(Number(expenseData?.fund_recv_tot_amt)).slice(1).toLowerCase()} */}
     
     &nbsp;only)..... of Grants-in-aid/Fund sanctioned during the year <span className="inline-block w-60 align-middle">
       <TDInputTemplate
@@ -881,7 +950,7 @@ function UC_Form() {
       <TDInputTemplate
         placeholder="Previous Year Unspent Balance"
         type="text"
-        formControlName={formik.values.margin_Balance}
+        formControlName={formik.values.unutilized_Balance}
         name="unspentBalance_print"
         mode={1}
       />
@@ -904,7 +973,7 @@ function UC_Form() {
         placeholder="Schematic Expenses Details"
         type="text"
         formControlName={formik.values.scheme_name}
-        name="schemeName_print"
+        // name="schemeName_print"
         mode={1}
       />
     </span> PROJECT CODE {getMsgData[0]?.project_id} for which it was
@@ -919,18 +988,18 @@ function UC_Form() {
     </span> remaining unutilized at the end of the year has been
     surrendered to Government (vide No. <span className="inline-block w-60 align-middle">
       <TDInputTemplate
-        placeholder="Schematic Expenses Details"
+        placeholder="Vide No Details"
         type="text"
         formControlName={formik.values.videNo}
-        name="schemeName_print"
+        // name="schemeName_print"
         mode={1}
       />
     </span> Dated <span className="inline-block w-60 align-middle">
       <TDInputTemplate
-        placeholder="Schematic Expenses Details"
+        placeholder="Vide No Date"
         type="text"
         formControlName={formik.values.videNoDate}
-        name="schemeName_print"
+        // name="schemeName_print"
         mode={1}
       />
     </span>) and will be adjusted towards the
@@ -959,7 +1028,6 @@ function UC_Form() {
         type="submit"
         title="Update"
         onClick={() => {}}
-        disabled={true}
         width="w-1/6"
         bgColor="bg-blue-900"
       />

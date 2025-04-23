@@ -42,99 +42,6 @@ const initialValues = {
 
 
 
-const validationSchema = Yup.object({
-  // scheme_name: '',
-  // sector_name: '',
-  // fin_yr: '',
-  // schm_amt: '',
-  // cont_amt: '',
-  // tot_amt: '',
-  // admin_appr_pdf: '',
-  // proj_id: '',
-  // head_acc: '',
-  // dt_appr: '',
-  // proj_sub_by: '',
-  // proj_imp_by: '',
-  // dis: '',
-  // block: '',
-  // vet_dpr_pdf: '',
-  // src: '',
-
-
-
-  scheme_name: Yup.string().required('Scheme name is Required'),
-  sector_name: Yup.string().required('Sector is Required'),
-  fin_yr: Yup.string().required('Scanctioning Financial Year is Required'),
-  // schm_amt: Yup.string().required('Schematic Amount is Required'),
-  // cont_amt: Yup.number()
-  //   .typeError('Contigency Amount must be a number')
-  //   .required('Contigency Amount is Required')
-  //   .positive('Contigency Amount must be greater than zero')
-  //   .test(
-  //     'is-three-percent',
-  //     'Contingency Amount should be 3% of Schematic Amount',
-  //     function (value) {
-  //       const { schm_amt } = this.parent;
-  //       if (!schm_amt || !value) return true; // Skip validation if either is missing
-  //       const expected = parseFloat(schm_amt) * 0.03;
-  //       return parseFloat(value).toFixed(2) <= expected.toFixed(2);
-  //     }
-  //   ),
-
-  schm_amt: Yup.number()
-    .typeError('Schematic Amount must be a number')
-    .required('Schematic Amount is Required')
-    .positive('Schematic Amount must be greater than zero'),
-
-  cont_amt: Yup.number()
-    .typeError('Contingency Amount must be a number')
-    .required('Contingency Amount is Required')
-    .positive('Contingency Amount must be greater than zero')
-    .test(
-      'is-three-percent',
-      'Contingency Amount should be 3% of Schematic Amount or Below',
-      function (value) {
-        const { schm_amt } = this.parent;
-        if (!schm_amt || !value) return true;
-        const expected = parseFloat(schm_amt) * 0.03;
-        return parseFloat(value) <= parseFloat(expected.toFixed(2));
-      }
-    ),
-
-  admin_appr_pdf: Yup.string().required('Administrative Approval(G.O) is Required'),
-  proj_id: Yup.string().required('Project ID is Required'),
-  head_acc: Yup.string().required('Head Account is Required'),
-  dt_appr: Yup.string().required('Date of administrative approval is Required'),
-  proj_sub_by: Yup.string().required('Project Submitted By is Required'),
-  project_submit_dtl: Yup.string().required('Details of Person/Organization by whom.. is Required'),
-  proj_imp_by: Yup.string().required('Project implemented By is Required'),
-  // dis: Yup.string().required('District is Required'),
-  dis: Yup.array()
-    .min(1, 'District is Required') // Ensures at least one selection
-    .required('District is Required'),
-  block: Yup.array()
-    .min(1, 'Block is Required') // Ensures at least one selection
-    .required('Block is Required'),
-
-  ps_id: Yup.array()
-    .min(1, 'Police Station is Required') // Ensures at least one selection
-    .required('Police Station is Required'),
-
-  gp_id: Yup.array()
-    .min(1, 'Gram Panchayat is Required') // Ensures at least one selection
-    .required('Gram Panchayat is Required'),
-
-  vet_dpr_pdf: Yup.string().required('Vetted DPR is Required'),
-  src: Yup.string().required('Source of Fund is Required'),
-
-  jl_no: Yup.string().required('JL No. is Required'),
-  mouza: Yup.string().required('Mouza is Required'),
-  dag_no: Yup.string().required('Dag No is Required'),
-  khatian_no: Yup.string().required('Khatian No is Required'),
-  area: Yup.string().required('Area is Required'),
-
-
-});
 
 
 
@@ -176,6 +83,134 @@ function AdApForm() {
   const [errorpdf_2, setErrorpdf_2] = useState("");
 
   const [projectSubBy, setProjectSubBy] = useState([]);
+
+
+  const validationSchema = Yup.object({
+    scheme_name: Yup.string().required('Scheme name is Required'),
+    sector_name: Yup.string().required('Sector is Required'),
+    fin_yr: Yup.string().required('Scanctioning Financial Year is Required'),
+  
+    schm_amt: Yup.number()
+      .typeError('Schematic Amount must be a number')
+      .required('Schematic Amount is Required')
+      .positive('Schematic Amount must be greater than zero'),
+  
+    cont_amt: Yup.number()
+      .typeError('Contingency Amount must be a number')
+      .required('Contingency Amount is Required')
+      .positive('Contingency Amount must be greater than zero')
+      .test(
+        'is-three-percent',
+        'Contingency Amount should be 3% of Schematic Amount or Below',
+        function (value) {
+          const { schm_amt } = this.parent;
+          if (!schm_amt || !value) return true;
+          const expected = parseFloat(schm_amt) * 0.03;
+          return parseFloat(value) <= parseFloat(expected.toFixed(2));
+        }
+      ),
+  
+    admin_appr_pdf: Yup.string().required('Administrative Approval(G.O) is Required'),
+    proj_id: Yup.string().required('Project ID is Required'),
+    head_acc: Yup.string().required('Head Account is Required'),
+    dt_appr: Yup.string().required('Date of administrative approval is Required'),
+    proj_sub_by: Yup.string().required('Project Submitted By is Required'),
+    project_submit_dtl: Yup.string().required('Details of Person/Organization by whom.. is Required'),
+    
+    
+    // proj_imp_by: Yup.string().required('Project implemented By is Required'),
+    proj_imp_by: Yup.string().when([], {
+      is: () => userDataLocalStore.user_type == 'A',
+      then: (schema) => schema.required('Project implemented By is Required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    // dis: Yup.array()
+    //   .min(1, 'District is Required') // Ensures at least one selection
+    //   .required('District is Required'),
+    dis: Yup.array().when([], {
+      is: () => userDataLocalStore.user_type == 'A',
+      then: (schema) => schema.min(1, 'District is Required').required('District is is Required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+
+    // block: Yup.array()
+    //   .min(1, 'Block is Required') // Ensures at least one selection
+    //   .required('Block is Required'),
+
+    block: Yup.array().when([], {
+      is: () => userDataLocalStore.user_type == 'A',
+      then: (schema) => schema.min(1, 'Block is Required').required('Block is is Required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+  
+    // ps_id: Yup.array()
+    //   .min(1, 'Police Station is Required') // Ensures at least one selection
+    //   .required('Police Station is Required'),
+
+    ps_id: Yup.array().when([], {
+      is: () => userDataLocalStore.user_type == 'A',
+      then: (schema) => schema.min(1, 'Police Station is Required').required('Police Station is is Required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+  
+    // gp_id: Yup.array()
+    //   .min(1, 'Gram Panchayat is Required') // Ensures at least one selection
+    //   .required('Gram Panchayat is Required'),
+    gp_id: Yup.array().when([], {
+      is: () => userDataLocalStore.user_type == 'A',
+      then: (schema) => schema.min(1, 'Gram Panchayat is Required').required('Gram Panchayat is is Required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+  
+    // vet_dpr_pdf: Yup.string().required('Vetted DPR is Required'),
+    vet_dpr_pdf: Yup.array().when([], {
+      is: () => userDataLocalStore.user_type == 'A',
+      then: (schema) => schema.required('Vetted DPR is is Required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+
+    // src: Yup.string().required('Source of Fund is Required'),
+    src: Yup.string().when([], {
+      is: () => userDataLocalStore.user_type == 'A',
+      then: (schema) => schema.required('Source of Fund is is Required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+  
+    // jl_no: Yup.string().required('JL No. is Required'),
+    jl_no: Yup.string().when([], {
+      is: () => userDataLocalStore.user_type == 'A',
+      then: (schema) => schema.required('JL No. is Required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+
+    // mouza: Yup.string().required('Mouza is Required'),
+    mouza: Yup.string().when([], {
+      is: () => userDataLocalStore.user_type == 'A',
+      then: (schema) => schema.required('Mouza is is Required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    // dag_no: Yup.string().required('Dag No is Required'),
+    dag_no: Yup.string().when([], {
+      is: () => userDataLocalStore.user_type == 'A',
+      then: (schema) => schema.required('Dag No is Required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    // khatian_no: Yup.string().required('Khatian No is Required'),
+    khatian_no: Yup.string().when([], {
+      is: () => userDataLocalStore.user_type == 'A',
+      then: (schema) => schema.required('Khatian No is Required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    // area: Yup.string().required('Area is Required'),
+    area: Yup.string().when([], {
+      is: () => userDataLocalStore.user_type == 'A',
+      then: (schema) => schema.required('Area is Required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+  
+  
+  });
+  
 
 
   const fetchSectorDropdownOption = async () => {
@@ -440,15 +475,6 @@ function AdApForm() {
     fetch_GM_Option()
   }, [])
 
-  // useEffect(() => {
-  //   // fetchBlockdownOption()
-  //   // fetch_GM_Option()
-  // }, [district_ID])
-
-  // useEffect(() => {
-  //   fetchPoliceStnOption()
-  //   fetch_GM_Option()
-  // }, [district_ID, block_ID])
 
   useEffect(() => {
 
@@ -627,7 +653,7 @@ function AdApForm() {
     formData.append("account_head", formik.values.head_acc);
     formData.append("admin_approval_dt", formik.values.dt_appr);
     formData.append("project_submit", formik.values.proj_sub_by);
-    formData.append("project_submit_dtl'", formik.values.project_submit_dtl);
+    formData.append("project_submit_dtl", formik.values.project_submit_dtl);
     formData.append("impl_agency", formik.values.proj_imp_by);
     formData.append("district_id", formik.values.dis);
     formData.append("block_id", formik.values.block);
@@ -649,6 +675,7 @@ function AdApForm() {
 
     // console.log(formik.values.admin_appr_pdf, "FormData:", formik.values.vet_dpr_pdf);
     console.log(formData, "FormData:", formik.values.admin_appr_pdf.name);
+    
 
     try {
       const response = await axios.post(
@@ -663,7 +690,8 @@ function AdApForm() {
       );
 
       // setLoading(false);
-      Message("success", "Updated successfully.");
+      Message("success", "Add successfully.");
+      navigate('/home/admin_approval')
       setLoading(false);
       formik.resetForm();
     } catch (error) {
@@ -729,7 +757,7 @@ function AdApForm() {
 
       setLoading(false);
       Message("success", "Updated successfully.");
-      navigate(`/home/admin_approval`);
+      navigate('/home/admin_approval')
 
       formik.resetForm();
     } catch (error) {
@@ -764,6 +792,7 @@ function AdApForm() {
     validationSchema,
     enableReinitialize: true,
     validateOnMount: true,
+    context: { userType: userDataLocalStore.user_type }
   });
 
 
@@ -1174,7 +1203,7 @@ function AdApForm() {
                 <TDInputTemplate
                   placeholder="Type here..."
                   type="text"
-                  label='Details of Person/Organization by whom the project has beed submitted'
+                  label='Details of Person/Organization by whom the project has been submitted'
                   name="project_submit_dtl"
                   formControlName={formik.values.project_submit_dtl}
                   handleChange={formik.handleChange}
@@ -1189,7 +1218,7 @@ function AdApForm() {
               </div>
               {userDataLocalStore.user_type === 'A' && (
                 <div class="sm:col-span-12">
-                  <div class="p-4 mb-4 text-sm text-yellow-800 border-2 border-yellow-500 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300" role="alert">
+                  <div class="p-4 mb-0 text-sm text-yellow-800 border-2 border-yellow-500 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300" role="alert">
                     <span class="font-bold"></span>The section displayed above is restricted and cannot be edited or modified under any circumstances. 👆
                   </div>
                 </div>
@@ -1199,7 +1228,12 @@ function AdApForm() {
               <div class="sm:col-span-4">
 
 
-                <label for="dis" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Project implemented By<span className="mandator_txt"> *</span></label>
+                <label for="dis" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Project implemented By
+                  {userDataLocalStore.user_type === 'A' &&(
+                    <><span className="mandator_txt"> *</span></>
+                  )}
+                  
+                  </label>
 
 
                 <Select
@@ -1234,7 +1268,11 @@ function AdApForm() {
               </div>
               <div class="sm:col-span-12 contigencySelect">
 
-                <label for="dis" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Choose District<span className="mandator_txt"> *</span></label>
+                <label for="dis" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Choose District
+                {userDataLocalStore.user_type === 'A' &&(
+                    <><span className="mandator_txt"> *</span></>
+                  )}
+                </label>
 
 
                 <Select
@@ -1273,7 +1311,11 @@ function AdApForm() {
 
 
 
-                <label for="block" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Block<span className="mandator_txt"> *</span></label>
+                <label for="block" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Block
+                {userDataLocalStore.user_type === 'A' &&(
+                    <><span className="mandator_txt"> *</span></>
+                  )}
+                  </label>
 
 
 
@@ -1308,7 +1350,11 @@ function AdApForm() {
               <div class="sm:col-span-12 contigencySelect">
 
 
-                <label for="block" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Police Station<span className="mandator_txt"> *</span></label>
+                <label for="block" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Police Station
+                {userDataLocalStore.user_type === 'A' &&(
+                    <><span className="mandator_txt"> *</span></>
+                  )}
+                  </label>
 
 
 
@@ -1344,7 +1390,11 @@ function AdApForm() {
               <div class="sm:col-span-12 contigencySelect">
 
 
-                <label for="block" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Gram Panchayat<span className="mandator_txt"> *</span></label>
+                <label for="block" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Gram Panchayat
+                {userDataLocalStore.user_type === 'A' &&(
+                    <><span className="mandator_txt"> *</span></>
+                  )}
+                  </label>
                 <Select
                   placeholder="Choose Gram Panchayat..."
                   label="Choose Gram Panchayat"
@@ -1378,7 +1428,11 @@ function AdApForm() {
                   type="file"
                   name="vet_dpr_pdf"
                   placeholder="Vetted DPR"
-                  label={<>Vetted DPR (PDF Max Size 1 GB)<span className="mandator_txt"> *</span></>}
+                  label={<>Vetted DPR (PDF Max Size 1 GB) 
+                  {userDataLocalStore.user_type === 'A' &&(
+                    <><span className="mandator_txt"> *</span></>
+                  )}
+                  </>}
                   handleChange={(event) => {
                     handleFileChange_pdf_2(event)
                   }}
@@ -1410,18 +1464,13 @@ function AdApForm() {
                 {errorpdf_2 && <p style={{ color: "red", fontSize: 12 }}>{errorpdf_2}</p>}
               </div>
               <div class="sm:col-span-4">
-                {/* <TDInputTemplate
-                placeholder="Choose Source of Fund"
-                type="text"
-                label="Source of Fund"
-                name="src"
-                formControlName={formik.values.src}
-                handleChange={formik.handleChange}
-                handleBlur={formik.handleBlur}
-                mode={2}
-              /> */}
 
-                <label for="src" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Source of Fund<span className="mandator_txt"> *</span></label>
+
+                <label for="src" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Source of Fund
+                {userDataLocalStore.user_type === 'A' &&(
+                    <><span className="mandator_txt"> *</span></>
+                  )}
+                  </label>
                 <Select
                   placeholder="Choose Source of Fund"
                   value={formik.values.src || undefined} // Ensure default empty state
@@ -1449,7 +1498,11 @@ function AdApForm() {
                 <TDInputTemplate
                   placeholder="Name goes here..."
                   type="text"
-                  label={<>JL No.<span className="mandator_txt"> *</span></>}
+                  label={<>JL No.
+                  {userDataLocalStore.user_type === 'A' &&(
+                    <><span className="mandator_txt"> *</span></>
+                  )}
+                  </>}
                   name="jl_no"
                   formControlName={formik.values.jl_no}
                   handleChange={formik.handleChange}
@@ -1465,7 +1518,11 @@ function AdApForm() {
                 <TDInputTemplate
                   placeholder="Name goes here..."
                   type="text"
-                  label={<>Mouza<span className="mandator_txt"> *</span></>}
+                  label={<>Mouza 
+                  {userDataLocalStore.user_type === 'A' &&(
+                    <><span className="mandator_txt"> *</span></>
+                  )}
+                  </>}
                   name="mouza"
                   formControlName={formik.values.mouza}
                   handleChange={formik.handleChange}
@@ -1483,7 +1540,11 @@ function AdApForm() {
                 <TDInputTemplate
                   placeholder="Name goes here..."
                   type="text"
-                  label={<>Dag No.<span className="mandator_txt"> *</span></>}
+                  label={<>Dag No.
+                  {userDataLocalStore.user_type === 'A' &&(
+                    <><span className="mandator_txt"> *</span></>
+                  )}
+                  </>}
                   name="dag_no"
                   formControlName={formik.values.dag_no}
                   handleChange={formik.handleChange}
@@ -1499,7 +1560,11 @@ function AdApForm() {
                 <TDInputTemplate
                   placeholder="Name goes here..."
                   type="text"
-                  label={<>Khatian No.<span className="mandator_txt"> *</span></>}
+                  label={<>Khatian No.
+                  {userDataLocalStore.user_type === 'A' &&(
+                    <><span className="mandator_txt"> *</span></>
+                  )}
+                  </>}
                   name="khatian_no"
                   formControlName={formik.values.khatian_no}
                   handleChange={formik.handleChange}
@@ -1515,7 +1580,11 @@ function AdApForm() {
                 <TDInputTemplate
                   placeholder="Name goes here..."
                   type="number"
-                  label={<>Area (in Acre)<span className="mandator_txt"> *</span></>}
+                  label={<>Area (in Acre)
+                  {userDataLocalStore.user_type === 'A' &&(
+                    <><span className="mandator_txt"> *</span></>
+                  )}
+                  </>}
                   name="area"
                   formControlName={formik.values.area}
                   handleChange={formik.handleChange}
