@@ -336,7 +336,7 @@ class Utilization extends CI_Controller {
             t.wo_value,t.e_nit_no,
             t.comp_date_apprx AS stipulated_dt
         FROM td_admin_approval b
-        LEFT JOIN td_progress a ON a.approval_no = b.approval_no
+        JOIN td_progress a ON a.approval_no = b.approval_no
         INNER JOIN md_sector c ON b.sector_id = c.sl_no
         INNER JOIN md_fin_year d ON b.fin_year = d.sl_no
         INNER JOIN md_district e ON b.district_id = e.dist_code
@@ -545,16 +545,41 @@ class Utilization extends CI_Controller {
 			INNER JOIN md_proj_imp_agency g ON b.impl_agency = g.id
 			WHERE b.approval_no = $approval_no";
 			$result_data = $this->db->query($sql)->result();
+			///   FUND PAYMET DETAILS   //
 			$select = 'sum(sch_amt) fund_rece_sch_amt,sum(cont_amt) fund_rece_cont_amt ,sum(sch_amt)+
 			sum(cont_amt) as fund_recv_tot_amt';
 			$where = array('approval_no ' => $this->input->post('approval_no'));			   			
-			$res_fund = $this->Master->f_select('td_fund_receive',$select, $where, 0);
+			$res_fund = $this->Master->f_select('td_fund_receive',$select, $where, 1);
 			$select1 = 'sum(sch_amt) expen_sch_amt,sum(cont_amt) expen_cont_amt ,sum(sch_amt)+
 			sum(cont_amt) as expen_tot_amt';
-			$res_expense = $this->Master->f_select('td_expenditure',$select1, $where, 0);
+			$res_expense = $this->Master->f_select('td_expenditure',$select1, $where, 1);
+			$sql = "SELECT 
+						exp.expen_sch_amt - util.utilize_sche_amt AS unutilize_sche_amt,
+						exp.expen_cont_amt - util.utilize_cont_amt AS unutilize_cont_amt
+					FROM
+					(
+						SELECT 
+							IFNULL(SUM(sch_amt), 0) AS expen_sch_amt,
+							IFNULL(SUM(cont_amt), 0) AS expen_cont_amt
+						FROM td_expenditure
+						WHERE approval_no = 1
+					) exp,
+					(   SELECT 
+							ifnull(SUM(CASE WHEN a.certi_type = 'S' THEN IFNULL(b.exp_amt, 0) ELSE 0 END),0) AS utilize_sche_amt,
+							ifnull(SUM(CASE WHEN a.certi_type = 'C' THEN IFNULL(b.exp_amt, 0) ELSE 0 END),0) AS utilize_cont_amt
+						FROM td_utilization a
+						JOIN td_utilizationcerti_funddtls b ON a.approval_no = b.approval_no
+						WHERE a.approval_no = 1
+					) util";
+		    $res_unutil = $this->db->query($sql)->row();
+			$res_expense->fund_rece_sch_amt = $res_fund->fund_rece_sch_amt;
+			$res_expense->fund_rece_cont_amt = $res_fund->fund_rece_cont_amt;
+			$res_expense->fund_recv_tot_amt = $res_fund->fund_recv_tot_amt;
+			$res_expense->unutilize_sche_amt = $res_unutil->unutilize_sche_amt;
+			$res_expense->unutilize_cont_amt = $res_unutil->unutilize_cont_amt; 		
 		
 			$response = (!empty($res_fund)) 
-			? ['status' => 1, 'message' => array_merge($result_data,$res_fund,$res_expense)] 
+			? ['status' => 1, 'message' => array_merge($result_data),'expen_data'=>$res_expense] 
 			: ['status' => 0, 'message' => 'No data found'];
 			$this->output
 			->set_content_type('application/json')

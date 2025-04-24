@@ -181,7 +181,6 @@ class Report extends CI_Controller {
 					ON f.project_id = e.project_id AND f.scheme_name = e.scheme_name";
 
         $res_fund_release_espense = $this->db->query($sql_fund_release_espense)->result();
-		
 
 		if($fin_year == ''){
 			$response = ['status' => 0, 'message' => 'Please provide financial year'];
@@ -217,12 +216,12 @@ class Report extends CI_Controller {
 			$sector_name .= $this->db->query('select sector_desc FROM md_sector where sl_no="'.$sector_id.'"')->row()->sector_desc;
 		}
 		if ($dist > 0) {
-			$con .= " AND a.district_id = '".$dist."'";
+			$con .= " AND pd.district_id = '".$dist."'";
 			$dist_name .= $this->db->query('select dist_name FROM md_district where dist_code="'.$dist.'"')->row()->dist_name;
 		}
 
 		if ($block > 0) {
-			$con .= " AND a.block_id = '".$block."'";	
+			$con .= " AND pb.block_id = '".$block."'";	
 			$block_name .= $this->db->query('select block_name FROM md_block where block_id="'.$block.'"')->row()->block_name;
 		}
 
@@ -233,23 +232,27 @@ class Report extends CI_Controller {
         if($account_head > 0  || $sector_id > 0 || $dist > 0 || $block > 0 || $impl_agency > 0){
 	    $sql = "SELECT a.approval_no,a.admin_approval_dt,a.scheme_name,a.project_id,a.project_submit as project_submitted_by,a.admin_approval,a.vetted_dpr,
 						c.sector_desc AS sector_name,
-		                d.fin_year, e.dist_name, 
-						f.block_name,g.agency_name,
+		                d.fin_year,
+						GROUP_CONCAT(DISTINCT e.dist_name ORDER BY e.dist_name SEPARATOR ', ') as dist_name,
+						GROUP_CONCAT(DISTINCT f.block_name ORDER BY f.block_name SEPARATOR ', ') as block_name,
+						g.agency_name,
 						h.account_head as account_head_name,
 						i.fund_type as source_of_fund,
 						sum(fr.instl_amt) as fr_instl_amt,sum(fr.sch_amt) as fr_sch_amt,sum(fr.cont_amt) as fr_cont_amt,sum(exp.sch_amt) as exp_sch_amt,sum(exp.cont_amt) as exp_cont_amt
 						FROM td_admin_approval a 
 						JOIN md_sector c ON a.sector_id = c.sl_no 
 						JOIN md_fin_year d ON a.fin_year = d.sl_no 
-						JOIN md_district e ON a.district_id = e.dist_code 
-						JOIN md_block f ON a.block_id = f.block_id 
+						JOIN td_admin_approval_dist pd ON a.approval_no = pd.approval_no
+                        JOIN md_district e ON pd.dist_id = e.dist_code 
+						JOIN td_admin_approval_block pb ON a.approval_no = pb.approval_no
+						JOIN md_block f ON pb.block_id = f.block_id 
 						JOIN md_proj_imp_agency g ON a.impl_agency = g.id
 						LEFT JOIN td_fund_receive fr ON fr.approval_no = a.approval_no
 						LEFT JOIN td_expenditure exp ON exp.approval_no = a.approval_no 
 						JOIN md_account h ON h.sl_no = a.account_head 
 						JOIN md_fund i ON i.sl_no = a.fund_id
 					    WHERE a.fin_year = '".$fin_year."' $con GROUP BY 
-    a.approval_no, a.admin_approval_dt, a.scheme_name,a.project_submit,c.sector_desc,d.fin_year, a.project_id, e.dist_name,f.block_name,g.agency_name,h.account_head";
+    a.approval_no, a.admin_approval_dt, a.scheme_name,a.project_submit,c.sector_desc,d.fin_year, a.project_id, g.agency_name,h.account_head";
 	   // echo $sql;
 	    $result_data = $this->db->query($sql)->result();
 				if($fin_year == ''){

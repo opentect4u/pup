@@ -92,11 +92,31 @@ class Fund extends CI_Controller {
 
 	public function fund_list() {
 		
-		$where = array('a.approval_no = b.approval_no' => NULL,'b.sector_id = c.sl_no' => NULL,
-		               'b.fin_year = d.sl_no' => NULL,'b.district_id = e.dist_code' => NULL,
-					   'b.block_id = f.block_id' => NULL,'1 group by b.admin_approval_dt,b.scheme_name,sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no,a.receive_no,a.receive_date'=>NULL);
+		// $where = array('a.approval_no = b.approval_no' => NULL,'b.sector_id = c.sl_no' => NULL,
+		//                'b.fin_year = d.sl_no' => NULL,'b.district_id = e.dist_code' => NULL,
+		// 			   'b.block_id = f.block_id' => NULL,'1 group by b.admin_approval_dt,b.scheme_name,sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no,a.receive_no,a.receive_date'=>NULL);
 		
-		$result_data = $this->Master->f_select('td_fund_receive a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f', 'b.admin_approval_dt,b.scheme_name,c.sector_desc as sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no,a.receive_no,a.receive_date,a.allot_order_no,a.allot_order_dt', $where, NULL);
+		// $result_data = $this->Master->f_select('td_fund_receive a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f', 'b.admin_approval_dt,b.scheme_name,c.sector_desc as sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no,a.receive_no,a.receive_date,a.allot_order_no,a.allot_order_dt', $where, NULL);
+		$result_data = $this->db->query("SELECT a.admin_approval_dt, a.scheme_name,
+		a.project_id,a.sch_amt,a.cont_amt,a.approval_no,
+		b.sector_desc AS sector_name,c.fin_year,g.agency_name,
+		d.receive_no,d.receive_date,d.allot_order_no,d.allot_order_dt,
+		GROUP_CONCAT(DISTINCT e.dist_name ORDER BY e.dist_name SEPARATOR ', ') AS dist_name,
+		GROUP_CONCAT(DISTINCT f.block_name ORDER BY f.block_name SEPARATOR ', ') as block_name
+		FROM td_admin_approval a
+		INNER JOIN md_sector b ON a.sector_id = b.sl_no
+		INNER JOIN md_fin_year c ON a.fin_year = c.sl_no
+		INNER JOIN td_fund_receive d ON a.approval_no = d.approval_no
+		INNER JOIN td_admin_approval_dist pd ON a.approval_no = pd.approval_no
+		JOIN md_district e ON pd.dist_id = e.dist_code 
+		JOIN td_admin_approval_block pb ON a.approval_no = pb.approval_no
+		JOIN md_block f ON pb.block_id = f.block_id 
+		INNER JOIN md_proj_imp_agency g ON a.impl_agency = g.id 
+		group by a.admin_approval_dt, 
+		a.scheme_name,
+		a.project_id,a.sch_amt,a.cont_amt,a.approval_no,
+		b.sector_desc,d.receive_no,d.receive_date,d.allot_order_no,d.allot_order_dt,
+		c.fin_year,g.agency_name")->result();
 
 		if (!empty($result_data)) {
 			echo json_encode(['status' => 1, 'message' => $result_data,'folder_name'=>'uploads/fund/']);

@@ -351,24 +351,25 @@ class Tender extends CI_Controller {
 			$where3 = array_merge($where3, ['a.approval_no' => $approval_no]);
 		}
 		
-		$result_data = $this->db->query('SELECT 
-									b.admin_approval_dt, 
-									b.scheme_name, 
-									c.sector_desc AS sector_name, 
-									d.fin_year, 
-									b.project_id,b.sch_amt,b.cont_amt,
-									e.dist_name, 
-									f.block_name, 
-									a.approval_no, 
-									g.agency_name
-								FROM td_admin_approval b 
-								LEFT JOIN td_progress a ON a.approval_no = b.approval_no 
-								INNER JOIN md_sector c ON b.sector_id = c.sl_no 
-								INNER JOIN md_fin_year d ON b.fin_year = d.sl_no 
-								INNER JOIN md_district e ON b.district_id = e.dist_code 
-								INNER JOIN md_block f ON b.block_id = f.block_id 
-								INNER JOIN md_proj_imp_agency g ON b.impl_agency = g.id 
-								WHERE b.approval_no = "'.$approval_no.'" LIMIT 1')->result();
+		$result_data = $this->db->query("SELECT a.admin_approval_dt, a.scheme_name,
+										a.project_id,a.sch_amt,a.cont_amt,a.approval_no,
+										b.sector_desc AS sector_name,c.fin_year,g.agency_name,
+										GROUP_CONCAT(DISTINCT e.dist_name ORDER BY e.dist_name SEPARATOR ', ') AS dist_name,
+										GROUP_CONCAT(DISTINCT f.block_name ORDER BY f.block_name SEPARATOR ', ') as block_name
+										FROM td_admin_approval a
+										INNER JOIN md_sector b ON a.sector_id = b.sl_no
+										INNER JOIN md_fin_year c ON a.fin_year = c.sl_no
+										INNER JOIN td_admin_approval_dist pd ON a.approval_no = pd.approval_no
+										JOIN md_district e ON pd.dist_id = e.dist_code 
+										JOIN td_admin_approval_block pb ON a.approval_no = pb.approval_no
+										JOIN md_block f ON pb.block_id = f.block_id 
+										INNER JOIN md_proj_imp_agency g ON a.impl_agency = g.id 
+										WHERE a.approval_no = $approval_no group by a.admin_approval_dt, 
+										a.scheme_name,
+										a.project_id,a.sch_amt,a.cont_amt,a.approval_no,
+										b.sector_desc,
+										c.fin_year,g.agency_name")->result();
+
 		$image_data = $this->Master->f_select('td_progress a,td_admin_approval b', 'a.approval_no,a.visit_no,a.progress_percent,a.progressive_percent,a.pic_path,a.created_by as visit_by,a.created_at as visit_dt,a.address,ifnull(a.actual_date_comp,"")actual_date_comp,ifnull(a.remarks,"")remarks,proj_comp_status', array_merge($where2, ['1 limit 6' => NULL]), NULL);
 		$wo_date = $this->Master->f_select('td_admin_approval a,td_tender b', 'b.wo_date,b.comp_date_apprx', array_merge($where3,['1 order by b.tender_date desc limit 1'=>NULL]), NULL);
 		$fund_total = $this->Master->f_select('td_fund_receive','ifnull(sum(sch_amt),0) tot_sch_amt,ifnull(sum(cont_amt),0) tot_cont_amt' ,array('approval_no' => $approval_no) , NULL);
@@ -384,12 +385,26 @@ class Tender extends CI_Controller {
     }
 
 	public function prog_ls() {
-		
-		$where = array('a.approval_no = b.approval_no' => NULL,'b.sector_id = c.sl_no' => NULL,
-		               'b.fin_year = d.sl_no' => NULL,'b.district_id = e.dist_code' => NULL,
-					   'b.block_id = f.block_id' => NULL,'1 group by b.admin_approval_dt,b.scheme_name,sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no'=>NULL);
-		
-		$result_data = $this->Master->f_select('td_progress a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f', 'b.admin_approval_dt,b.scheme_name,c.sector_desc as sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no', $where, NULL);
+
+		$result_data = $this->db->query("SELECT a.admin_approval_dt, a.scheme_name,
+			a.project_id,a.sch_amt,a.cont_amt,a.approval_no,
+			b.sector_desc AS sector_name,c.fin_year,g.agency_name,
+			GROUP_CONCAT(DISTINCT e.dist_name ORDER BY e.dist_name SEPARATOR ', ') AS dist_name,
+			GROUP_CONCAT(DISTINCT f.block_name ORDER BY f.block_name SEPARATOR ', ') as block_name
+			FROM td_admin_approval a
+			INNER JOIN md_sector b ON a.sector_id = b.sl_no
+			INNER JOIN md_fin_year c ON a.fin_year = c.sl_no
+			INNER JOIN td_progress d ON a.approval_no = d.approval_no
+			INNER JOIN td_admin_approval_dist pd ON a.approval_no = pd.approval_no
+			JOIN md_district e ON pd.dist_id = e.dist_code 
+			JOIN td_admin_approval_block pb ON a.approval_no = pb.approval_no
+			JOIN md_block f ON pb.block_id = f.block_id 
+			INNER JOIN md_proj_imp_agency g ON a.impl_agency = g.id 
+			group by a.admin_approval_dt, 
+			a.scheme_name,
+			a.project_id,a.sch_amt,a.cont_amt,a.approval_no,
+			b.sector_desc,
+			c.fin_year,g.agency_name")->result();
 
 		if (!empty($result_data)) {
 			echo json_encode(['status' => 1, 'message' => $result_data,'folder_name'=>'uploads/fund/']);
