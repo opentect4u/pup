@@ -109,6 +109,8 @@ function TFForm() {
   const [sl_no, setSl_no] = useState('');
   const [errorpdf_1, setErrorpdf_1] = useState("");
   const [errorpdf_2, setErrorpdf_2] = useState("");
+  const [projectIncomplete, setProjectIncomplete] = useState(false);
+
 
   useEffect(()=>{
     console.log(operation_status, 'loadFormData', sl_no, 'kkkk', params?.id);
@@ -204,12 +206,12 @@ function TFForm() {
         }
       );
 
-      // console.log(response?.data, 'responsedata______progress_list');
+      console.log(response?.data, 'responsedata______progress_list');
       
       if (response?.data.status > 0) {
         setLoading(false);
         setGetMsgData(response?.data?.message)
-        
+        setProjectIncomplete(false)
         // setGetStatusData(response?.data?.prog_img)
         // setFolderProgres(response?.data?.folder_name)
 
@@ -219,7 +221,7 @@ function TFForm() {
         setLoading(false);
         // setGetStatusData([])
         setGetMsgData([])
-        // setShowForm(false);
+        setProjectIncomplete(true)
       }
 
     } catch (error) {
@@ -275,11 +277,13 @@ function TFForm() {
           td_pdf: response.data.message.tender_notice != null ? response?.data?.message?.tender_notice : '',
           wo_pdf: response.data.message.wo_copy != null ? response?.data?.message?.wo_copy : '',
         })
+        
       }
 
       if (response?.data.status < 1) {
         setLoading(false);
         setGetMsgData([])
+        
       }
 
     } catch (error) {
@@ -585,9 +589,23 @@ function TFForm() {
               </div>
 
 
-              <div className="sm:col-span-12 text-blue-900 text-md font-bold mt-3 -mb-2">
+              {/* {getMsgData.length}
+              {JSON.stringify(projectIncomplete, null, 2)} */}
+
+            {projectIncomplete &&(
+            <div class="sm:col-span-12">
+            <div class="p-4 mb-0 text-sm text-yellow-800 border-2 border-yellow-500 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300" role="alert">
+            <span class="font-bold"><svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+            </svg></span>The project details are incomplete and lack key information, making the scope and objectives unclear.
+            </div>
+            </div>
+            )}
+
+            <div className="sm:col-span-12 text-blue-900 text-md font-bold mt-0 -mb-0">
                 {/* Progress Details */}
               </div>
+
 
               <div class="sm:col-span-4">
                 <TDInputTemplate
@@ -1128,18 +1146,22 @@ function TFForm() {
                 <VError title={formik.errors.compl} />
               )}
             </div>
-        <div className="sm:col-span-12 flex justify-center gap-4 mt-4">
-        {params.id < 1 &&(
-          <BtnComp title={'Reset'} type="reset" 
-        onClick={() => { 
-          formik.resetForm();
-        }}
-        width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
-        )}
-        
-        {/* <button type="submit">Search</button> */}
-        <BtnComp type={'submit'} title={params.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
-         </div>
+
+            {projectIncomplete === false &&(
+
+            <div className="sm:col-span-12 flex justify-center gap-4 mt-4">
+            {params.id < 1 &&(
+            <BtnComp title={'Reset'} type="reset" 
+            onClick={() => { 
+            formik.resetForm();
+            }}
+            width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
+            )}
+
+            {/* <button type="submit">Search</button> */}
+            <BtnComp type={'submit'} title={params.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
+            </div>
+            )}
           </div>
 
         </form>

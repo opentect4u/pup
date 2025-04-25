@@ -104,4 +104,6 @@ h2.text-white {color: #fff;}
 .overDate{background: rgb(196, 7, 7); color: #fff; font-size: 11px; padding: 3px 5px; border-radius: 3px; font-weight: 600;}
 .notOverDate{background: rgb(83, 139, 19); color: #fff; font-size: 11px; padding: 3px 5px; border-radius: 3px; font-weight: 600;}
 .toProSubDate{background: rgb(189, 156, 9); color: #fff; font-size: 11px; padding: 3px 5px; border-radius: 3px; font-weight: 600;}
-  
+
+.editOnOff .ant-switch-checked{background:#3EB8BD !important;}
+.editOnOff .ant-switch{background:rgba(0,0,0,0.45);}  

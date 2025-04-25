@@ -61,6 +61,7 @@ function FundExpForm() {
   const [balanceContigencyAmount, setBalanceContigencyAmount] = useState('');
   const [contigencyRemarks, setContigencyRemarks] = useState([]);
   const [contigencyId, setContigencyId] = useState([]);
+  const [projectIncomplete, setProjectIncomplete] = useState(false);
   
   const validationSchema = Yup.object({
     // exp_text: Yup.string().required('Remarks is Required'),
@@ -343,17 +344,14 @@ function FundExpForm() {
 
         setBalanceSchematicAmount(response?.data?.fund_total[0]?.tot_sch_amt - response?.data?.expense_total[0]?.tot_sch_amt)
         setBalanceContigencyAmount(response?.data?.fund_total[0]?.tot_cont_amt - response?.data?.expense_total[0]?.tot_cont_amt)
-        
-        // setGetStatusData(response?.data?.prog_img)
-        // setFolderProgres(response?.data?.folder_name)
-
+        setProjectIncomplete(false)
       }
 
       if (response?.data.status < 1) {
         setLoading(false);
         // setGetStatusData([])
         setGetMsgData([])
-        // setShowForm(false);
+        setProjectIncomplete(true)
       }
 
     } catch (error) {
@@ -551,8 +549,17 @@ function FundExpForm() {
         )}
         </div>
 
+        {projectIncomplete &&(
+            <div class="sm:col-span-12">
+            <div class="p-4 mb-0 text-sm text-yellow-800 border-2 border-yellow-500 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300" role="alert">
+            <span class="font-bold"><svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+            </svg></span>The project details are incomplete and lack key information, making the scope and objectives unclear.
+            </div>
+            </div>
+            )}
 
-        <div className="sm:col-span-12 text-blue-900 text-md font-bold mt-3 -mb-2">
+        <div className="sm:col-span-12 text-blue-900 text-md font-bold mt-0 -mb-0">
         {/* All Data  */}
         </div>
 
@@ -903,7 +910,7 @@ function FundExpForm() {
             
 
             
-
+        {projectIncomplete === false &&(
             <div className="sm:col-span-12 flex justify-center gap-4 mt-4">
          {/* <BtnComp title={'Reset'} width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'}/>
          <BtnComp title={'Submit'} width={'w-1/6'} bgColor={'bg-blue-900'}/> */}
@@ -918,6 +925,7 @@ function FundExpForm() {
         {/* <button type="submit">Search</button> */}
         <BtnComp type={'submit'} title={params.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
          </div>
+         )}
 
            
            

@@ -1,4 +1,8 @@
+import { useEffect, useState } from "react";
+
 const TableHeader = ({ curentPage, projectNotCompleted }) => {
+
+
 
   const pageTree = {
     page_1: 'AdApView',
@@ -22,7 +26,9 @@ const TableHeader = ({ curentPage, projectNotCompleted }) => {
           {/* <th className="px-4 py-3">Approval No</th> */}
           <th className="px-4 py-3">Date of Approval</th>
           <th className="px-4 py-3">Scheme Name</th>
+          {/* userDataLocalStore.user_id */}
           <th className="px-4 py-3">Sector</th>
+          <th className="px-4 py-3">Edit Mode</th>
           <th className="px-4 py-3">Actions</th>
         </tr>
       </thead>
@@ -41,6 +47,7 @@ const TableHeader = ({ curentPage, projectNotCompleted }) => {
           <th className="px-4 py-3">Financial Year</th>
           <th className="px-4 py-3">District</th>
           <th className="px-4 py-3">Block</th>
+          <th className="px-4 py-3">Edit Mode</th>
           <th className="px-4 py-3">Actions</th>
         </tr>
       </thead>
@@ -73,6 +80,7 @@ const TableHeader = ({ curentPage, projectNotCompleted }) => {
           <th className="px-4 py-3">Financial Year</th>
           <th className="px-4 py-3">District</th>
           <th className="px-4 py-3">Block</th>
+          <th className="px-4 py-3">Edit Mode</th>
           <th className="px-4 py-3">Actions</th>
         </tr>
       </thead>
@@ -89,6 +97,7 @@ const TableHeader = ({ curentPage, projectNotCompleted }) => {
           <th className="px-4 py-3">Financial Year</th>
           <th className="px-4 py-3">District</th>
           <th className="px-4 py-3">Block</th>
+          <th className="px-4 py-3">Edit Mode</th>
           <th className="px-4 py-3">Actions</th>
         </tr>
       </thead>
@@ -105,6 +114,7 @@ const TableHeader = ({ curentPage, projectNotCompleted }) => {
           <th className="px-4 py-3">Financial Year</th>
           <th className="px-4 py-3">District</th>
           <th className="px-4 py-3">Block</th>
+          <th className="px-4 py-3">Edit Mode</th>
           <th className="px-4 py-3">Actions</th>
         </tr>
       </thead>

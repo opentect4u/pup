@@ -92,6 +92,7 @@ function PCRForm() {
   const [errorpdf_1, setErrorpdf_1] = useState("");
   const [errorpdf_2, setErrorpdf_2] = useState("");
   const [projectCompletionDate, setProjectCompletionDate] = useState('');
+  const [projectIncomplete, setProjectIncomplete] = useState(false);
 
 
 
@@ -150,6 +151,7 @@ function PCRForm() {
       if (response?.data.status > 0) {
         setLoading(false);
         setGetMsgData(response?.data?.message)
+        
 
         // console.log(response?.data, 'vvvvvvvvvvvvvvvvvvvvvvv', response?.data?.message?.contractor_name_dtls);
 
@@ -179,7 +181,6 @@ function PCRForm() {
         setLoading(false);
         // setGetStatusData([])
         setGetMsgData([])
-        // setShowForm(false);
       }
 
     } catch (error) {
@@ -194,7 +195,7 @@ function PCRForm() {
     // setOperation_status('edit');
     // setSl_no(sl_no)
 
-    console.log(approval_no, 'responsedata', sl_no);
+    // console.log(approval_no, 'responsedata', sl_no);
     setLoading(true); // Set loading state
     
     const formData = new FormData();
@@ -219,6 +220,7 @@ function PCRForm() {
         setLoading(false);
         setGetMsgData(response?.data?.message)
         setProjectCompletionDate(response?.data?.comp_date_actual)
+        setProjectIncomplete(false)
 
         setValues({
           contractor_name_dtls: response?.data?.message[0]?.contractor_name_dtls,
@@ -241,6 +243,7 @@ function PCRForm() {
         setLoading(false);
         setGetMsgData([])
         setProjectCompletionDate('')
+        setProjectIncomplete(true)
       }
 
     } catch (error) {
@@ -389,12 +392,12 @@ function PCRForm() {
         <>
         
         <Heading title={'Project Details'} button={'Y'} />
-        {/* <Spin
+        <Spin
         indicator={<LoadingOutlined spin />}
         size="large"
         className="text-gray-500 dark:text-gray-400"
         spinning={loading}
-      > */}
+      >
 
         
           <div class="grid gap-4 sm:grid-cols-12 sm:gap-6 mb-5">
@@ -442,7 +445,7 @@ function PCRForm() {
 
             </div>
           </div>
-          {/* </Spin> */}
+          </Spin>
 
           {projectCompletionDate === null &&(
           <Spin
@@ -472,6 +475,16 @@ function PCRForm() {
       {/* )} */}
         
         {/* {JSON.stringify(projectCompletionDate, null, 2)} */}
+
+        {projectIncomplete &&(
+            <div class="sm:col-span-12 mb-3">
+            <div class="p-4 mb-0 text-sm text-yellow-800 border-2 border-yellow-500 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300" role="alert">
+            <span class="font-bold"><svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+            </svg></span>The project details are incomplete and lack key information, making the scope and objectives unclear.
+            </div>
+            </div>
+            )}
        
        {projectCompletionDate != null &&(
         <>
@@ -716,6 +729,10 @@ function PCRForm() {
                           <VError title={formik.errors.remarks} />
                         )}
                       </div>
+
+                      {projectIncomplete === false &&(
+
+
         <div className="sm:col-span-12 flex justify-center gap-4 mt-4">
         {params.id < 1 &&(
           <>
@@ -730,6 +747,9 @@ function PCRForm() {
         </>
       )}
          </div>
+         )}
+
+
           </div>
 
         </form>

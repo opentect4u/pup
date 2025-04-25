@@ -246,24 +246,78 @@ const ReportAccordion = () => (
   </Collapse>
 );
 
-const UtilizationAccordion = () => (
-  <Collapse accordion>
-    <Panel header="Utilization Certificate" key="1" >
-      <ul>
-        <li>
-          <Link to={"uc_c"}>Utilization Certificate Generate </Link>
-        </li>
-        {/* <li>
-          <Link to={"annex"}>Add Annexure</Link>
-        </li> */}
-        <li>
-          <Link to={"uc"}>Utilization Certificate</Link>
-        </li>
+// const UtilizationAccordion = ({  }) => (
 
-      </ul>
-    </Panel>
-  </Collapse>
-);
+  
+//   <Collapse accordion>
+//     <Panel header="Utilization Certificate" key="1" >
+//       <ul>
+//         <li>
+//           <Link to={"uc_c"}>Utilization Certificate Generate </Link>
+//         </li>
+//         {/* <li>
+//           <Link to={"annex"}>Add Annexure</Link>
+//         </li> */}
+//         <li>
+//           <Link to={"uc"}>Utilization Certificate</Link>
+//         </li>
+
+//       </ul>
+//     </Panel>
+//   </Collapse>
+// );
+
+const UtilizationAccordion = ({ userType }) => {
+  const masterLinks = [
+    {
+      label: "Utilization Certificate Generate ",
+      path: "uc_c",
+      roles: ["S"],
+    },
+    {
+      label: "Utilization Certificate",
+      path: "uc",
+      roles: ["S"],
+    },
+    {
+      label: "Utilization Certificate Generate ",
+      path: "uc_c",
+      roles: ["A"],
+    },
+    {
+      label: "Utilization Certificate",
+      path: "uc",
+      roles: ["A"],
+    },
+    {
+      label: "Utilization Certificate Generate ",
+      path: "uc_c",
+      roles: ["AC"],
+    },
+    {
+      label: "Utilization Certificate",
+      path: "uc",
+      roles: ["AC"],
+    }
+
+  ];
+
+  const filteredLinks = masterLinks.filter(link => link.roles.includes(userType));
+  if (filteredLinks.length === 0) return null;
+  return (
+    <Collapse accordion>
+      <Panel header="Utilization Certificate" key="1">
+        <ul>
+          {filteredLinks.map(({ label, path }) => (
+            <li key={path}>
+              <Link to={path}>{label}</Link>
+            </li>
+          ))}
+        </ul>
+      </Panel>
+    </Collapse>
+  );
+};
 
 
   const onClick = (e) => {
@@ -295,7 +349,8 @@ const UtilizationAccordion = () => (
           items={items}
         />
         <>
-        <UtilizationAccordion />
+        <UtilizationAccordion userType={userDataLocalStore.user_type}  />
+        {/* <UtilizationAccordion /> */}
         <Menu
           onClick={(e)=>onClick(e)}
           selectedKeys={[current]}
@@ -349,8 +404,12 @@ const UtilizationAccordion = () => (
         />
 
         <>
-        {userDataLocalStore.user_type === "A" || userDataLocalStore.user_type === "AC" &&(
-          <UtilizationAccordion />
+        {userDataLocalStore.user_type === "A"&&(
+          <UtilizationAccordion userType={userDataLocalStore.user_type}  />
+        )}
+
+        {userDataLocalStore.user_type === "AC" &&(
+          <UtilizationAccordion userType={userDataLocalStore.user_type}  />
         )}
         
         <Menu
@@ -366,10 +425,17 @@ const UtilizationAccordion = () => (
         />
         
         </>
-        {userDataLocalStore.user_type === "A" || userDataLocalStore.user_type === "AC" &&(
+        {userDataLocalStore.user_type === "A"&&(
         <ReportAccordion />
         )}
 
+        {userDataLocalStore.user_type === "AC" &&(
+        <ReportAccordion />
+        )}
+
+        {userDataLocalStore.user_type === "A"&&(
+          <MasterAccordion userType={userDataLocalStore.user_type} />
+        )}
         {/* <MasterAccordion userType={userDataLocalStore.user_type} /> */}
 
         </>

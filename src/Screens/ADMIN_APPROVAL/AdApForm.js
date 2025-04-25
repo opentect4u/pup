@@ -32,7 +32,6 @@ const initialValues = {
   gp_id: [],
   vet_dpr_pdf: '',
   src: '',
-
   jl_no: '',
   mouza: '',
   dag_no: '',
@@ -76,7 +75,7 @@ function AdApForm() {
   const [filePreview, setFilePreview] = useState(null);
   const [filePreview_2, setFilePreview_2] = useState(null);
 
-  const [checkProjectId, setCheckProjectId] = useState(true);
+  const [checkProjectId, setCheckProjectId] = useState(false);
 
   const [userDataLocalStore, setUserDataLocalStore] = useState([]);
   const [errorpdf_1, setErrorpdf_1] = useState("");
@@ -163,7 +162,7 @@ function AdApForm() {
     }),
   
     // vet_dpr_pdf: Yup.string().required('Vetted DPR is Required'),
-    vet_dpr_pdf: Yup.array().when([], {
+    vet_dpr_pdf: Yup.string().when([], {
       is: () => userDataLocalStore.user_type == 'A',
       then: (schema) => schema.required('Vetted DPR is is Required'),
       otherwise: (schema) => schema.notRequired(),
@@ -448,6 +447,43 @@ function AdApForm() {
   };
 
 
+  const checkProjectID_Fnc = async (project_id) => {
+    const formData = new FormData();
+    formData.append("project_id", project_id.target.value);
+
+    console.log(project_id.target.value, 'pssssssssssssss', formData);
+
+    try {
+      const response = await axios.post(
+        `${url}index.php/webApi/Admapi/check_pi`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            'auth_key': auth_key // Important for FormData
+          },
+        }
+      );
+
+      console.log(response?.data, 'pssssssssssssss', formData);
+      if (response?.data?.status > 0) {
+        setCheckProjectId(false)
+      }
+
+      if (response?.data?.status < 1) {
+        // setpsStnDropList([])
+        setCheckProjectId(true)
+      }
+
+
+    } catch (error) {
+      console.error("Error fetching data:", error); // Handle errors properly
+    }
+
+
+  };
+
+
 
   useEffect(() => {
     const userData = localStorage.getItem("user_dt");
@@ -638,7 +674,7 @@ function AdApForm() {
 
   const saveFormData = async () => {
 
-    // setLoading(true);
+    setLoading(true);
 
     const formData = new FormData();
 
@@ -689,7 +725,6 @@ function AdApForm() {
         }
       );
 
-      // setLoading(false);
       Message("success", "Add successfully.");
       navigate('/home/admin_approval')
       setLoading(false);
@@ -773,11 +808,11 @@ function AdApForm() {
   const onSubmit = (values) => {
     // console.log(values, 'credcredcredcredcred', formik.values.scheme_name);
     if (errorpdf_1.length < 1 && errorpdf_2.length < 1) {
-      if (params?.id > 0) {
+      if (params?.id > 0 && checkProjectId === false) {
         updateFormData()
       }
 
-      if (params?.id < 1 && checkProjectId) {
+      if (params?.id < 1 && checkProjectId === false) {
         saveFormData()
       }
     }
@@ -900,17 +935,18 @@ function AdApForm() {
                   formControlName={formik.values.proj_id}
                   handleChange={(e) => {
                     formik.handleChange(e);
+                    checkProjectID_Fnc(e)
                     console.log('Project ID changed to:', e.target.value); // Additional action if needed
                   }}
                   handleBlur={formik.handleBlur}
                   mode={1}
-                  disabled={userDataLocalStore.user_type === 'A'}
+                  disabled={userDataLocalStore.user_type === 'A' || params?.id > 0}
                 />
 
                 {/* {JSON.stringify(formik.errors.proj_id , null, 2)} /// {JSON.stringify(formik.errors.proj_id, null, 2)} /// {JSON.stringify(checkProjectId, null, 2)} */}
-                {/* {checkProjectId === false &&(
+                {checkProjectId === true &&(
   <VError title={'Project ID must be Unique'} />
-)} */}
+)}
 
                 {formik.errors.proj_id && formik.touched.proj_id && (
                   <VError title={formik.errors.proj_id} />
@@ -955,7 +991,7 @@ function AdApForm() {
 
 
 
-              <div class="sm:col-span-4">
+              <div class="sm:col-span-12">
                 <TDInputTemplate
                   type="text"
                   placeholder="Scheme name goes here..."
@@ -1422,7 +1458,7 @@ function AdApForm() {
                 )}
               </div>
 
-              <div class="sm:col-span-12" style={{ position: 'relative' }}>
+              <div class="sm:col-span-4" style={{ position: 'relative' }}>
                 {/* {JSON.stringify(errorpdf_2 , null, 2)} */}
                 <TDInputTemplate
                   type="file"

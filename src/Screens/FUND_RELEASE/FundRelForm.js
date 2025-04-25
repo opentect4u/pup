@@ -62,6 +62,7 @@ function FundRelForm() {
 
   const [useSchematicAmt, setUseSchematicAmt] = useState(0);
   const [useContigencyAmt, setUseContigencyAmt] = useState(0);
+  const [projectIncomplete, setProjectIncomplete] = useState(false);
 
 
   const validationSchema = Yup.object({
@@ -367,9 +368,7 @@ function FundRelForm() {
       if (response?.data.status > 0) {
         setLoading(false);
         setGetMsgData(response?.data?.message)
-        
-        // setGetStatusData(response?.data?.prog_img)
-        // setFolderProgres(response?.data?.folder_name)
+        setProjectIncomplete(false)
 
       }
 
@@ -377,7 +376,7 @@ function FundRelForm() {
         setLoading(false);
         // setGetStatusData([])
         setGetMsgData([])
-        // setShowForm(false);
+        setProjectIncomplete(true)
       }
 
     } catch (error) {
@@ -602,7 +601,17 @@ function FundRelForm() {
               </div>
 
 
-              <div className="sm:col-span-12 text-blue-900 text-md font-bold mt-3 -mb-2">
+              {projectIncomplete &&(
+            <div class="sm:col-span-12">
+            <div class="p-4 mb-0 text-sm text-yellow-800 border-2 border-yellow-500 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300" role="alert">
+            <span class="font-bold"><svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+            </svg></span>The project details are incomplete and lack key information, making the scope and objectives unclear.
+            </div>
+            </div>
+            )}
+
+            <div className="sm:col-span-12 text-blue-900 text-md font-bold mt-0 -mb-0">
                 {/* Progress Details */}
               </div>
 
@@ -1076,20 +1085,21 @@ Balance Of Contigency Amount:</span> ₹. {sanctionSchemaContiAmt?.cont_amt - us
               )}
             </div>
 
+            {projectIncomplete === false &&(
             <div className="sm:col-span-12 flex justify-center gap-4 mt-4">
-         {/* <BtnComp title={'Reset'} width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'}/>
-         <BtnComp title={'Submit'} width={'w-1/6'} bgColor={'bg-blue-900'}/> */}
-          {params.id < 1 &&(
-          <BtnComp title={'Reset'} type="reset" 
-        onClick={() => { 
-          formik.resetForm();
-        }}
-        width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
-        )}
-        {/* <button type="submit">Search</button> */}
-        <BtnComp type={'submit'} title={params.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
-         </div>
-
+            {/* <BtnComp title={'Reset'} width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'}/>
+            <BtnComp title={'Submit'} width={'w-1/6'} bgColor={'bg-blue-900'}/> */}
+            {params.id < 1 &&(
+            <BtnComp title={'Reset'} type="reset" 
+            onClick={() => { 
+            formik.resetForm();
+            }}
+            width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
+            )}
+            {/* <button type="submit">Search</button> */}
+            <BtnComp type={'submit'} title={params.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
+            </div>
+            )}
             
            
         

@@ -128,12 +128,13 @@ function AdApView() {
             </div>
 
             <div className="overflow-x-auto">
+            
               <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
               <TableHeader curentPage={pageName} />
                 
                 <tbody>
                   {currentTableData?.map((data, index) => (
-                    <TableRow key={index} data={data} curentPage={pageName} navigate={navigate} />
+                    <TableRow key={index} data={data} curentPage={pageName} navigate={navigate} fetchTableDataList_Fn={fetchTableDataList_Fn} />
                   ))}
                 </tbody>
               </table>

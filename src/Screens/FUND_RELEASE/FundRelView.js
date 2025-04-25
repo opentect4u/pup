@@ -87,7 +87,7 @@ function FundRelView() {
                 <TableHeader curentPage={pageName} />
                 <tbody>
                   {currentTableData.map((data, index) => (
-                    <TableRow key={index} data={data} curentPage={pageName} navigate={navigate} />
+                    <TableRow key={index} data={data} curentPage={pageName} navigate={navigate} fetchTableDataList_Fn={fetchTableDataList_Fn}/>
                   ))}
                 </tbody>
               </table>
