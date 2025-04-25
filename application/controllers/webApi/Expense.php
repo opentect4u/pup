@@ -89,7 +89,7 @@ class Expense extends CI_Controller {
 		$result_data = $this->db->query("SELECT a.admin_approval_dt, a.scheme_name,
 		a.project_id,a.sch_amt,a.cont_amt,a.approval_no,
 		b.sector_desc AS sector_name,c.fin_year,g.agency_name,
-		d.payment_no,d.payment_date,
+		d.payment_no,d.payment_date,d.edit_flag,
 		GROUP_CONCAT(DISTINCT e.dist_name ORDER BY e.dist_name SEPARATOR ', ') AS dist_name,
 		GROUP_CONCAT(DISTINCT f.block_name ORDER BY f.block_name SEPARATOR ', ') as block_name
 		FROM td_admin_approval a
@@ -102,7 +102,7 @@ class Expense extends CI_Controller {
 		JOIN md_block f ON pb.block_id = f.block_id 
 		INNER JOIN md_proj_imp_agency g ON a.impl_agency = g.id 
 		group by a.admin_approval_dt, 
-		a.scheme_name,
+		a.scheme_name,d.edit_flag,
 		a.project_id,a.sch_amt,a.cont_amt,a.approval_no,
 		b.sector_desc,d.payment_no,d.payment_date,
 		c.fin_year,g.agency_name")->result();
@@ -205,6 +205,7 @@ class Expense extends CI_Controller {
 				'sch_amt' => $this->input->post('sch_amt'),
 				'cont_amt' => $this->input->post('cont_amt'),
 				'sch_remark' => $this->input->post('sch_remark'),
+				'edit_flag' => 'N',
 				'modified_by' => $this->input->post('modified_by'),
 				'modified_at' => date('Y-m-d H:i:s')
 			];

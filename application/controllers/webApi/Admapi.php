@@ -36,18 +36,27 @@ class Admapi extends CI_Controller {
         }
     }
     public function check_pi() {
-		$query = $this->db->get_where('td_admin_approval', ['project_id' => $this->input->post('project_id')]);
-		if($query->num_rows() == 0) {
-			echo json_encode([
-				'status' => 1,
-				'message' => 'Project ID is available'
-			]);
-		} else {
+		$this->form_validation->set_rules('project_id', 'project_id', 'required');
+		if ($this->form_validation->run() == FALSE) {
 			echo json_encode([
 				'status' => 0,
-				'message' => 'Project ID already exists'
+				'message' => validation_errors()
 			]);
-		}
+		}else{
+			$query = $this->db->get_where('td_admin_approval', ['project_id' => $this->input->post('project_id')]);
+			
+			if($query->num_rows() == 0) {
+				echo json_encode([
+					'status' => 1,
+					'message' => 'Project ID is available'
+				]);
+			} else {
+				echo json_encode([
+					'status' => 0,
+					'message' => 'Project ID already exists'
+				]);
+			}
+	    }
 	}
 	
 	public function adm_appr_add() {
@@ -313,6 +322,7 @@ class Admapi extends CI_Controller {
 						'dag_no' => $this->input->post('dag_no'),
 						'khatian_no' => $this->input->post('khatian_no'),
 						'area' => $this->input->post('area'),
+						'edit_flag' => 'N',
 						'modified_by'=> $this->input->post('modified_by'),
 						'modified_at'=> date('Y-m-d H:i:s'),
 					];
@@ -448,7 +458,7 @@ class Admapi extends CI_Controller {
 			$where = array_merge($where, ['a.district_id' => $dist_id]); 
 		}
 		
-		$result_data = $this->Master->f_select('td_admin_approval a ,md_sector b ,md_account c', 'a.approval_no,a.admin_approval_dt,a.scheme_name,b.sector_desc as sector_name,(a.sch_amt+a.cont_amt) as tot_amt,a.project_id,c.account_head,a.jl_no,a.mouza,a.dag_no,a.khatian_no,a.area', $where, NULL);
+		$result_data = $this->Master->f_select('td_admin_approval a ,md_sector b ,md_account c', 'a.approval_no,a.admin_approval_dt,a.scheme_name,b.sector_desc as sector_name,(a.sch_amt+a.cont_amt) as tot_amt,a.project_id,c.account_head,a.jl_no,a.mouza,a.dag_no,a.khatian_no,a.area,edit_flag', $where, NULL);
 		//echo $this->db->last_query(); 
 		if (!empty($result_data)) {
 			echo json_encode(['status' => 1, 'message' => $result_data]);

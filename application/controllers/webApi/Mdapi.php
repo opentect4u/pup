@@ -311,7 +311,6 @@ class Mdapi extends CI_Controller {
 	}
 	//////// *************    API FOR Sector  ************* ////////
 	public function secAdd() {
-		
 		$query = $this->db->get_where('md_sector', ['sector_desc' => trim($this->input->post('sector_desc'))]);
 		if($query->num_rows() == 0) {
 			if($this->input->post('sector_desc') == '' || $this->input->post('created_by') == '') {
@@ -519,8 +518,6 @@ class Mdapi extends CI_Controller {
 		]);
 	}
 	
-
-	
 	public function designation() {
 		$data = $this->Master->f_select('md_designation', array('sl_no','desig_name'), NULL, NULL);
 		if (!empty($data)) {
@@ -633,6 +630,62 @@ class Mdapi extends CI_Controller {
 			'status' => ($id > 0) ? 1 : 0,
 			'message' => $message
 		]);
+	}
+	public function editpermission() {
+		$this->form_validation->set_rules('project_id', 'project_id', 'required');
+		$this->form_validation->set_rules('approval_no', 'approval_no', 'required');
+		$this->form_validation->set_rules('operation_type', 'operation_type', 'required');
+		$this->form_validation->set_rules('operation_module', 'operation_module', 'required');
+		$this->form_validation->set_rules('edit_flag', 'edit_flag', 'required');
+		$this->form_validation->set_rules('created_by', 'created_by', 'required');
+		
+		if($this->form_validation->run() == FALSE) {
+			echo json_encode([
+				'status' => 0,
+				'message' => validation_errors()
+			]);
+		}else{
+			$insert = 0;$give_permission = 0;
+			$data = array('edit_flag'=>$this->input->post('edit_flag'));
+			if($this->input->post('operation_module')=='AA'){
+				$give_permission = $this->Master->f_edit('td_admin_approval', $data, ['approval_no' => $this->input->post('approval_no')]);
+			}else if($this->input->post('operation_module')=='TD'){
+				$give_permission = $this->Master->f_edit('td_tender', $data, ['approval_no' => $this->input->post('approval_no')]);
+			}else if($this->input->post('operation_module')=='FR'){
+				$give_permission = $this->Master->f_edit('td_fund_receive', $data, ['approval_no' => $this->input->post('approval_no')]);
+			}else if($this->input->post('operation_module')=='EXP'){
+				$give_permission = $this->Master->f_edit('td_expenditure', $data, ['approval_no' => $this->input->post('approval_no')]);
+			}else if($this->input->post('operation_module')=='UC'){
+				$give_permission = $this->Master->f_edit('td_utilization', $data, ['approval_no' => $this->input->post('approval_no')]);
+			}else if($this->input->post('operation_module')=='PCR'){
+				$give_permission = $this->Master->f_edit('td_proj_comp_report', $data, ['approval_no' => $this->input->post('approval_no')]);
+			}
+
+			$log_entry_data = array(
+				'approval_no' => $this->input->post('approval_no'),
+				'operation_type' => $this->input->post('operation_type'),
+				'operation_module'=> $this->input->post('operation_module'),
+				'operation' => 'Edit Permission',
+				'created_by'=> $this->input->post('created_by'),
+				'created_at'=> date('Y-m-d h:i:s')
+			);
+			
+			if($give_permission > 0){
+				 $insert = $this->Master->f_insert('td_log', $log_entry_data);
+			}
+			
+			if($insert > 0) {
+				echo json_encode([
+					'status' => 1,
+					'message' => 'Successfully!'
+				]);
+			} else {
+				echo json_encode([
+					'status' => 0,
+					'message' => 'Fail'
+				]);
+			}
+	    }
 	}
 
 	

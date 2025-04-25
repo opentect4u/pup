@@ -102,7 +102,8 @@ class Fund extends CI_Controller {
 		b.sector_desc AS sector_name,c.fin_year,g.agency_name,
 		d.receive_no,d.receive_date,d.allot_order_no,d.allot_order_dt,
 		GROUP_CONCAT(DISTINCT e.dist_name ORDER BY e.dist_name SEPARATOR ', ') AS dist_name,
-		GROUP_CONCAT(DISTINCT f.block_name ORDER BY f.block_name SEPARATOR ', ') as block_name
+		GROUP_CONCAT(DISTINCT f.block_name ORDER BY f.block_name SEPARATOR ', ') as block_name,
+		d.edit_flag
 		FROM td_admin_approval a
 		INNER JOIN md_sector b ON a.sector_id = b.sl_no
 		INNER JOIN md_fin_year c ON a.fin_year = c.sl_no
@@ -114,7 +115,7 @@ class Fund extends CI_Controller {
 		INNER JOIN md_proj_imp_agency g ON a.impl_agency = g.id 
 		group by a.admin_approval_dt, 
 		a.scheme_name,
-		a.project_id,a.sch_amt,a.cont_amt,a.approval_no,
+		a.project_id,a.sch_amt,a.cont_amt,a.approval_no,d.edit_flag,
 		b.sector_desc,d.receive_no,d.receive_date,d.allot_order_no,d.allot_order_dt,
 		c.fin_year,g.agency_name")->result();
 
@@ -307,6 +308,7 @@ class Fund extends CI_Controller {
 			'cont_amt' => $this->input->post('cont_amt'),
 			'allot_order_no' => $this->input->post('allot_order_no'),
 			'allot_order_dt' => $this->input->post('allot_order_dt'),
+			'edit_flag' => 'N',
 			'modified_by' => $this->input->post('modified_by'),
 			'modified_at' => date('Y-m-d H:i:s')
 		];

@@ -100,9 +100,9 @@ class Utilization extends CI_Controller {
 		
 		$where = array('a.approval_no = b.approval_no' => NULL,'b.sector_id = c.sl_no' => NULL,
 		               'b.fin_year = d.sl_no' => NULL,'b.district_id = e.dist_code' => NULL,
-					   'b.block_id = f.block_id' => NULL,'1 group by b.admin_approval_dt,b.scheme_name,sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no,a.certi_type'=>NULL);
+					   'b.block_id = f.block_id' => NULL,'1 group by b.admin_approval_dt,b.scheme_name,sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no,a.certi_type,a.edit_flag'=>NULL);
 		
-		$result_data = $this->Master->f_select('td_utilization a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f', 'b.admin_approval_dt,b.scheme_name,c.sector_desc as sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no,a.certi_type', $where, NULL);
+		$result_data = $this->Master->f_select('td_utilization a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f', 'b.admin_approval_dt,b.scheme_name,c.sector_desc as sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no,a.certi_type,a.edit_flag', $where, NULL);
 
 		if (!empty($result_data)) {
 			echo json_encode(['status' => 1, 'message' => $result_data,'folder_name'=>'uploads/fund/']);
@@ -638,6 +638,7 @@ class Utilization extends CI_Controller {
 					'vide_no' => $this->input->post('vide_no'),
 					'vide_dt' => $this->input->post('vide_dt'),
 					'next_year' => $this->input->post('next_year'),
+					'edit_flag' => 'N',
 					'modified_by' => $this->input->post('created_by'),
 					'modified_at' => date('Y-m-d h:i:s'),
 				];

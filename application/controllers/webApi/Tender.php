@@ -60,7 +60,7 @@ class Tender extends CI_Controller {
 				b.project_id,
 				GROUP_CONCAT(DISTINCT e.dist_name ORDER BY e.dist_name SEPARATOR ', ') AS dist_name,
 				GROUP_CONCAT(DISTINCT f.block_name ORDER BY f.block_name SEPARATOR ', ') AS block_name,
-				a.approval_no
+				a.approval_no,a.edit_flag
 			FROM td_tender a
 			JOIN td_admin_approval b ON a.approval_no = b.approval_no
 			JOIN md_sector c ON b.sector_id = c.sl_no
@@ -80,7 +80,7 @@ class Tender extends CI_Controller {
 				c.sector_desc,
 				d.fin_year,
 				b.project_id,
-				a.approval_no";
+				a.approval_no,a.edit_flag";
 					$result_data = $this->db->query($sql)->result(); 
 				
 			if (!empty($result_data)) {
@@ -303,6 +303,7 @@ class Tender extends CI_Controller {
 				'add_per_security' => $this->input->post('add_per_security'),
 				'emd' => $this->input->post('emd'),
 				'date_of_refund' => $this->input->post('date_of_refund'),
+				'edit_flag' => 'N',
 				'modified_by' => $this->input->post('modified_by'),
 				'modified_at' => date('Y-m-d H:i:s')
 			];
