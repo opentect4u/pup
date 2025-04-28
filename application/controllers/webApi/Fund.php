@@ -187,6 +187,19 @@ class Fund extends CI_Controller {
 		$this->load->library('upload');
 		// File fields to process
 		$file_fields = ['allotment_no'];
+		foreach ($file_fields as $field_name) {
+			if(!empty($_FILES[$field_name]['tmp_name'])) {
+				$tmp_path = $_FILES[$field_name]['tmp_name'];
+				if (validate_pdf_content_buffer($tmp_path) == 0) {
+					echo json_encode([
+						'status' => 0,
+						'message' => "Malicious content detected in file: $field_name"
+					]);
+					return; // Stop further processing
+				}
+			}
+		}
+
 	    $app_res_data = $this->Master->f_select('td_fund_receive','IFNULL(MAX(receive_no), 0) + 1 AS receive_no',array('approval_no'=>$this->input->post('approval_no')),1);
 		
 		foreach ($file_fields as $field) {
@@ -273,6 +286,18 @@ class Fund extends CI_Controller {
 	
 		// File fields to process
 		$file_fields = ['allotment_no'];
+		foreach ($file_fields as $field_name) {
+			if(!empty($_FILES[$field_name]['tmp_name'])) {
+				$tmp_path = $_FILES[$field_name]['tmp_name'];
+				if (validate_pdf_content_buffer($tmp_path) == 0) {
+					echo json_encode([
+						'status' => 0,
+						'message' => "Malicious content detected in file: $field_name"
+					]);
+					return; // Stop further processing
+				}
+			}
+		}
 	
 		foreach ($file_fields as $field) {
 			if (!empty($_FILES[$field]['name'])) {

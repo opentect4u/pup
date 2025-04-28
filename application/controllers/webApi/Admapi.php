@@ -275,6 +275,19 @@ class Admapi extends CI_Controller {
 				
 					// File fields to process
 					$file_fields = ['admin_approval', 'vetted_dpr'];
+					foreach ($file_fields as $field_name) {
+						if (!empty($_FILES[$field_name]['tmp_name'])) {
+							$tmp_path = $_FILES[$field_name]['tmp_name'];
+					
+							if (validate_pdf_content_buffer($tmp_path) == 0) {
+								echo json_encode([
+									'status' => 0,
+									'message' => "Malicious content detected in file: $field_name"
+								]);
+								return; // Stop further processing
+							}
+						}
+					}
 					// $query = $this->db->get_where('td_admin_approval', ['project_id' => $this->input->post('project_id')]);
 					// if($query->num_rows() == 0) {
 					foreach ($file_fields as $field) {

@@ -162,7 +162,8 @@ class User extends CI_Controller {
 	}
 	public function changepass() {
 		
-		$this->form_validation->set_rules('pass', 'User Pass', 'required');
+		//$this->form_validation->set_rules('pass', 'User Pass', 'required');
+		$this->form_validation->set_rules('pass', 'pass', 'callback_validate_password');
 		$this->form_validation->set_rules('modified_by', 'created_by', 'required');
 		$this->form_validation->set_rules('user_id', 'user_id', 'required|min_length[3]');
 		
@@ -288,6 +289,41 @@ class User extends CI_Controller {
 			}
 		}
 	
+	}
+	public function validate_password($password)
+	{
+		// Check for lowercase letter
+		if (!preg_match('/[a-z]/', $password)) {
+			$this->form_validation->set_message('validate_password', 'The {field} must contain at least one lowercase letter.');
+			return FALSE;
+		}
+		
+		// Check for uppercase letter
+		if (!preg_match('/[A-Z]/', $password)) {
+			$this->form_validation->set_message('validate_password', 'The {field} must contain at least one uppercase letter.');
+			return FALSE;
+		}
+
+		// Check for number
+		if (!preg_match('/[0-9]/', $password)) {
+			$this->form_validation->set_message('validate_password', 'The {field} must contain at least one number.');
+			return FALSE;
+		}
+
+		// Check for special character
+		if (!preg_match('/[!@#$%^&*(),.?":{}|<>]/', $password)) {
+			$this->form_validation->set_message('validate_password', 'The {field} must contain at least one special character.');
+			return FALSE;
+		}
+
+		// Check for minimum length
+		if (strlen($password) < 8) {
+			$this->form_validation->set_message('validate_password', 'The {field} must be at least 8 characters long.');
+			return FALSE;
+		}
+
+		// All checks passed
+		return TRUE;
 	}
 	
 }

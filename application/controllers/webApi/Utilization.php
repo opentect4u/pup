@@ -121,7 +121,18 @@ class Utilization extends CI_Controller {
 		// File fields to process
 		$file_fields = ['certificate_path','annexture_certi'];
 	    $app_res_data = $this->Master->f_select('td_utilization','IFNULL(MAX(certificate_no), 0) + 1 AS certificate_no',array('approval_no'=>$this->input->post('approval_no')),1);
-		
+		foreach ($file_fields as $field_name) {
+			if(!empty($_FILES[$field_name]['tmp_name'])) {
+				$tmp_path = $_FILES[$field_name]['tmp_name'];
+				if (validate_pdf_content_buffer($tmp_path) == 0) {
+					echo json_encode([
+						'status' => 0,
+						'message' => "Malicious content detected in file: $field_name"
+					]);
+					return; // Stop further processing
+				}
+			}
+		}
 		foreach ($file_fields as $field) {
 			if (!empty($_FILES[$field]['name'])) {
 				$config['upload_path']   = './uploads/certificate/'; // Folder to store files
@@ -170,8 +181,32 @@ class Utilization extends CI_Controller {
 		if($this->input->post('is_final') == 'Y'){
 		    $upload_path = [];
 			$file_fiel = ['final_pic'];
+
+			if (isset($_FILES['final_pic']) && $_FILES['final_pic']['error'] == 0) {
+				$tempPath = $_FILES['final_pic']['tmp_name'];
+			
+				// If file is not empty, validate it
+				if (!empty($tempPath)) {
+					// Check MIME type
+					$mimeType = mime_content_type($tempPath);
+					$allowedMimeTypes = ['image/jpeg', 'image/png'];
+			
+					if (!in_array($mimeType, $allowedMimeTypes)) {
+						// Invalid image MIME type
+						$this->session->set_flashdata('error', 'Uploaded file is not a valid image.');
+						return;  // Exit early, no further code will run
+					}
+					// Extra: Check using getimagesize() to confirm it's a real image
+					if (getimagesize($tempPath) === false) {
+						// Invalid image (not a real image)
+						$this->session->set_flashdata('error', 'Uploaded file is not a real image.');
+						return;  // Exit early, no further code will run
+					}
+				}
+			}
 		
 			foreach ($file_fiel as $field) {
+
 				if (!empty($_FILES[$field]['name'])) {
 					$config['upload_path']   = './uploads/proj_final_pic/'; // Folder to store files
 					$config['allowed_types'] = 'jpg|jpeg|png';  // Image only
@@ -249,6 +284,18 @@ class Utilization extends CI_Controller {
 				'message' => validation_errors()
 			]);
 		}else{
+			foreach ($file_fields as $field_name) {
+				if(!empty($_FILES[$field_name]['tmp_name'])) {
+					$tmp_path = $_FILES[$field_name]['tmp_name'];
+					if (validate_pdf_content_buffer($tmp_path) == 0) {
+						echo json_encode([
+							'status' => 0,
+							'message' => "Malicious content detected in file: $field_name"
+						]);
+						return; // Stop further processing
+					}
+				}
+			}
 	
 		foreach ($file_fields as $field) {
 			if (!empty($_FILES[$field]['name'])) {
@@ -474,7 +521,18 @@ class Utilization extends CI_Controller {
 				'message' => validation_errors()
 			]);
 		}else{
-	
+			foreach ($file_fields as $field_name) {
+				if(!empty($_FILES[$field_name]['tmp_name'])) {
+					$tmp_path = $_FILES[$field_name]['tmp_name'];
+					if (validate_pdf_content_buffer($tmp_path) == 0) {
+						echo json_encode([
+							'status' => 0,
+							'message' => "Malicious content detected in file: $field_name"
+						]);
+						return; // Stop further processing
+					}
+				}
+			}
 		foreach ($file_fields as $field) {
 			if (!empty($_FILES[$field]['name'])) {
 				$config['upload_path']   = './uploads/pcr/'; // Folder to store files
