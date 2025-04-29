@@ -20,6 +20,7 @@ class Utilization extends CI_Controller {
             exit;
         }
         $this->validate_auth_key();
+		$this->load->helper('pdf');
     }
 
 	private function validate_auth_key() {
