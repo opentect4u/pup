@@ -40,7 +40,7 @@ function ProjectStatusView() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 5;
+  const rowsPerPage = 10;
   const [pageName, setPageName] = useState('');
   const [radioType, setRadioType] = useState('')
   const [projectNotCompleted, setProjectNotCompleted] = useState(false)

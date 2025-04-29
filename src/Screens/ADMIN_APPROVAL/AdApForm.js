@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import TDInputTemplate from "../../Components/TDInputTemplate";
 import BtnComp from "../../Components/BtnComp";
 import Heading from "../../Components/Heading";
@@ -117,24 +117,19 @@ function AdApForm() {
     project_submit_dtl: Yup.string().required('Details of Person/Organization by whom.. is Required'),
     
     
-    // proj_imp_by: Yup.string().required('Project implemented By is Required'),
+
     proj_imp_by: Yup.string().when([], {
       is: () => userDataLocalStore.user_type == 'A',
       then: (schema) => schema.required('Project implemented By is Required'),
       otherwise: (schema) => schema.notRequired(),
     }),
-    // dis: Yup.array()
-    //   .min(1, 'District is Required') // Ensures at least one selection
-    //   .required('District is Required'),
+
     dis: Yup.array().when([], {
       is: () => userDataLocalStore.user_type == 'A',
       then: (schema) => schema.min(1, 'District is Required').required('District is is Required'),
       otherwise: (schema) => schema.notRequired(),
     }),
 
-    // block: Yup.array()
-    //   .min(1, 'Block is Required') // Ensures at least one selection
-    //   .required('Block is Required'),
 
     block: Yup.array().when([], {
       is: () => userDataLocalStore.user_type == 'A',
@@ -142,9 +137,6 @@ function AdApForm() {
       otherwise: (schema) => schema.notRequired(),
     }),
   
-    // ps_id: Yup.array()
-    //   .min(1, 'Police Station is Required') // Ensures at least one selection
-    //   .required('Police Station is Required'),
 
     ps_id: Yup.array().when([], {
       is: () => userDataLocalStore.user_type == 'A',
@@ -152,55 +144,48 @@ function AdApForm() {
       otherwise: (schema) => schema.notRequired(),
     }),
   
-    // gp_id: Yup.array()
-    //   .min(1, 'Gram Panchayat is Required') // Ensures at least one selection
-    //   .required('Gram Panchayat is Required'),
     gp_id: Yup.array().when([], {
       is: () => userDataLocalStore.user_type == 'A',
       then: (schema) => schema.min(1, 'Gram Panchayat is Required').required('Gram Panchayat is is Required'),
       otherwise: (schema) => schema.notRequired(),
     }),
   
-    // vet_dpr_pdf: Yup.string().required('Vetted DPR is Required'),
     vet_dpr_pdf: Yup.string().when([], {
       is: () => userDataLocalStore.user_type == 'A',
       then: (schema) => schema.required('Vetted DPR is is Required'),
       otherwise: (schema) => schema.notRequired(),
     }),
 
-    // src: Yup.string().required('Source of Fund is Required'),
     src: Yup.string().when([], {
       is: () => userDataLocalStore.user_type == 'A',
       then: (schema) => schema.required('Source of Fund is is Required'),
       otherwise: (schema) => schema.notRequired(),
     }),
   
-    // jl_no: Yup.string().required('JL No. is Required'),
     jl_no: Yup.string().when([], {
       is: () => userDataLocalStore.user_type == 'A',
       then: (schema) => schema.required('JL No. is Required'),
       otherwise: (schema) => schema.notRequired(),
     }),
 
-    // mouza: Yup.string().required('Mouza is Required'),
     mouza: Yup.string().when([], {
       is: () => userDataLocalStore.user_type == 'A',
       then: (schema) => schema.required('Mouza is is Required'),
       otherwise: (schema) => schema.notRequired(),
     }),
-    // dag_no: Yup.string().required('Dag No is Required'),
+
     dag_no: Yup.string().when([], {
       is: () => userDataLocalStore.user_type == 'A',
       then: (schema) => schema.required('Dag No is Required'),
       otherwise: (schema) => schema.notRequired(),
     }),
-    // khatian_no: Yup.string().required('Khatian No is Required'),
+
     khatian_no: Yup.string().when([], {
       is: () => userDataLocalStore.user_type == 'A',
       then: (schema) => schema.required('Khatian No is Required'),
       otherwise: (schema) => schema.notRequired(),
     }),
-    // area: Yup.string().required('Area is Required'),
+
     area: Yup.string().when([], {
       is: () => userDataLocalStore.user_type == 'A',
       then: (schema) => schema.required('Area is Required'),
@@ -629,7 +614,7 @@ function AdApForm() {
 
       // fetchPoliceStnOption__load(response?.data?.message?.district_id, response.data.message.ps_id)
       // fetch_GM_Option__load(response?.data?.message?.district_id, response.data.message.block_id, response.data.message.gp_id)
-      console.log(response.data, 'fffffffffffffffff');
+      console.log(response.data, 'FormData__');
 
 
       setValues({
@@ -674,7 +659,7 @@ function AdApForm() {
 
   const saveFormData = async () => {
 
-    setLoading(true);
+    // setLoading(true);
 
     const formData = new FormData();
 
@@ -710,7 +695,7 @@ function AdApForm() {
     formData.append("created_by", userDataLocalStore.user_id);
 
     // console.log(formik.values.admin_appr_pdf, "FormData:", formik.values.vet_dpr_pdf);
-    console.log(formData, "FormData:", formik.values.admin_appr_pdf.name);
+    console.log(formData, "FormData__", formik.values.cont_amt);
     
 
     try {
@@ -895,22 +880,36 @@ function AdApForm() {
     }
   };
 
-  useEffect(() => {
-    // if (formik.values.cont_amt) {
-    //   formik.validateField('cont_amt');
-    // }
-    // formik.validateField('schm_amt');
-    // formik.validateField('cont_amt');
-    // const total = 150;
+  // useEffect(() => {
 
-    // formik.setFieldValue("cont_amt", total);
+  //   const schmAmt = formik.values.schm_amt; // Get the value of 'schm_amt'
+  //   const contAmt = schmAmt * 0.03; // Calculate 3% of 'schm_amt'
 
-    const schmAmt = formik.values.schm_amt; // Get the value of 'schm_amt'
-    const contAmt = schmAmt * 0.03; // Calculate 3% of 'schm_amt'
+  //   console.log('FormData__', formik.values.cont_amt);
+    
+  //   formik.setFieldValue('cont_amt', contAmt);
+
+  // }, [formik.values.schm_amt]);
+
+
+
+const handleSchmAmtChange_schm_amt = (e) => {
+  formik.handleChange(e); // Update Formik values first
+
+  const value = e.target.value;
+  const parsedValue = parseFloat(value);
+
+  if (e.target.name === 'schm_amt') {
+    const contAmt = !isNaN(parsedValue) && parsedValue > 0 ? parsedValue * 0.03 : 0;
+
+    console.log(parsedValue, '-> FormData__', formik.values.cont_amt);
 
     formik.setFieldValue('cont_amt', contAmt);
+  }
+};
 
-  }, [formik.values.schm_amt]);
+
+
 
 
   return (
@@ -1088,7 +1087,8 @@ function AdApForm() {
                   label={<>Schematic Amount<span className="mandator_txt"> *</span></>}
                   name="schm_amt"
                   formControlName={formik.values.schm_amt}
-                  handleChange={formik.handleChange}
+                  // handleChange={formik.handleChange}
+                  handleChange={handleSchmAmtChange_schm_amt}
                   handleBlur={formik.handleBlur}
                   mode={1}
                   disabled={userDataLocalStore.user_type === 'A'}

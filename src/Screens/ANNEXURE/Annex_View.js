@@ -31,7 +31,7 @@ function Annex_View() {
   const [loading, setLoading] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 5;
+  const rowsPerPage = 10;
   const [searchQuery, setSearchQuery] = useState('');
   const [pageName, setPageName] = useState('');
   const [printOutDataState, setPrintOutDataState] = useState([]);

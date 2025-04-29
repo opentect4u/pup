@@ -585,7 +585,7 @@ focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-
   if (curentPage === pageTree.page_8) {
     return (
       <tr key={index} className="border-b dark:border-gray-700">
-        <td className="px-4 py-3">{data?.project_id} {JSON.stringify(data, null, 2)}</td>
+        <td className="px-4 py-3">{data?.project_id}</td>
         <td className="px-4 py-3">{data?.scheme_name}</td>
         <td className="px-4 py-3">{data?.fin_year}</td>
         <td className="px-4 py-3">

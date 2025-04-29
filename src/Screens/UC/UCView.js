@@ -16,7 +16,7 @@ function UCView() {
   const params = useParams();
   const [OPERATION_STATUS, setOPERATION_STATUS] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 5;
+  const rowsPerPage = 10;
   const [loading, setLoading] = useState(false);
   const [pageName, setPageName] = useState('');
 

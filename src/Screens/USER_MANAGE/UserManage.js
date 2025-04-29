@@ -87,7 +87,7 @@ function UserManage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [editingSector, setEditingSector] = useState(false); // New state for editing
   const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 5;
+  const rowsPerPage = 10;
   const [districtDropList, setDistrictDropList] = useState([]);
   const [depertment, setDepertment] = useState([]);
   const [designation, setDesignation] = useState([]);

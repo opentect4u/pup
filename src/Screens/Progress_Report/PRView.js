@@ -23,7 +23,7 @@ function PRView() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 5;
+  const rowsPerPage = 10;
   const [pageName, setPageName] = useState('');
 
   const fetchTableDataList_Fn = async () => {
@@ -117,7 +117,7 @@ function PRView() {
               <span className="text-sm text-gray-500">
                 Showing {(currentPage - 1) * rowsPerPage + 1} to {Math.min(currentPage * rowsPerPage, filteredTableData.length)} of {filteredTableData.length}
               </span>
-              <div className="flex space-x-2">
+              <div className="flex space-x-2 pagination">
                 {Array.from({ length: totalPages }, (_, index) => (
                   <button
                     key={index}

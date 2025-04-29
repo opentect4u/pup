@@ -20,7 +20,7 @@ function AdApView() {
   const [searchTerm, setSearchTerm] = useState("");  //searched data
 
   const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 5;
+  const rowsPerPage = 10;
   const [pageName, setPageName] = useState('');
   const [userDataLocalStore, setUserDataLocalStore] = useState([]);
 

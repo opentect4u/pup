@@ -26,7 +26,7 @@ function DERTMENT_ADD() {
   const [editingSector, setEditingSector] = useState(null); // New state for editing
   const [editingStatus, setEditingStatus] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 5;
+  const rowsPerPage = 10;
   const [userDataLocalStore, setUserDataLocalStore] = useState([]);
   
 

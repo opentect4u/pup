@@ -17,7 +17,7 @@ function FundExpView() {
   const [OPERATION_STATUS, setOPERATION_STATUS] = useState('');
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 5;
+  const rowsPerPage = 10;
   const [pageName, setPageName] = useState('');
 
   const fetchTableDataList_Fn = async () => {

@@ -25,7 +25,7 @@ function ACC_HEAD_Form() {
   const [searchTerm, setSearchTerm] = useState("");
   const [editingAccountHead, setEditingAccountHead] = useState(null); // New state for editing
   const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 5;
+  const rowsPerPage = 10;
   const [userDataLocalStore, setUserDataLocalStore] = useState([]);
 
   useEffect(() => {
