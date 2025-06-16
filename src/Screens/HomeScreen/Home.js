@@ -30,6 +30,7 @@ function Home() {
 
           <Outlet />
         </ErrorBoundary>
+        <Footer />
       </div>
     </div>
   </div>

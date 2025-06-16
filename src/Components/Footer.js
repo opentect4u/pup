@@ -1,10 +1,13 @@
 import React from 'react'
+import packageJson from '../../package.json'
 
 function Footer() {
+  const appVersion = packageJson.version;
+
   return (
-    <footer class="relative bg-slate-900 pt-8 pb-6">
+    <footer class="relative pt-2 pb-2 bg-slate-200">
     <div class="container mx-auto px-4">
-      <div class="flex flex-wrap text-left lg:text-left">
+      {/* <div class="flex flex-wrap text-left lg:text-left">
         <div class="w-full lg:w-6/12 px-4">
           <h4 class="text-3xl fonat-semibold text-green-500">Let's keep in touch!</h4>
           <h5 class="text-lg mt-0 mb-2 text-gray-100">
@@ -58,12 +61,13 @@ function Footer() {
           </div>
         </div>
       </div>
-      <hr class="my-6 border-blueGray-300"/>
+      <hr class="my-6 border-blueGray-300"/> */}
       <div class="flex flex-wrap items-center md:justify-between justify-center">
         <div class="w-full md:w-4/12 px-4 mx-auto text-center">
           <div class="text-sm text-gray-500 font-semibold py-1">
-            Copyright © <span id="get-current-year">2025</span><a href="https://www.creative-tim.com/product/notus-js" class="text-blueGray-500 hover:text-gray-800" target="_blank"/> LOREM IPSUM created by
-            <a href="https://www.creative-tim.com?ref=njs-profile" class="text-blueGray-500 hover:text-blueGray-800"> ABC</a>.
+            Copyright © <span id="get-current-year">2025.</span> <br/> Version: {appVersion}
+            {/* <a href="https://www.creative-tim.com/product/notus-js" class="text-blueGray-500 hover:text-gray-800" target="_blank"/> LOREM IPSUM created by
+            <a href="https://www.creative-tim.com?ref=njs-profile" class="text-blueGray-500 hover:text-blueGray-800"> ABC</a>. */}
           </div>
         </div>
       </div>
