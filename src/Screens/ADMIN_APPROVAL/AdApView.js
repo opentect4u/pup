@@ -133,6 +133,7 @@ function AdApView() {
               <TableHeader curentPage={pageName} />
                 
                 <tbody>
+                  {/* {JSON.stringify(filteredDataList , null, 2)} */}
                   {currentTableData?.map((data, index) => (
                     <TableRow key={index} data={data} curentPage={pageName} navigate={navigate} fetchTableDataList_Fn={fetchTableDataList_Fn} />
                   ))}
