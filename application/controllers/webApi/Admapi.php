@@ -67,7 +67,7 @@ class Admapi extends CI_Controller {
 		$this->form_validation->set_rules('fin_year', 'fin_year', 'required');
 		$this->form_validation->set_rules('sch_amt', 'sch_amt', 'required');
 		$this->form_validation->set_rules('cont_amt', 'cont_amt', 'required');
-	    
+	   
 		if ($this->form_validation->run() == FALSE) {
 			echo json_encode([
 				'status' => 0,
@@ -260,7 +260,7 @@ class Admapi extends CI_Controller {
                 $sch_amt = $this->input->post('sch_amt');
 				$cont_amt = $this->input->post('cont_amt');
 
-				if ($cont_amt > (0.03 * $sch_amt)) {
+				if ($cont_amt > round(0.03 * $sch_amt)) {
 					// Handle error: contribution amount exceeds 3% of scholarship amount
 					$response = array(
 						'status' => 0,
@@ -418,6 +418,7 @@ class Admapi extends CI_Controller {
 									$this->db->insert_batch('td_admin_approval_gp', $batch_data);
 								}
 							}
+						$log_data = $this->Master->f_insert('td_log', array('approval_no'=>$this->input->post('approval_no'),'operation_type'=>'E','operation_module'=>'AA','operation'=>'Edit','created_by'=>$this->input->post('modified_by'),'created_at'=>date('Y-m-d H:i:s'),'created_ip'=>''));
 						if($res > 0) {
 						echo json_encode([
 							'status' => 1,
