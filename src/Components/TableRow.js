@@ -192,8 +192,8 @@ const TableRow = ({
           ) : (
             <button
               type="button"
-              className="text-slate-700 cursor-not-allowed border border-slate-700 bg-slate-300 focus:ring-4 focus:outline-none focus:ring-slate-300 font-medium rounded-lg text-sm px-3 py-1.5"
-              onClick={() => { }}
+              className="text-blue-700 border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1.5"
+              onClick={() => navigate(`/home/admin_approval/AdApcrud/${data?.approval_no}`)}
             >
               <EditOutlined />
             </button>
@@ -255,10 +255,12 @@ const TableRow = ({
           ) : (
             <button
               type="button"
-              className="text-slate-700 cursor-not-allowed border border-slate-700 bg-slate-300 focus:ring-4 focus:outline-none focus:ring-slate-300 font-medium rounded-lg text-sm px-3 py-1.5"
-              onClick={() => { }}
+              className="text-blue-700 border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1.5"
+              onClick={() => navigate(`/home/tender_formality/tfcrud/${data?.approval_no}`, {
+                state: { ...data, operation_status: 'edit' },
+              })}
             >
-              <EditOutlined />
+              <EditOutlined /> 
             </button>
           )}
 

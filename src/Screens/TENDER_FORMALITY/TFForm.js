@@ -206,7 +206,7 @@ function TFForm() {
         }
       );
 
-      console.log(response?.data, 'responsedata______progress_list');
+      console.log(response?.data?.message, 'responsedata______progress_list');
       
       if (response?.data.status > 0) {
         setLoading(false);
@@ -546,14 +546,21 @@ function TFForm() {
               <>
               <label for="fin_yr" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Project ID</label>
               <Select
+              showSearch // Search
               placeholder="Choose Project ID"
               onChange={(value) => {
+              formik.setFieldValue("approval_no", value)
               loadFormData(value)
               fundAddedList(value)
               setApprovalNo(value)
               setShowForm(true)
               }}
+              onBlur={formik.handleBlur}
               style={{ width: "100%" }}
+              optionFilterProp="children"
+              filterOption={(input, option) => // Search
+              option?.children?.toLowerCase().includes(input.toLowerCase()) // Search
+              } // Search
               >
               <Select.Option value="" disabled> Choose Project ID </Select.Option>
               {projectId.map(data => (
@@ -562,6 +569,7 @@ function TFForm() {
               </Select.Option>
               ))}
               </Select>
+
               </>
 
               )}
@@ -1150,16 +1158,35 @@ function TFForm() {
             {projectIncomplete === false &&(
 
             <div className="sm:col-span-12 flex justify-center gap-4 mt-4">
-            {params.id < 1 &&(
-            <BtnComp title={'Reset'} type="reset" 
-            onClick={() => { 
-            formik.resetForm();
-            }}
-            width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
+              {JSON.stringify(getMsgData[0]?.edit_flag, null, 2)} 
+{getMsgData[0]?.edit_flag == 'Y' ? (
+<>
+{params.id < 1 &&(
+<BtnComp title={'Reset'} type="reset" 
+onClick={() => { 
+formik.resetForm();
+}}
+width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
+)}
+<BtnComp type={'submit'} title={params.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
+</>
+            ) : userDataLocalStore.user_type === 'S' ? (
+<>
+{params.id < 1 &&(
+<BtnComp title={'Reset'} type="reset" 
+onClick={() => { 
+formik.resetForm();
+}}
+width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
+)}
+<BtnComp type={'submit'} title={params.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
+</>
+            ) : (
+<> </>
             )}
 
-            {/* <button type="submit">Search</button> */}
-            <BtnComp type={'submit'} title={params.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
+
+            
             </div>
             )}
           </div>

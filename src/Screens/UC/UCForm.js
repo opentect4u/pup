@@ -485,14 +485,22 @@ function UCForm() {
           <>
           <label for="fin_yr" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Project ID</label>
           <Select
+          showSearch // Enable search
           placeholder="Choose Project ID"
           onChange={(value) => {
+          formik.setFieldValue("approval_no", value);
           loadFormData(value)
           fundAddedList(value)
           setApprovalNo(value)
           setShowForm(true);
           }}
+          // style={{ width: "100%" }}
+          onBlur={formik.handleBlur}
           style={{ width: "100%" }}
+          optionFilterProp="children"
+          filterOption={(input, option) =>
+          option?.children?.toLowerCase().includes(input.toLowerCase())
+          }
           >
           <Select.Option value="" disabled> Choose Project ID </Select.Option>
           {projectId.map(data => (

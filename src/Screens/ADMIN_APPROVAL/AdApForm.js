@@ -80,6 +80,7 @@ function AdApForm() {
   const [userDataLocalStore, setUserDataLocalStore] = useState([]);
   const [errorpdf_1, setErrorpdf_1] = useState("");
   const [errorpdf_2, setErrorpdf_2] = useState("");
+  const [editFlagStatus, setEditFlagStatus] = useState("");
 
   const [projectSubBy, setProjectSubBy] = useState([]);
 
@@ -649,7 +650,9 @@ function AdApForm() {
         area: response.data.message.area,
       })
 
-      console.log("loadFormDatafffffffff", response.data.message.dag_no); // Log the actual response data
+      // setEditFlagStatus(response.data.message.edit_flag)
+
+      console.log("loadFormDatafffffffff", response.data.message.edit_flag); // Log the actual response data
       // setSourceFundDropList(response.data.message)
     } catch (error) {
       console.error("Error fetching data:", error); // Handle errors properly
@@ -999,7 +1002,7 @@ const handleSchmAmtChange_schm_amt = (e) => {
                   formControlName={formik.values.scheme_name}
                   handleChange={formik.handleChange}
                   handleBlur={formik.handleBlur}
-                  mode={1}
+                  mode={3}
                   disabled={userDataLocalStore.user_type === 'A'}
                 />
                 {formik.errors.scheme_name && formik.touched.scheme_name && (
@@ -1632,19 +1635,30 @@ const handleSchmAmtChange_schm_amt = (e) => {
                 )}
               </div>
 
+{/* {JSON.stringify(editFlagStatus, null, 2)} */}
+            {editFlagStatus == 'Y' ? (
+<div className="sm:col-span-12 flex justify-center gap-4 mt-4">
+<BtnComp title={params?.id > 0 ? 'Reload' : 'Reset'} type="reset" onClick={() => {formik.resetForm();}} width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
+<BtnComp type={'submit'} title={params?.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
+</div>
+            ) : userDataLocalStore.user_type === 'S' ? (
+<div className="sm:col-span-12 flex justify-center gap-4 mt-4">
+<BtnComp title={params?.id > 0 ? 'Reload' : 'Reset'} type="reset" onClick={() => {formik.resetForm();}} width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
+<BtnComp type={'submit'} title={params?.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
+</div>
+            ) : (
+<div className="sm:col-span-12 flex justify-center gap-4 mt-4">
+{/* <BtnComp title={params?.id > 0 ? 'Reload' : 'Reset'} type="reset" onClick={() => {formik.resetForm();}} width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
+<BtnComp type={'submit'} title={params?.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} /> */}
+</div>
+            )}
 
-              <div className="sm:col-span-12 flex justify-center gap-4 mt-4">
 
-                <BtnComp title={params?.id > 0 ? 'Reload' : 'Reset'} type="reset"
-                  onClick={() => {
-                    formik.resetForm();
-                  }}
-                  width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
-                {/* <button type="submit">Search</button> */}
-                <BtnComp type={'submit'} title={params?.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'}
-                  bgColor={'bg-blue-900'}
-                />
-              </div>
+
+              {/* <div className="sm:col-span-12 flex justify-center gap-4 mt-4">
+<BtnComp title={params?.id > 0 ? 'Reload' : 'Reset'} type="reset" onClick={() => {formik.resetForm();}} width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
+<BtnComp type={'submit'} title={params?.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
+              </div> */}
             </div>
 
           </form>
