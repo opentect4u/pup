@@ -14,3 +14,4 @@ export const folder_tender='uploads/tender/'
 export const folder_certificate='uploads/certificate/'
 export const folder_progresImg='uploads/progress_image/'
 export const proj_final_pic='uploads/proj_final_pic/'
+
