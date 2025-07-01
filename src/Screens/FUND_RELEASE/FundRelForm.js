@@ -63,6 +63,7 @@ function FundRelForm() {
   const [useSchematicAmt, setUseSchematicAmt] = useState(0);
   const [useContigencyAmt, setUseContigencyAmt] = useState(0);
   const [projectIncomplete, setProjectIncomplete] = useState(false);
+  const [editFlagStatus, setEditFlagStatus] = useState("");
 
 
   const validationSchema = Yup.object({
@@ -411,7 +412,7 @@ function FundRelForm() {
         }
       );
 
-      console.log(response?.data?.message, 'ffffffffffffffffff', formData);
+      console.log(response?.data?.message?.edit_flag, 'ffffffffffffffffff', formData);
       
       if (response?.data.status > 0) {
         setLoading(false);
@@ -425,6 +426,8 @@ function FundRelForm() {
           tot_amt: response.data.message.tender_notice != null ? response?.data?.message?.tender_notice : '',
           isntl_date: response.data.message.receive_date != null ? response?.data?.message?.receive_date : '',
         })
+
+        setEditFlagStatus(response?.data?.message?.edit_flag)
       }
 
       if (response?.data.status < 1) {
@@ -1095,17 +1098,35 @@ Balance Of Contigency Amount:</span> ₹. {sanctionSchemaContiAmt?.cont_amt - us
 
             {projectIncomplete === false &&(
             <div className="sm:col-span-12 flex justify-center gap-4 mt-4">
-            {/* <BtnComp title={'Reset'} width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'}/>
-            <BtnComp title={'Submit'} width={'w-1/6'} bgColor={'bg-blue-900'}/> */}
-            {params.id < 1 &&(
+
+            {params.id < 1 ? (
+            <>
+            <BtnComp title={'Reset'} type="reset" onClick={() => { formik.resetForm();}}
+            width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
+            <BtnComp type={'submit'} title={params.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
+            </>
+            ) : editFlagStatus == 'Y' ? (
+            <>
+            <BtnComp type={'submit'} title={params.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
+            </>
+            ) : userDataLocalStore.user_type === 'S' ? (
+            <>
+            <BtnComp type={'submit'} title={params.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
+            </>
+            )  : null }
+
+
+            {/* {params.id < 1 &&(
             <BtnComp title={'Reset'} type="reset" 
             onClick={() => { 
             formik.resetForm();
             }}
             width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
             )}
-            {/* <button type="submit">Search</button> */}
-            <BtnComp type={'submit'} title={params.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
+            <BtnComp type={'submit'} title={params.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} /> */}
+
+
+
             </div>
             )}
             

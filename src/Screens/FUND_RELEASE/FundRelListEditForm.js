@@ -48,10 +48,18 @@ function FundRelListEditForm() {
   const [fundStatus, setFundStatus] = useState(() => []);
   // const [folderName, setFolderName] = useState('');
   const [filePreview, setFilePreview] = useState(null);
+  const [userDataLocalStore, setUserDataLocalStore] = useState([]);
 
-  useEffect(()=>{
-      console.log('receive_date>>', receive_date, 'loadFormData', 'receive_no>>', receive_no,  'approval_no>>', params?.id);
-    }, [])
+  useEffect(() => {
+
+    const userData = localStorage.getItem("user_dt");
+    if (userData) {
+    setUserDataLocalStore(JSON.parse(userData))
+    } else {
+    setUserDataLocalStore([])
+    }
+    
+  }, []);
 
     
 
@@ -128,7 +136,7 @@ function FundRelListEditForm() {
       formData.append("allotment_no", formik.values.al1_pdf); // Ensure this is a file if applicable
       formData.append("sch_amt", formik.values.sch_amt_one);
       formData.append("cont_amt", formik.values.cont_amt_one);
-      formData.append("modified_by", "SSS Name Modified By");
+      formData.append("modified_by", userDataLocalStore.user_id);
 
 
   

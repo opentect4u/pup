@@ -650,7 +650,7 @@ function AdApForm() {
         area: response.data.message.area,
       })
 
-      // setEditFlagStatus(response.data.message.edit_flag)
+      setEditFlagStatus(response.data.message.edit_flag)
 
       console.log("loadFormDatafffffffff", response.data.message.edit_flag); // Log the actual response data
       // setSourceFundDropList(response.data.message)
@@ -1636,22 +1636,17 @@ const handleSchmAmtChange_schm_amt = (e) => {
               </div>
 
 {/* {JSON.stringify(editFlagStatus, null, 2)} */}
-            {editFlagStatus == 'Y' ? (
+{editFlagStatus == 'Y' ? (
 <div className="sm:col-span-12 flex justify-center gap-4 mt-4">
 <BtnComp title={params?.id > 0 ? 'Reload' : 'Reset'} type="reset" onClick={() => {formik.resetForm();}} width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
 <BtnComp type={'submit'} title={params?.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
 </div>
-            ) : userDataLocalStore.user_type === 'S' ? (
+) : userDataLocalStore.user_type === 'S' ? (
 <div className="sm:col-span-12 flex justify-center gap-4 mt-4">
 <BtnComp title={params?.id > 0 ? 'Reload' : 'Reset'} type="reset" onClick={() => {formik.resetForm();}} width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
 <BtnComp type={'submit'} title={params?.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
 </div>
-            ) : (
-<div className="sm:col-span-12 flex justify-center gap-4 mt-4">
-{/* <BtnComp title={params?.id > 0 ? 'Reload' : 'Reset'} type="reset" onClick={() => {formik.resetForm();}} width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
-<BtnComp type={'submit'} title={params?.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} /> */}
-</div>
-            )}
+) : null }
 
 
 

@@ -45,10 +45,18 @@ function UCListEditForm() {
   const [fundStatus, setFundStatus] = useState(() => []);
   // const [folderName, setFolderName] = useState('');
   const [filePreview, setFilePreview] = useState(null);
+  const [userDataLocalStore, setUserDataLocalStore] = useState([]);
 
-  useEffect(()=>{
-      console.log( 'loadFormData', 'certificate_no>>', certificate_no,  'approval_no>>', params?.id);
-    }, [])
+  useEffect(() => {
+
+    const userData = localStorage.getItem("user_dt");
+    if (userData) {
+    setUserDataLocalStore(JSON.parse(userData))
+    } else {
+    setUserDataLocalStore([])
+    }
+    
+  }, []);
 
     
 
@@ -122,7 +130,7 @@ function UCListEditForm() {
       formData.append("issued_by", formik.values.issued_by);
       formData.append("certificate_path", formik.values.certificate_path); // Ensure this is a file if applicable
       formData.append("issued_to", formik.values.issued_to);
-      formData.append("created_by", "SSS Name Created By");
+      formData.append("created_by", userDataLocalStore.user_id);
 
 // approval_no,
 // certificate_no

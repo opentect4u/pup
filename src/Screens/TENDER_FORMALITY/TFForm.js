@@ -110,6 +110,7 @@ function TFForm() {
   const [errorpdf_1, setErrorpdf_1] = useState("");
   const [errorpdf_2, setErrorpdf_2] = useState("");
   const [projectIncomplete, setProjectIncomplete] = useState(false);
+  const [editFlagStatus, setEditFlagStatus] = useState("");
 
 
   useEffect(()=>{
@@ -255,7 +256,7 @@ function TFForm() {
         }
       );
 
-      console.log(response?.data?.message, 'responsedataTender_editttttt');
+      console.log(response?.data?.message?.edit_flag, 'responsedataTender_editttttt');
       
       if (response?.data.status > 0) {
         setLoading(false);
@@ -277,6 +278,8 @@ function TFForm() {
           td_pdf: response.data.message.tender_notice != null ? response?.data?.message?.tender_notice : '',
           wo_pdf: response.data.message.wo_copy != null ? response?.data?.message?.wo_copy : '',
         })
+
+        setEditFlagStatus(response?.data?.message?.edit_flag)
         
       }
 
@@ -1154,36 +1157,31 @@ function TFForm() {
                 <VError title={formik.errors.compl} />
               )}
             </div>
-
             {projectIncomplete === false &&(
 
-            <div className="sm:col-span-12 flex justify-center gap-4 mt-4">
-              {JSON.stringify(getMsgData[0]?.edit_flag, null, 2)} 
-{getMsgData[0]?.edit_flag == 'Y' ? (
+<div className="sm:col-span-12 flex justify-center gap-4 mt-4">
+
+{params.id < 1 ? (
 <>
-{params.id < 1 &&(
 <BtnComp title={'Reset'} type="reset" 
 onClick={() => { 
 formik.resetForm();
 }}
 width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
-)}
 <BtnComp type={'submit'} title={params.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
 </>
-            ) : userDataLocalStore.user_type === 'S' ? (
+) : editFlagStatus == 'Y' ? (
 <>
-{params.id < 1 &&(
-<BtnComp title={'Reset'} type="reset" 
-onClick={() => { 
-formik.resetForm();
-}}
-width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
-)}
 <BtnComp type={'submit'} title={params.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
 </>
-            ) : (
-<> </>
-            )}
+) : userDataLocalStore.user_type === 'S' ? (
+<>
+<BtnComp type={'submit'} title={params.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
+</>
+)  : null }
+
+  {/* {JSON.stringify(getMsgData[0]?.edit_flag, null, 2)}  */}
+  
 
 
             

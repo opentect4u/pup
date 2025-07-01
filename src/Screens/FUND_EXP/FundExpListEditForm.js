@@ -46,10 +46,18 @@ function FundExpListEditForm() {
   const [fundStatus, setFundStatus] = useState(() => []);
   // const [folderName, setFolderName] = useState('');
   const [filePreview, setFilePreview] = useState(null);
+  const [userDataLocalStore, setUserDataLocalStore] = useState([]);
 
-  useEffect(()=>{
-      console.log('receive_date>>', payment_no, 'loadFormData', 'receive_no>>', payment_date,  'approval_no>>', params?.id);
-    }, [])
+  useEffect(() => {
+
+    const userData = localStorage.getItem("user_dt");
+    if (userData) {
+    setUserDataLocalStore(JSON.parse(userData))
+    } else {
+    setUserDataLocalStore([])
+    }
+    
+  }, []);
 
     
 
@@ -113,7 +121,7 @@ function FundExpListEditForm() {
       formData.append("payment_to", formik.values.exp_text);
       formData.append("sch_amt", formik.values.sch_amt_one);
       formData.append("cont_amt", formik.values.cont_amt_one);
-      formData.append("created_by", "SSS Name Modified By");
+      formData.append("created_by", userDataLocalStore.user_id);
 
     
       console.log("FormData:", formData);

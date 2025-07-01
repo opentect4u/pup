@@ -125,7 +125,7 @@ function DESIGNATION_ADD() {
           // Append each field to FormData
     formData.append("desig_name", formik.values.add_sector);
     formData.append("sl_no", editingSector.sl_no);
-    formData.append("created_by", '');
+    formData.append("created_by", userDataLocalStore.user_id);
     formData.append("modified_by", userDataLocalStore.user_id);
 
           

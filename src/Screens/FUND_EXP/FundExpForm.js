@@ -62,6 +62,7 @@ function FundExpForm() {
   const [contigencyRemarks, setContigencyRemarks] = useState([]);
   const [contigencyId, setContigencyId] = useState([]);
   const [projectIncomplete, setProjectIncomplete] = useState(false);
+  const [editFlagStatus, setEditFlagStatus] = useState("");
   
   const validationSchema = Yup.object({
     // exp_text: Yup.string().required('Remarks is Required'),
@@ -147,7 +148,7 @@ function FundExpForm() {
       formData.append("payment_date", formik.values.payment_date);
       formData.append("sch_remark", formik.values.sch_remark);
       formData.append("cont_remark", formik.values.cont_remark);
-      formData.append("created_by", "SSS Name Created By");
+      formData.append("created_by", userDataLocalStore.user_id);
 
       console.log(formData, 'FormData_____');
     
@@ -392,6 +393,7 @@ function FundExpForm() {
         }
       );
 
+      // console.log(response, 'response', response?.data?.message?.edit_flag);
       
       if (response?.data.status > 0) {
         setLoading(false);
@@ -402,6 +404,7 @@ function FundExpForm() {
           sch_remark:  response.data.message.sch_remark != null ? response?.data?.message?.sch_remark : '',
           cont_remark: response?.data?.cont_remark != null ? response?.data?.message?.cont_remark : '',
         })
+        setEditFlagStatus(response?.data?.message?.edit_flag)
 
       }
 
@@ -917,20 +920,36 @@ function FundExpForm() {
             
 
             
+          {/* aaa{JSON.stringify(editFlagStatus , null, 2)} ccc */}
         {projectIncomplete === false &&(
             <div className="sm:col-span-12 flex justify-center gap-4 mt-4">
-         {/* <BtnComp title={'Reset'} width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'}/>
-         <BtnComp title={'Submit'} width={'w-1/6'} bgColor={'bg-blue-900'}/> */}
-          {params.id < 1 &&(
-          <BtnComp title={'Reset'} type="reset" 
-        onClick={() => { 
-          formik.resetForm();
-          formik.setFieldValue("cont_remark", []);
-        }}
-        width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
-        )}
-        {/* <button type="submit">Search</button> */}
-        <BtnComp type={'submit'} title={params.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
+
+            
+            
+
+
+{params.id < 1 ? (
+<>
+<BtnComp title={'Reset'} type="reset" 
+onClick={() => { 
+formik.resetForm();
+formik.setFieldValue("cont_remark", []);
+}}
+width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
+<BtnComp type={'submit'} title={params.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
+</>
+) : editFlagStatus == 'Y' ? (
+<>
+<BtnComp type={'submit'} title={params.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
+</>
+) : userDataLocalStore.user_type === 'S' ? (
+// You can render something specific here if needed
+<>
+<BtnComp type={'submit'} title={params.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
+</>
+)  : null }
+
+
          </div>
          )}
 

@@ -172,7 +172,16 @@ const TableRow = ({
           </Space>
         </td>
         <td className="px-4 py-3">
-          {data?.edit_flag == 'Y' ? (
+
+          <button
+              type="button"
+              className="text-blue-700 border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1.5"
+              onClick={() => navigate(`/home/admin_approval/AdApcrud/${data?.approval_no}`)}
+            >
+              {data?.edit_flag == 'Y' ? ( <EditOutlined />) : userDataLocalStore.user_type === 'S' ? (<EditOutlined /> ) : ( <EyeOutlined />)}
+            </button>
+
+          {/* {data?.edit_flag == 'Y' ? (
             <button
               type="button"
               className="text-blue-700 border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1.5"
@@ -195,9 +204,9 @@ const TableRow = ({
               className="text-blue-700 border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1.5"
               onClick={() => navigate(`/home/admin_approval/AdApcrud/${data?.approval_no}`)}
             >
-              <EditOutlined />
+              <EyeOutlined />
             </button>
-          )}
+          )} */}
 
         </td>
       </tr>
@@ -229,7 +238,18 @@ const TableRow = ({
           </Space>
         </td>
         <td scope="row" className="px-4 py-3">
-          {data?.edit_flag == 'Y' ? (
+
+          <button
+              type="button"
+              className="text-blue-700 border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1.5"
+              onClick={() => navigate(`/home/tender_formality/tfcrud/${data?.approval_no}`, {
+                state: { ...data, operation_status: 'edit' },
+              })}
+            >
+              {data?.edit_flag == 'Y' ? ( <EditOutlined />) : userDataLocalStore.user_type === 'S' ? (<EditOutlined /> ) : ( <EyeOutlined />)}
+            </button>
+
+          {/* {data?.edit_flag == 'Y' ? (
             <button type="button" className="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 
         focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1.5 text-center 
         me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 
@@ -260,9 +280,9 @@ const TableRow = ({
                 state: { ...data, operation_status: 'edit' },
               })}
             >
-              <EditOutlined /> 
+              <EyeOutlined />
             </button>
-          )}
+          )} */}
 
         </td>
       </tr>
@@ -333,7 +353,19 @@ const TableRow = ({
           </Space>
         </td>
         <td className="px-4 py-3">
-          {data?.edit_flag == 'Y' ? (
+
+          <button
+              type="button"
+              className="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 
+focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1.5"
+              onClick={() => navigate(`/home/fund_release/frcrud/${data?.approval_no}`, {
+                state: { ...data, operation_status: 'edit' },
+              })}
+            >
+            {data?.edit_flag == 'Y' ? ( <EditOutlined />) : userDataLocalStore.user_type === 'S' ? (<EditOutlined /> ) : ( <EyeOutlined />)}
+            </button>
+
+          {/* {data?.edit_flag == 'Y' ? (
             <button
               type="button"
               className="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 
@@ -362,9 +394,9 @@ focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-
               className="text-slate-700 cursor-not-allowed border border-slate-700 bg-slate-300 focus:ring-4 focus:outline-none focus:ring-slate-300 font-medium rounded-lg text-sm px-3 py-1.5"
               onClick={() => { }}
             >
-              <EditOutlined />
+              <EyeOutlined />
             </button>
-          )}
+          )} */}
 
         </td>
       </tr>
@@ -397,7 +429,15 @@ focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-
         </td>
         <td className="px-4 py-3">
 
-          {data?.edit_flag === 'Y' ? (
+          <button
+              type="button"
+              className="text-blue-700 border border-blue-700 hover:bg-blue-800 hover:text-white px-3 py-1.5 rounded-lg"
+              onClick={() => navigate(`/home/fund_expense/fecrud/${data.approval_no}`, { state: { ...data, operation_status: 'edit' } })}
+            >
+              {data?.edit_flag == 'Y' ? ( <EditOutlined />) : userDataLocalStore.user_type === 'S' ? (<EditOutlined /> ) : ( <EyeOutlined />)}
+            </button>
+
+          {/* {data?.edit_flag === 'Y' ? (
             <button
               type="button"
               className="text-blue-700 border border-blue-700 hover:bg-blue-800 hover:text-white px-3 py-1.5 rounded-lg"
@@ -417,12 +457,12 @@ focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-
           ) : (
             <button
               type="button"
-              className="text-slate-700 cursor-not-allowed border border-slate-700 bg-slate-300 focus:ring-4 focus:outline-none focus:ring-slate-300 font-medium rounded-lg text-sm px-3 py-1.5"
-              onClick={() => { }}
+              className="text-blue-700 border border-blue-700 hover:bg-blue-800 hover:text-white px-3 py-1.5 rounded-lg"
+              onClick={() => navigate(`/home/fund_expense/fecrud/${data.approval_no}`, { state: { ...data, operation_status: 'edit' } })}
             >
-              <EditOutlined />
+              <EyeOutlined />
             </button>
-          )}
+          )} */}
 
         </td>
       </tr>
