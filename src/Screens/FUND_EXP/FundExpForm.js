@@ -107,7 +107,6 @@ function FundExpForm() {
           }
         );
 
-        console.log("FormData_____", response?.data);
 
         if(response.data.status > 0){
           setLoading(false);
@@ -115,7 +114,6 @@ function FundExpForm() {
           setFolderName(response.data.folder_name)
           setSchemaAmt(response?.data?.message.reduce((acc, item) => acc + (Number(item?.sch_amt) || 0), 0));
           setContiAmt(response?.data?.message.reduce((acc, item) => acc + (Number(item?.cont_amt) || 0), 0));
-          // console.log(schematicAmount_amt, 'pppppppppppppppp', contigencyAmount_amt);
           
         }
 
@@ -150,9 +148,6 @@ function FundExpForm() {
       formData.append("cont_remark", formik.values.cont_remark);
       formData.append("created_by", userDataLocalStore.user_id);
 
-      console.log(formData, 'FormData_____');
-    
-      console.log("FormData:", formData);
   
       try {
         const response = await axios.post(
@@ -165,9 +160,6 @@ function FundExpForm() {
             },
           }
         );
-        
-        
-        console.log(response.data, 'FormData_____');
         
         if(response.data.status > 0){
           // setLoading(false);
@@ -215,7 +207,6 @@ function FundExpForm() {
 
   
     
-      console.log("formDataformData", formData);
   
       try {
         const response = await axios.post(
@@ -228,7 +219,6 @@ function FundExpForm() {
             },
           }
         );
-        console.log(response, 'response');
         
         // setLoading(false);
         Message("success", "Updated successfully.");
@@ -247,8 +237,6 @@ function FundExpForm() {
     };
 
  const onSubmit = (values) => {
-    console.log(values, 'credcredcredcredcred', operation_status ==  'edit', 'lll', params?.id);
-
     if(params?.id > 0){
       updateFormData()
     } else {
@@ -272,7 +260,6 @@ function FundExpForm() {
 
       if(response?.data?.status > 0){
       // fundAddedList()
-      console.log("Response Data:", response?.data?.status); // Log the actual response data
       setProjectId(response.data.message)
       setLoading(false);
       }
@@ -302,7 +289,6 @@ function FundExpForm() {
 
       if(response?.data?.status > 0){
       // fundAddedList()
-      console.log("fetchContigenceRemarks", response?.data?.message); // Log the actual response data
       setContigencyRemarks(response?.data?.message)
       setLoading(false);
       }
@@ -319,7 +305,6 @@ function FundExpForm() {
   };
 
   const loadFormData = async (project_id) => {
-    // console.log(project_id, 'responsedata');
     setLoading(true); // Set loading state
 
     const formData = new FormData();
@@ -337,8 +322,6 @@ function FundExpForm() {
         }
       );
 
-      console.log(response?.data, 'alocateSchematicAmount');
-      
       if (response?.data.status > 0) {
         setLoading(false);
         setGetMsgData(response?.data?.message)
@@ -373,9 +356,6 @@ function FundExpForm() {
     setpayment_no(payment_no)
     setpayment_date(payment_date)
 
-    console.log(approval_no, payment_no, payment_date, 'fffffffffjjhkjhjk');
-    
-
     const formData = new FormData();
 
     formData.append("approval_no", approval_no);
@@ -393,7 +373,6 @@ function FundExpForm() {
         }
       );
 
-      // console.log(response, 'response', response?.data?.message?.edit_flag);
       
       if (response?.data.status > 0) {
         setLoading(false);
@@ -491,7 +470,6 @@ function FundExpForm() {
     //   if(value.length > 3){
     //     formik.setFieldValue("cont_remark", [])
     //   }
-    //   console.log(`selected ${value.length}`);
     // };
     
   return (

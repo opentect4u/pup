@@ -95,7 +95,6 @@ function Annex_Form() {
 
       if(response?.data?.status > 0){
       // fundAddedList()
-      console.log("Response Data:", response?.data); // Log the actual response data
       setProjectId(response.data.message)
       setLoading(false);
       }
@@ -111,7 +110,6 @@ function Annex_Form() {
   };
 
   const loadFormData = async (approval_no) => {
-    // console.log(project_id, 'responsedata');
     setLoading(true); // Set loading state
 
     const formData = new FormData();
@@ -133,9 +131,6 @@ function Annex_Form() {
       if (response?.data.status > 0) {
         setLoading(false);
         setGetMsgData(response?.data?.message)
-
-        console.log(response?.data, 'vvvvvvvvvvvvvvvvvvvvvvv', response?.data?.message?.letter_No_date);
-
 
         setValues({
           letter_No_date: response?.data?.message?.letter_No_date,
@@ -197,7 +192,6 @@ function Annex_Form() {
 
       
       if (response?.data.status > 0) {
-        console.log(response?.data?.message, 'projCompCertiSingledataxxxxxxxxxxxxx', 'll');
 
         setLoading(false);
         setGetMsgData(response?.data?.message)
@@ -279,11 +273,6 @@ function Annex_Form() {
 
     formData.append("created_by", userDataLocalStore.user_id);
 
-
-    console.log(formData, 'formData');
-    
-
-
     try {
       const response = await axios.post(
         `${url}index.php/webApi/Utilization/annexturesave`,
@@ -295,7 +284,6 @@ function Annex_Form() {
           },
         }
       );
-      console.log(response, 'pcrcertificateadd');
       
       // setLoading(false);
       Message("success", "Updated successfully.");

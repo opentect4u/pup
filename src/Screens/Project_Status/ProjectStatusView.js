@@ -55,7 +55,6 @@ function ProjectStatusView() {
         { headers: { 'auth_key': auth_key } }
       );
 
-      console.log("prog_ls response:", response.data);
 
       if (response?.data?.status > 0) {
         setTableDataList(response.data.message);
@@ -82,7 +81,6 @@ function ProjectStatusView() {
         { headers: { 'auth_key': auth_key } }
       );
 
-      console.log(formData, "prog_ls response:", response.data.message);
 
       if (response?.data?.status > 0) {
         setTableDataList(response.data.message);
@@ -110,9 +108,7 @@ function ProjectStatusView() {
   }, []);
 
   // useEffect(() => {
-  //   fetchTableDataList_BYRADIO(radioType);
-  //   console.log('fetchTableDataList_BYRADIO', radioType);
-    
+  //   fetchTableDataList_BYRADIO(radioType);    
   // }, [radioType]);
 
   // Filter table data based on search query

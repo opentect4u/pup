@@ -116,7 +116,6 @@ function FundRelForm() {
           }
         );
 
-        console.log("approvalNoapprovalNoapprovalNoapprovalNo", response?.data);
 
         if(response.data.status > 0){
           setFundStatus(response?.data?.message)
@@ -143,7 +142,6 @@ function FundRelForm() {
 
 
     const receivedSchemaContigenAmt = async (approvalNo_Para) => {
-      // console.log('fffffffffffapprovalNo', approvalNo_Para);
       
       const formData = new FormData();
       formData.append("approval_no", approvalNo_Para);
@@ -162,8 +160,6 @@ function FundRelForm() {
 
 
         if(response.data.status > 0){
-          console.log('fffffffffffapprovalNo', response?.data?.message);
-          
           setSanctionSchemaContiAmt(response?.data?.message)
         }
 
@@ -182,9 +178,6 @@ function FundRelForm() {
     const saveFormData = async () => {
       setLoading(true); // Set loading state
 
-      console.log(approvalNo, 'approvalNoapprovalNoapprovalNoapprovalNo', '<<<<');
-      
-    
       const formData = new FormData();
   
       // // Append each field to FormData
@@ -200,9 +193,6 @@ function FundRelForm() {
       formData.append("approval_no", approvalNo); //
       formData.append("created_by", userDataLocalStore.user_id);
 
-    
-      console.log("FormData:", formData);
-  
       try {
         const response = await axios.post(
           `${url}index.php/webApi/Fund/fund_add`,
@@ -272,8 +262,6 @@ function FundRelForm() {
       // isntl_date: response.data.message.receive_date,
   
     
-      console.log("formDataformData", formData);
-  
       try {
         const response = await axios.post(
           `${url}index.php/webApi/Fund/fund_edit`,
@@ -285,7 +273,6 @@ function FundRelForm() {
             },
           }
         );
-        console.log(response, 'response');
         
         // setLoading(false);
         Message("success", "Updated successfully.");
@@ -330,7 +317,6 @@ function FundRelForm() {
 
       if(response?.data?.status > 0){
       // fundAddedList()
-      console.log("Response Data:", response?.data?.status); // Log the actual response data
       setProjectId(response.data.message)
       setLoading(false);
       }
@@ -346,7 +332,6 @@ function FundRelForm() {
   };
 
   const loadFormData = async (project_id) => {
-    // console.log(project_id, 'responsedata');
     setLoading(true); // Set loading state
 
     const formData = new FormData();
@@ -364,8 +349,6 @@ function FundRelForm() {
         }
       );
 
-      console.log(response?.data, 'responsedata');
-      
       if (response?.data.status > 0) {
         setLoading(false);
         setGetMsgData(response?.data?.message)
@@ -388,7 +371,6 @@ function FundRelForm() {
   };
 
   const loadFormEditData = async (approval_no, receive_no, receive_date) => {
-    // console.log(project_id, 'responsedata');
     setLoading(true); // Set loading state
 
     setOperation_status('edit');
@@ -412,7 +394,6 @@ function FundRelForm() {
         }
       );
 
-      console.log(response?.data?.message?.edit_flag, 'ffffffffffffffffff', formData);
       
       if (response?.data.status > 0) {
         setLoading(false);
@@ -510,7 +491,6 @@ function FundRelForm() {
                     }
               
                     setErrorpdf_1("");
-                    console.log("File is valid:", file.name);
                     formik.setFieldValue("al1_pdf", file);
                     setFilePreview_2(URL.createObjectURL(file)); // Create a preview URL
                     // Proceed with file upload or further processing

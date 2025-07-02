@@ -112,7 +112,6 @@ function UCForm() {
           }
         );
 
-        // console.log("FormData_____DONE////////////////", response?.data);
 
         if(response.data.status > 0){
           setFundStatus(response?.data?.message)
@@ -158,7 +157,6 @@ function UCForm() {
       formData.append("created_by", userDataLocalStore.user_id);
   
     
-      console.log("FormData_____DONE", formData);
   
       try {
         const response = await axios.post(
@@ -207,7 +205,6 @@ function UCForm() {
       formData.append("modified_by", userDataLocalStore.user_id);
 
     
-      console.log("formDataformData", formData);
   
       try {
         const response = await axios.post(
@@ -220,7 +217,6 @@ function UCForm() {
             },
           }
         );
-        console.log(response, 'response___________');
         
         // setLoading(false);
         Message("success", "Updated successfully.");
@@ -264,7 +260,6 @@ function UCForm() {
 
       if(response?.data?.status > 0){
       // fundAddedList()
-      console.log("Response Data:", response?.data?.status); // Log the actual response data
       setProjectId(response.data.message)
       setLoading(false);
       }
@@ -280,7 +275,6 @@ function UCForm() {
   };
 
   const loadFormData = async (project_id) => {
-    // console.log(project_id, 'responsedata');
     setLoading(true); // Set loading state
 
     const formData = new FormData();
@@ -298,7 +292,6 @@ function UCForm() {
         }
       );
 
-      console.log(response?.data, 'responsedata');
       
       if (response?.data.status > 0) {
         setLoading(false);
@@ -343,7 +336,6 @@ function UCForm() {
         }
       );
 
-      // console.log(response?.data?.message, 'fffffffffjjhkuuuuuuuuuuuuuujhjk');
       
       if (response?.data.status > 0) {
         setLoading(false);
@@ -429,7 +421,6 @@ function UCForm() {
         }
   
         setErrorpdf_1("");
-        console.log("File is valid:", file.name);
         formik.setFieldValue("certificate_path", file);
         setFilePreview_1(URL.createObjectURL(file)); // Create a preview URL
         // Proceed with file upload or further processing
@@ -458,7 +449,6 @@ function UCForm() {
         }
   
         setErrorpdf_1("");
-        console.log("File is valid:", file.name);
         formik.setFieldValue("annexure_path", file);
         setFilePreview_1(URL.createObjectURL(file)); // Create a preview URL
         // Proceed with file upload or further processing

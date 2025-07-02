@@ -45,7 +45,6 @@ function ACC_HEAD_Form() {
         headers: { auth_key },
       });
 
-      console.log(response?.data, 'ggggggggggggg');
       
       if (response?.data?.status > 0) {
         setTableDataList(response?.data?.message);
@@ -83,7 +82,6 @@ function ACC_HEAD_Form() {
             }
           );
 
-          console.log(response?.data?.status, 'ggggggggggg');
           
   
           if(response?.data?.status > 0) {
@@ -119,7 +117,6 @@ function ACC_HEAD_Form() {
           formData.append("sl_no", editingAccountHead.sl_no);
           formData.append("modified_by", userDataLocalStore.user_id);
 
-          console.log(formData, 'ggggggggggg', editingAccountHead, 'llll', formik.values.account_head);
           
         try {
     
@@ -133,7 +130,6 @@ function ACC_HEAD_Form() {
             }
           );
 
-          console.log(response?.data, 'tttttttttttttttt');
           
   
           if(response?.data?.status > 0) {
@@ -160,7 +156,6 @@ function ACC_HEAD_Form() {
   
 
   const onSubmit = (values) => {
-    console.log(editingAccountHead === null, 'ggggggggggg - yyyyyyyyyy', editingAccountHead != null);
     // if(editingAccountHead)
     if(editingAccountHead === null){
       addAccountHead();
@@ -201,8 +196,6 @@ function ACC_HEAD_Form() {
   };
 
   const handleEdit = (accountHead) => {
-    console.log(accountHead, 'sector');
-    
     setEditingAccountHead(accountHead);
     formik.setFieldValue("account_head", accountHead?.account_head);
   };

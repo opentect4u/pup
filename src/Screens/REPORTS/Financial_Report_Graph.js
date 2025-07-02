@@ -54,7 +54,6 @@ function Financial_Report_Graph() {
         }
       );
 
-      // console.log("Response Data:", response.data.message); // Log the actual response data
       setFinancialYearDropList(response.data.message)
       if (params?.id > 0) {
         setSelectedYear(params?.id); // Set first year as default (modify if needed)
@@ -81,7 +80,6 @@ function Financial_Report_Graph() {
   
     // Append each field to FormData
     formData.append("fin_year", params > 0 ? params : formik.values.fin_yr);
-    console.log(formData, 'formData');
     setFinanceYear_submit(formik.values.fin_yr)
 
     try {
@@ -96,7 +94,6 @@ function Financial_Report_Graph() {
         }
       );
 
-      console.log(response?.data, 'xxxxxxxxxxxxxxxx', formData);
       
       if(response?.data?.status > 0){
         setLoading(false);
@@ -130,8 +127,6 @@ function Financial_Report_Graph() {
 
 
   useEffect(()=>{
-    // console.log(params?.id.length, 'locaaaaaaaaaaaaaaaaa');
-    
     if(params?.id > 0){
       showReport(params?.id)
     }
@@ -139,7 +134,6 @@ function Financial_Report_Graph() {
 
 
   const onSubmit = (values) => {
-      // console.log(values, 'credcredcredcredcred', formik.values.scheme_name);
       showReport()
     };
   
@@ -185,7 +179,6 @@ function Financial_Report_Graph() {
                 value={formik.values.fin_yr || undefined} // Ensure default empty state
                 onChange={(value) => {
                   formik.setFieldValue("fin_yr", value)
-                  // console.log(value, 'ggggggggggggggggggg');
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}

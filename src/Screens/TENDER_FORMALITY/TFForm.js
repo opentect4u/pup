@@ -113,15 +113,10 @@ function TFForm() {
   const [editFlagStatus, setEditFlagStatus] = useState("");
 
 
-  useEffect(()=>{
-    console.log(operation_status, 'loadFormData', sl_no, 'kkkk', params?.id);
-    
-  }, [])
 
 
   const fundAddedList = async (approvalNo_Para) => {
     setLoading(true); // Set loading state
-    console.log(approvalNo, 'approvalNoapprovalNoapprovalNoapprovalNo');
     
     
     const formData = new FormData();
@@ -139,7 +134,6 @@ function TFForm() {
         }
       );
 
-      console.log("approvalNoapprovalNoapprovalNoapprovalNo", response?.data);
 
       if(response.data.status > 0){
         setFundStatus(response?.data?.message)
@@ -173,7 +167,6 @@ function TFForm() {
 
       if(response?.data?.status > 0){
       // fundAddedList()
-      console.log("Response Data:", response?.data?.status); // Log the actual response data
       setProjectId(response.data.message)
       setLoading(false);
       }
@@ -189,7 +182,6 @@ function TFForm() {
   };
 
   const loadFormData = async (project_id) => {
-    // console.log(project_id, 'responsedata');
     setLoading(true); // Set loading state
 
     const formData = new FormData();
@@ -207,7 +199,6 @@ function TFForm() {
         }
       );
 
-      console.log(response?.data?.message, 'responsedata______progress_list');
       
       if (response?.data.status > 0) {
         setLoading(false);
@@ -237,7 +228,6 @@ function TFForm() {
     setOperation_status('edit');
     setSl_no(sl_no)
 
-    console.log(approval_no, 'responsedata', sl_no);
     setLoading(true); // Set loading state
 
     const formData = new FormData();
@@ -256,7 +246,6 @@ function TFForm() {
         }
       );
 
-      console.log(response?.data?.message?.edit_flag, 'responsedataTender_editttttt');
       
       if (response?.data.status > 0) {
         setLoading(false);
@@ -336,7 +325,6 @@ function TFForm() {
 
 
   
-    console.log(formik.values.block, "FormData:", formData);
 
     try {
       const response = await axios.post(
@@ -392,7 +380,6 @@ function TFForm() {
     formData.append("modified_by", userDataLocalStore.user_id);
 
   
-    console.log("formDataformData", formData);
 
     try {
       const response = await axios.post(
@@ -405,7 +392,6 @@ function TFForm() {
           },
         }
       );
-      console.log(response, 'response');
       
       // setLoading(false);
       Message("success", "Updated successfully.");
@@ -489,7 +475,6 @@ function TFForm() {
       }
 
       setErrorpdf_1("");
-      console.log("File is valid:", file.name);
       formik.setFieldValue("td_pdf", file);
       setFilePreview_1(URL.createObjectURL(file)); // Create a preview URL
       // Proceed with file upload or further processing
@@ -517,7 +502,6 @@ function TFForm() {
       }
 
       setErrorpdf_2("");
-      console.log("File is valid:", file.name);
       formik.setFieldValue("wo_pdf", file);
       setFilePreview_2(URL.createObjectURL(file)); // Create a preview URL
       // Proceed with file upload or further processing

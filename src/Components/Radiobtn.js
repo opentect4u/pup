@@ -3,13 +3,11 @@ import { Radio } from "antd"
 import { motion } from "framer-motion"
 
 function Radiobtn({ data, onChangeVal, val }) {
-	console.log(val)
 	const [value, setValue] = useState(val)
 	useEffect(() => {
 		setValue(val)
 	}, [val])
 	const onChange = (e) => {
-		console.log("radio checked", e.target.value)
 		setValue(e.target.value)
 		onChangeVal(e.target.value)
 	}

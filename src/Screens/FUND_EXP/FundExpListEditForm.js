@@ -89,7 +89,6 @@ function FundExpListEditForm() {
           }
         );
 
-        console.log("loadFormData___", response.data.message);
         setLoading(false);
         // const totalAmount = Number(response.data.message.sch_amt) + Number(response.data.message.cont_amt);
         // fetchBlockdownOption__load(response?.data?.message?.district_id, response?.data?.message?.block_id)
@@ -101,7 +100,6 @@ function FundExpListEditForm() {
 
         })
   
-        console.log(formValues, "loadFormData", response); // Log the actual response data
         // setSourceFundDropList(response.data.message)
       } catch (error) {
         setLoading(false);
@@ -124,7 +122,6 @@ function FundExpListEditForm() {
       formData.append("created_by", userDataLocalStore.user_id);
 
     
-      console.log("FormData:", formData);
   
       try {
         const response = await axios.post(
@@ -137,7 +134,6 @@ function FundExpListEditForm() {
             },
           }
         );
-        console.log(response, 'FormData_____', (prevFundStatus) => [...prevFundStatus, formData]);
         
         // setLoading(false);
         Message("success", "Updated successfully.");
@@ -153,8 +149,6 @@ function FundExpListEditForm() {
     };
 
  const onSubmit = (values) => {
-    console.log(values, 'credcredcredcredcred', operation_status ==  'edit', 'lll', params?.id);
-
     // if(operation_status == 'edit'){
     //   updateFormData()
     // } 

@@ -154,7 +154,6 @@ function UC_Form() {
 
       if(response?.data?.status > 0){
       // fundAddedList()
-      console.log("Response Data:", response?.data); // Log the actual response data
       setProjectId(response.data.message)
       setLoading(false);
       }
@@ -170,7 +169,6 @@ function UC_Form() {
   };
 
   const loadFormData = async (approval_no) => {
-    // console.log(project_id, 'responsedata');
     setLoading(true); // Set loading state
 
     const formData = new FormData();
@@ -193,7 +191,6 @@ function UC_Form() {
         setLoading(false);
         setGetMsgData(response?.data?.message)
 
-        console.log(response?.data, 'vvvvvvvvvvvvvvvvvvvvvvv', response?.data?.message?.letter_No_date);
 
 
         setValues({
@@ -255,7 +252,6 @@ function UC_Form() {
 
       
       if (response?.data.status > 0) {
-        console.log(response?.data, 'projCompCertiSingledataxxxxxxxxxxxxx', response?.data?.expen_data?.fund_rece_sch_amt);
 
         // setSchematicAmountExp(response?.data?.message[2]?.expen_sch_amt)
         // setContigencyAmountExp(response?.data?.message[2]?.expen_cont_amt)
@@ -332,7 +328,6 @@ function UC_Form() {
     formData.append("next_year", formik.values.nextYear);
     formData.append("created_by", userDataLocalStore.user_id);
 
-    console.log(formData, 'projCompCertiSingledataxxxxxxxxxxxxx', formRows);
     
 
     alert()
@@ -348,7 +343,6 @@ function UC_Form() {
           },
         }
       );
-      console.log(response, 'pcrcertificateadd');
       
       setLoading(false);
       Message("success", "Updated successfully.");
@@ -376,7 +370,6 @@ function UC_Form() {
         };
       }
 
-      console.log(formRows, 'formRows');
       
 
 
@@ -385,7 +378,6 @@ function UC_Form() {
     setErrors(newErrors);
 
     if (isValid) {
-      console.log("Form Submitted", formRows);
       if(formik.values.purpose_field === 'S' && SchematicCheclAmt === false){
         updateFormData()
       }

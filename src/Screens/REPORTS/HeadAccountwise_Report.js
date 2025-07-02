@@ -98,7 +98,6 @@ function HeadAccountwise_Report() {
         }
       );
 
-      // console.log("Response Data:", response.data.message); // Log the actual response data
       setFinancialYearDropList(response.data.message)
 
       if (params?.id > 0) {
@@ -128,7 +127,6 @@ function HeadAccountwise_Report() {
         }
       );
 
-      // console.log("Response Data:", response.data.message); // Log the actual response data
       setHeadAccountDropList(response.data.message)
       if (params?.id > 0) {
         setSecoundField_submit(secoundValue)
@@ -183,14 +181,12 @@ function HeadAccountwise_Report() {
         }
       );
 
-      console.log(response?.data?.message, 'xxxxxxxxxxxxxxxx', formik.values.head_acc, '///', secoundValue);
 
       if (response?.data?.status > 0) {
         setLoading(false);
         setReportData(response?.data?.message)
         setPrintYear(response?.data?.fin_year_name)
         setPrintSecoundField(response?.data?.account_head_name)
-        console.log(response?.data, 'xxxxxxxxxxxxxxxx');
         // setShowForm(true);
       }
 
@@ -407,7 +403,6 @@ function HeadAccountwise_Report() {
                   value={formik.values.fin_yr || undefined} // Ensure default empty state
                   onChange={(value) => {
                     formik.setFieldValue("fin_yr", value)
-                    // console.log(value, 'ggggggggggggggggggg');
                   }}
                   onBlur={formik.handleBlur}
                   style={{ width: "100%" }}
@@ -439,7 +434,6 @@ function HeadAccountwise_Report() {
                   value={formik.values.head_acc || undefined} // Ensure default empty state
                   onChange={(value) => {
                     formik.setFieldValue("head_acc", value)
-                    console.log(value, 'ggggggggggggggggggg');
                   }}
                   onBlur={formik.handleBlur}
                   style={{ width: "100%" }}

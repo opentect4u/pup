@@ -47,7 +47,6 @@ function AdApView() {
 
       if(response?.data?.status > 0) {
       setLoading(false);
-      console.log("Response Data Table:", response?.data?.status);
       setTableDataList(response?.data?.message);
       setFilteredDataList(response?.data?.message);
       setPageName('AdApView');
@@ -67,7 +66,6 @@ function AdApView() {
   };
 
   useEffect(() => {
-    console.log(params, 'params');
     fetchTableDataList_Fn();
   }, []);
 

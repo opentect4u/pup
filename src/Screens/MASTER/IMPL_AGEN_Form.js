@@ -35,7 +35,6 @@ function IMPL_AGEN_Form() {
         headers: { auth_key },
       });
 
-      console.log(response?.data, 'ggggggggggggg');
       
       if (response?.data?.status > 0) {
         setTableDataList(response?.data?.message);
@@ -73,7 +72,6 @@ function IMPL_AGEN_Form() {
             }
           );
 
-          console.log(response?.data?.status, 'ggggggggggg');
           
   
           if(response?.data?.status > 0) {
@@ -109,7 +107,6 @@ function IMPL_AGEN_Form() {
           formData.append("id", editingAgency.id);
           formData.append("modified_by", userDataLocalStore.user_id);
 
-          console.log(formData, 'ggggggggggg', editingAgency, 'llll', formik.values.agency_name);
           
         try {
     
@@ -123,7 +120,6 @@ function IMPL_AGEN_Form() {
             }
           );
 
-          console.log(response?.data, 'tttttttttttttttt');
           
   
           if(response?.data?.status > 0) {
@@ -150,7 +146,6 @@ function IMPL_AGEN_Form() {
   
 
   const onSubmit = (values) => {
-    console.log(editingAgency === null, 'ggggggggggg - yyyyyyyyyy', editingAgency != null);
     // if(editingAgency)
     if(editingAgency === null){
       addAgency();
@@ -191,7 +186,6 @@ function IMPL_AGEN_Form() {
   };
 
   const handleEdit = (agency) => {
-    console.log(agency, 'sector');
     
     setEditingAgency(agency);
     formik.setFieldValue("agency_name", agency?.agency_name);

@@ -86,7 +86,6 @@ function UCListEditForm() {
           }
         );
 
-        console.log("loadFormData", response.data.message);
         setLoading(false);
         // const totalAmount = Number(response.data.message.sch_amt) + Number(response.data.message.cont_amt);
         // fetchBlockdownOption__load(response?.data?.message?.district_id, response?.data?.message?.block_id)
@@ -109,7 +108,6 @@ function UCListEditForm() {
 
         })
   
-        console.log(formValues, "loadFormData", response); // Log the actual response data
         // setSourceFundDropList(response.data.message)
       } catch (error) {
         setLoading(false);
@@ -141,7 +139,6 @@ function UCListEditForm() {
 
   
     
-      console.log("FormData:", formData);
   
       try {
         const response = await axios.post(
@@ -169,7 +166,6 @@ function UCListEditForm() {
     };
 
  const onSubmit = (values) => {
-    console.log(values, 'credcredcredcredcred', operation_status ==  'edit', 'lll', params?.id);
 
     // if(operation_status == 'edit'){
     //   updateFormData()

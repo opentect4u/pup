@@ -103,7 +103,6 @@ function UserManage() {
       });
 
       if (response?.data?.status > 0) {
-        console.log(response?.data?.message, 'hhhhhhhhhhhh');
         setTableDataList(response?.data?.message);
         setSectorDropList(response?.data?.message);
       } else {
@@ -130,7 +129,6 @@ function UserManage() {
         }
       );
 
-      // console.log("Response Data__:", response.data.message); // Log the actual response data
       setDistrictDropList(response.data.message)
       setLoading(false);
     } catch (error) {
@@ -152,7 +150,6 @@ function UserManage() {
         }
       );
 
-      // console.log("Response Data__:", response.data.message); // Log the actual response data
       setDepertment(response.data.message)
       setLoading(false);
     } catch (error) {
@@ -174,7 +171,6 @@ function UserManage() {
         }
       );
 
-      // console.log("Response Data__:", response.data.message); // Log the actual response data
       setDesignation(response.data.message)
       setLoading(false);
     } catch (error) {
@@ -188,7 +184,6 @@ function UserManage() {
 
     if (userData) {
       setUserDataLocalStore(JSON.parse(userData))
-    console.log("User Data Found:", userData);
     } else {
       setUserDataLocalStore([])
     console.log("No User Data Found");
@@ -230,7 +225,6 @@ function UserManage() {
             }
           );
 
-          console.log(response, 'gggggtttttttttttttgggggg', formData);
           
   
           if(response?.data?.status > 0) {
@@ -279,7 +273,6 @@ function UserManage() {
             }
           );
 
-          console.log(response?.data?.message, 'gggggtttttttttttttgggggg', formData);
           
   
           if(response?.data?.status > 0) {
@@ -349,7 +342,6 @@ function UserManage() {
             }
           );
 
-          console.log(response, 'rrrrrrrrrrrrrrrrrrrr', formData);
           
   
           if(response?.data?.status > 0) {
@@ -378,7 +370,6 @@ function UserManage() {
 
 
    const onSubmit = (values) => {
-    // console.log(editingSector === null, 'ggggggggggg - yyyyyyyyyy', editingSector != null);
     // if(editingSector)
     if(editingSector === false){
       addUser();
@@ -420,7 +411,6 @@ function UserManage() {
   };
 
   const handleEdit = (data) => {
-    // console.log(data, 'sector');
     setModalTitle(data?.name)
     setEditingSector(true);
     generateEditList(data?.user_id)
@@ -480,7 +470,6 @@ function UserManage() {
                 value={formik.values.user_type || undefined} // Ensure default empty state
                 onChange={(value) => {
                   formik.setFieldValue("user_type", value)
-                  console.log(value, 'ggggggggggggggggggg');
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}
@@ -566,7 +555,6 @@ function UserManage() {
                   // formik.setFieldValue("block", "");
                   // setBlockDropList([]);
                   // setBlockDropList_Load([]);
-                  console.log(value, 'disdisdis');
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}
@@ -599,7 +587,6 @@ function UserManage() {
                   // formik.setFieldValue("block", "");
                   // setBlockDropList([]);
                   // setBlockDropList_Load([]);
-                  console.log(value, 'disdisdis');
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}
@@ -632,7 +619,6 @@ function UserManage() {
                   // formik.setFieldValue("block", "");
                   // setBlockDropList([]);
                   // setBlockDropList_Load([]);
-                  console.log(value, 'disdisdis');
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}

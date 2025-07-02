@@ -36,7 +36,6 @@ function DESIGNATION_ADD() {
         headers: { auth_key },
       });
 
-      console.log(response?.data?.message, 'gggggggggggg');
       
       if (response?.data?.status > 0) {
         setTableDataList(response?.data?.message);
@@ -91,7 +90,6 @@ function DESIGNATION_ADD() {
             }
           );
 
-          console.log(response?.data?.status, 'ggggggggggg');
           
   
           if(response?.data?.status > 0) {
@@ -141,7 +139,6 @@ function DESIGNATION_ADD() {
             }
           );
 
-          console.log(response?.data?.status, 'ggggggggggg');
           
   
           if(response?.data?.status > 0) {
@@ -167,7 +164,6 @@ function DESIGNATION_ADD() {
 
 
   const onSubmit = (values) => {
-    console.log(editingStatus === null, 'ggggggggggg - yyyyyyyyyy', editingStatus != null);
     // if(editingStatus)
     if(editingStatus === false){
       addSector();
@@ -208,7 +204,6 @@ function DESIGNATION_ADD() {
   };
 
   const handleEdit = (data) => {
-    console.log(data, 'sector');
     setEditingStatus(true)
     setEditingSector(data);
     formik.setFieldValue("add_sector", data?.desig_name);

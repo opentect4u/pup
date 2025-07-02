@@ -35,7 +35,6 @@ function SOUR_OF_FUN_Form() {
         headers: { auth_key },
       });
 
-      console.log(response?.data, 'ggggggggggggg');
       
       if (response?.data?.status > 0) {
         setTableDataList(response?.data?.message);
@@ -82,7 +81,6 @@ function SOUR_OF_FUN_Form() {
             }
           );
 
-          console.log(response?.data?.status, 'ggggggggggg');
           
   
           if(response?.data?.status > 0) {
@@ -118,7 +116,6 @@ function SOUR_OF_FUN_Form() {
           formData.append("sl_no", editingFund.sl_no);
           formData.append("modified_by", userDataLocalStore.user_id);
 
-          console.log(formData, 'ggggggggggg', editingFund, 'llll', formik.values.fund_type);
           
         try {
     
@@ -132,7 +129,6 @@ function SOUR_OF_FUN_Form() {
             }
           );
 
-          console.log(response?.data?.status, 'ggggggggggg');
           
   
           if(response?.data?.status > 0) {
@@ -159,7 +155,6 @@ function SOUR_OF_FUN_Form() {
   
 
   const onSubmit = (values) => {
-    console.log(editingFund === null, 'ggggggggggg - yyyyyyyyyy', editingFund != null);
     // if(editingFund)
     if(editingFund === null){
       addFund();
@@ -200,8 +195,6 @@ function SOUR_OF_FUN_Form() {
   };
 
   const handleEdit = (fund) => {
-    console.log(fund, 'sector');
-    
     setEditingFund(fund);
     formik.setFieldValue("fund_type", fund?.fund_type);
   };

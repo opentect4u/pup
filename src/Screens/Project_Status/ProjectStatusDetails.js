@@ -53,7 +53,6 @@ function ProjectStatusDetails() {
         }
       );
 
-      console.log("Response Data:", response.data); // Log the actual response data
       setProjectId(response.data.message)
       setLoading(false);
     } catch (error) {
@@ -63,7 +62,6 @@ function ProjectStatusDetails() {
   };
 
   const loadFormData = async (project_id) => {
-    // console.log(project_id, 'responsedata');
     setLoading(true); // Set loading state
 
     const formData = new FormData();
@@ -81,7 +79,6 @@ function ProjectStatusDetails() {
         }
       );
 
-      console.log(response?.data, 'responsedata');
       
       if (response?.data.status > 0) {
         setLoading(false);

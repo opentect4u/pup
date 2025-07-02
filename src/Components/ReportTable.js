@@ -113,7 +113,6 @@ function ReportTable(
       );
 
       if (response?.data?.status > 0) {
-        console.log(formData, "yyyyyyyyyyyyyyyyyy", response.data.message); // Log the actual response data
         setVisibleTender(true);
         setDetailsReport(response.data.message)
         setLoading(false);
@@ -150,7 +149,6 @@ function ReportTable(
       );
 
       if (response?.data?.status > 0) {
-        console.log(response?.data?.status, "progresssssssssss", response.data.message); // Log the actual response data
         setVisibleProgress(true);
         setDetailsReport(response.data.message)
         setLoading(false);
@@ -187,7 +185,6 @@ function ReportTable(
       );
 
       if (response?.data?.status > 0) {
-        console.log(response?.data?.status, "fund", response.data.message); // Log the actual response data
         setVisibleFund(true);
         setDetailsReport(response.data.message)
         setLoading(false);
@@ -224,7 +221,6 @@ function ReportTable(
       );
 
       if (response?.data?.status > 0) {
-        console.log(response?.data?.status, "expenditure", response.data.message); // Log the actual response data
         setVisibleExpend(true);
         setDetailsReport(response.data.message)
         setLoading(false);
@@ -260,7 +256,6 @@ function ReportTable(
         }
       );
 
-      console.log(response?.data?.final_pic, "utilization");
       if (response?.data?.status > 0) {
         setVisibleUtilization(true);
         setDetailsReport(response?.data?.message)

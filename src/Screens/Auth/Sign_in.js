@@ -40,7 +40,6 @@ const loginFnc = async () => {
   formData.append("user_pwd", formik.values.pass); // Ensure this is a file if applicable
   formData.append("login_type", 'W');
 
-  console.log("FormData:", formData);
 
   try {
     const response = await axios.post(
@@ -54,7 +53,6 @@ const loginFnc = async () => {
       }
     );
 
-    console.log("Response", response?.data?.message);
     if(response?.data?.status > 0){
     Message("success", "Login successfully.");
     // setLoading(false);

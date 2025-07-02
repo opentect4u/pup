@@ -211,7 +211,6 @@ function AdApForm() {
         }
       );
 
-      // console.log("Response Data:", response.data.message); // Log the actual response data
       setSectorDropList(response?.data?.message)
       setLoading(false);
     } catch (error) {
@@ -233,7 +232,6 @@ function AdApForm() {
         }
       );
 
-      // console.log("Response Data:", response.data.message); // Log the actual response data
       setFinancialYearDropList(response.data.message)
       setLoading(false);
     } catch (error) {
@@ -255,7 +253,6 @@ function AdApForm() {
         }
       );
 
-      console.log("fetchProjectImplement:", response.data.message); // Log the actual response data
       setProjectImple(response.data.message)
       setLoading(false);
     } catch (error) {
@@ -278,7 +275,6 @@ function AdApForm() {
         }
       );
 
-      // console.log("Response Data:", response.data.message); // Log the actual response data
       setHeadAccountDropList(response.data.message)
       setLoading(false);
     } catch (error) {
@@ -300,7 +296,6 @@ function AdApForm() {
         }
       );
 
-      // console.log("Response Data__:", response.data.message); // Log the actual response data
       setDistrictDropList(response.data.message)
       setLoading(false);
     } catch (error) {
@@ -344,7 +339,6 @@ function AdApForm() {
         }
       );
 
-      // console.log(response, 'pssssssssssssss', formData);
       if (response?.data?.status > 0) {
         setpsStnDropList(response?.data?.message)
       }
@@ -403,7 +397,6 @@ function AdApForm() {
         }
       );
 
-      console.log("Response Data Source:", response.data.message); // Log the actual response data
       setSourceFundDropList(response.data.message)
     } catch (error) {
       console.error("Error fetching data:", error); // Handle errors properly
@@ -423,7 +416,6 @@ function AdApForm() {
         }
       );
 
-      console.log("fetchProjectSubmitData", response.data.message); // Log the actual response data
       setProjectSubBy(response?.data?.message)
       setLoading(false);
     } catch (error) {
@@ -437,7 +429,6 @@ function AdApForm() {
     const formData = new FormData();
     formData.append("project_id", project_id.target.value);
 
-    console.log(project_id.target.value, 'pssssssssssssss', formData);
 
     try {
       const response = await axios.post(
@@ -451,7 +442,6 @@ function AdApForm() {
         }
       );
 
-      console.log(response?.data, 'pssssssssssssss', formData);
       if (response?.data?.status > 0) {
         setCheckProjectId(false)
       }
@@ -523,7 +513,6 @@ function AdApForm() {
       var data = response?.data?.message
       const filteredBlockLoad = data.filter(block => block.block_id === block_id);
 
-      console.log(filteredBlockLoad, 'filteredBlockLoad');
 
       setBlockDropList_Load(filteredBlockLoad)
     } catch (error) {
@@ -552,8 +541,6 @@ function AdApForm() {
 
       var data = response?.data?.message
       const filteredData = data.filter(ps => ps.id === ps_id);
-      console.log(dis_id, ps_id, 'fetchPoliceStnOption__load', filteredData);
-
       setpsStnDropList_Load(filteredData)
 
     } catch (error) {
@@ -582,7 +569,6 @@ function AdApForm() {
 
       var data = response?.data?.message
       const filteredData = data.filter(gp => gp.gp_id === gm_id);
-      console.log(dis_id, block_id, gm_id, 'fetch_GM_Option__load', filteredData);
       setGM_DropList_Load(filteredData)
 
     } catch (error) {
@@ -615,8 +601,6 @@ function AdApForm() {
 
       // fetchPoliceStnOption__load(response?.data?.message?.district_id, response.data.message.ps_id)
       // fetch_GM_Option__load(response?.data?.message?.district_id, response.data.message.block_id, response.data.message.gp_id)
-      console.log(response.data, 'FormData__');
-
 
       setValues({
         scheme_name: response.data.message.scheme_name,
@@ -652,7 +636,6 @@ function AdApForm() {
 
       setEditFlagStatus(response.data.message.edit_flag)
 
-      console.log("loadFormDatafffffffff", response.data.message.edit_flag); // Log the actual response data
       // setSourceFundDropList(response.data.message)
     } catch (error) {
       console.error("Error fetching data:", error); // Handle errors properly
@@ -697,8 +680,6 @@ function AdApForm() {
 
     formData.append("created_by", userDataLocalStore.user_id);
 
-    // console.log(formik.values.admin_appr_pdf, "FormData:", formik.values.vet_dpr_pdf);
-    console.log(formData, "FormData__", formik.values.cont_amt);
     
 
     try {
@@ -776,7 +757,6 @@ function AdApForm() {
         }
       );
 
-      console.log(formData, "FormData_test", response);
 
       setLoading(false);
       Message("success", "Updated successfully.");
@@ -794,7 +774,6 @@ function AdApForm() {
 
 
   const onSubmit = (values) => {
-    // console.log(values, 'credcredcredcredcred', formik.values.scheme_name);
     if (errorpdf_1.length < 1 && errorpdf_2.length < 1) {
       if (params?.id > 0 && checkProjectId === false) {
         updateFormData()
@@ -888,7 +867,6 @@ function AdApForm() {
   //   const schmAmt = formik.values.schm_amt; // Get the value of 'schm_amt'
   //   const contAmt = schmAmt * 0.03; // Calculate 3% of 'schm_amt'
 
-  //   console.log('FormData__', formik.values.cont_amt);
     
   //   formik.setFieldValue('cont_amt', contAmt);
 
@@ -905,7 +883,6 @@ const handleSchmAmtChange_schm_amt = (e) => {
   if (e.target.name === 'schm_amt') {
     const contAmt = !isNaN(parsedValue) && parsedValue > 0 ? parsedValue * 0.03 : 0;
 
-    console.log(parsedValue, '-> FormData__', formik.values.cont_amt);
 
     formik.setFieldValue('cont_amt', contAmt);
   }
@@ -938,7 +915,6 @@ const handleSchmAmtChange_schm_amt = (e) => {
                   handleChange={(e) => {
                     formik.handleChange(e);
                     checkProjectID_Fnc(e)
-                    console.log('Project ID changed to:', e.target.value); // Additional action if needed
                   }}
                   handleBlur={formik.handleBlur}
                   mode={1}
@@ -1018,7 +994,6 @@ const handleSchmAmtChange_schm_amt = (e) => {
                   value={formik.values.sector_name || undefined} // Ensure default empty state
                   onChange={(value) => {
                     formik.setFieldValue("sector_name", value)
-                    console.log(value, 'ggggggggggggggggggg');
                   }}
                   onBlur={formik.handleBlur}
                   style={{ width: "100%" }}
@@ -1054,7 +1029,6 @@ const handleSchmAmtChange_schm_amt = (e) => {
                   value={formik.values.fin_yr || undefined} // Ensure default empty state
                   onChange={(value) => {
                     formik.setFieldValue("fin_yr", value)
-                    console.log(value, 'ggggggggggggggggggg');
                   }}
                   onBlur={formik.handleBlur}
                   style={{ width: "100%" }}
@@ -1183,7 +1157,6 @@ const handleSchmAmtChange_schm_amt = (e) => {
                   value={formik.values.head_acc || undefined} // Ensure default empty state
                   onChange={(value) => {
                     formik.setFieldValue("head_acc", value)
-                    console.log(value, 'ggggggggggggggggggg');
                   }}
                   onBlur={formik.handleBlur}
                   style={{ width: "100%" }}
@@ -1212,7 +1185,6 @@ const handleSchmAmtChange_schm_amt = (e) => {
                   value={formik.values.proj_sub_by || undefined} // Ensure default empty state
                   onChange={(value) => {
                     formik.setFieldValue("proj_sub_by", value);
-                    console.log(value, "ggggggggggggggggggg");
                   }}
                   onBlur={formik.handleBlur}
                   style={{ width: "100%" }}
@@ -1281,7 +1253,6 @@ const handleSchmAmtChange_schm_amt = (e) => {
                   value={formik.values.proj_imp_by || undefined} // Ensure default empty state
                   onChange={(value) => {
                     formik.setFieldValue("proj_imp_by", value);
-                    console.log(value, "ggggggggggggggggggg");
                   }}
                   onBlur={formik.handleBlur}
                   style={{ width: "100%" }}
@@ -1515,7 +1486,6 @@ const handleSchmAmtChange_schm_amt = (e) => {
                   value={formik.values.src || undefined} // Ensure default empty state
                   onChange={(value) => {
                     formik.setFieldValue("src", value)
-                    console.log(value, 'ggggggggggggggggggg');
                   }}
                   onBlur={formik.handleBlur}
                   style={{ width: "100%" }}

@@ -100,7 +100,6 @@ function Sector_Report() {
         }
       );
 
-      // console.log("Response Data:", response.data.message); // Log the actual response data
       setFinancialYearDropList(response.data.message)
 
       if (params?.id > 0) {
@@ -130,7 +129,6 @@ function Sector_Report() {
         }
       );
 
-      console.log("Response Data:", response.data.message); // Log the actual response data
       setHeadAccountDropList(response.data.message)
 
       if (params?.id > 0) {
@@ -167,7 +165,6 @@ function Sector_Report() {
     // dist_id:0,
     // block_id:0,
     // impl_agency:0
-    console.log(formik.values.head_acc, 'formData______________', formData);
     setFinanceYear_submit(formik.values.fin_yr)
     setSecoundField_submit(formik.values.head_acc)
 
@@ -185,7 +182,6 @@ function Sector_Report() {
         }
       );
 
-      console.log(response?.data, 'xxxxxxxxxxxxxxxx', formData);
 
       if (response?.data?.status > 0) {
         setLoading(false);
@@ -211,17 +207,13 @@ function Sector_Report() {
   }
 
   useEffect(() => {
-    // console.log(params?.id.length, 'locaaaaaaaaaaaaaaaaa');
-
     if (params?.id > 0) {
       showReport(params?.id)
     }
   }, [])
 
   const onSubmit = (values) => {
-    // console.log(values, 'credcredcredcredcred', formik.values.scheme_name);
     showReport()
-
   };
 
   const formik = useFormik({
@@ -419,7 +411,6 @@ function Sector_Report() {
                   value={formik.values.fin_yr || undefined} // Ensure default empty state
                   onChange={(value) => {
                     formik.setFieldValue("fin_yr", value)
-                    // console.log(value, 'ggggggggggggggggggg');
                   }}
                   onBlur={formik.handleBlur}
                   style={{ width: "100%" }}
@@ -451,7 +442,6 @@ function Sector_Report() {
                   value={formik.values.head_acc || undefined} // Ensure default empty state
                   onChange={(value) => {
                     formik.setFieldValue("head_acc", value)
-                    console.log(value, 'ggggggggggggggggggg');
                   }}
                   onBlur={formik.handleBlur}
                   style={{ width: "100%" }}

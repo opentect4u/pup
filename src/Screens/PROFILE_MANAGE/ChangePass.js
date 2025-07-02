@@ -47,7 +47,6 @@ function ChangePass() {
 
     if (userData) {
       setUserDataLocalStore(JSON.parse(userData))
-    console.log("User Data Found:", userData);
     } else {
       setUserDataLocalStore([])
     console.log("No User Data Found");
@@ -78,8 +77,6 @@ function ChangePass() {
             }
           );
 
-          console.log(response, 'rrrrrrrrrrrrrrrr', formData);
-          
   
           if(response?.data?.status > 0) {
             Message("success", "Updated Password successfully.");
@@ -109,7 +106,6 @@ function ChangePass() {
 
 
   const onSubmit = (values) => {
-    console.log(values);
     changePassword(); 
   };
 

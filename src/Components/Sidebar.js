@@ -321,7 +321,6 @@ const UtilizationAccordion = ({ userType }) => {
 
 
   const onClick = (e) => {
-    console.log("click ", e);
     setCurrent(e.key);
   };
 

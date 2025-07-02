@@ -58,7 +58,6 @@ function Annex_View() {
         }
       );
 
-      console.log(response?.data?.message, 'projCompCertilist');
       if (response?.data?.status > 0) {
         
         setTableDataList(response?.data?.message);
@@ -162,14 +161,12 @@ function Annex_View() {
       return alert("No file selected!");
     }
     
-    console.log(rowData.file, 'rowDatafile', approval_no);
     
     const formData = new FormData();
     formData.append("approval_no", approval_no);
     formData.append("pcr_certificate", rowData.file);
     formData.append("upload_by", userDataLocalStore.user_id);
 
-    console.log(formData, 'formDataformData');
     
     try {
           const response = await axios.post(
@@ -182,7 +179,6 @@ function Annex_View() {
               },
             }
           );
-          console.log(response, 'formDataformData');
           
           setLoading(false);
           Message("success", "Upload PDF successfully.");
@@ -224,7 +220,6 @@ function Annex_View() {
             setPrintOutDataState(response?.data?.message[0]);
             // setPrintFund_dtls(response?.data?.fund_dtls);
             // setScematicContiTotal(Number(response?.data?.message?.expen_sch_amt || 0) + Number(response?.data?.message?.expen_cont_amt || 0))
-            console.log(response?.data?.message[0], 'projCompCertiSingledataxxxxxxxxxxxxx', response?.data?.fund_dtls);
             printData_out(response?.data?.message[0], response?.data?.fund_dtls)
     
           }

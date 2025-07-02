@@ -86,9 +86,6 @@ function SECTOR_ADD_EDITForm() {
             }
           );
 
-          console.log(response?.data?.message, 'ggggggggggg');
-          
-  
           if(response?.data?.status > 0) {
             Message("success", "Updated successfully.");
             setLoading(false);
@@ -122,8 +119,6 @@ function SECTOR_ADD_EDITForm() {
           formData.append("sl_no", editingSector.sl_no);
           formData.append("modified_by", userDataLocalStore.user_id);
 
-          console.log(formData, 'ggggggggggg', editingSector, 'llll', formik.values.add_sector);
-          
         try {
     
           const response = await axios.post( `${url}index.php/webApi/Mdapi/secedit`, 
@@ -136,8 +131,6 @@ function SECTOR_ADD_EDITForm() {
             }
           );
 
-          console.log(response?.data?.status, 'ggggggggggg');
-          
   
           if(response?.data?.status > 0) {
             Message("success", "Updated successfully.");
@@ -163,7 +156,6 @@ function SECTOR_ADD_EDITForm() {
   
 
   const onSubmit = (values) => {
-    console.log(editingSector === null, 'ggggggggggg - yyyyyyyyyy', editingSector != null);
     // if(editingSector)
     if(editingSector === null){
       addSector();
@@ -204,8 +196,6 @@ function SECTOR_ADD_EDITForm() {
   };
 
   const handleEdit = (sector) => {
-    console.log(sector, 'sector');
-    
     setEditingSector(sector);
     formik.setFieldValue("add_sector", sector?.sector_desc);
   };

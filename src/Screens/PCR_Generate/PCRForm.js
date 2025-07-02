@@ -113,7 +113,6 @@ function PCRForm() {
 
       if(response?.data?.status > 0){
       // fundAddedList()
-      console.log("Response Data:", response?.data?.status); // Log the actual response data
       setProjectId(response.data.message)
       setLoading(false);
       }
@@ -129,7 +128,6 @@ function PCRForm() {
   };
 
   const loadFormData = async (approval_no) => {
-    // console.log(project_id, 'responsedata');
     setLoading(true); // Set loading state
 
     const formData = new FormData();
@@ -151,9 +149,6 @@ function PCRForm() {
       if (response?.data.status > 0) {
         setLoading(false);
         setGetMsgData(response?.data?.message)
-        
-
-        // console.log(response?.data, 'vvvvvvvvvvvvvvvvvvvvvvv', response?.data?.message?.contractor_name_dtls);
 
 
         setValues({
@@ -195,7 +190,6 @@ function PCRForm() {
     // setOperation_status('edit');
     // setSl_no(sl_no)
 
-    // console.log(approval_no, 'responsedata', sl_no);
     setLoading(true); // Set loading state
     
     const formData = new FormData();
@@ -215,7 +209,6 @@ function PCRForm() {
 
       
       if (response?.data.status > 0) {
-        console.log(response?.data?.comp_date_actual, 'projCompCertiSingledataxxxxxxxxxxxxx', response?.data?.message?.contractor_name_dtls);
 
         setLoading(false);
         setGetMsgData(response?.data?.message)
@@ -291,7 +284,6 @@ function PCRForm() {
     formData.append("remarks", formik.values.remarks);
     formData.append("created_by", userDataLocalStore.user_id);
 
-    console.log("formDataformData", formData);
 
     try {
       const response = await axios.post(
@@ -304,7 +296,6 @@ function PCRForm() {
           },
         }
       );
-      console.log(response, 'pcrcertificateadd');
       
       // setLoading(false);
       Message("success", "Updated successfully.");
@@ -371,7 +362,6 @@ function PCRForm() {
   //     }
 
   //     setErrorpdf_1("");
-  //     console.log("File is valid:", file.name);
   //     formik.setFieldValue("td_pdf", file);
   //     setFilePreview_1(URL.createObjectURL(file)); // Create a preview URL
   //     // Proceed with file upload or further processing

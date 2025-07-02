@@ -36,8 +36,6 @@ function PRView() {
         { headers: { 'auth_key': auth_key } }
       );
 
-      console.log("prog_ls response:", response.data);
-
       if (response?.data?.status > 0) {
         setTableDataList(response.data.message);
         setFolderName(response.data.folder_name);

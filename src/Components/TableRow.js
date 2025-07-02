@@ -90,7 +90,6 @@ const TableRow = ({
 
 
   const sendUserEditAccess = async (checked, approval_no, project_id) => {
-    console.log(checked, 'FormData_test', approval_no, 'gg', project_id);
     // setLoading(true); // Set loading state
 
     const formData = new FormData();
@@ -121,7 +120,6 @@ const TableRow = ({
     formData.append("operation_type", 'P');
     formData.append("edit_flag", checked ? 'Y' : 'N');
     formData.append("created_by", userDataLocalStore.user_id);
-    console.log(formData, "FormData_test");
 
     try {
       const response = await axios.post(
@@ -134,8 +132,6 @@ const TableRow = ({
           },
         }
       );
-
-      console.log(formData, "FormData_test", response);
 
       // setLoading(false);
       // Message("success", "Updated successfully.");

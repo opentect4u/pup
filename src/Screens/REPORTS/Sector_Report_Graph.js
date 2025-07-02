@@ -62,7 +62,6 @@ function Sector_Report_Graph() {
         }
       );
 
-      // console.log("Response Data:", response.data.message); // Log the actual response data
       setFinancialYearDropList(response.data.message)
       if (params?.id > 0) {
         setSelectedYear(params?.id); // Set first year as default (modify if needed)
@@ -90,7 +89,6 @@ function Sector_Report_Graph() {
           }
         );
   
-        // console.log("Response Data:", response.data.message); // Log the actual response data
         setHeadAccountDropList(response.data.message)
         setLoading(false);
       } catch (error) {
@@ -119,7 +117,6 @@ function Sector_Report_Graph() {
     formData.append("dist_id", 0);
     formData.append("block_id", 0);
     formData.append("impl_agency", 0);
-    console.log(formData, 'formData');
     setFinanceYear_submit(formik.values.fin_yr)
     setSecoundField_submit(formik.values.head_acc)
 
@@ -136,7 +133,6 @@ function Sector_Report_Graph() {
         }
       );
 
-      console.log(response?.data, 'xxxxxxxxxxxxxxxx_tttttttttttt', formData);
       
       if(response?.data?.status > 0){
         setLoading(false);
@@ -170,7 +166,6 @@ function Sector_Report_Graph() {
 
 
   useEffect(()=>{
-    // console.log(params?.id.length, 'locaaaaaaaaaaaaaaaaa');
     
     if(params?.id > 0){
       showReport(params?.id)
@@ -179,7 +174,6 @@ function Sector_Report_Graph() {
 
 
   const onSubmit = (values) => {
-      // console.log(values, 'credcredcredcredcred', formik.values.scheme_name);
       showReport()
     };
   
@@ -228,7 +222,6 @@ function Sector_Report_Graph() {
                 value={formik.values.fin_yr || undefined} // Ensure default empty state
                 onChange={(value) => {
                   formik.setFieldValue("fin_yr", value)
-                  // console.log(value, 'ggggggggggggggggggg');
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}
@@ -260,7 +253,6 @@ function Sector_Report_Graph() {
                             value={formik.values.head_acc || undefined} // Ensure default empty state
                             onChange={(value) => {
                               formik.setFieldValue("head_acc", value)
-                              console.log(value, 'ggggggggggggggggggg');
                             }}
                             onBlur={formik.handleBlur}
                             style={{ width: "100%" }}

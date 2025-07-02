@@ -89,7 +89,6 @@ function Financial_Report() {
         }
       );
 
-      // console.log("Response Data:", response.data.message); // Log the actual response data
       setFinancialYearDropList(response.data.message)
       localStorage.setItem("report_year", JSON.stringify(response.data.message))
 
@@ -121,7 +120,6 @@ function Financial_Report() {
   //       }
   //     );
 
-  //     console.log("approvalNoapprovalNoapprovalNoapprovalNo", response?.data);
 
   //     if (response.data.status > 0) {
   //       // setFundStatus(response?.data?.message)
@@ -158,7 +156,6 @@ function Financial_Report() {
 
     // Append each field to FormData
     formData.append("fin_year", params > 0 ? params : formik.values.fin_yr);
-    // console.log(formik.values.fin_yr, 'formData______________');
     setFinanceYear_submit(formik.values.fin_yr)
     try {
       const response = await axios.post(
@@ -172,7 +169,6 @@ function Financial_Report() {
         }
       );
 
-      console.log(response?.data, 'xxxxxxxxxxxxxxxx');
 
       if (response?.data?.status > 0) {
         setLoading(false);
@@ -402,7 +398,6 @@ function Financial_Report() {
                   value={formik.values.fin_yr || undefined} // Ensure default empty state
                   onChange={(value) => {
                     formik.setFieldValue("fin_yr", value)
-                    // console.log(value, 'ggggggggggggggggggg');
                   }}
                   onBlur={formik.handleBlur}
                   style={{ width: "100%" }}

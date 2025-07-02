@@ -90,7 +90,6 @@ function FundRelListEditForm() {
           }
         );
 
-        console.log("loadFormData", response.data.message);
         setLoading(false);
   
         // const totalAmount = Number(response.data.message.sch_amt) + Number(response.data.message.cont_amt);
@@ -115,7 +114,6 @@ function FundRelListEditForm() {
 
         })
   
-        console.log(formValues, "loadFormData", response); // Log the actual response data
         // setSourceFundDropList(response.data.message)
       } catch (error) {
         console.error("Error fetching data:", error); // Handle errors properly
@@ -141,7 +139,6 @@ function FundRelListEditForm() {
 
   
     
-      console.log("FormData:", formData);
   
       try {
         const response = await axios.post(
@@ -169,7 +166,6 @@ function FundRelListEditForm() {
     };
 
  const onSubmit = (values) => {
-    console.log(values, 'credcredcredcredcred', operation_status ==  'edit', 'lll', params?.id);
 
     // if(operation_status == 'edit'){
     //   updateFormData()

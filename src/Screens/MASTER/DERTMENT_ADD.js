@@ -37,7 +37,6 @@ function DERTMENT_ADD() {
         headers: { auth_key },
       });
 
-      console.log(response?.data?.message, 'gggggggggggg');
       
       if (response?.data?.status > 0) {
         setTableDataList(response?.data?.message);
@@ -92,7 +91,6 @@ function DERTMENT_ADD() {
             }
           );
 
-          console.log(response?.data?.status, 'ggggggggggg');
           
   
           if(response?.data?.status > 0) {
@@ -129,7 +127,6 @@ function DERTMENT_ADD() {
     formData.append("created_by", '');
     formData.append("modified_by", userDataLocalStore.user_id);
 
-          console.log(formData, 'ggggggggggg', editingSector, 'llll', formik.values.add_sector);
           
         try {
     
@@ -143,8 +140,6 @@ function DERTMENT_ADD() {
             }
           );
 
-          console.log(response?.data?.status, 'ggggggggggg');
-          
   
           if(response?.data?.status > 0) {
             Message("success", "Updated successfully.");
@@ -210,7 +205,6 @@ function DERTMENT_ADD() {
   };
 
   const handleEdit = (data) => {
-    console.log(data, 'sector');
     setEditingStatus(true)
     setEditingSector(data);
     formik.setFieldValue("add_sector", data?.dept_name);

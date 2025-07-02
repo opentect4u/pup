@@ -54,8 +54,6 @@ function PCRView() {
 
       if (response?.data?.status > 0) {
 
-        console.log(response.data, 'projCompCertilist');
-        
         setTableDataList(response?.data?.message);
         setPDFfolder_name(response?.data?.folder_name)
         // setFolderName(response.data.folder_name);
@@ -156,15 +154,11 @@ function PCRView() {
       return alert("No file selected!");
     }
     
-    console.log(rowData.file, 'rowDatafile', approval_no);
-    
     const formData = new FormData();
     formData.append("approval_no", approval_no);
     formData.append("pcr_certificate", rowData.file);
     formData.append("upload_by", userDataLocalStore.user_id);
 
-    console.log(formData, 'formDataformData');
-    
     try {
           const response = await axios.post(
             `${url}index.php/webApi/Utilization/pcrUpload`,
@@ -176,8 +170,6 @@ function PCRView() {
               },
             }
           );
-          console.log(response, 'formDataformData');
-          
           setLoading(false);
           Message("success", "Upload PDF successfully.");
           fetchTableDataList_Fn()
@@ -215,7 +207,6 @@ function PCRView() {
           if (response?.data.status > 0) {
             setLoading(false);
             setPrintOutDataState(response?.data?.message)
-            console.log(response?.data, 'projCompCertiSingledataxxxxxxxxxxxxx', response?.data?.message);
             printData_out(response?.data?.message)
     
           }

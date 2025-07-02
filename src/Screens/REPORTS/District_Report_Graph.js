@@ -68,7 +68,6 @@ function District_Report_Graph() {
         }
       );
 
-      // console.log("Response Data:", response.data.message); // Log the actual response data
       setFinancialYearDropList(response.data.message)
       if (params?.id > 0) {
         setSelectedYear(params?.id); // Set first year as default (modify if needed)
@@ -99,7 +98,6 @@ function District_Report_Graph() {
           }
         );
   
-        console.log("ffffffffffffffff", response.data.message); // Log the actual response data
         setHeadAccountDropList(response.data.message)
 
         if (params?.id > 0) {
@@ -125,7 +123,6 @@ function District_Report_Graph() {
           }
         );
   
-        console.log("Response Data__Block:", response.data.message); // Log the actual response data
         setBlockDropList(response.data.message)
 
         if (params?.id > 0) {
@@ -152,7 +149,6 @@ function District_Report_Graph() {
         }
       );
   
-      console.log("Response Data__Block:", response.data.message);
       setBlockDropList(response.data.message);
   
       // If thirdValue (block_id) exists, pre-select it
@@ -191,7 +187,6 @@ function District_Report_Graph() {
     formData.append("dist_id", secoundValue.length > 0 ? secoundValue : formik.values.head_acc);
     formData.append("block_id", thirdField_submit.length > 0 ? thirdValue : formik.values.block);
     formData.append("impl_agency", 0);
-    console.log(formData, 'formData');
     setFinanceYear_submit(formik.values.fin_yr)
     setSecoundField_submit(formik.values.head_acc)
     setThirdField_submit(formik.values.block)
@@ -209,7 +204,6 @@ function District_Report_Graph() {
         }
       );
 
-      console.log(response?.data, 'xxxxxxxxxxxxxxxx_tttttttttttt', formData);
       
       if(response?.data?.status > 0){
         setLoading(false);
@@ -243,8 +237,6 @@ function District_Report_Graph() {
 
 
   useEffect(()=>{
-    // console.log(params?.id.length, 'locaaaaaaaaaaaaaaaaa');
-    
     if(params?.id > 0){
       showReport(params?.id)
     }
@@ -252,7 +244,6 @@ function District_Report_Graph() {
 
 
   const onSubmit = (values) => {
-      // console.log(values, 'credcredcredcredcred', formik.values.scheme_name);
       showReport()
     };
   
@@ -301,7 +292,6 @@ function District_Report_Graph() {
                 value={formik.values.fin_yr || undefined} // Ensure default empty state
                 onChange={(value) => {
                   formik.setFieldValue("fin_yr", value)
-                  // console.log(value, 'ggggggggggggggggggg');
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}
@@ -372,8 +362,6 @@ function District_Report_Graph() {
                 value={blockDropList_Load[0]?.block_name ? blockDropList_Load[0]?.block_name : formik.values.block || thirdField_submit}
                 onChange={(value) => {
                   formik.setFieldValue("block", value)
-                  // setDistrict_ID(value)
-                  console.log(value, 'blockblockblock');
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}

@@ -109,7 +109,6 @@ function UserProfile() {
         headers: { auth_key },
       });
 
-      console.log(response?.data?.message, 'hhhhhhhttttttttttttttthhhhh', userDataLocalStore.user_id);
 
       if (response?.data?.status > 0) {
         
@@ -150,7 +149,6 @@ function UserProfile() {
         }
       );
 
-      // console.log("Response Data__:", response.data.message); // Log the actual response data
       setDistrictDropList(response.data.message)
       setLoading(false);
     } catch (error) {
@@ -172,7 +170,6 @@ function UserProfile() {
         }
       );
 
-      // console.log("Response Data__:", response.data.message); // Log the actual response data
       setDepertment(response.data.message)
       setLoading(false);
     } catch (error) {
@@ -194,7 +191,6 @@ function UserProfile() {
         }
       );
 
-      // console.log("Response Data__:", response.data.message); // Log the actual response data
       setDesignation(response.data.message)
       setLoading(false);
     } catch (error) {
@@ -208,7 +204,6 @@ function UserProfile() {
 
     if (userData) {
       setUserDataLocalStore(JSON.parse(userData))
-    console.log("User Data Found:", userData);
     fetchDepertment();
     fetchDesignation();
     
@@ -259,7 +254,6 @@ function UserProfile() {
             }
           );
 
-          console.log(response, 'gggggtttttttttttttgggggg', formData);
           
   
           if(response?.data?.status > 0) {
@@ -317,7 +311,6 @@ function UserProfile() {
             }
           );
 
-          console.log(response, 'rrrrrrrrrrrrrrrrrrrr', formData);
           
   
           if(response?.data?.status > 0) {
@@ -346,7 +339,6 @@ function UserProfile() {
 
 
    const onSubmit = (values) => {
-    // console.log(editingSector === null, 'ggggggggggg - yyyyyyyyyy', editingSector != null);
     // if(editingSector)
     if(editingSector === false){
       addUser();
@@ -487,7 +479,6 @@ function UserProfile() {
                 onChange={(value) => {
                   formik.setFieldValue("dis", value)
                   // setDistrict_ID(value)
-                  console.log(value, 'disdisdis');
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}
@@ -519,7 +510,6 @@ function UserProfile() {
                   // formik.setFieldValue("block", "");
                   // setBlockDropList([]);
                   // setBlockDropList_Load([]);
-                  console.log(value, 'disdisdis');
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}
@@ -551,7 +541,6 @@ function UserProfile() {
                   // formik.setFieldValue("block", "");
                   // setBlockDropList([]);
                   // setBlockDropList_Load([]);
-                  console.log(value, 'disdisdis');
                 }}
                 onBlur={formik.handleBlur}
                 style={{ width: "100%" }}

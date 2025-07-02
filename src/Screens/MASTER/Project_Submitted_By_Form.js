@@ -35,8 +35,6 @@ function Project_Submitted_By_Form() {
         headers: { auth_key },
       });
 
-      console.log(response?.data, 'ggggggggggggg');
-      
       if (response?.data?.status > 0) {
         setTableDataList(response?.data?.message);
         setFundDropList(response?.data?.message);
@@ -64,7 +62,6 @@ function Project_Submitted_By_Form() {
         }
       );
 
-      console.log("fetchProjectSubmitData", response); // Log the actual response data
       // setProjectSubBy(response?.data?.message)
       // setLoading(false);
 
@@ -117,8 +114,6 @@ function Project_Submitted_By_Form() {
             }
           );
 
-          console.log(formData, 'ggggggggggg');
-          
   
           if(response?.data?.status > 0) {
             Message("success", "Updated successfully.");
@@ -154,8 +149,6 @@ function Project_Submitted_By_Form() {
           formData.append("sl_no", editingFund.sl_no);
           formData.append("modified_by", userDataLocalStore.user_id);
 
-          console.log(formData, 'ggggggggggg', editingFund, 'llll', formik.values.proj_submit_by);
-          
         try {
     
           const response = await axios.post( `${url}index.php/webApi/Mdapi/projsubbysave`, 
@@ -168,8 +161,6 @@ function Project_Submitted_By_Form() {
             }
           );
 
-          console.log(response?.data?.status, 'ggggggggggg');
-          
   
           if(response?.data?.status > 0) {
             Message("success", "Updated successfully.");
@@ -197,7 +188,6 @@ function Project_Submitted_By_Form() {
   
 
   const onSubmit = (values) => {
-    console.log(editingFund === null, 'ggggggggggg - yyyyyyyyyy', editingFund != null);
     // if(editingFund)
     if(editingFund === null){
       addFund();
@@ -238,8 +228,6 @@ function Project_Submitted_By_Form() {
   };
 
   const handleEdit = (data) => {
-    console.log(data, 'sector');
-    
     setEditingFund(data);
     formik.setFieldValue("proj_submit_by", data?.proj_submit_by);
   };
