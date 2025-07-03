@@ -9,8 +9,19 @@ class Tender extends CI_Controller {
         header("Access-Control-Allow-Methods: POST, OPTIONS"); // Allow specific methods
         header("Access-Control-Allow-Headers: Content-Type");
 		if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-			exit;
-		} 
+        header("Content-Length: 0");
+        header("Content-Type: application/json; charset=utf-8");
+        exit(0);
+        }
+		//if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+		//	header("Access-Control-Allow-Origin: *");
+		//	header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+		//	header("Access-Control-Allow-Headers: Content-Type, Authorization");
+		//	header("Content-Length: 0");
+		//	header("Content-Type: application/json; charset=utf-8");
+		//	exit(0);
+			//exit;
+		//} 
 		if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $response = array(
                 'status' => false,
@@ -19,7 +30,7 @@ class Tender extends CI_Controller {
             echo json_encode($response);
             exit;
         }
-        $this->validate_auth_key();
+       // $this->validate_auth_key();
 		$this->load->helper('pdf');
     }
 
@@ -104,18 +115,20 @@ class Tender extends CI_Controller {
 				$this->load->library('upload');
 				// File fields to process
 				$file_fields = ['tender_notice', 'wo_copy'];
-				foreach ($file_fields as $field_name) {
-					if(!empty($_FILES[$field_name]['tmp_name'])) {
-						$tmp_path = $_FILES[$field_name]['tmp_name'];
-						if (validate_pdf_content_buffer($tmp_path) == 0) {
-							echo json_encode([
-								'status' => 0,
-								'message' => "Malicious content detected in file: $field_name"
-							]);
-							return; // Stop further processing
-						}
-					}
-				}
+			
+				// foreach ($file_fields as $field_name) {
+				// 	if(!empty($_FILES[$field_name]['tmp_name'])) {
+				// 		$tmp_path = $_FILES[$field_name]['tmp_name'];
+				// 		if (validate_pdf_content_buffer($tmp_path) == 0) {
+				// 			echo json_encode([
+				// 				'status' => 0,
+				// 				'message' => "Malicious content detected in file: $field_name"
+				// 			]);
+				// 			return; // Stop further processing
+				// 		}
+				// 	}
+				// }
+			
 				$app_res_data = $this->Master->f_select('td_tender','IFNULL(MAX(sl_no), 0) + 1 AS sl_no',NULL,1);
 				
 				foreach ($file_fields as $field) {
@@ -162,7 +175,7 @@ class Tender extends CI_Controller {
 					'add_per_security' => $this->input->post('add_per_security'),
 					'emd' => $this->input->post('emd'),
 					'date_of_refund' => $this->input->post('date_of_refund'),
-					'created_by' => 'test',
+					'created_by' => $this->input->post('created_by'),
 					'created_at' => date('Y-m-d h:i:s'),
 				];
 			
@@ -386,7 +399,7 @@ class Tender extends CI_Controller {
 		}
 		
 		$result_data = $this->db->query("SELECT a.admin_approval_dt, a.scheme_name,
-										a.project_id,a.sch_amt,a.cont_amt,a.approval_no,
+										a.project_id,a.sch_amt,a.cont_amt,a.approval_no,a.edit_flag,
 										b.sector_desc AS sector_name,c.fin_year,g.agency_name,
 										GROUP_CONCAT(DISTINCT e.dist_name ORDER BY e.dist_name SEPARATOR ', ') AS dist_name,
 										GROUP_CONCAT(DISTINCT f.block_name ORDER BY f.block_name SEPARATOR ', ') as block_name

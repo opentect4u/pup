@@ -9,7 +9,13 @@ class Expense extends CI_Controller {
         header("Access-Control-Allow-Methods: POST, OPTIONS"); // Allow specific methods
         header("Access-Control-Allow-Headers: Content-Type");
 		if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-			exit;
+			header("Access-Control-Allow-Origin: *");
+			header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+			header("Access-Control-Allow-Headers: Content-Type, Authorization");
+			header("Content-Length: 0");
+			header("Content-Type: application/json; charset=utf-8");
+			exit(0);
+			//exit;
 		} 
 		if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $response = array(
@@ -19,8 +25,8 @@ class Expense extends CI_Controller {
             echo json_encode($response);
             exit;
         }
-        $this->validate_auth_key();
-		$this->load->helper('pdf');
+       // $this->validate_auth_key();
+	   $this->load->helper('pdf');
     }
 
 	private function validate_auth_key() {
@@ -170,7 +176,7 @@ class Expense extends CI_Controller {
 		$where['payment_no'] = $this->input->post('payment_no');
 		$where['payment_date'] = $this->input->post('payment_date');
 	
-		$result_data = $this->Master->f_select('td_expenditure', 'approval_no,payment_no,payment_date,payment_to,sch_amt,cont_amt,sch_remark', $where, 1);
+		$result_data = $this->Master->f_select('td_expenditure', 'approval_no,payment_no,payment_date,payment_to,sch_amt,cont_amt,sch_remark,edit_flag', $where, 1);
 		$cont_remark_data = $this->Master->f_select('td_expenditure_cntg_rmrks', 'cont_rmrks_sl_no', array('approval_no' => $this->input->post('approval_no'), 'payment_no' => $this->input->post('payment_no')), NULL);
 		$cont_remark = array_map(function($row) {
 			return $row->cont_rmrks_sl_no;

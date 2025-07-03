@@ -357,15 +357,10 @@ class Report extends CI_Controller {
 
 		$report_type = $this->input->post('report_type');
 		if($report_type == 3){
-			$sql ="SELECT 
-								a.scheme_name, 
-								a.project_id, 
-								a.approval_no, 
-								e.sector_desc AS sector_name, 
-								f.fin_year,
-								b.comp_date_apprx,
-								GROUP_CONCAT(DISTINCT dist.dist_name ORDER BY dist.dist_name SEPARATOR ', ') AS dist_name,
-								GROUP_CONCAT(DISTINCT blk.block_name ORDER BY blk.block_name SEPARATOR ', ') AS block_name
+			$sql ="SELECT a.scheme_name,a.project_id, a.approval_no,e.sector_desc AS sector_name, 
+						  f.fin_year,b.comp_date_apprx,
+						  GROUP_CONCAT(DISTINCT dist.dist_name ORDER BY dist.dist_name SEPARATOR ', ') AS dist_name,
+						   GROUP_CONCAT(DISTINCT blk.block_name ORDER BY blk.block_name SEPARATOR ', ') AS block_name
 							FROM td_admin_approval a
 							JOIN td_tender b ON a.approval_no = b.approval_no
 							JOIN td_progress c ON b.approval_no = c.approval_no

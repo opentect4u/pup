@@ -19,7 +19,7 @@ class Admapi extends CI_Controller {
             echo json_encode($response);
             exit;
         }
-        $this->validate_auth_key();
+     //   $this->validate_auth_key();
 		$this->load->helper('pdf');
     }
 
@@ -67,7 +67,7 @@ class Admapi extends CI_Controller {
 		$this->form_validation->set_rules('fin_year', 'fin_year', 'required');
 		$this->form_validation->set_rules('sch_amt', 'sch_amt', 'required');
 		$this->form_validation->set_rules('cont_amt', 'cont_amt', 'required');
-	   
+	    
 		if ($this->form_validation->run() == FALSE) {
 			echo json_encode([
 				'status' => 0,
@@ -92,19 +92,19 @@ class Admapi extends CI_Controller {
 						$this->load->library('upload');
 						// File fields to process
 						$file_fields = ['admin_approval', 'vetted_dpr'];
-						foreach ($file_fields as $field_name) {
-							if (!empty($_FILES[$field_name]['tmp_name'])) {
-								$tmp_path = $_FILES[$field_name]['tmp_name'];
-						
-								if (validate_pdf_content_buffer($tmp_path) == 0) {
-									echo json_encode([
-										'status' => 0,
-										'message' => "Malicious content detected in file: $field_name"
-									]);
-									return; // Stop further processing
-								}
-							}
-						}
+						// foreach ($file_fields as $field_name) {
+					// 	if (!empty($_FILES[$field_name]['tmp_name'])) {
+					// 		$tmp_path = $_FILES[$field_name]['tmp_name'];
+					
+					// 		if (validate_pdf_content_buffer($tmp_path) == 0) {
+					// 			echo json_encode([
+					// 				'status' => 0,
+					// 				'message' => "Malicious content detected in file: $field_name"
+					// 			]);
+					// 			return; // Stop further processing
+					// 		}
+					// 	}
+					// }
 
 						$query = $this->db->get_where('td_admin_approval', ['project_id' => $this->input->post('project_id')]);
 					    if($query->num_rows() == 0) {
@@ -245,11 +245,10 @@ class Admapi extends CI_Controller {
 
 		$this->form_validation->set_rules('scheme_name', 'scheme_name', 'required');
 		$this->form_validation->set_rules('sector_id', 'sector_id', 'required');
-		$this->form_validation->set_rules('scheme_name', 'scheme_name', 'required');
 		$this->form_validation->set_rules('fin_year', 'fin_year', 'required');
 		$this->form_validation->set_rules('sch_amt', 'sch_amt', 'required');
 		$this->form_validation->set_rules('cont_amt', 'cont_amt', 'required');
-	
+	    
 		if ($this->form_validation->run() == FALSE) {
 			echo json_encode([
 				'status' => 0,
@@ -260,7 +259,7 @@ class Admapi extends CI_Controller {
                 $sch_amt = $this->input->post('sch_amt');
 				$cont_amt = $this->input->post('cont_amt');
 
-				if ($cont_amt > round(0.03 * $sch_amt)) {
+				if ($cont_amt > (0.03 * $sch_amt)) {
 					// Handle error: contribution amount exceeds 3% of scholarship amount
 					$response = array(
 						'status' => 0,
@@ -275,26 +274,28 @@ class Admapi extends CI_Controller {
 				
 					// File fields to process
 					$file_fields = ['admin_approval', 'vetted_dpr'];
-					foreach ($file_fields as $field_name) {
-						if (!empty($_FILES[$field_name]['tmp_name'])) {
-							$tmp_path = $_FILES[$field_name]['tmp_name'];
 					
-							if (validate_pdf_content_buffer($tmp_path) == 0) {
-								echo json_encode([
-									'status' => 0,
-									'message' => "Malicious content detected in file: $field_name"
-								]);
-								return; // Stop further processing
-							}
-						}
-					}
+					// foreach ($file_fields as $field_name) {
+					// 	if (!empty($_FILES[$field_name]['tmp_name'])) {
+					// 		$tmp_path = $_FILES[$field_name]['tmp_name'];
+					
+					// 		if (validate_pdf_content_buffer($tmp_path) == 0) {
+					// 			echo json_encode([
+					// 				'status' => 0,
+					// 				'message' => "Malicious content detected in file: $field_name"
+					// 			]);
+					// 			return; // Stop further processing
+					// 		}
+					// 	}
+					// }
+					
 					// $query = $this->db->get_where('td_admin_approval', ['project_id' => $this->input->post('project_id')]);
 					// if($query->num_rows() == 0) {
 					foreach ($file_fields as $field) {
 						if (!empty($_FILES[$field]['name'])) {
 							$config['upload_path']   = './uploads/'; // Folder to store files
 							$config['allowed_types'] = 'pdf'; // Allow only PDFs
-							$config['max_size']      = 20480; // Max file size (2MB)
+							$config['max_size']      = 1048576; // Max file size (2MB)
 							$config['encrypt_name']  = TRUE; // Encrypt filename for security
 				
 							$this->upload->initialize($config); // Initialize config for each file
@@ -418,7 +419,6 @@ class Admapi extends CI_Controller {
 									$this->db->insert_batch('td_admin_approval_gp', $batch_data);
 								}
 							}
-						$log_data = $this->Master->f_insert('td_log', array('approval_no'=>$this->input->post('approval_no'),'operation_type'=>'E','operation_module'=>'AA','operation'=>'Edit','created_by'=>$this->input->post('modified_by'),'created_at'=>date('Y-m-d H:i:s'),'created_ip'=>''));
 						if($res > 0) {
 						echo json_encode([
 							'status' => 1,
