@@ -107,3 +107,17 @@ h2.text-white {color: #fff;}
 
 .editOnOff .ant-switch-checked{background:#3EB8BD !important;}
 .editOnOff .ant-switch{background:rgba(0,0,0,0.45);}  
+
+
+.capture_login{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.capture_login .capture_Txt{font-size: 18px;}
+.capture_login .capture_Field, .capture_login .capture_Field:focus-visible{border: #d5d5d5 solid 1px; border-radius: 5px; padding: 5px; outline: none;
+  color: #333; width: 170px;}
+.capture_login .capture_Refresh_Btn{font-size: 15px; background: #3EB8BD; padding: 6px 19px; border-radius: 3px; color: #fff;}
+

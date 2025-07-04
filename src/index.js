@@ -122,6 +122,7 @@ const router = createBrowserRouter([
             {
               path: "",
               element: <AdApView />,
+              
             },
             {
               path: "AdApcrud/:id",
@@ -440,11 +441,11 @@ const router = createBrowserRouter([
     
 root.render(
   <Democontext>
-  <React.StrictMode>
+  {/* <React.StrictMode> */}
     {/* <App /> */}
     <RouterProvider router={router} />
 
-  </React.StrictMode>
+  {/* </React.StrictMode> */}
   </Democontext>
 );
 
@@ -452,3 +453,5 @@ root.render(
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
+
+

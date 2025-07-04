@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import LOGO from "../../Assets/Images/logo.png";
 import BtnComp from "../../Components/BtnComp";
 import { useNavigate } from "react-router-dom";
@@ -31,14 +31,42 @@ const [loading, setLoading] = useState(false);
 
 const [loginBtnDisable, setLoginBtnDisable] = useState(false);
 
+const [captchaText, setCaptchaText] = useState("");
+const [userCaptchaInput, setUserCaptchaInput] = useState("");
+
+
+// Generate random alphabet captcha
+  const generateCaptcha = () => {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let text = "";
+    for (let i = 0; i < 5; i++) {
+      text += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    setCaptchaText(text);
+    setUserCaptchaInput("");
+  };
+
+  useEffect(() => {
+    generateCaptcha();
+  }, []);
+
+
 
 const loginFnc = async () => {
+  try {
+    const csrfResponse = await axios.get(`http://192.168.1.60/back-end/index.php/Login/get_csrf`);
+    const csrfToken = csrfResponse?.data?.csrf_token_value || "";
+    const csrfTokenName = csrfResponse?.data?.csrf_token_name || "";
+    console.log(csrfResponse, "csrfToken", csrfToken, "csrfTokenName", csrfTokenName);
+    
+
   const formData = new FormData();
   
   // // Append each field to FormData
   formData.append("user_id", formik.values.email);
   formData.append("user_pwd", formik.values.pass); // Ensure this is a file if applicable
   formData.append("login_type", 'W');
+  formData.append(csrfTokenName, csrfToken);
 
 
   try {
@@ -94,15 +122,29 @@ const loginFnc = async () => {
     Message("error", "Error Submitting Form:");
     console.error("Error submitting form:", error);
   }
+
+  } catch (error) {
+    setLoading(false);
+    Message("error", "Error Submitting Form:");
+    console.error("Error submitting form:", error);
+  }
   
 }
 
-const onSubmit = (values) => {
+const onSubmit = (e) => {
     // saveFormData()
 
-    setLoginBtnDisable(true)
+    // setLoginBtnDisable(true)
 
-      loginFnc()
+    // if (userCaptchaInput !== captchaText) {
+    //   alert("CAPTCHA incorrect. Please try again.");
+    //   generateCaptcha();
+    //   return;
+    // }
+
+    // Proceed with login
+    // alert("CAPTCHA correct. Logging in...");
+    loginFnc()
   
 };
 
@@ -157,14 +199,38 @@ const formik = useFormik({
                 <VError title={formik.errors.pass} />
               )}
               </div>
-              {/* <div class="flex items-center justify-end">
-                <a
-                  href="#"
-                  class="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500"
-                >
-                  Forgot password?
-                </a>
-              </div> */}
+
+
+            <div className="capture_login">
+            <label className="capture_Txt">
+            <span 
+            style={{
+            fontWeight: "bold",
+            fontSize: "20px",
+            letterSpacing: "3px",
+            marginLeft: "10px",
+            backgroundColor: "#eee",
+            padding: "5px",
+            borderRadius: "5px",
+            userSelect: "none"
+            }}
+            >
+            {captchaText}
+            </span>
+            </label>
+            <input
+            type="text"
+            value={userCaptchaInput}
+            onChange={(e) => setUserCaptchaInput(e.target.value)}
+            required
+            placeholder="Enter CAPTCHA above"
+            className="capture_Field"
+            />
+            <button type="button" onClick={generateCaptcha} className="capture_Refresh_Btn">
+            Refresh
+            </button>
+            </div>
+
 
               <BtnComp type={'submit'} title="Sign in" onClick={() => { }} disabled={loginBtnDisable} />
               {/* <p class="text-sm font-light text-gray-500 dark:text-gray-400">
