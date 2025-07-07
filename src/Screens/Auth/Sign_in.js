@@ -9,6 +9,7 @@ import VError from "../../Components/VError";
 import axios from "axios";
 import { auth_key, url } from "../../Assets/Addresses/BaseUrl";
 import { Message } from "../../Components/Message";
+import localforage from 'localforage';
 
 
 const initialValues = {
@@ -34,6 +35,11 @@ const [loginBtnDisable, setLoginBtnDisable] = useState(false);
 const [captchaText, setCaptchaText] = useState("");
 const [userCaptchaInput, setUserCaptchaInput] = useState("");
 
+// const { csrf} = useCSRFToken();
+
+
+
+
 
 // Generate random alphabet captcha
   const generateCaptcha = () => {
@@ -46,60 +52,85 @@ const [userCaptchaInput, setUserCaptchaInput] = useState("");
     setUserCaptchaInput("");
   };
 
+
   useEffect(() => {
     generateCaptcha();
   }, []);
 
 
+const getCSRFToken = async () => {
+  const res = await fetch(url + 'index.php/login/get_csrf', {
+    credentials: "include" // allows receiving the CSRF cookie
+  });
+  const data = await res.json();
+  console.log(data, 'data');
+  
+  return {
+    name: data.csrf_token_name,
+    value: data.csrf_token_value
+  };
+};
 
 const loginFnc = async () => {
-  try {
-    const csrfResponse = await axios.get(`http://192.168.1.60/back-end/index.php/Login/get_csrf`);
-    const csrfToken = csrfResponse?.data?.csrf_token_value || "";
-    const csrfTokenName = csrfResponse?.data?.csrf_token_name || "";
-    console.log(csrfResponse, "csrfToken", csrfToken, "csrfTokenName", csrfTokenName);
-    
-
-  const formData = new FormData();
   
-  // // Append each field to FormData
+  
+  const csrf = await getCSRFToken();
+  // const useCSRFToken = await useCSRFToken();
+  
+  // console.log(useCSRFToken, 'useCSRFToken');
+  
+  
+  
+
+ 
+  const formData = new FormData();
   formData.append("user_id", formik.values.email);
   formData.append("user_pwd", formik.values.pass); // Ensure this is a file if applicable
   formData.append("login_type", 'W');
-  formData.append(csrfTokenName, csrfToken);
+  formData.append(csrf.name, csrf.value); // csrf_token
+ 
+  const result = await fetch(url + 'index.php/login/login', {
+    method: "POST",
+    body: formData,
+    credentials: "include", // CRITICAL: this includes the csrf_cookie
+  });
+ 
+  const response = await result.json();
+  console.log(response, 'result', formData);
 
-
-  try {
-    const response = await axios.post(
-      `${url}index.php/Login/login`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          'auth_key': auth_key // Important for FormData
-        },
-      }
-    );
-
-    if(response?.data?.status > 0){
+      if(response?.status > 0){
     Message("success", "Login successfully.");
     // setLoading(false);
     // formik.resetForm();
 
     localStorage.setItem("user_dt", JSON.stringify({
-      name: response?.data?.message?.name, 
-      user_id: response?.data?.message?.user_id,
-      user_status: response?.data?.message?.user_status,
-      user_type: response?.data?.message?.user_type
+      name: response?.message?.name, 
+      user_id: response?.message?.user_id,
+      user_status: response?.message?.user_status,
+      user_type: response?.message?.user_type,
+      // token: response?.token
     }))
+
+      localforage.setItem('tokenDetails', {
+        'token': response?.token,
+        'expires_at': response?.expires_at
+      }).then(() => {
+      console.log('Value saved!');
+      }).catch((err) => {
+      console.error('Save error:', err);
+      });
+
+
+    console.log("token-store_", response);
     
-    if(response?.data?.message?.user_type === 'S'){
+    
+    if(response?.message?.user_type === 'S'){
       navigate('home/admin_approval')
-    } else if(response?.data?.message?.user_type === 'A'){
+    } else if(response?.message?.user_type === 'A'){
       navigate('home/admin_approval')
-    } else if(response?.data?.message?.user_type === 'AC'){
+    } else if(response?.message?.user_type === 'AC'){
       navigate('home/fund_expense')
-    } else if(response?.data?.message?.user_type === 'F'){
+    } else if(response?.message?.user_type === 'F'){
       navigate('home/tender_formality')
     } else {
       navigate('home/')
@@ -108,28 +139,92 @@ const loginFnc = async () => {
 
     }
 
-    if(response?.data?.status < 1){
+    if(response?.status < 1){
     Message("error", "Login Credentials Wrong...");
     // setLoading(false);
     // formik.resetForm();
     setLoginBtnDisable(false)
     }
+};
+
+// const loginFnc = async () => {
+//   try {
+//     const csrfResponse = await axios.get(`http://192.168.1.60/back-end/index.php/Login/get_csrf`);
+//     const csrfToken = csrfResponse?.data?.csrf_token_value || "";
+//     const csrfTokenName = csrfResponse?.data?.csrf_token_name || "";
+//     console.log(csrfResponse, "csrfToken", csrfToken, "csrfTokenName", csrfTokenName);
     
 
-    
-  } catch (error) {
-    setLoading(false);
-    Message("error", "Error Submitting Form:");
-    console.error("Error submitting form:", error);
-  }
-
-  } catch (error) {
-    setLoading(false);
-    Message("error", "Error Submitting Form:");
-    console.error("Error submitting form:", error);
-  }
+//   const formData = new FormData();
   
-}
+//   // // Append each field to FormData
+//   formData.append("user_id", formik.values.email);
+//   formData.append("user_pwd", formik.values.pass); // Ensure this is a file if applicable
+//   formData.append("login_type", 'W');
+//   formData.append(csrfTokenName, csrfToken);
+
+
+//   try {
+//     const response = await axios.post(
+//       `${url}index.php/Login/login`,
+//       formData,
+//       {
+//         headers: {
+//           "Content-Type": "multipart/form-data",
+//           'auth_key': auth_key // Important for FormData
+//         },
+//       }
+//     );
+
+//     if(response?.data?.status > 0){
+//     Message("success", "Login successfully.");
+//     // setLoading(false);
+//     // formik.resetForm();
+
+//     localStorage.setItem("user_dt", JSON.stringify({
+//       name: response?.data?.message?.name, 
+//       user_id: response?.data?.message?.user_id,
+//       user_status: response?.data?.message?.user_status,
+//       user_type: response?.data?.message?.user_type
+//     }))
+    
+//     if(response?.data?.message?.user_type === 'S'){
+//       navigate('home/admin_approval')
+//     } else if(response?.data?.message?.user_type === 'A'){
+//       navigate('home/admin_approval')
+//     } else if(response?.data?.message?.user_type === 'AC'){
+//       navigate('home/fund_expense')
+//     } else if(response?.data?.message?.user_type === 'F'){
+//       navigate('home/tender_formality')
+//     } else {
+//       navigate('home/')
+//     }
+    
+
+//     }
+
+//     if(response?.data?.status < 1){
+//     Message("error", "Login Credentials Wrong...");
+//     // setLoading(false);
+//     // formik.resetForm();
+//     setLoginBtnDisable(false)
+//     }
+    
+
+    
+//   } catch (error) {
+//     setLoading(false);
+//     Message("error", "Error Submitting Form:");
+//     console.error("Error submitting form:", error);
+//   }
+
+//   } catch (error) {
+//     setLoading(false);
+//     Message("error", "Error Submitting Form:");
+//     console.error("Error submitting form:", error);
+//   }
+  
+// }
 
 const onSubmit = (e) => {
     // saveFormData()

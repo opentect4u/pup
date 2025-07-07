@@ -4,6 +4,8 @@ import { UserOutlined } from "@ant-design/icons";
 import { Button, Dropdown } from "antd";
 import { useNavigate } from "react-router-dom";
 import DialogBox from "./DialogBox";
+import localforage from "localforage";
+
 function Header() {
     const navigate = useNavigate()
     const [visible,setVisible] = useState(false)
@@ -63,6 +65,15 @@ function Header() {
 
   const logoutFn = ()=>{
     localStorage.removeItem("user_dt");
+
+    localforage.removeItem('token')
+    .then(() => {
+    console.log('User removed!');
+    })
+    .catch((err) => {
+    console.error('Error removing user:', err);
+    });
+
 navigate('/')
 // alert('loooooooo')
 

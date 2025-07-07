@@ -7,6 +7,7 @@ import { Space, Switch } from 'antd';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Message } from './Message';
+import localforage from 'localforage';
 
 
 
@@ -69,6 +70,7 @@ const TableRow = ({
 
   const [switchState, setSwitchState] = useState('off');
   const [userDataLocalStore, setUserDataLocalStore] = useState([]);
+  const [tokenNumber, setTokenNumber] = useState('');
 
   useEffect(() => {
     const userData = localStorage.getItem("user_dt");
@@ -85,13 +87,36 @@ const TableRow = ({
     if (data?.edit_flag == 'N') {
       setSwitchState('off')
     }
+
+
+    localforage.getItem('tokenDetails').then((value) => {
+    console.log('token-store_', value);
+    setTokenNumber(value?.token);
+    }).catch((err) => {
+    console.error('Read error:', err);
+    localStorage.removeItem("user_dt");
+    });
+
   }, []);
 
+
+  const getCSRFToken = async () => {
+        const res = await fetch(url + 'index.php/login/get_csrf', {
+          credentials: "include" // allows receiving the CSRF cookie
+        });
+        const data = await res.json();
+        console.log(data, 'data');
+        
+        return {
+          name: data.csrf_token_name,
+          value: data.csrf_token_value
+        };
+      };
 
 
   const sendUserEditAccess = async (checked, approval_no, project_id) => {
     // setLoading(true); // Set loading state
-
+    const csrf = await getCSRFToken();
     const formData = new FormData();
 
     if (curentPage === pageTree.page_1) {
@@ -120,6 +145,7 @@ const TableRow = ({
     formData.append("operation_type", 'P');
     formData.append("edit_flag", checked ? 'Y' : 'N');
     formData.append("created_by", userDataLocalStore.user_id);
+    formData.append(csrf.name, csrf.value); // csrf_token
 
     try {
       const response = await axios.post(
@@ -128,7 +154,8 @@ const TableRow = ({
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            'auth_key': auth_key // Important for FormData
+            'auth_key': auth_key, // Important for FormData
+            'Authorization': `Bearer ` + tokenNumber
           },
         }
       );

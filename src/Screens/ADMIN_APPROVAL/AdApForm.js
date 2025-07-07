@@ -11,6 +11,7 @@ import { Select, Spin } from "antd";
 import { Message } from "../../Components/Message";
 import { useNavigate, useParams } from "react-router"
 import { FilePdfOutlined, LoadingOutlined, UpCircleOutlined } from "@ant-design/icons";
+import localforage from "localforage";
 
 const initialValues = {
   scheme_name: '',
@@ -83,6 +84,7 @@ function AdApForm() {
   const [editFlagStatus, setEditFlagStatus] = useState("");
 
   const [projectSubBy, setProjectSubBy] = useState([]);
+  const [tokenNumber, setTokenNumber] = useState('');
 
 
   const validationSchema = Yup.object({
@@ -490,100 +492,111 @@ function AdApForm() {
 
   useEffect(() => {
 
+    localforage.getItem('tokenDetails').then((value) => {
+    console.log('token-store_', value);
+    setTokenNumber(value?.token);
     if (params?.id > 0) {
-      loadFormData()
+      loadFormData(value?.token) 
     }
 
+    }).catch((err) => {
+    console.error('Read error:', err);
+    localStorage.removeItem("user_dt");
+    });
+
+    
 
   }, [])
 
 
-  const fetchBlockdownOption__load = async (dis_id, block_id) => {
-    try {
-      const response = await axios.post(
-        url + 'index.php/webApi/Mdapi/block',
-        { dist_id: dis_id }, // Empty body
-        {
-          headers: {
-            'auth_key': auth_key,
-          },
-        }
-      );
+  // const fetchBlockdownOption__load = async (dis_id, block_id) => {
+  //   try {
+  //     const response = await axios.post(
+  //       url + 'index.php/webApi/Mdapi/block',
+  //       { dist_id: dis_id }, // Empty body
+  //       {
+  //         headers: {
+  //           'auth_key': auth_key,
+  //         },
+  //       }
+  //     );
 
-      var data = response?.data?.message
-      const filteredBlockLoad = data.filter(block => block.block_id === block_id);
-
-
-      setBlockDropList_Load(filteredBlockLoad)
-    } catch (error) {
-      console.error("Error fetching data:", error); // Handle errors properly
-    }
-  };
-
-  const fetchPoliceStnOption__load = async (dis_id, ps_id) => {
-    const formData = new FormData();
-    formData.append("dist_id", dis_id);
-    formData.append("block_id", 0);
-
-    try {
-      const response = await axios.post(
-        `${url}index.php/webApi/Mdapi/get_ps`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            'auth_key': auth_key // Important for FormData
-          },
-        }
-      );
+  //     var data = response?.data?.message
+  //     const filteredBlockLoad = data.filter(block => block.block_id === block_id);
 
 
+  //     setBlockDropList_Load(filteredBlockLoad)
+  //   } catch (error) {
+  //     console.error("Error fetching data:", error); // Handle errors properly
+  //   }
+  // };
 
-      var data = response?.data?.message
-      const filteredData = data.filter(ps => ps.id === ps_id);
-      setpsStnDropList_Load(filteredData)
+  // const fetchPoliceStnOption__load = async (dis_id, ps_id) => {
+  //   const formData = new FormData();
+  //   formData.append("dist_id", dis_id);
+  //   formData.append("block_id", 0);
 
-    } catch (error) {
-      console.error("Error fetching data:", error); // Handle errors properly
-    }
-  };
-
-  const fetch_GM_Option__load = async (dis_id, block_id, gm_id) => {
-    const formData = new FormData();
-    formData.append("dist_id", dis_id);
-    formData.append("block_id", block_id);
-
-    try {
-      const response = await axios.post(
-        `${url}index.php/webApi/Mdapi/get_gp`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            'auth_key': auth_key // Important for FormData
-          },
-        }
-      );
+  //   try {
+  //     const response = await axios.post(
+  //       `${url}index.php/webApi/Mdapi/get_ps`,
+  //       formData,
+  //       {
+  //         headers: {
+  //           "Content-Type": "multipart/form-data",
+  //           'auth_key': auth_key // Important for FormData
+  //         },
+  //       }
+  //     );
 
 
 
-      var data = response?.data?.message
-      const filteredData = data.filter(gp => gp.gp_id === gm_id);
-      setGM_DropList_Load(filteredData)
+  //     var data = response?.data?.message
+  //     const filteredData = data.filter(ps => ps.id === ps_id);
+  //     setpsStnDropList_Load(filteredData)
 
-    } catch (error) {
-      console.error("Error fetching data:", error); // Handle errors properly
-    }
-  };
+  //   } catch (error) {
+  //     console.error("Error fetching data:", error); // Handle errors properly
+  //   }
+  // };
+
+  // const fetch_GM_Option__load = async (dis_id, block_id, gm_id) => {
+  //   const formData = new FormData();
+  //   formData.append("dist_id", dis_id);
+  //   formData.append("block_id", block_id);
+
+  //   try {
+  //     const response = await axios.post(
+  //       `${url}index.php/webApi/Mdapi/get_gp`,
+  //       formData,
+  //       {
+  //         headers: {
+  //           "Content-Type": "multipart/form-data",
+  //           'auth_key': auth_key // Important for FormData
+  //         },
+  //       }
+  //     );
+
+
+
+  //     var data = response?.data?.message
+  //     const filteredData = data.filter(gp => gp.gp_id === gm_id);
+  //     setGM_DropList_Load(filteredData)
+
+  //   } catch (error) {
+  //     console.error("Error fetching data:", error); // Handle errors properly
+  //   }
+  // };
 
 
 
 
-  const loadFormData = async () => {
+  const loadFormData = async (token) => {
 
-    const cread = {
-      approval_no: params?.id
-    }
+    // const cread = {
+    //   approval_no: params?.id
+    // }
+    const cread = new FormData();
+    cread.append("approval_no", params?.id);
 
     try {
       const response = await axios.post(
@@ -592,9 +605,12 @@ function AdApForm() {
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + token
           },
         }
       );
+
+      
 
       const totalAmount = Number(response.data.message.sch_amt) + Number(response.data.message.cont_amt);
       // fetchBlockdownOption__load(response?.data?.message?.district_id, response?.data?.message?.block_id)

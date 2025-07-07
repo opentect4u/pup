@@ -8,6 +8,7 @@ import { useParams } from "react-router";
 import { Spin } from 'antd';
 import TableHeader from '../../Components/TableHeader';
 import TableRow from '../../Components/TableRow';
+import localforage from 'localforage';
 
 function AdApView() {
   const navigate = useNavigate();
@@ -33,16 +34,39 @@ function AdApView() {
     }
     }, []);
 
-  const fetchTableDataList_Fn = async () => {
-    setLoading(true);
-    const cread = {
-      project_id: '0',
-      fin_year: '0',
-      dist_id: '0',
+    const getCSRFToken = async () => {
+      const res = await fetch(url + 'index.php/login/get_csrf', {
+        credentials: "include" // allows receiving the CSRF cookie
+      });
+      const data = await res.json();
+      console.log(data, 'data');
+      
+      return {
+        name: data.csrf_token_name,
+        value: data.csrf_token_value
+      };
     };
+
+  const fetchTableDataList_Fn = async (token) => {
+    const csrf = await getCSRFToken();
+    setLoading(true);
+    const formData = new FormData();
+    formData.append("project_id", '0');
+    formData.append("fin_year", '0');
+    formData.append("dist_id", '0');
+    formData.append(csrf.name, csrf.value); // csrf_token
+
+    // const cread = {
+    //   project_id: '0',
+    //   fin_year: '0',
+    //   dist_id: '0',
+    // };
     try {
-      const response = await axios.post(url + 'index.php/webApi/Admapi/adm_approv_list', cread, {
-        headers: { 'auth_key': auth_key },
+      const response = await axios.post(url + 'index.php/webApi/Admapi/adm_approv_list', formData, {
+        headers: { 'auth_key': auth_key,
+          'Authorization': `Bearer ` + token
+         },
+      
       });
 
       if(response?.data?.status > 0) {
@@ -66,7 +90,16 @@ function AdApView() {
   };
 
   useEffect(() => {
-    fetchTableDataList_Fn();
+
+    localforage.getItem('tokenDetails').then((value) => {
+    console.log('token-store_', value);
+    fetchTableDataList_Fn(value?.token);
+    }).catch((err) => {
+    console.error('Read error:', err);
+    localStorage.removeItem("user_dt");
+    });
+
+    
   }, []);
 
   const handleSearch = (e) => {

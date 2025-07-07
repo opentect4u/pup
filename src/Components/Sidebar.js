@@ -10,12 +10,14 @@ import {
 import { Collapse, Menu } from "antd";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { menus } from "./NavRouting";
+import localforage from 'localforage';
 
 function Sidebar() {
   const [current, setCurrent] = useState("home");
   const navigate = useNavigate();
   const path = useLocation();
   const [userDataLocalStore, setUserDataLocalStore] = useState([]);
+  const [expairyTime, setExpairyTime] = useState(null);
 
   const userData = JSON.parse(localStorage.getItem("user_dt") || "{}");
   const userType = userData.user_type || null;
@@ -27,9 +29,6 @@ function Sidebar() {
     } else {
       setUserDataLocalStore([])
     }
-
-    // checkPermission();
-
   }, []);
 
   //   useEffect(() => {
@@ -58,8 +57,47 @@ function Sidebar() {
 
 
   useEffect(() => {
-    checkPermission();
+  checkPermission();
+    
+
+// const expiryString = "2025-07-07 14:16:15";
+// const expiryDate = new Date(expiryString.replace(" ", "T")); 
+
+
+  // Get a value
+  localforage.getItem('tokenDetails').then((value) => {
+  console.log('Stored value:', value);
+  setExpairyTime(new Date(value?.expires_at.replace(" ", "T")));
+
+  checkExpairyTime(new Date(value?.expires_at.replace(" ", "T")), new Date());
+  }).catch((err) => {
+  console.error('Read error:', err);
+  });
+
+  const currentDate = new Date()
+
+
+  
   }, [path]);
+
+  const checkExpairyTime = (expairyTime, currentDate) => {
+
+  if (currentDate > expairyTime) {
+  // Logout logic here
+  localStorage.removeItem("user_dt");
+  navigate('/')
+
+  localforage.removeItem('token')
+  .then(() => {
+  // console.log('User removed!');
+  })
+  .catch((err) => {
+  // console.error('Error removing user:', err);
+  });
+
+  }
+
+  }
 
   const checkPermission = () => {
 
@@ -78,9 +116,7 @@ function Sidebar() {
     );
 
     if (hasPermission) {
-      // console.log("✅ Access granted for:", pathName, "userType:", userType);
     } else {
-      // console.log("⛔ No permission for:", pathName, "userType:", userType);
 
       if (userType === 'S') {
         navigate("/home/admin_approval");
