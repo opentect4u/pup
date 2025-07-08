@@ -102,5 +102,17 @@ export const menus = [
       path: "/home/report",
       roles: ["S", "A", "AC"],
       id: 12,
+    },
+    {
+      label: "Change Password",
+      path: "/home/user-profile/change-password",
+      roles: ["S", "A", "F", "AC"],
+      id: 13,
+    },
+    {
+      label: "User Profile",
+      path: "/home/user-profile/profile",
+      roles: ["S", "A", "F", "AC"],
+      id: 14,
     }
 ]
