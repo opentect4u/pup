@@ -8,6 +8,9 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Message } from './Message';
 import localforage from 'localforage';
+import { getCSRFToken } from '../CommonFunction/useCSRFToken';
+import { getLocalStoreTokenDts } from '../CommonFunction/getLocalforageTokenDts';
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -70,7 +73,8 @@ const TableRow = ({
 
   const [switchState, setSwitchState] = useState('off');
   const [userDataLocalStore, setUserDataLocalStore] = useState([]);
-  const [tokenNumber, setTokenNumber] = useState('');
+  // const [tokenNumber, setTokenNumber] = useState('');
+  const navigate_Store = useNavigate();
 
   useEffect(() => {
     const userData = localStorage.getItem("user_dt");
@@ -89,34 +93,37 @@ const TableRow = ({
     }
 
 
-    localforage.getItem('tokenDetails').then((value) => {
-    console.log('token-store_', value);
-    setTokenNumber(value?.token);
-    }).catch((err) => {
-    console.error('Read error:', err);
-    localStorage.removeItem("user_dt");
-    });
+    // localforage.getItem('tokenDetails').then((value) => {
+    // console.log('token-store_', value);
+    // setTokenNumber(value?.token);
+    // }).catch((err) => {
+    // console.error('Read error:', err);
+    // localStorage.removeItem("user_dt");
+    // });
 
   }, []);
 
 
-  const getCSRFToken = async () => {
-        const res = await fetch(url + 'index.php/login/get_csrf', {
-          credentials: "include" // allows receiving the CSRF cookie
-        });
-        const data = await res.json();
-        console.log(data, 'data');
+  // const getCSRFToken = async () => {
+  //       const res = await fetch(url + 'index.php/login/get_csrf', {
+  //         credentials: "include" // allows receiving the CSRF cookie
+  //       });
+  //       const data = await res.json();
+  //       console.log(data, 'data');
         
-        return {
-          name: data.csrf_token_name,
-          value: data.csrf_token_value
-        };
-      };
+  //       return {
+  //         name: data.csrf_token_name,
+  //         value: data.csrf_token_value
+  //       };
+  //     };
 
 
   const sendUserEditAccess = async (checked, approval_no, project_id) => {
     // setLoading(true); // Set loading state
-    const csrf = await getCSRFToken();
+    // const csrf = await getCSRFToken();
+    // const csrf = await getCSRFToken(navigate_Store);
+    const tokenValue = await getLocalStoreTokenDts(navigate_Store);
+
     const formData = new FormData();
 
     if (curentPage === pageTree.page_1) {
@@ -145,7 +152,7 @@ const TableRow = ({
     formData.append("operation_type", 'P');
     formData.append("edit_flag", checked ? 'Y' : 'N');
     formData.append("created_by", userDataLocalStore.user_id);
-    formData.append(csrf.name, csrf.value); // csrf_token
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
     try {
       const response = await axios.post(
@@ -155,7 +162,7 @@ const TableRow = ({
           headers: {
             "Content-Type": "multipart/form-data",
             'auth_key': auth_key, // Important for FormData
-            'Authorization': `Bearer ` + tokenNumber
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );

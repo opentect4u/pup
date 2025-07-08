@@ -11,6 +11,7 @@ import TableRow from '../../Components/TableRow';
 import { getPrintCommonHeader_PCR } from '../../Components/PrintCommonHeader_PCR';
 import { toWords } from 'number-to-words';
 import { Message } from '../../Components/Message';
+import { getLocalStoreTokenDts } from '../../CommonFunction/getLocalforageTokenDts';
 
 
 // const initialValues = {
@@ -39,15 +40,22 @@ function PCRView() {
 
   const fetchTableDataList_Fn = async () => {
     setLoading(true);
-    const cread = {
-        fin_year: '0',
-    };
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append('fin_year', '0'); 
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
+    // const cread = {
+    //     fin_year: '0',
+    // };
     try {
       const response = await axios.post(
-        url + 'index.php/webApi/Utilization/projCompCertilist', cread,
+        url + 'index.php/webApi/Utilization/projCompCertilist', formData,
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -148,6 +156,8 @@ function PCRView() {
 
   const handleUpload = async (approval_no) => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
     const rowData = fileStates[approval_no];
   
     if (!rowData || !rowData.file) {
@@ -158,6 +168,7 @@ function PCRView() {
     formData.append("approval_no", approval_no);
     formData.append("pcr_certificate", rowData.file);
     formData.append("upload_by", userDataLocalStore.user_id);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
     try {
           const response = await axios.post(
@@ -166,7 +177,8 @@ function PCRView() {
             {
               headers: {
                 "Content-Type": "multipart/form-data",
-                'auth_key': auth_key // Important for FormData
+                'auth_key': auth_key,
+                'Authorization': `Bearer ` + tokenValue?.token
               },
             }
           );
@@ -188,10 +200,12 @@ function PCRView() {
   const printData = async (approval_no) => {
 
     setLoading(true); // Set loading state
-    
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
         const formData = new FormData();
     
         formData.append("approval_no", approval_no);
+        formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
     
         try {
           const response = await axios.post(
@@ -200,6 +214,7 @@ function PCRView() {
             {
               headers: {
                 'auth_key': auth_key,
+                'Authorization': `Bearer ` + tokenValue?.token
               },
             }
           );

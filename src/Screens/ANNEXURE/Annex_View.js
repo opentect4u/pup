@@ -13,6 +13,7 @@ import { toWords } from 'number-to-words';
 import { Message } from '../../Components/Message';
 import { getPrintCommonHeader_UC } from '../../Components/PrintCommonHeader_UC';
 import { getPrintCommonHeader_Annexure } from '../../Components/PrintCommonHeader_Annexure';
+import { getLocalStoreTokenDts } from '../../CommonFunction/getLocalforageTokenDts';
 
 
 // const initialValues = {
@@ -43,10 +44,12 @@ function Annex_View() {
   const fetchTableDataList_Fn = async () => {
     setLoading(true);
     // approval_no,sl_no
+    const tokenValue = await getLocalStoreTokenDts(navigate);
     const formData = new FormData();
 
     formData.append("sl_no", 0);
     formData.append("approval_no", 0);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
     
     try {
       const response = await axios.post(
@@ -54,6 +57,7 @@ function Annex_View() {
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -155,6 +159,7 @@ function Annex_View() {
 
   const handleUpload = async (approval_no) => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
     const rowData = fileStates[approval_no];
   
     if (!rowData || !rowData.file) {
@@ -166,6 +171,7 @@ function Annex_View() {
     formData.append("approval_no", approval_no);
     formData.append("pcr_certificate", rowData.file);
     formData.append("upload_by", userDataLocalStore.user_id);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
     
     try {
@@ -175,7 +181,8 @@ function Annex_View() {
             {
               headers: {
                 "Content-Type": "multipart/form-data",
-                'auth_key': auth_key // Important for FormData
+                'auth_key': auth_key, // Important for FormData
+                'Authorization': `Bearer ` + tokenValue?.token
               },
             }
           );
@@ -198,11 +205,13 @@ function Annex_View() {
   const printData = async (approval_no, sl_no) => {
 
     setLoading(true); // Set loading state
-    
-        const formData = new FormData();
-    
-        formData.append("approval_no", approval_no);
-        formData.append("sl_no", sl_no);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+
+    formData.append("approval_no", approval_no);
+    formData.append("sl_no", sl_no);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
     
         try {
           const response = await axios.post(
@@ -211,6 +220,7 @@ function Annex_View() {
             {
               headers: {
                 'auth_key': auth_key,
+                'Authorization': `Bearer ` + tokenValue?.token
               },
             }
           );

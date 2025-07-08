@@ -11,6 +11,7 @@ import { auth_key, url, folder_certificate } from '../../Assets/Addresses/BaseUr
 import { Message } from '../../Components/Message';
 import { FilePdfOutlined, LoadingOutlined } from '@ant-design/icons';
 import { Spin } from 'antd';
+import { getLocalStoreTokenDts } from '../../CommonFunction/getLocalforageTokenDts';
 
 const initialValues = {
   issued_by: '',
@@ -68,12 +69,13 @@ function UCListEditForm() {
       //   receive_no: receive_no,
       //   receive_date: receive_date,
       // }
-
+      const tokenValue = await getLocalStoreTokenDts(navigate);
       const formData = new FormData();
   
       // // Append each field to FormData
       formData.append("approval_no", params?.id);
       formData.append("certificate_no", certificate_no);
+      formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
   
       try {
         const response = await axios.post(
@@ -82,6 +84,7 @@ function UCListEditForm() {
           {
             headers: {
               'auth_key': auth_key,
+              'Authorization': `Bearer ` + tokenValue?.token
             },
           }
         );
@@ -118,7 +121,8 @@ function UCListEditForm() {
 
     const saveFormData = async () => {
       // setLoading(true); // Set loading state
-    
+      const tokenValue = await getLocalStoreTokenDts(navigate);
+
       const formData = new FormData();
   
       // // Append each field to FormData
@@ -129,6 +133,7 @@ function UCListEditForm() {
       formData.append("certificate_path", formik.values.certificate_path); // Ensure this is a file if applicable
       formData.append("issued_to", formik.values.issued_to);
       formData.append("created_by", userDataLocalStore.user_id);
+      formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
 // approval_no,
 // certificate_no
@@ -147,7 +152,8 @@ function UCListEditForm() {
           {
             headers: {
               "Content-Type": "multipart/form-data",
-              'auth_key': auth_key // Important for FormData
+              'auth_key': auth_key,
+              'Authorization': `Bearer ` + tokenValue?.token
             },
           }
         );

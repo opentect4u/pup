@@ -24,6 +24,7 @@ import { saveAs } from 'file-saver';
 import { PrintPageName } from "../../Components/PrintCommonHeader_PageName";
 import { getPrintCommonHeader } from "../../Components/PrintCommonHeader";
 import ReportTable from "../../Components/ReportTable";
+import { getLocalStoreTokenDts } from "../../CommonFunction/getLocalforageTokenDts";
 
 
 const initialValues = {
@@ -100,13 +101,19 @@ function District_Report() {
 
   const fetchFinancialYeardownOption = async () => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Mdapi/fin_year',
-        {}, // Empty body
+        formData, // Empty body
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -130,13 +137,18 @@ function District_Report() {
 
   const fetchHeadAccountdownOption = async () => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Mdapi/dist',
-        {}, // Empty body
+        formData, // Empty body
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -155,13 +167,22 @@ function District_Report() {
   };
 
   const fetchBlockdownOption = async () => {
+
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append('dist_id', district_ID);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Mdapi/block',
-        { dist_id: district_ID }, // Empty body
+        // { dist_id: district_ID }, // Empty body
+        formData,
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -184,10 +205,17 @@ function District_Report() {
 
 
   const fetchBlockdownOption_viewChange = async (districtID) => {
+  const tokenValue = await getLocalStoreTokenDts(navigate);
+
+  const formData = new FormData();
+  formData.append('dist_id', districtID);
+  formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Mdapi/block',
-        { dist_id: districtID }, 
+        // { dist_id: districtID }, 
+        formData,
         {
           headers: { 'auth_key': auth_key },
         }
@@ -223,6 +251,7 @@ function District_Report() {
 
   const showReport = async (params)=>{
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
     const formData = new FormData();
   
     // Append each field to FormData
@@ -234,6 +263,7 @@ function District_Report() {
     formData.append("dist_id", formik.values.head_acc);
     formData.append("block_id", formik.values.block);
     formData.append("impl_agency", 0);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 //     sector_id:0,
 // dist_id:0,
 // block_id:0,
@@ -250,7 +280,8 @@ function District_Report() {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            'auth_key': auth_key // Important for FormData
+            'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );

@@ -12,6 +12,7 @@ import { Select, Spin } from "antd";
 import { useNavigate } from 'react-router-dom'
 import { useLocation, useParams } from 'react-router-dom';
 import ReportGraph from "../../Components/ReportGraph";
+import { getLocalStoreTokenDts } from "../../CommonFunction/getLocalforageTokenDts";
 
 const initialValues = {
   fin_yr: '',
@@ -51,13 +52,19 @@ function Implement_Report_Graph() {
 
   const fetchFinancialYeardownOption = async () => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Mdapi/fin_year',
-        {}, // Empty body
+        formData, // Empty body
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -78,13 +85,19 @@ function Implement_Report_Graph() {
 
   const fetchHeadAccountdownOption = async () => {
       setLoading(true);
+      const tokenValue = await getLocalStoreTokenDts(navigate);
+
+      const formData = new FormData();
+      formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
       try {
         const response = await axios.post(
           url + 'index.php/webApi/Mdapi/impagency',
-          {}, // Empty body
+          formData, // Empty body
           {
             headers: {
               'auth_key': auth_key,
+              'Authorization': `Bearer ` + tokenValue?.token
             },
           }
         );
@@ -113,6 +126,7 @@ function Implement_Report_Graph() {
 
   const showReport = async (params)=>{
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
     const formData = new FormData();
   
     // Append each field to FormData
@@ -122,6 +136,8 @@ function Implement_Report_Graph() {
     formData.append("dist_id", 0);
     formData.append("block_id", 0);
     formData.append("impl_agency", secoundValue.length > 0 ? secoundValue : formik.values.head_acc);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     setFinanceYear_submit(formik.values.fin_yr)
     setSecoundField_submit(formik.values.head_acc)
 
@@ -133,7 +149,8 @@ function Implement_Report_Graph() {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            'auth_key': auth_key // Important for FormData
+            'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );

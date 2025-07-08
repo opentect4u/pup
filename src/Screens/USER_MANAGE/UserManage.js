@@ -12,6 +12,8 @@ import VError from "../../Components/VError";
 import { Select, Spin } from "antd";
 import { Dialog } from "primereact/dialog";
 import Radiobtn from "../../Components/Radiobtn";
+import { getLocalStoreTokenDts } from "../../CommonFunction/getLocalforageTokenDts";
+import { useNavigate } from "react-router-dom";
 
 const userTypes = {
   S: 'Super Admin',
@@ -94,12 +96,21 @@ function UserManage() {
   const [modalTitle, setModalTitle] = useState("");
   const [radiReset_pass, setRadiReset_pass] = useState("N")
   const [user_status, setUser_status] = useState("A")
+  const navigate = useNavigate()
 
   const fetchSectorDropdownOption = async () => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     try {
-      const response = await axios.post(`${url}index.php/webApi/User/userlist`, {}, {
-        headers: { auth_key },
+      const response = await axios.post(`${url}index.php/webApi/User/userlist`, formData, {
+        headers: { 
+          auth_key,
+          'Authorization': `Bearer ` + tokenValue?.token
+        },
       });
 
       if (response?.data?.status > 0) {
@@ -118,13 +129,18 @@ function UserManage() {
 
   const fetchDistrictdownOption = async () => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Mdapi/dist',
-        {}, // Empty body
+        formData, // Empty body
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -139,13 +155,19 @@ function UserManage() {
 
   const fetchDepertment = async () => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Mdapi/department',
-        {}, // Empty body
+        formData, // Empty body
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -160,13 +182,19 @@ function UserManage() {
 
   const fetchDesignation = async () => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Mdapi/designation',
-        {}, // Empty body
+       formData, // Empty body
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -197,7 +225,8 @@ function UserManage() {
 
   const addUser = async () => {
     setLoading(true);
-      
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
     const formData = new FormData();
     // Append each field to FormData
     formData.append("user_id", formik.values.user_id);
@@ -209,9 +238,8 @@ function UserManage() {
     formData.append("dist_id", formik.values.dis);
     formData.append("email_id", formik.values.email);
     formData.append("mobile", formik.values.phon);
-
-
     formData.append("created_by", userDataLocalStore.user_id);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
     
         try {
     
@@ -220,7 +248,8 @@ function UserManage() {
             {
               headers: {
                 "Content-Type": "multipart/form-data",
-                'auth_key': auth_key // Important for FormData
+                'auth_key': auth_key,
+                'Authorization': `Bearer ` + tokenValue?.token
               },
             }
           );
@@ -253,13 +282,12 @@ function UserManage() {
 
   const generateEditList = async (user_id) => {
     setLoading(true);
-      
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
     const formData = new FormData();
     formData.append("user_id", user_id);
-
-
-
     formData.append("created_by", userDataLocalStore.user_id);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
     
         try {
     
@@ -268,7 +296,8 @@ function UserManage() {
             {
               headers: {
                 "Content-Type": "multipart/form-data",
-                'auth_key': auth_key // Important for FormData
+                'auth_key': auth_key,
+                'Authorization': `Bearer ` + tokenValue?.token
               },
             }
           );
@@ -311,7 +340,8 @@ function UserManage() {
 
   const updateUser = async () => {
     setLoading(true);
-      
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
     const formData = new FormData();
     // Append each field to FormData
     formData.append("user_id", formik.values.user_id);
@@ -329,6 +359,7 @@ function UserManage() {
 
 
     formData.append("modified_by", userDataLocalStore.user_id);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
     
         try {
     
@@ -337,7 +368,8 @@ function UserManage() {
             {
               headers: {
                 "Content-Type": "multipart/form-data",
-                'auth_key': auth_key // Important for FormData
+                'auth_key': auth_key,
+                'Authorization': `Bearer ` + tokenValue?.token
               },
             }
           );

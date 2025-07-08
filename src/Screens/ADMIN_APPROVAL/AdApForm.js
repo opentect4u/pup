@@ -12,6 +12,8 @@ import { Message } from "../../Components/Message";
 import { useNavigate, useParams } from "react-router"
 import { FilePdfOutlined, LoadingOutlined, UpCircleOutlined } from "@ant-design/icons";
 import localforage from "localforage";
+import { getCSRFToken } from "../../CommonFunction/useCSRFToken";
+import { getLocalStoreTokenDts } from "../../CommonFunction/getLocalforageTokenDts";
 
 const initialValues = {
   scheme_name: '',
@@ -202,13 +204,20 @@ function AdApForm() {
 
   const fetchSectorDropdownOption = async () => {
     setLoading(true);
+    // const csrf = await getCSRFToken(navigate);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Mdapi/sector',
-        {}, // Empty body
+        formData, // Empty body
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -223,34 +232,50 @@ function AdApForm() {
 
   const fetchFinancialYeardownOption = async () => {
     setLoading(true);
+    // const csrf = await getCSRFToken(navigate);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append("approval_no", params?.id);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Mdapi/fin_year',
-        {}, // Empty body
+        formData, // Empty body
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
-
+      console.log(response, 'responseresponse');
+      
       setFinancialYearDropList(response.data.message)
       setLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error); // Handle errors properly
       setLoading(false);
+      console.log(error, 'responseresponse');
     }
   };
 
   const fetchProjectImplement = async () => {
     setLoading(true);
+    // const csrf = await getCSRFToken(navigate);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Mdapi/impagency',
-        {}, // Empty body
+        formData, // Empty body
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -266,13 +291,19 @@ function AdApForm() {
 
   const fetchHeadAccountdownOption = async () => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Mdapi/head_of_acc',
-        {}, // Empty body
+        formData, // Empty body
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -287,13 +318,19 @@ function AdApForm() {
 
   const fetchDistrictdownOption = async () => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Mdapi/dist',
-        {}, // Empty body
+        formData, // Empty body
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -307,13 +344,20 @@ function AdApForm() {
   };
 
   const fetchBlockdownOption = async () => {
+
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Mdapi/block',
-        {}, // Empty body
+        tokenValue, // Empty body
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -328,15 +372,20 @@ function AdApForm() {
     // const formData = new FormData();
     // formData.append("dist_id", district_ID);
     // formData.append("block_id", 0);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
     try {
       const response = await axios.post(
         `${url}index.php/webApi/Mdapi/get_ps`,
-        {},
+        formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            'auth_key': auth_key // Important for FormData
+            'auth_key': auth_key, // Important for FormData
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -361,15 +410,20 @@ function AdApForm() {
     // const formData = new FormData();
     // formData.append("dist_id", district_ID);
     // formData.append("block_id", block_ID);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
     try {
       const response = await axios.post(
         `${url}index.php/webApi/Mdapi/get_gp`,
-        {},
+        formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            'auth_key': auth_key // Important for FormData
+            'auth_key': auth_key, // Important for FormData
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -388,13 +442,20 @@ function AdApForm() {
   };
 
   const fetchSourceFunddownOption = async () => {
+
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Mdapi/sof',
-        {}, // Empty body
+        formData, // Empty body
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -407,13 +468,21 @@ function AdApForm() {
 
   const fetchProjectSubmitData = async () => {
     setLoading(true);
+
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
+
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Mdapi/projSubmitBy',
-        {}, // Empty body
+        formData, // Empty body
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -428,8 +497,12 @@ function AdApForm() {
 
 
   const checkProjectID_Fnc = async (project_id) => {
+
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
     const formData = new FormData();
     formData.append("project_id", project_id.target.value);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
 
     try {
@@ -439,7 +512,8 @@ function AdApForm() {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            'auth_key': auth_key // Important for FormData
+            'auth_key': auth_key, // Important for FormData
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -492,19 +566,21 @@ function AdApForm() {
 
   useEffect(() => {
 
-    localforage.getItem('tokenDetails').then((value) => {
-    console.log('token-store_', value);
-    setTokenNumber(value?.token);
+    // localforage.getItem('tokenDetails').then((value) => {
+    // console.log('token-store_', value);
+    // setTokenNumber(value?.token);
+    // if (params?.id > 0) {
+    //   loadFormData(value?.token) 
+    // }
+
+    // }).catch((err) => {
+    // console.error('Read error:', err);
+    // localStorage.removeItem("user_dt");
+    // });
+
     if (params?.id > 0) {
-      loadFormData(value?.token) 
+      loadFormData() 
     }
-
-    }).catch((err) => {
-    console.error('Read error:', err);
-    localStorage.removeItem("user_dt");
-    });
-
-    
 
   }, [])
 
@@ -590,22 +666,24 @@ function AdApForm() {
 
 
 
-  const loadFormData = async (token) => {
-
+  const loadFormData = async () => {
+    // const csrf = await getCSRFToken(navigate);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
     // const cread = {
     //   approval_no: params?.id
     // }
-    const cread = new FormData();
-    cread.append("approval_no", params?.id);
+    const formData = new FormData();
+    formData.append("approval_no", params?.id);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Admapi/adm_by_approval_no',
-        cread,
+        formData,
         {
           headers: {
             'auth_key': auth_key,
-            'Authorization': `Bearer ` + token
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -662,6 +740,8 @@ function AdApForm() {
   const saveFormData = async () => {
 
     // setLoading(true);
+    // const csrf = await getCSRFToken(navigate);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
 
     const formData = new FormData();
 
@@ -692,9 +772,8 @@ function AdApForm() {
     formData.append("dag_no", formik.values.dag_no);
     formData.append("khatian_no", formik.values.khatian_no);
     formData.append("area", formik.values.area);
-
-
     formData.append("created_by", userDataLocalStore.user_id);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
     
 
@@ -705,7 +784,8 @@ function AdApForm() {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            'auth_key': auth_key // Important for FormData
+            'auth_key': auth_key, // Important for FormData
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -724,6 +804,8 @@ function AdApForm() {
 
   const updateFormData = async () => {
     // setLoading(true); // Set loading state
+    // const csrf = await getCSRFToken(navigate);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
 
     const formData = new FormData();
 
@@ -757,6 +839,7 @@ function AdApForm() {
 
     formData.append("approval_no", params?.id);
     formData.append("modified_by", userDataLocalStore.user_id);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
 
 
@@ -768,7 +851,8 @@ function AdApForm() {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            'auth_key': auth_key // Important for FormData
+            'auth_key': auth_key, // Important for FormData
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );

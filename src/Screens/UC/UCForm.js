@@ -16,6 +16,7 @@ import Column from 'antd/es/table/Column';
 import { Toast } from "primereact/toast"
 import Radiobtn from '../../Components/Radiobtn';
 import { Image } from 'antd';
+import { getLocalStoreTokenDts } from '../../CommonFunction/getLocalforageTokenDts';
 
 const options = [
 	{
@@ -94,12 +95,14 @@ function UCForm() {
     
     const fundAddedList = async (approvalNo_Para) => {
       setLoading(true); // Set loading state
-    
+
+      const tokenValue = await getLocalStoreTokenDts(navigate);
       
       const formData = new FormData();
       // formData.append("approval_no", params?.id);
       formData.append("approval_no", approvalNo_Para);
-  
+      formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_toke
+
       try {
         const response = await axios.post(
           `${url}index.php/webApi/Utilization/get_added_utlization_list`,
@@ -107,7 +110,8 @@ function UCForm() {
           {
             headers: {
               "Content-Type": "multipart/form-data",
-              'auth_key': auth_key // Important for FormData
+              'auth_key': auth_key,
+              'Authorization': `Bearer ` + tokenValue?.token
             },
           }
         );
@@ -140,7 +144,8 @@ function UCForm() {
 
     const saveFormData = async () => {
       // setLoading(true); // Set loading state
-    
+      const tokenValue = await getLocalStoreTokenDts(navigate);
+
       const formData = new FormData();
   
       // // Append each field to FormData
@@ -155,7 +160,7 @@ function UCForm() {
       formData.append("is_final", radioType);
       formData.append("final_pic", formik.values.photo_com_report);
       formData.append("created_by", userDataLocalStore.user_id);
-  
+      formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
     
   
       try {
@@ -165,7 +170,8 @@ function UCForm() {
           {
             headers: {
               "Content-Type": "multipart/form-data",
-              'auth_key': auth_key // Important for FormData
+              'auth_key': auth_key,
+              'Authorization': `Bearer ` + tokenValue?.token
             },
           }
         );
@@ -186,7 +192,7 @@ function UCForm() {
 
     const updateFormData = async () => {
       // setLoading(true); // Set loading state
-  
+      const tokenValue = await getLocalStoreTokenDts(navigate);
     
       const formData = new FormData();
   
@@ -203,7 +209,7 @@ function UCForm() {
       formData.append("approval_no", params?.id);
       formData.append("certificate_no", certificate_no);
       formData.append("modified_by", userDataLocalStore.user_id);
-
+      formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
     
   
       try {
@@ -213,7 +219,8 @@ function UCForm() {
           {
             headers: {
               "Content-Type": "multipart/form-data",
-              'auth_key': auth_key // Important for FormData
+              'auth_key': auth_key,
+              'Authorization': `Bearer ` + tokenValue?.token
             },
           }
         );
@@ -247,13 +254,19 @@ function UCForm() {
 
   const fetchProjectId = async () => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Admapi/get_approval_no',
-        {}, // Empty body
+        formData, // Empty body
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -277,9 +290,12 @@ function UCForm() {
   const loadFormData = async (project_id) => {
     setLoading(true); // Set loading state
 
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
     const formData = new FormData();
 
     formData.append("approval_no", project_id);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
     try {
       const response = await axios.post(
@@ -288,6 +304,7 @@ function UCForm() {
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -316,6 +333,7 @@ function UCForm() {
 
   const loadFormEditData = async (approval_no, certificate_no) => {
     setLoading(true); // Set loading state
+    const tokenValue = await getLocalStoreTokenDts(navigate);
 
     setOperation_status('edit');
     setcertificate_no(certificate_no)
@@ -324,6 +342,7 @@ function UCForm() {
 
     formData.append("approval_no", approval_no);
     formData.append("certificate_no", certificate_no);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
     try {
       const response = await axios.post(
@@ -332,6 +351,7 @@ function UCForm() {
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );

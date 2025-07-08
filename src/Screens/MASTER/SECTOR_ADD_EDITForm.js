@@ -11,6 +11,8 @@ import { auth_key, url } from "../../Assets/Addresses/BaseUrl";
 import VError from "../../Components/VError";
 import { Spin } from "antd";
 import MasterTableCommon from "../../Components/MasterTableCommon";
+import { getLocalStoreTokenDts } from "../../CommonFunction/getLocalforageTokenDts";
+import { useNavigate } from "react-router-dom";
 
 const initialValues = { add_sector: "" };
 
@@ -26,6 +28,7 @@ function SECTOR_ADD_EDITForm() {
   const [editingSector, setEditingSector] = useState(null); // New state for editing
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
+  const navigate = useNavigate()
 
     const [userDataLocalStore, setUserDataLocalStore] = useState([]);
   
@@ -41,9 +44,17 @@ function SECTOR_ADD_EDITForm() {
 
   const fetchSectorDropdownOption = async () => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     try {
-      const response = await axios.post(`${url}index.php/webApi/Mdapi/sector`, {}, {
-        headers: { auth_key },
+      const response = await axios.post(`${url}index.php/webApi/Mdapi/sector`, formData, {
+        headers: { 
+          auth_key,
+          'Authorization': `Bearer ` + tokenValue?.token
+         },
       });
 
       if (response?.data?.status > 0) {
@@ -68,12 +79,14 @@ function SECTOR_ADD_EDITForm() {
 
   const addSector = async () => {
     setLoading(true);
-      
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
     const formData = new FormData();
     // Append each field to FormData
     formData.append("sector_desc", formik.values.add_sector);
     formData.append("created_by", userDataLocalStore.user_id);
-    
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
         try {
     
           const response = await axios.post( `${url}index.php/webApi/Mdapi/secAdd`, 
@@ -81,7 +94,8 @@ function SECTOR_ADD_EDITForm() {
             {
               headers: {
                 "Content-Type": "multipart/form-data",
-                'auth_key': auth_key // Important for FormData
+                'auth_key': auth_key,
+                'Authorization': `Bearer ` + tokenValue?.token
               },
             }
           );
@@ -112,12 +126,14 @@ function SECTOR_ADD_EDITForm() {
 
   const updateSector = async () => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
 
     const formData = new FormData();
-          // Append each field to FormData
-          formData.append("sector_desc", formik.values.add_sector);
-          formData.append("sl_no", editingSector.sl_no);
-          formData.append("modified_by", userDataLocalStore.user_id);
+    // Append each field to FormData
+    formData.append("sector_desc", formik.values.add_sector);
+    formData.append("sl_no", editingSector.sl_no);
+    formData.append("modified_by", userDataLocalStore.user_id);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
         try {
     
@@ -126,7 +142,8 @@ function SECTOR_ADD_EDITForm() {
             {
               headers: {
                 "Content-Type": "multipart/form-data",
-                'auth_key': auth_key // Important for FormData
+                'auth_key': auth_key,
+                'Authorization': `Bearer ` + tokenValue?.token
               },
             }
           );

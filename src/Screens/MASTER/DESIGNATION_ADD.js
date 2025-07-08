@@ -11,6 +11,8 @@ import { auth_key, url } from "../../Assets/Addresses/BaseUrl";
 import VError from "../../Components/VError";
 import { Spin } from "antd";
 import MasterTableCommon from "../../Components/MasterTableCommon";
+import { getLocalStoreTokenDts } from "../../CommonFunction/getLocalforageTokenDts";
+import { useNavigate } from "react-router-dom";
 
 const initialValues = { add_sector: "" };
 
@@ -28,12 +30,22 @@ function DESIGNATION_ADD() {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
   const [userDataLocalStore, setUserDataLocalStore] = useState([]);
+  const navigate = useNavigate()
 
   const fetchSectorDropdownOption = async () => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     try {
-      const response = await axios.post(`${url}index.php/webApi/Mdapi/designation`, {}, {
-        headers: { auth_key },
+      const response = await axios.post(`${url}index.php/webApi/Mdapi/designation`, 
+        formData, 
+      {
+        headers: { 
+          auth_key,
+          'Authorization': `Bearer ` + tokenValue?.token },
       });
 
       
@@ -65,14 +77,14 @@ function DESIGNATION_ADD() {
 
   const addSector = async () => {
     setLoading(true);
-      
+    const tokenValue = await getLocalStoreTokenDts(navigate);
     const formData = new FormData();
     // Append each field to FormData
     formData.append("desig_name", formik.values.add_sector);
     formData.append("sl_no", 0);
     formData.append("created_by", userDataLocalStore.user_id);
     formData.append("modified_by", '');
-
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
     // sl_no,
     // desig_name,
     // created_by,
@@ -85,7 +97,8 @@ function DESIGNATION_ADD() {
             {
               headers: {
                 "Content-Type": "multipart/form-data",
-                'auth_key': auth_key // Important for FormData
+                'auth_key': auth_key,
+                'Authorization': `Bearer ` + tokenValue?.token
               },
             }
           );
@@ -118,6 +131,7 @@ function DESIGNATION_ADD() {
 
   const updateSector = async () => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
 
     const formData = new FormData();
           // Append each field to FormData
@@ -125,7 +139,7 @@ function DESIGNATION_ADD() {
     formData.append("sl_no", editingSector.sl_no);
     formData.append("created_by", userDataLocalStore.user_id);
     formData.append("modified_by", userDataLocalStore.user_id);
-
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
           
         try {
     
@@ -134,7 +148,8 @@ function DESIGNATION_ADD() {
             {
               headers: {
                 "Content-Type": "multipart/form-data",
-                'auth_key': auth_key // Important for FormData
+                'auth_key': auth_key,
+                'Authorization': `Bearer ` + tokenValue?.token
               },
             }
           );

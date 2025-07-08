@@ -8,6 +8,7 @@ import { useParams } from "react-router"
 import { Spin } from 'antd';
 import TableHeader from '../../Components/TableHeader';
 import TableRow from '../../Components/TableRow';
+import { getLocalStoreTokenDts } from '../../CommonFunction/getLocalforageTokenDts';
 
 function FundExpView() {
   const navigate = useNavigate();
@@ -22,13 +23,21 @@ function FundExpView() {
 
   const fetchTableDataList_Fn = async () => {
     setLoading(true);
-    const cread = { fin_year: '0' };
+    // const cread = { fin_year: '0' };
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append('fin_year', '0'); // csrf_token
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Expense/expense_list',
-        cread,
-        { headers: { 'auth_key': auth_key } }
+        formData,
+        { headers: { 
+          'auth_key': auth_key,
+          'Authorization': `Bearer ` + tokenValue?.token
+         } }
       );
 
       if (response?.data?.status > 0) {

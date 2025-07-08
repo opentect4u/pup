@@ -11,6 +11,8 @@ import { auth_key, url } from "../../Assets/Addresses/BaseUrl";
 import VError from "../../Components/VError";
 import { Spin } from "antd";
 import MasterTableCommon from "../../Components/MasterTableCommon";
+import { useNavigate } from "react-router-dom";
+import { getLocalStoreTokenDts } from "../../CommonFunction/getLocalforageTokenDts";
 
 const initialValues = { proj_submit_by: "" };
 
@@ -27,6 +29,8 @@ function Project_Submitted_By_Form() {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
   const [userDataLocalStore, setUserDataLocalStore] = useState([]);
+  const navigate = useNavigate()
+
 
   const fetchFundDropdownOption = async () => {
     setLoading(true);
@@ -51,13 +55,19 @@ function Project_Submitted_By_Form() {
 
   const fetchProjectSubmitData = async () => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Mdapi/projSubmitBy',
-        {}, // Empty body
+        formData , // Empty body
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -95,12 +105,15 @@ function Project_Submitted_By_Form() {
 
   const addFund = async () => {
     setLoading(true);
-      
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
     const formData = new FormData();
     // Append each field to FormData
     formData.append("proj_submit_by", formik.values.proj_submit_by);
     formData.append("sl_no", 0);
     formData.append("created_by", userDataLocalStore.user_id);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     
         try {
     
@@ -109,7 +122,8 @@ function Project_Submitted_By_Form() {
             {
               headers: {
                 "Content-Type": "multipart/form-data",
-                'auth_key': auth_key // Important for FormData
+                'auth_key': auth_key,
+                'Authorization': `Bearer ` + tokenValue?.token
               },
             }
           );
@@ -142,12 +156,13 @@ function Project_Submitted_By_Form() {
 
   const updateFund = async () => {
     setLoading(true);
-
+    const tokenValue = await getLocalStoreTokenDts(navigate);
     const formData = new FormData();
           // Append each field to FormData
-          formData.append("proj_submit_by", formik.values.proj_submit_by);
-          formData.append("sl_no", editingFund.sl_no);
-          formData.append("modified_by", userDataLocalStore.user_id);
+    formData.append("proj_submit_by", formik.values.proj_submit_by);
+    formData.append("sl_no", editingFund.sl_no);
+    formData.append("modified_by", userDataLocalStore.user_id);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
         try {
     
@@ -156,7 +171,8 @@ function Project_Submitted_By_Form() {
             {
               headers: {
                 "Content-Type": "multipart/form-data",
-                'auth_key': auth_key // Important for FormData
+                'auth_key': auth_key,
+                'Authorization': `Bearer ` + tokenValue?.token
               },
             }
           );

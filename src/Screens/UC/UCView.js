@@ -8,6 +8,7 @@ import { useParams } from "react-router"
 import { Spin } from 'antd';
 import TableHeader from '../../Components/TableHeader';
 import TableRow from '../../Components/TableRow';
+import { getLocalStoreTokenDts } from '../../CommonFunction/getLocalforageTokenDts';
 
 function UCView() {
   const navigate = useNavigate();
@@ -22,15 +23,23 @@ function UCView() {
 
   const fetchTableDataList_Fn = async () => {
     setLoading(true);
-    const cread = {
-        fin_year: '0',
-    }
+
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append('fin_year', '0');
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
+    // const cread = {
+    //     fin_year: '0',
+    // }
     try {
       const response = await axios.post(
-        url + 'index.php/webApi/Utilization/utlization_list', cread, 
+        url + 'index.php/webApi/Utilization/utlization_list', formData, 
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );

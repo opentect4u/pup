@@ -11,6 +11,8 @@ import { auth_key, url } from "../../Assets/Addresses/BaseUrl";
 import VError from "../../Components/VError";
 import { Spin } from "antd";
 import MasterTableCommon from "../../Components/MasterTableCommon";
+import { getLocalStoreTokenDts } from "../../CommonFunction/getLocalforageTokenDts";
+import { useNavigate } from "react-router-dom";
 
 const initialValues = { agency_name: "" };
 
@@ -27,12 +29,22 @@ function IMPL_AGEN_Form() {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
   const [userDataLocalStore, setUserDataLocalStore] = useState([]);
+  const navigate = useNavigate()
 
   const fetchAgencyDropdownOption = async () => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
     try {
-      const response = await axios.post(`${url}index.php/webApi/Mdapi/impagency`, {}, {
-        headers: { auth_key },
+      const response = await axios.post(`${url}index.php/webApi/Mdapi/impagency`, 
+        formData, 
+      {
+        headers: { 
+          auth_key,
+          'Authorization': `Bearer ` + tokenValue?.token,
+         },
       });
 
       
@@ -54,12 +66,14 @@ function IMPL_AGEN_Form() {
 
   const addAgency = async () => {
     setLoading(true);
-      
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
     const formData = new FormData();
     // Append each field to FormData
     formData.append("agency_name", formik.values.agency_name);
     formData.append("created_by", userDataLocalStore.user_id);
-    
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
         try {
     
           const response = await axios.post( `${url}index.php/webApi/Mdapi/impAdd`, 
@@ -67,7 +81,8 @@ function IMPL_AGEN_Form() {
             {
               headers: {
                 "Content-Type": "multipart/form-data",
-                'auth_key': auth_key // Important for FormData
+                'auth_key': auth_key,
+                'Authorization': `Bearer ` + tokenValue?.token
               },
             }
           );
@@ -100,13 +115,13 @@ function IMPL_AGEN_Form() {
 
   const updateAgency = async () => {
     setLoading(true);
-
+    const tokenValue = await getLocalStoreTokenDts(navigate);
     const formData = new FormData();
           // Append each field to FormData
-          formData.append("agency_name", formik.values.agency_name);
-          formData.append("id", editingAgency.id);
-          formData.append("modified_by", userDataLocalStore.user_id);
-
+    formData.append("agency_name", formik.values.agency_name);
+    formData.append("id", editingAgency.id);
+    formData.append("modified_by", userDataLocalStore.user_id);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
           
         try {
     
@@ -115,7 +130,8 @@ function IMPL_AGEN_Form() {
             {
               headers: {
                 "Content-Type": "multipart/form-data",
-                'auth_key': auth_key // Important for FormData
+                'auth_key': auth_key,
+                'Authorization': `Bearer ` + tokenValue?.token
               },
             }
           );

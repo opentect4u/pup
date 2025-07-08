@@ -121,3 +121,7 @@ h2.text-white {color: #fff;}
   color: #333; width: 170px;}
 .capture_login .capture_Refresh_Btn{font-size: 15px; background: #3EB8BD; padding: 6px 19px; border-radius: 3px; color: #fff;}
 
+.alertPass{padding: 10px;}
+/* .alertPass ul{display: inline-block;}
+.alertPass ul li{display: inline-block; padding-right: 15px; width: 25%;} */
+

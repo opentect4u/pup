@@ -14,6 +14,7 @@ import { Select, Spin } from 'antd';
 import { DataTable } from 'primereact/datatable';
 import Column from 'antd/es/table/Column';
 import { Toast } from "primereact/toast"
+import { getLocalStoreTokenDts } from '../../CommonFunction/getLocalforageTokenDts';
 
 
 
@@ -89,11 +90,12 @@ function FundExpForm() {
     
     const fundAddedList = async (approvalNo_Para) => {
       setLoading(true); // Set loading state
-    
+      const tokenValue = await getLocalStoreTokenDts(navigate);
       
       const formData = new FormData();
       // formData.append("approval_no", params?.id);
       formData.append("approval_no", approvalNo_Para);
+      formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
   
       try {
         const response = await axios.post(
@@ -102,7 +104,8 @@ function FundExpForm() {
           {
             headers: {
               "Content-Type": "multipart/form-data",
-              'auth_key': auth_key // Important for FormData
+              'auth_key': auth_key, // Important for FormData
+              'Authorization': `Bearer ` + tokenValue?.token
             },
           }
         );
@@ -135,7 +138,7 @@ function FundExpForm() {
 
     const saveFormData = async () => {
       // setLoading(true); // Set loading state
-    
+      const tokenValue = await getLocalStoreTokenDts(navigate);
       const formData = new FormData();
   
       // formData.append("approval_no", params?.id);
@@ -147,6 +150,7 @@ function FundExpForm() {
       formData.append("sch_remark", formik.values.sch_remark);
       formData.append("cont_remark", formik.values.cont_remark);
       formData.append("created_by", userDataLocalStore.user_id);
+      formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
   
       try {
@@ -156,7 +160,8 @@ function FundExpForm() {
           {
             headers: {
               "Content-Type": "multipart/form-data",
-              'auth_key': auth_key // Important for FormData
+              'auth_key': auth_key, // Important for FormData
+              'Authorization': `Bearer ` + tokenValue?.token
             },
           }
         );
@@ -189,7 +194,7 @@ function FundExpForm() {
 
     const updateFormData = async () => {
       // setLoading(true); // Set loading state
-  
+      const tokenValue = await getLocalStoreTokenDts(navigate);
     
       const formData = new FormData();
   
@@ -204,7 +209,7 @@ function FundExpForm() {
       formData.append("payment_no", payment_no);
       formData.append("payment_date", payment_date);
       formData.append("modified_by", userDataLocalStore.user_id);
-
+      formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
   
     
   
@@ -215,7 +220,8 @@ function FundExpForm() {
           {
             headers: {
               "Content-Type": "multipart/form-data",
-              'auth_key': auth_key // Important for FormData
+              'auth_key': auth_key, // Important for FormData
+              'Authorization': `Bearer ` + tokenValue?.token
             },
           }
         );
@@ -247,13 +253,20 @@ function FundExpForm() {
 
   const fetchProjectId = async () => {
     setLoading(true);
+
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Admapi/get_approval_no',
-        {}, // Empty body
+        formData, // Empty body
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -276,13 +289,19 @@ function FundExpForm() {
 
   const fetchContigenceRemarks = async () => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Mdapi/contRmrks',
-        {}, // Empty body
+        formData, // Empty body
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -307,9 +326,12 @@ function FundExpForm() {
   const loadFormData = async (project_id) => {
     setLoading(true); // Set loading state
 
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
     const formData = new FormData();
 
     formData.append("approval_no", project_id);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
     try {
       const response = await axios.post(
@@ -318,6 +340,7 @@ function FundExpForm() {
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -351,6 +374,7 @@ function FundExpForm() {
 
   const loadFormEditData = async (approval_no, payment_no, payment_date) => {
     setLoading(true); // Set loading state
+    const tokenValue = await getLocalStoreTokenDts(navigate);
 
     setOperation_status('edit');
     setpayment_no(payment_no)
@@ -361,6 +385,7 @@ function FundExpForm() {
     formData.append("approval_no", approval_no);
     formData.append("payment_no", payment_no);
     formData.append("payment_date", payment_date);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
     try {
       const response = await axios.post(
@@ -369,6 +394,7 @@ function FundExpForm() {
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );

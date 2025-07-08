@@ -9,6 +9,8 @@ import { Spin } from 'antd';
 import TableHeader from '../../Components/TableHeader';
 import TableRow from '../../Components/TableRow';
 import localforage from 'localforage';
+import { getCSRFToken } from '../../CommonFunction/useCSRFToken';
+import { getLocalStoreTokenDts } from '../../CommonFunction/getLocalforageTokenDts';
 
 function AdApView() {
   const navigate = useNavigate();
@@ -34,27 +36,33 @@ function AdApView() {
     }
     }, []);
 
-    const getCSRFToken = async () => {
-      const res = await fetch(url + 'index.php/login/get_csrf', {
-        credentials: "include" // allows receiving the CSRF cookie
-      });
-      const data = await res.json();
-      console.log(data, 'data');
+    // const getCSRFToken = async () => {
+    //   const res = await fetch(url + 'index.php/login/get_csrf', {
+    //     credentials: "include" // allows receiving the CSRF cookie
+    //   });
+    //   const data = await res.json();
+    //   console.log(data, 'data');
       
-      return {
-        name: data.csrf_token_name,
-        value: data.csrf_token_value
-      };
-    };
+    //   return {
+    //     name: data.csrf_token_name,
+    //     value: data.csrf_token_value
+    //   };
+    // };
 
-  const fetchTableDataList_Fn = async (token) => {
-    const csrf = await getCSRFToken();
+  const fetchTableDataList_Fn = async () => {
+    
+    // const csrf = await getCSRFToken(navigate);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+    
+    console.log(tokenValue, 'token_____');
+    // alert('Token fetched successfully from local storage', newToken);
+    
     setLoading(true);
     const formData = new FormData();
     formData.append("project_id", '0');
     formData.append("fin_year", '0');
     formData.append("dist_id", '0');
-    formData.append(csrf.name, csrf.value); // csrf_token
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
     // const cread = {
     //   project_id: '0',
@@ -64,7 +72,7 @@ function AdApView() {
     try {
       const response = await axios.post(url + 'index.php/webApi/Admapi/adm_approv_list', formData, {
         headers: { 'auth_key': auth_key,
-          'Authorization': `Bearer ` + token
+          'Authorization': `Bearer ` + tokenValue?.token
          },
       
       });
@@ -91,14 +99,15 @@ function AdApView() {
 
   useEffect(() => {
 
-    localforage.getItem('tokenDetails').then((value) => {
-    console.log('token-store_', value);
-    fetchTableDataList_Fn(value?.token);
-    }).catch((err) => {
-    console.error('Read error:', err);
-    localStorage.removeItem("user_dt");
-    });
+    // localforage.getItem('tokenDetails').then((value) => {
+    // console.log('token-store_/////', value);
+    // fetchTableDataList_Fn(value?.token);
+    // }).catch((err) => {
+    // console.error('Read error:', err);
+    // localStorage.removeItem("user_dt");
+    // });
 
+    fetchTableDataList_Fn();
     
   }, []);
 

@@ -17,6 +17,7 @@ import { Toast } from "primereact/toast"
 import Radiobtn from '../../Components/Radiobtn';
 import { toWords } from 'number-to-words';
 import { FieldArray } from 'formik';
+import { getLocalStoreTokenDts } from '../../CommonFunction/getLocalforageTokenDts';
 
 
 const initialValues = {
@@ -82,13 +83,19 @@ function Annex_Form() {
 
   const fetchProjectId = async () => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Admapi/get_approval_no',
-        {}, // Empty body
+        formData, // Empty body
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -109,63 +116,63 @@ function Annex_Form() {
     }
   };
 
-  const loadFormData = async (approval_no) => {
-    setLoading(true); // Set loading state
+  // const loadFormData = async (approval_no) => {
+  //   setLoading(true); // Set loading state
 
-    const formData = new FormData();
+  //   const formData = new FormData();
 
-    formData.append("approval_no", approval_no);
+  //   formData.append("approval_no", approval_no);
 
-    try {
-      const response = await axios.post(
-        url + 'index.php/webApi/Utilization/projCompCertiSingledata',
-        formData,
-        {
-          headers: {
-            'auth_key': auth_key,
-          },
-        }
-      );
+  //   try {
+  //     const response = await axios.post(
+  //       url + 'index.php/webApi/Utilization/projCompCertiSingledata',
+  //       formData,
+  //       {
+  //         headers: {
+  //           'auth_key': auth_key,
+  //         },
+  //       }
+  //     );
 
       
-      if (response?.data.status > 0) {
-        setLoading(false);
-        setGetMsgData(response?.data?.message)
+  //     if (response?.data.status > 0) {
+  //       setLoading(false);
+  //       setGetMsgData(response?.data?.message)
 
-        setValues({
-          letter_No_date: response?.data?.message?.letter_No_date,
-          adminApprovalAmount: response?.data?.message?.adminApprovalAmount,
-          schematic_amount: response?.data?.message?.schematic_amount,
-          contigency_exp_details: response?.data?.message?.contigency_exp_details,
-          contigency_amount: response?.data?.message?.contigency_amount,
-          total_release_fund: response?.data?.message?.work_order_dt,
-          schemeName: response?.data?.message?.amt_put_totender,
-          adminApprovalNo: response?.data?.message?.work_order_value,
-          adminApprovalDate: response?.data?.message?.adminApprovalDate_comp,
-          actual_date_comp: response?.data?.message?.actual_dt_com,
-          block: response?.data?.message?.block,
-          district: response?.data?.message?.district,
-          remarks: response?.data?.message?.remarks,
-        })
+  //       setValues({
+  //         letter_No_date: response?.data?.message?.letter_No_date,
+  //         adminApprovalAmount: response?.data?.message?.adminApprovalAmount,
+  //         schematic_amount: response?.data?.message?.schematic_amount,
+  //         contigency_exp_details: response?.data?.message?.contigency_exp_details,
+  //         contigency_amount: response?.data?.message?.contigency_amount,
+  //         total_release_fund: response?.data?.message?.work_order_dt,
+  //         schemeName: response?.data?.message?.amt_put_totender,
+  //         adminApprovalNo: response?.data?.message?.work_order_value,
+  //         adminApprovalDate: response?.data?.message?.adminApprovalDate_comp,
+  //         actual_date_comp: response?.data?.message?.actual_dt_com,
+  //         block: response?.data?.message?.block,
+  //         district: response?.data?.message?.district,
+  //         remarks: response?.data?.message?.remarks,
+  //       })
         
-        // setGetStatusData(response?.data?.prog_img)
-        // setFolderProgres(response?.data?.folder_name)
+  //       // setGetStatusData(response?.data?.prog_img)
+  //       // setFolderProgres(response?.data?.folder_name)
 
-      }
+  //     }
 
-      if (response?.data.status < 1) {
-        setLoading(false);
-        // setGetStatusData([])
-        setGetMsgData([])
-        // setShowForm(false);
-      }
+  //     if (response?.data.status < 1) {
+  //       setLoading(false);
+  //       // setGetStatusData([])
+  //       setGetMsgData([])
+  //       // setShowForm(false);
+  //     }
 
-    } catch (error) {
-      setLoading(false);
-      console.error("Error fetching data:", error); // Handle errors properly
-    }
+  //   } catch (error) {
+  //     setLoading(false);
+  //     console.error("Error fetching data:", error); // Handle errors properly
+  //   }
 
-  };
+  // };
 
   const loadFormEditData = async (approval_no) => {
     
@@ -173,11 +180,11 @@ function Annex_Form() {
     // setSl_no(sl_no)
 
     setLoading(true); // Set loading state
-    
+    const tokenValue = await getLocalStoreTokenDts(navigate);
     const formData = new FormData();
 
     formData.append("approval_no", approval_no);
-
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Utilization/dtforannexture',
@@ -186,6 +193,7 @@ function Annex_Form() {
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -250,7 +258,7 @@ function Annex_Form() {
 
   const updateFormData = async () => {
     // setLoading(true); // Set loading state
-  
+    const tokenValue = await getLocalStoreTokenDts(navigate)
     const formData = new FormData();
 
     formData.append("sl_no", 0);
@@ -272,6 +280,7 @@ function Annex_Form() {
     formData.append("remarks", formik.values.remark);
 
     formData.append("created_by", userDataLocalStore.user_id);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
     try {
       const response = await axios.post(
@@ -280,7 +289,8 @@ function Annex_Form() {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            'auth_key': auth_key // Important for FormData
+            'auth_key': auth_key, // Important for FormData
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );

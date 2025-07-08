@@ -9,6 +9,7 @@ import { Spin } from 'antd';
 import TableHeader from '../../Components/TableHeader';
 import TableRow from '../../Components/TableRow';
 import Radiobtn from '../../Components/Radiobtn';
+import { getLocalStoreTokenDts } from '../../CommonFunction/getLocalforageTokenDts';
 
 
 // var date_ofCompletion = new Date('2025-04-08');
@@ -47,12 +48,22 @@ function ProjectStatusView() {
 
   const fetchTableDataList_Fn = async () => {
     setLoading(true);
-    const cread = { fin_year: '0' };
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append('fin_year', '0');
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
+    // const cread = { fin_year: '0' };
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Tender/prog_ls', 
-        cread, 
-        { headers: { 'auth_key': auth_key } }
+        formData, 
+        { headers: { 
+          'auth_key': auth_key,
+          'Authorization': `Bearer ` + tokenValue?.token
+         }
+        }
       );
 
 
@@ -72,13 +83,19 @@ function ProjectStatusView() {
   
   const fetchTableDataList_BYRADIO = async (radioType) => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
     const formData = new FormData();
     formData.append("report_type", radioType);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Report/projetc_status_list', 
         formData, 
-        { headers: { 'auth_key': auth_key } }
+        { headers: { 
+          'auth_key': auth_key,
+          'Authorization': `Bearer ` + tokenValue?.token
+        } }
       );
 
 

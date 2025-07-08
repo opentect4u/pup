@@ -7,6 +7,7 @@ import { EyeOutlined, LoadingOutlined } from '@ant-design/icons';
 import { Spin } from 'antd';
 import TableHeader from '../../Components/TableHeader';
 import TableRow from '../../Components/TableRow';
+import { getLocalStoreTokenDts } from '../../CommonFunction/getLocalforageTokenDts';
 // import TableHeader from './TableHeader';
 // import TableRow from './TableRow';
 
@@ -22,11 +23,22 @@ function FundRelView() {
 
   const fetchTableDataList_Fn = async () => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append("fin_year", '0');
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Fund/fund_list',
-        { fin_year: '0' },
-        { headers: { 'auth_key': auth_key } }
+        formData,
+        { 
+          headers: { 
+          'auth_key': auth_key,
+          'Authorization': `Bearer ` + tokenValue?.token
+        } 
+      }
       );
 
       if (response?.data?.status > 0) {

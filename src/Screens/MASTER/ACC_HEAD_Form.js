@@ -11,6 +11,8 @@ import { auth_key, url } from "../../Assets/Addresses/BaseUrl";
 import VError from "../../Components/VError";
 import { Spin } from "antd";
 import MasterTableCommon from "../../Components/MasterTableCommon";
+import { getLocalStoreTokenDts } from "../../CommonFunction/getLocalforageTokenDts";
+import { useNavigate } from "react-router-dom";
 
 const initialValues = { account_head: "" };
 
@@ -27,6 +29,7 @@ function ACC_HEAD_Form() {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
   const [userDataLocalStore, setUserDataLocalStore] = useState([]);
+  const navigate = useNavigate()
 
   useEffect(() => {
     const userData = localStorage.getItem("user_dt");
@@ -40,9 +43,17 @@ function ACC_HEAD_Form() {
 
   const fetchAccountHeadDropdownOption = async () => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     try {
-      const response = await axios.post(`${url}index.php/webApi/Mdapi/head_of_acc`, {}, {
-        headers: { auth_key },
+      const response = await axios.post(`${url}index.php/webApi/Mdapi/head_of_acc`, formData, {
+        headers: { 
+          auth_key,
+          'Authorization': `Bearer ` + tokenValue?.token
+         },
       });
 
       
@@ -64,12 +75,13 @@ function ACC_HEAD_Form() {
 
   const addAccountHead = async () => {
     setLoading(true);
-      
+    const tokenValue = await getLocalStoreTokenDts(navigate);
     const formData = new FormData();
     // Append each field to FormData
     formData.append("account_head", formik.values.account_head);
     formData.append("created_by", userDataLocalStore.user_id);
-    
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
         try {
     
           const response = await axios.post( `${url}index.php/webApi/Mdapi/accAdd`, 
@@ -77,7 +89,8 @@ function ACC_HEAD_Form() {
             {
               headers: {
                 "Content-Type": "multipart/form-data",
-                'auth_key': auth_key // Important for FormData
+                'auth_key': auth_key,
+                'Authorization': `Bearer ` + tokenValue?.token
               },
             }
           );
@@ -110,12 +123,13 @@ function ACC_HEAD_Form() {
 
   const updateAccountHead = async () => {
     setLoading(true);
-
+    const tokenValue = await getLocalStoreTokenDts(navigate);
     const formData = new FormData();
           // Append each field to FormData
           formData.append("account_head", formik.values.account_head);
           formData.append("sl_no", editingAccountHead.sl_no);
           formData.append("modified_by", userDataLocalStore.user_id);
+          formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
           
         try {
@@ -125,7 +139,8 @@ function ACC_HEAD_Form() {
             {
               headers: {
                 "Content-Type": "multipart/form-data",
-                'auth_key': auth_key // Important for FormData
+                'auth_key': auth_key,
+                'Authorization': `Bearer ` + tokenValue?.token
               },
             }
           );

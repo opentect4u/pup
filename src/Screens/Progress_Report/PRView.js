@@ -8,6 +8,7 @@ import { useParams } from "react-router"
 import { Spin } from 'antd';
 import TableHeader from '../../Components/TableHeader';
 import TableRow from '../../Components/TableRow';
+import { getLocalStoreTokenDts } from '../../CommonFunction/getLocalforageTokenDts';
 
 
 // var date_ofCompletion = new Date('2025-04-08');
@@ -28,12 +29,22 @@ function PRView() {
 
   const fetchTableDataList_Fn = async () => {
     setLoading(true);
-    const cread = { fin_year: '0' };
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    // const cread = { fin_year: '0' };
+    const formData = new FormData();
+    formData.append('fin_year', '0');
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
+
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Tender/prog_ls', 
-        cread, 
-        { headers: { 'auth_key': auth_key } }
+        formData, 
+        { headers: { 
+          'auth_key': auth_key,
+          'Authorization': `Bearer ` + tokenValue?.token
+         } }
       );
 
       if (response?.data?.status > 0) {

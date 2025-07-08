@@ -12,6 +12,7 @@ import { getPrintCommonHeader_PCR } from '../../Components/PrintCommonHeader_PCR
 import { toWords } from 'number-to-words';
 import { Message } from '../../Components/Message';
 import { getPrintCommonHeader_UC } from '../../Components/PrintCommonHeader_UC';
+import { getLocalStoreTokenDts } from '../../CommonFunction/getLocalforageTokenDts';
 
 
 // const initialValues = {
@@ -42,16 +43,23 @@ function UC_View() {
   const fetchTableDataList_Fn = async () => {
     setLoading(true);
 
-    const cread = {
-        fin_year: '0',
-    };
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append('fin_year', '0');
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
+    // const cread = {
+    //     fin_year: '0',
+    // };
     
     try {
       const response = await axios.post(
-        url + 'index.php/webApi/Utilization/certificatlist', cread,
+        url + 'index.php/webApi/Utilization/certificatlist', formData,
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -196,12 +204,14 @@ function UC_View() {
   const printData = async (approval_no, sl_no) => {
 
     setLoading(true); // Set loading state
-    
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
         const formData = new FormData();
     
         formData.append("approval_no", approval_no);
         formData.append("sl_no", sl_no);
-    
+        formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
         try {
           const response = await axios.post(
             url + 'index.php/webApi/Utilization/getcertificateData',
@@ -209,6 +219,7 @@ function UC_View() {
             {
               headers: {
                 'auth_key': auth_key,
+                'Authorization': `Bearer ` + tokenValue?.token
               },
             }
           );

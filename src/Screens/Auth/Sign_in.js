@@ -10,6 +10,7 @@ import axios from "axios";
 import { auth_key, url } from "../../Assets/Addresses/BaseUrl";
 import { Message } from "../../Components/Message";
 import localforage from 'localforage';
+import { getCSRFToken } from "../../CommonFunction/useCSRFToken";
 
 
 const initialValues = {
@@ -34,6 +35,7 @@ const [loginBtnDisable, setLoginBtnDisable] = useState(false);
 
 const [captchaText, setCaptchaText] = useState("");
 const [userCaptchaInput, setUserCaptchaInput] = useState("");
+const [attempLogin, setAttempLogin] = useState("");
 
 // const { csrf} = useCSRFToken();
 
@@ -58,30 +60,23 @@ const [userCaptchaInput, setUserCaptchaInput] = useState("");
   }, []);
 
 
-const getCSRFToken = async () => {
-  const res = await fetch(url + 'index.php/login/get_csrf', {
-    credentials: "include" // allows receiving the CSRF cookie
-  });
-  const data = await res.json();
-  console.log(data, 'data');
+// const getCSRFToken = async () => {
+//   const res = await fetch(url + 'index.php/login/get_csrf', {
+//     credentials: "include" // allows receiving the CSRF cookie
+//   });
+//   const data = await res.json();
+//   console.log(data, 'data');
   
-  return {
-    name: data.csrf_token_name,
-    value: data.csrf_token_value
-  };
-};
+//   return {
+//     name: data.csrf_token_name,
+//     value: data.csrf_token_value
+//   };
+// };
 
 const loginFnc = async () => {
   
   
-  const csrf = await getCSRFToken();
-  // const useCSRFToken = await useCSRFToken();
-  
-  // console.log(useCSRFToken, 'useCSRFToken');
-  
-  
-  
-
+  const csrf = await getCSRFToken(navigate);
  
   const formData = new FormData();
   formData.append("user_id", formik.values.email);
@@ -113,9 +108,11 @@ const loginFnc = async () => {
 
       localforage.setItem('tokenDetails', {
         'token': response?.token,
-        'expires_at': response?.expires_at
+        'expires_at': response?.expires_at,
+        'csrfName': csrf.name, 
+        'csrfValue':csrf.value
       }).then(() => {
-      console.log('Value saved!');
+      console.log('Value saved!', response);
       }).catch((err) => {
       console.error('Save error:', err);
       });
@@ -141,90 +138,14 @@ const loginFnc = async () => {
 
     if(response?.status < 1){
     Message("error", "Login Credentials Wrong...");
+    console.log(response, 'vvvvvvvvvv');
+    setAttempLogin(response?.message)
+    
     // setLoading(false);
     // formik.resetForm();
     setLoginBtnDisable(false)
     }
 };
-
-// const loginFnc = async () => {
-//   try {
-//     const csrfResponse = await axios.get(`http://192.168.1.60/back-end/index.php/Login/get_csrf`);
-//     const csrfToken = csrfResponse?.data?.csrf_token_value || "";
-//     const csrfTokenName = csrfResponse?.data?.csrf_token_name || "";
-//     console.log(csrfResponse, "csrfToken", csrfToken, "csrfTokenName", csrfTokenName);
-    
-
-//   const formData = new FormData();
-  
-//   // // Append each field to FormData
-//   formData.append("user_id", formik.values.email);
-//   formData.append("user_pwd", formik.values.pass); // Ensure this is a file if applicable
-//   formData.append("login_type", 'W');
-//   formData.append(csrfTokenName, csrfToken);
-
-
-//   try {
-//     const response = await axios.post(
-//       `${url}index.php/Login/login`,
-//       formData,
-//       {
-//         headers: {
-//           "Content-Type": "multipart/form-data",
-//           'auth_key': auth_key // Important for FormData
-//         },
-//       }
-//     );
-
-//     if(response?.data?.status > 0){
-//     Message("success", "Login successfully.");
-//     // setLoading(false);
-//     // formik.resetForm();
-
-//     localStorage.setItem("user_dt", JSON.stringify({
-//       name: response?.data?.message?.name, 
-//       user_id: response?.data?.message?.user_id,
-//       user_status: response?.data?.message?.user_status,
-//       user_type: response?.data?.message?.user_type
-//     }))
-    
-//     if(response?.data?.message?.user_type === 'S'){
-//       navigate('home/admin_approval')
-//     } else if(response?.data?.message?.user_type === 'A'){
-//       navigate('home/admin_approval')
-//     } else if(response?.data?.message?.user_type === 'AC'){
-//       navigate('home/fund_expense')
-//     } else if(response?.data?.message?.user_type === 'F'){
-//       navigate('home/tender_formality')
-//     } else {
-//       navigate('home/')
-//     }
-    
-
-//     }
-
-//     if(response?.data?.status < 1){
-//     Message("error", "Login Credentials Wrong...");
-//     // setLoading(false);
-//     // formik.resetForm();
-//     setLoginBtnDisable(false)
-//     }
-    
-
-    
-//   } catch (error) {
-//     setLoading(false);
-//     Message("error", "Error Submitting Form:");
-//     console.error("Error submitting form:", error);
-//   }
-
-//   } catch (error) {
-//     setLoading(false);
-//     Message("error", "Error Submitting Form:");
-//     console.error("Error submitting form:", error);
-//   }
-  
-// }
 
 const onSubmit = (e) => {
     // saveFormData()
@@ -328,15 +249,9 @@ const formik = useFormik({
 
 
               <BtnComp type={'submit'} title="Sign in" onClick={() => { }} disabled={loginBtnDisable} />
-              {/* <p class="text-sm font-light text-gray-500 dark:text-gray-400">
-                Don’t have an account yet?{" "}
-                <a
-                  href="#"
-                  class="font-medium text-primary-600 hover:underline dark:text-primary-500"
-                >
-                  Sign up
-                </a>
-              </p> */}
+              <p class="text-sm text-red-500 font-semibold text-center">
+                {attempLogin}
+              </p>
             </form>
           </div>
         </div>

@@ -14,6 +14,7 @@ import { CalendarOutlined, CheckCircleFilled, ClockCircleFilled, ClockCircleOutl
 import { FaMapMarker } from "react-icons/fa";
 import demoimg from "../../Assets/Images/demo.jpg";
 import { Image } from 'antd';
+import { getLocalStoreTokenDts } from "../../CommonFunction/getLocalforageTokenDts";
 
 
 // const initialValues = {
@@ -42,13 +43,20 @@ function PRDetails() {
 
   const fetchProjectId = async () => {
     setLoading(true);
+
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Admapi/get_approval_no',
-        {}, // Empty body
+        formData, // Empty body
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -63,10 +71,11 @@ function PRDetails() {
 
   const loadFormData = async (project_id) => {
     setLoading(true); // Set loading state
+    const tokenValue = await getLocalStoreTokenDts(navigate);
 
     const formData = new FormData();
-
     formData.append("approval_no", project_id);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
     try {
       const response = await axios.post(
@@ -75,6 +84,7 @@ function PRDetails() {
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );

@@ -15,6 +15,7 @@ import { DataTable } from 'primereact/datatable';
 import Column from 'antd/es/table/Column';
 import { Toast } from "primereact/toast"
 import Radiobtn from '../../Components/Radiobtn';
+import { getLocalStoreTokenDts } from '../../CommonFunction/getLocalforageTokenDts';
 
 
 const options = [
@@ -117,10 +118,11 @@ function TFForm() {
 
   const fundAddedList = async (approvalNo_Para) => {
     setLoading(true); // Set loading state
-    
+    const tokenValue = await getLocalStoreTokenDts(navigate);
     
     const formData = new FormData();
     formData.append("approval_no", approvalNo_Para);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
     try {
       const response = await axios.post(
@@ -129,7 +131,8 @@ function TFForm() {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            'auth_key': auth_key // Important for FormData
+            'auth_key': auth_key, // Important for FormData
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -154,13 +157,19 @@ function TFForm() {
 
   const fetchProjectId = async () => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Admapi/get_approval_no',
-        {}, // Empty body
+        formData, // Empty body
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -183,10 +192,12 @@ function TFForm() {
 
   const loadFormData = async (project_id) => {
     setLoading(true); // Set loading state
+    const tokenValue = await getLocalStoreTokenDts(navigate);
 
     const formData = new FormData();
 
     formData.append("approval_no", project_id);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
     try {
       const response = await axios.post(
@@ -195,6 +206,7 @@ function TFForm() {
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -229,11 +241,13 @@ function TFForm() {
     setSl_no(sl_no)
 
     setLoading(true); // Set loading state
+    const tokenValue = await getLocalStoreTokenDts(navigate);
 
     const formData = new FormData();
 
     formData.append("approval_no", approval_no);
     formData.append("sl_no", sl_no);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
     try {
       const response = await axios.post(
@@ -242,6 +256,7 @@ function TFForm() {
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -298,7 +313,9 @@ function TFForm() {
 
   const saveFormData = async () => {
     setLoading(true); // Set loading state
-  
+
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
     const formData = new FormData();
 
     // Append each field to FormData
@@ -322,9 +339,8 @@ function TFForm() {
     formData.append("e_nit_no", formik.values.e_nit_no);
 
     formData.append("created_by", userDataLocalStore.user_id);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
-
-  
 
     try {
       const response = await axios.post(
@@ -333,7 +349,8 @@ function TFForm() {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            'auth_key': auth_key // Important for FormData
+            'auth_key': auth_key, // Important for FormData
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -353,7 +370,7 @@ function TFForm() {
 
   const updateFormData = async () => {
     // setLoading(true); // Set loading state
-
+  const tokenValue = await getLocalStoreTokenDts(navigate);
   
     const formData = new FormData();
 
@@ -378,6 +395,7 @@ function TFForm() {
     formData.append("approval_no", params?.id);
     formData.append("sl_no", sl_no);
     formData.append("modified_by", userDataLocalStore.user_id);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
   
 
@@ -388,7 +406,8 @@ function TFForm() {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            'auth_key': auth_key // Important for FormData
+            'auth_key': auth_key, // Important for FormData
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );

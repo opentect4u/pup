@@ -27,6 +27,7 @@ import autoTable from "jspdf-autotable";
 import { getPrintCommonHeader } from "../../Components/PrintCommonHeader";
 import { PrintPageName } from "../../Components/PrintCommonHeader_PageName";
 import ReportTable from "../../Components/ReportTable";
+import { getLocalStoreTokenDts } from "../../CommonFunction/getLocalforageTokenDts";
 
 
 const initialValues = {
@@ -78,13 +79,19 @@ function Financial_Report() {
 
   const fetchFinancialYeardownOption = async () => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Mdapi/fin_year',
-        {}, // Empty body
+        formData, // Empty body
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -152,10 +159,14 @@ function Financial_Report() {
 
   const showReport = async (params) => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
     const formData = new FormData();
 
     // Append each field to FormData
     formData.append("fin_year", params > 0 ? params : formik.values.fin_yr);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     setFinanceYear_submit(formik.values.fin_yr)
     try {
       const response = await axios.post(
@@ -164,7 +175,8 @@ function Financial_Report() {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            'auth_key': auth_key // Important for FormData
+            'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );

@@ -15,6 +15,7 @@ import { DataTable } from 'primereact/datatable';
 import Column from 'antd/es/table/Column';
 import { Toast } from "primereact/toast"
 import Radiobtn from '../../Components/Radiobtn';
+import { getLocalStoreTokenDts } from '../../CommonFunction/getLocalforageTokenDts';
 
 
 const options = [
@@ -100,13 +101,19 @@ function PCRForm() {
 
   const fetchProjectId = async () => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Utilization/getProjListForPcr',
-        {}, // Empty body
+        formData, // Empty body
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -130,9 +137,11 @@ function PCRForm() {
   const loadFormData = async (approval_no) => {
     setLoading(true); // Set loading state
 
-    const formData = new FormData();
+    const tokenValue = await getLocalStoreTokenDts(navigate);
 
+    const formData = new FormData();
     formData.append("approval_no", approval_no);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
     try {
       const response = await axios.post(
@@ -141,6 +150,7 @@ function PCRForm() {
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -191,10 +201,11 @@ function PCRForm() {
     // setSl_no(sl_no)
 
     setLoading(true); // Set loading state
-    
-    const formData = new FormData();
+    const tokenValue = await getLocalStoreTokenDts(navigate);
 
+    const formData = new FormData();
     formData.append("approval_no", approval_no);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
     try {
       const response = await axios.post(
@@ -203,6 +214,7 @@ function PCRForm() {
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -263,7 +275,8 @@ function PCRForm() {
 
   const updateFormData = async () => {
     // setLoading(true); // Set loading state
-  
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
     const formData = new FormData();
 
     formData.append("approval_no", approvalNo);
@@ -283,6 +296,7 @@ function PCRForm() {
     formData.append("final_value", formik.values.final_value);
     formData.append("remarks", formik.values.remarks);
     formData.append("created_by", userDataLocalStore.user_id);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
 
     try {
@@ -292,7 +306,8 @@ function PCRForm() {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            'auth_key': auth_key // Important for FormData
+            'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );

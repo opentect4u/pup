@@ -12,6 +12,8 @@ import VError from "../../Components/VError";
 import { Select, Spin } from "antd";
 import { Dialog } from "primereact/dialog";
 import Radiobtn from "../../Components/Radiobtn";
+import { getLocalStoreTokenDts } from "../../CommonFunction/getLocalforageTokenDts";
+import { useNavigate } from "react-router-dom";
 
 const userTypes = {
   S: 'Super Admin',
@@ -95,18 +97,24 @@ function UserProfile() {
   const [modalTitle, setModalTitle] = useState("");
   const [radiReset_pass, setRadiReset_pass] = useState("N")
   const [user_status, setUser_status] = useState("A")
+  const navigate = useNavigate()
   // const [editSec, setEditSec] = useState(false)
 
   const fetchAllData = async () => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
 
     const formData = new FormData();
     // Append each field to FormData
     formData.append("user_id", userDataLocalStore.user_id);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
     try {
       const response = await axios.post(`${url}index.php/webApi/User/userdata`, formData, {
-        headers: { auth_key },
+        headers: { 
+          auth_key,
+          'Authorization': `Bearer ` + tokenValue?.token
+         },
       });
 
 
@@ -138,13 +146,19 @@ function UserProfile() {
 
   const fetchDistrictdownOption = async () => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Mdapi/dist',
-        {}, // Empty body
+        formData, // Empty body
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -159,13 +173,19 @@ function UserProfile() {
 
   const fetchDepertment = async () => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Mdapi/department',
-        {}, // Empty body
+        formData , // Empty body
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -180,13 +200,19 @@ function UserProfile() {
 
   const fetchDesignation = async () => {
     setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Mdapi/designation',
-        {}, // Empty body
+        formData, // Empty body
         {
           headers: {
             'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
           },
         }
       );
@@ -226,7 +252,8 @@ function UserProfile() {
 
   const addUser = async () => {
     setLoading(true);
-      
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+    
     const formData = new FormData();
     // Append each field to FormData
     formData.append("user_id", formik.values.user_id);
@@ -238,9 +265,8 @@ function UserProfile() {
     formData.append("dist_id", formik.values.dis);
     formData.append("email_id", formik.values.email);
     formData.append("mobile", formik.values.phon);
-
-
     formData.append("created_by", userDataLocalStore.user_id);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
     
         try {
     
@@ -249,7 +275,8 @@ function UserProfile() {
             {
               headers: {
                 "Content-Type": "multipart/form-data",
-                'auth_key': auth_key // Important for FormData
+                'auth_key': auth_key,
+                'Authorization': `Bearer ` + tokenValue?.token
               },
             }
           );
@@ -284,7 +311,8 @@ function UserProfile() {
 
   const updateUser = async () => {
     setLoading(true);
-      
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
     const formData = new FormData();
     // Append each field to FormData
    
@@ -297,6 +325,7 @@ function UserProfile() {
     formData.append("mobile", formik.values.phon);
     formData.append("user_id", userDataLocalStore.user_id);
     formData.append("modified_by", userDataLocalStore.user_id);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
     
         try {
@@ -306,7 +335,8 @@ function UserProfile() {
             {
               headers: {
                 "Content-Type": "multipart/form-data",
-                'auth_key': auth_key // Important for FormData
+                'auth_key': auth_key,
+                'Authorization': `Bearer ` + tokenValue?.token
               },
             }
           );
