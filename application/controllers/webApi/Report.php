@@ -19,7 +19,26 @@ class Report extends CI_Controller {
             echo json_encode($response);
             exit;
         }
-        $this->validate_auth_key();
+        $headers = $this->input->request_headers();
+		$authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
+
+		if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+			$token = $matches[1];
+			$user = $this->User_model->get_user_by_token($token);
+			if ($user) {
+				$this->user = $user;
+				return;
+			}
+		}
+
+		http_response_code(401);
+		header('Content-Type: application/json');
+		echo json_encode([
+			'status' => 0,
+			'error_code' => 401,
+			'message' => 'Unauthorized or Token Expired'
+		]);
+		exit;
 		$this->load->helper('pdf');
     }
 

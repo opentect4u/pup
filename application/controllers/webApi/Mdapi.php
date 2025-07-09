@@ -19,7 +19,28 @@ class Mdapi extends CI_Controller {
             echo json_encode($response);
             exit;
         }
-        $this->validate_auth_key();
+        $headers = $this->input->request_headers();
+        $authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
+        if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+            $token = $matches[1];
+            $user = $this->User_model->get_user_by_token($token);
+
+            if ($user) {
+                $this->user = $user;
+                return;
+            }
+        }
+
+		$authorizeresponse = array(
+			'status' => 0,
+			'error_code' => 401,
+			'message' => 'Unauthorized or Token Expired'
+		);
+        $this->output
+            ->set_status_header(401)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($authorizeresponse));
+        exit;
 		$this->load->helper('pdf');
     }
 
@@ -69,13 +90,7 @@ class Mdapi extends CI_Controller {
 		}
     }
 	public function block() {
-		$json_data = file_get_contents("php://input");
-		$data = json_decode($json_data, true);
-		// $where = array();
-		// $dist_id = $data['dist_id'] ?? null;
-		// if ($dist_id > 0) {
-		// 	$where = array_merge($where, ['dist_id' => $dist_id]); 
-		// }
+		
 		$data = $this->Master->f_select('md_block', NULL, NULL, NULL);
 		if (!empty($data)) {
 			echo json_encode(['status' => 1, 'message' => $data]);
@@ -123,16 +138,7 @@ class Mdapi extends CI_Controller {
 	}
 	public function get_gp() {
 	
-		// $this->form_validation->set_rules('dist_id', 'District ', 'required');
-		// $this->form_validation->set_rules('block_id', 'Block', 'required');
 		
-		// if ($this->form_validation->run() == FALSE) {
-		// 	echo json_encode([
-		// 		'status' => 0,
-		// 		'message' => validation_errors()
-		// 	]);
-		// }else{
-		// 	$where = array('dist_id' => $this->input->post('dist_id'),'block_id' => $this->input->post('block_id'));
 			$result_data = $this->Master->f_select('md_gp', array('gp_id','gp_name',), NULL, NULL);
 			
 			$response = (!empty($result_data)) 

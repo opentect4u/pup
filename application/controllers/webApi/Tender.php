@@ -13,15 +13,6 @@ class Tender extends CI_Controller {
         header("Content-Type: application/json; charset=utf-8");
         exit(0);
         }
-		//if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-		//	header("Access-Control-Allow-Origin: *");
-		//	header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
-		//	header("Access-Control-Allow-Headers: Content-Type, Authorization");
-		//	header("Content-Length: 0");
-		//	header("Content-Type: application/json; charset=utf-8");
-		//	exit(0);
-			//exit;
-		//} 
 		if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $response = array(
                 'status' => false,
@@ -30,7 +21,26 @@ class Tender extends CI_Controller {
             echo json_encode($response);
             exit;
         }
-       // $this->validate_auth_key();
+       $headers = $this->input->request_headers();
+		$authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
+
+		if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+			$token = $matches[1];
+			$user = $this->User_model->get_user_by_token($token);
+			if ($user) {
+				$this->user = $user;
+				return;
+			}
+		}
+
+		http_response_code(401);
+		header('Content-Type: application/json');
+		echo json_encode([
+			'status' => 0,
+			'error_code' => 401,
+			'message' => 'Unauthorized or Token Expired'
+		]);
+		exit;
 		$this->load->helper('pdf');
     }
 

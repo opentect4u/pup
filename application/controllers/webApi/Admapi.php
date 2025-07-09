@@ -5,36 +5,42 @@ class Admapi extends CI_Controller {
 
 	public function __construct() {
         parent::__construct();
-		header("Access-Control-Allow-Origin: *"); // Allow all domains
-        header("Access-Control-Allow-Methods: POST, OPTIONS"); // Allow specific methods
-        header("Access-Control-Allow-Headers: Content-Type");
+		$this->load->helper('pdf');
+		header("Access-Control-Allow-Origin: *");
+		header("Access-Control-Allow-Methods: POST, OPTIONS");
+		header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+
 		if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 			exit;
-		} 
-		if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $response = array(
-                'status' => false,
-                'message' => 'Only POST method is allowed'
-            );
-            echo json_encode($response);
-            exit;
-        }
-     //   $this->validate_auth_key();
-		$this->load->helper('pdf');
-    }
+		}
 
-	private function validate_auth_key() {
-        $auth_key = $this->input->get_request_header('auth_key'); // Get from header
-        $valid_key = AUTH_KEY; // Store securely in .env or database
-        if ($auth_key !== $valid_key) {
-            $response = array(
-                'status' => false,
-                'message' => 'Unauthorized access'
-            );
-            echo json_encode($response);
-            exit; // Stop execution
-        }
-    }
+		if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+			echo json_encode(['status' => 0, 'message' => 'Only POST method allowed']);
+			exit;
+		}
+
+		$headers = $this->input->request_headers();
+		$authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
+
+		if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+			$token = $matches[1];
+			$user = $this->User_model->get_user_by_token($token);
+			if ($user) {
+				$this->user = $user;
+				return;
+			}
+		}
+
+		http_response_code(401);
+		header('Content-Type: application/json');
+		echo json_encode([
+			'status' => 0,
+			'error_code' => 401,
+			'message' => 'Unauthorized or Token Expired'
+		]);
+		exit;
+	}
+
     public function check_pi() {
 		$this->form_validation->set_rules('project_id', 'project_id', 'required');
 		if ($this->form_validation->run() == FALSE) {
@@ -433,27 +439,15 @@ class Admapi extends CI_Controller {
 						]);
 						}
 				}
-		}			
-				
+		}					
 
 	}
-		
 
 	public function adm_approv_list() {
-		$json_data = file_get_contents("php://input");
-		$data = json_decode($json_data, true);
+		$project_id = $this->input->post('project_id');
+		$fin_year = $this->input->post('fin_year');
+		$dist_id = $this->input->post('dist_id');
 		$where = array('a.sector_id = b.sl_no' => NULL,'a.account_head = c.sl_no' => NULL);
-        // Check if JSON decoding was successful
-		if (!$data) {
-			echo json_encode([
-				'status' => false,
-				'message' => 'Invalid JSON data'
-			]);
-			return;
-		}
-		$project_id = $data['project_id'] ?? null;
-		$fin_year = $data['fin_year'] ?? null;
-		$dist_id = $data['dist_id'] ?? null;
 
 		if ($project_id === null) {
 			echo json_encode([
@@ -480,19 +474,19 @@ class Admapi extends CI_Controller {
 			echo json_encode(['status' => 0, 'message' => 'No data found']);
 		}
     }
+
 	public function adm_by_approval_no() {
-		$json_data = file_get_contents("php://input");
-		$data = json_decode($json_data, true);
+		$approval_no = $this->input->post('approval_no');
 		$where = array();
         // Check if JSON decoding was successful
-		if (!$data) {
+		if ($approval_no === null) {
 			echo json_encode([
-				'status' => false,
-				'message' => 'Invalid JSON data'
+				'status' => 0,
+				'message' => 'Missing approval_no'
 			]);
 			return;
 		}
-		$approval_no = $data['approval_no'] ?? null;
+		$approval_no = $approval_no;
 		
 		if ($approval_no > 0) {
 			$where = array_merge($where, ['a.approval_no' => $approval_no]); 
