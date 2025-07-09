@@ -94,6 +94,10 @@ function AdApView() {
     } catch (error) {
       setLoading(false);
       console.error("Error fetching data:", error);
+
+      localStorage.removeItem("user_dt");
+      navigate('/')
+      
     }
   };
 

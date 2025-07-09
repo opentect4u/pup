@@ -66,6 +66,10 @@ function SECTOR_ADD_EDITForm() {
       }
     } catch (error) {
       console.error("Error fetching data:", error);
+      
+      localStorage.removeItem("user_dt");
+      navigate('/')
+
     } finally {
       setLoading(false);
     }
@@ -120,6 +124,9 @@ function SECTOR_ADD_EDITForm() {
           setLoading(false);
           Message("error", "Error Submitting Form:");
           console.error("Error submitting form:", error);
+          
+      localStorage.removeItem("user_dt");
+      navigate('/')
         }
 
   };
@@ -165,6 +172,9 @@ function SECTOR_ADD_EDITForm() {
           setLoading(false);
           Message("error", "Error Submitting Form:");
           console.error("Error submitting form:", error);
+          
+      localStorage.removeItem("user_dt");
+      navigate('/')
         }
 
   };

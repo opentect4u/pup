@@ -80,6 +80,9 @@ function HeadAccountwise_Report_Graph() {
     } catch (error) {
       console.error("Error fetching data:", error); // Handle errors properly
       setLoading(false);
+      
+      localStorage.removeItem("user_dt");
+      navigate('/')
     }
   };
 
@@ -114,6 +117,9 @@ function HeadAccountwise_Report_Graph() {
       } catch (error) {
         setLoading(false);
         console.error("Error fetching data:", error); // Handle errors properly
+        
+      localStorage.removeItem("user_dt");
+      navigate('/')
       }
     };
 
@@ -198,6 +204,9 @@ function HeadAccountwise_Report_Graph() {
       setLoading(false);
       Message("error", "Error Submitting Form:");
       console.error("Error submitting form:", error);
+      
+      localStorage.removeItem("user_dt");
+      navigate('/')
     }
     
 

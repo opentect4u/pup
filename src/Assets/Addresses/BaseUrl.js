@@ -1,9 +1,9 @@
 
 
-// export const url='http://192.168.1.60/back-end/'
+export const url='http://192.168.1.60/back-end/'
 
 
-export const url='http://pup.test/backend/' // State DC
+// export const url='http://pup.test/backend/' // State DC
 
 // export const url='https://pup.opentech4u.co.in/pup/'
 

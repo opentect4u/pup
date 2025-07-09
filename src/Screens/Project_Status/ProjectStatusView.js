@@ -75,6 +75,9 @@ function ProjectStatusView() {
       }
     } catch (error) {
       console.error("Error fetching data:", error);
+      
+      localStorage.removeItem("user_dt");
+      navigate('/')
     } finally {
       setLoading(false);
     }
@@ -115,6 +118,9 @@ function ProjectStatusView() {
 
     } catch (error) {
       console.error("Error fetching data:", error);
+      
+      localStorage.removeItem("user_dt");
+      navigate('/')
     } finally {
       setLoading(false);
     }

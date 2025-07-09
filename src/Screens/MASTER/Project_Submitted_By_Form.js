@@ -88,6 +88,9 @@ function Project_Submitted_By_Form() {
     } catch (error) {
       console.error("Error fetching data:", error); // Handle errors properly
       setLoading(false);
+      
+      localStorage.removeItem("user_dt");
+      navigate('/')
     }
   };
 
@@ -150,6 +153,9 @@ function Project_Submitted_By_Form() {
           setLoading(false);
           Message("error", "Error Submitting Form:");
           console.error("Error submitting form:", error);
+          
+      localStorage.removeItem("user_dt");
+      navigate('/')
         }
 
   };
@@ -196,6 +202,9 @@ function Project_Submitted_By_Form() {
           setLoading(false);
           Message("error", "Error Submitting Form:");
           console.error("Error submitting form:", error);
+          
+      localStorage.removeItem("user_dt");
+      navigate('/')
         }
 
   };

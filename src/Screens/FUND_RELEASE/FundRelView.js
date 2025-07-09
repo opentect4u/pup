@@ -48,6 +48,10 @@ function FundRelView() {
       }
     } catch (error) {
       console.error("Error fetching data:", error);
+      
+      localStorage.removeItem("user_dt");
+      navigate('/')
+      
     } finally {
       setLoading(false);
     }

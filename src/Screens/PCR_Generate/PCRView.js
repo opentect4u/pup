@@ -72,6 +72,9 @@ function PCRView() {
       }
     } catch (error) {
       console.error("Error fetching data:", error);
+      
+      localStorage.removeItem("user_dt");
+      navigate('/')
     }
     setLoading(false);
   };
@@ -190,6 +193,9 @@ function PCRView() {
           setLoading(false);
           Message("error", "Not Uploading PDF");
           console.error("Error submitting form:", error);
+          
+      localStorage.removeItem("user_dt");
+      navigate('/')
         }
     
   };
@@ -234,6 +240,9 @@ function PCRView() {
         } catch (error) {
           setLoading(false);
           console.error("Error fetching data:", error); // Handle errors properly
+          
+      localStorage.removeItem("user_dt");
+      navigate('/')
         }
 
     

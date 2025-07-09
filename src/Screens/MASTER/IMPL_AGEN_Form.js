@@ -57,6 +57,9 @@ function IMPL_AGEN_Form() {
       }
     } catch (error) {
       console.error("Error fetching data:", error);
+      
+      localStorage.removeItem("user_dt");
+      navigate('/')
     } finally {
       setLoading(false);
     }
@@ -109,6 +112,9 @@ function IMPL_AGEN_Form() {
           setLoading(false);
           Message("error", "Error Submitting Form:");
           console.error("Error submitting form:", error);
+          
+      localStorage.removeItem("user_dt");
+      navigate('/')
         }
 
   };
@@ -154,6 +160,9 @@ function IMPL_AGEN_Form() {
           setLoading(false);
           Message("error", "Error Submitting Form:");
           console.error("Error submitting form:", error);
+          
+      localStorage.removeItem("user_dt");
+      navigate('/')
         }
 
   };

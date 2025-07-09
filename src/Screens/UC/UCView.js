@@ -54,6 +54,9 @@ function UCView() {
     } catch (error) {
       console.error("Error fetching data:", error);
       setLoading(false);
+      
+      localStorage.removeItem("user_dt");
+      navigate('/')
     }
   };
 

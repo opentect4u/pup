@@ -114,6 +114,9 @@ function ChangePass() {
           setLoading(false);
           Message("error", "Error Submitting Form:");
           console.error("Error submitting form:", error);
+          
+      localStorage.removeItem("user_dt");
+      navigate('/')
         }
 
   };

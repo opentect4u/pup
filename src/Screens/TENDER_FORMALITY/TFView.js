@@ -53,6 +53,9 @@ function TFView() {
       }
     } catch (error) {
       console.error("Error fetching data:", error);
+      
+      localStorage.removeItem("user_dt");
+      navigate('/')
     }
     setLoading(false);
   };

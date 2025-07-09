@@ -115,6 +115,9 @@ function UCListEditForm() {
       } catch (error) {
         setLoading(false);
         console.error("Error fetching data:", error); // Handle errors properly
+        
+      localStorage.removeItem("user_dt");
+      navigate('/')
       }
   
     };
@@ -167,6 +170,9 @@ function UCListEditForm() {
         // setLoading(false);
         Message("error", "Error Submitting Form:");
         console.error("Error submitting form:", error);
+        
+      localStorage.removeItem("user_dt");
+      navigate('/')
       }
   
     };

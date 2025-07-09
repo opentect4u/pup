@@ -122,6 +122,9 @@ function UserManage() {
       }
     } catch (error) {
       console.error("Error fetching data:", error);
+      
+      localStorage.removeItem("user_dt");
+      navigate('/')
     } finally {
       setLoading(false);
     }
@@ -150,6 +153,9 @@ function UserManage() {
     } catch (error) {
       setLoading(false);
       console.error("Error fetching data:", error); // Handle errors properly
+      
+      localStorage.removeItem("user_dt");
+      navigate('/')
     }
   };
 
@@ -177,6 +183,9 @@ function UserManage() {
     } catch (error) {
       setLoading(false);
       console.error("Error fetching data:", error); // Handle errors properly
+      
+      localStorage.removeItem("user_dt");
+      navigate('/')
     }
   };
 
@@ -204,6 +213,9 @@ function UserManage() {
     } catch (error) {
       setLoading(false);
       console.error("Error fetching data:", error); // Handle errors properly
+      
+      localStorage.removeItem("user_dt");
+      navigate('/')
     }
   };
 
@@ -276,6 +288,9 @@ function UserManage() {
           setLoading(false);
           Message("error", "Error Submitting Form:");
           console.error("Error submitting form:", error);
+          
+      localStorage.removeItem("user_dt");
+      navigate('/')
         }
 
   };
@@ -334,6 +349,9 @@ function UserManage() {
           setLoading(false);
           Message("error", "Error Submitting Form:");
           console.error("Error submitting form:", error);
+          
+      localStorage.removeItem("user_dt");
+      navigate('/')
         }
 
   };
@@ -396,6 +414,9 @@ function UserManage() {
           setLoading(false);
           Message("error", "Error Submitting Form:");
           console.error("Error submitting form:", error);
+          
+      localStorage.removeItem("user_dt");
+      navigate('/')
         }
 
   };

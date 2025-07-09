@@ -132,6 +132,9 @@ function FundExpForm() {
         setLoading(false);
         Message("error", "Error Fetching Form Data: fundAddedList");
         // console.error("Error submitting form:", error);
+
+        localStorage.removeItem("user_dt");
+      navigate('/')
       }
   
     };
@@ -187,6 +190,9 @@ function FundExpForm() {
         // setLoading(false);
         Message("error", "Error Submitting Form:");
         console.error("Error submitting form:", error);
+
+        localStorage.removeItem("user_dt");
+      navigate('/')
       }
   
     };
@@ -238,6 +244,9 @@ function FundExpForm() {
         // setLoading(false);
         Message("error", "Error Submitting Form:");
         console.error("Error submitting form:", error);
+
+        localStorage.removeItem("user_dt");
+      navigate('/')
       }
   
     };
@@ -284,6 +293,9 @@ function FundExpForm() {
     } catch (error) {
       console.error("Error fetching data:", error); // Handle errors properly
       setLoading(false);
+
+      localStorage.removeItem("user_dt");
+      navigate('/')
     }
   };
 
@@ -320,6 +332,9 @@ function FundExpForm() {
     } catch (error) {
       console.error("Error fetching data:", error); // Handle errors properly
       setLoading(false);
+
+      localStorage.removeItem("user_dt");
+      navigate('/')
     }
   };
 
@@ -364,6 +379,9 @@ function FundExpForm() {
     } catch (error) {
       setLoading(false);
       console.error("Error fetching data:", error); // Handle errors properly
+
+      localStorage.removeItem("user_dt");
+      navigate('/')
     }
 
   };
@@ -420,6 +438,9 @@ function FundExpForm() {
     } catch (error) {
       setLoading(false);
       console.error("Error fetching data:", error); // Handle errors properly
+
+      localStorage.removeItem("user_dt");
+      navigate('/')
     }
 
   };

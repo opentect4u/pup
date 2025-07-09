@@ -75,6 +75,10 @@ function Annex_View() {
       }
     } catch (error) {
       console.error("Error fetching data:", error);
+
+      localStorage.removeItem("user_dt");
+      navigate('/')
+
     }
     setLoading(false);
   };
@@ -195,6 +199,9 @@ function Annex_View() {
           setLoading(false);
           Message("error", "Not Uploading PDF");
           console.error("Error submitting form:", error);
+
+          localStorage.removeItem("user_dt");
+          navigate('/')
         }
     
   };
@@ -242,6 +249,9 @@ function Annex_View() {
         } catch (error) {
           setLoading(false);
           console.error("Error fetching data:", error); // Handle errors properly
+
+          localStorage.removeItem("user_dt");
+          navigate('/')
         }
 
     

@@ -58,6 +58,9 @@ function DESIGNATION_ADD() {
       }
     } catch (error) {
       console.error("Error fetching data:", error);
+      
+      localStorage.removeItem("user_dt");
+      navigate('/')
     } finally {
       setLoading(false);
     }
@@ -173,6 +176,9 @@ function DESIGNATION_ADD() {
           setLoading(false);
           Message("error", "Error Submitting Form:");
           console.error("Error submitting form:", error);
+          
+      localStorage.removeItem("user_dt");
+      navigate('/')
         }
 
   };

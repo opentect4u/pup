@@ -113,6 +113,9 @@ function Annex_Form() {
     } catch (error) {
       console.error("Error fetching data:", error); // Handle errors properly
       setLoading(false);
+
+      localStorage.removeItem("user_dt");
+      navigate('/')
     }
   };
 
@@ -230,6 +233,9 @@ function Annex_Form() {
     } catch (error) {
       setLoading(false);
       console.error("Error fetching data:", error); // Handle errors properly
+
+      localStorage.removeItem("user_dt");
+      navigate('/')
     }
 
   };

@@ -227,6 +227,9 @@ function AdApForm() {
     } catch (error) {
       console.error("Error fetching data:", error); // Handle errors properly
       setLoading(false);
+
+      localStorage.removeItem("user_dt");
+      navigate('/')
     }
   };
 
@@ -258,6 +261,9 @@ function AdApForm() {
       console.error("Error fetching data:", error); // Handle errors properly
       setLoading(false);
       console.log(error, 'responseresponse');
+
+      localStorage.removeItem("user_dt");
+      navigate('/')
     }
   };
 
@@ -285,6 +291,9 @@ function AdApForm() {
     } catch (error) {
       console.error("Error fetching data:", error); // Handle errors properly
       setLoading(false);
+
+      localStorage.removeItem("user_dt");
+      navigate('/')
     }
   };
 
@@ -313,6 +322,10 @@ function AdApForm() {
     } catch (error) {
       setLoading(false);
       console.error("Error fetching data:", error); // Handle errors properly
+
+      localStorage.removeItem("user_dt");
+      navigate('/')
+
     }
   };
 
@@ -340,6 +353,9 @@ function AdApForm() {
     } catch (error) {
       setLoading(false);
       console.error("Error fetching data:", error); // Handle errors properly
+
+      localStorage.removeItem("user_dt");
+      navigate('/')
     }
   };
 
@@ -349,11 +365,12 @@ function AdApForm() {
 
     const formData = new FormData();
     formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
-
+    console.log(formData, 'formDataformDataformDataformData');
+    
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Mdapi/block',
-        tokenValue, // Empty body
+        formData, // Empty body
         {
           headers: {
             'auth_key': auth_key,
@@ -365,6 +382,9 @@ function AdApForm() {
       setBlockDropList(response.data.message)
     } catch (error) {
       console.error("Error fetching data:", error); // Handle errors properly
+
+      localStorage.removeItem("user_dt");
+      navigate('/')
     }
   };
 
@@ -401,6 +421,10 @@ function AdApForm() {
 
     } catch (error) {
       console.error("Error fetching data:", error); // Handle errors properly
+
+      localStorage.removeItem("user_dt");
+      navigate('/')
+
     }
 
 
@@ -438,6 +462,10 @@ function AdApForm() {
 
     } catch (error) {
       console.error("Error fetching data:", error); // Handle errors properly
+
+      localStorage.removeItem("user_dt");
+      navigate('/')
+
     }
   };
 
@@ -463,6 +491,10 @@ function AdApForm() {
       setSourceFundDropList(response.data.message)
     } catch (error) {
       console.error("Error fetching data:", error); // Handle errors properly
+
+      localStorage.removeItem("user_dt");
+      navigate('/')
+
     }
   };
 
@@ -492,6 +524,10 @@ function AdApForm() {
     } catch (error) {
       console.error("Error fetching data:", error); // Handle errors properly
       setLoading(false);
+
+      localStorage.removeItem("user_dt");
+      navigate('/')
+
     }
   };
 
@@ -530,6 +566,10 @@ function AdApForm() {
 
     } catch (error) {
       console.error("Error fetching data:", error); // Handle errors properly
+
+      localStorage.removeItem("user_dt");
+      navigate('/')
+
     }
 
 
@@ -733,6 +773,10 @@ function AdApForm() {
       // setSourceFundDropList(response.data.message)
     } catch (error) {
       console.error("Error fetching data:", error); // Handle errors properly
+
+      localStorage.removeItem("user_dt");
+      navigate('/')
+
     }
 
   };
@@ -798,6 +842,10 @@ function AdApForm() {
       setLoading(false);
       Message("error", "Error Submitting Form:");
       console.error("Error submitting form:", error);
+
+      localStorage.removeItem("user_dt");
+      navigate('/')
+
     }
 
   };
@@ -867,6 +915,9 @@ function AdApForm() {
       setLoading(false);
       Message("error", "Error Submitting Form:");
       console.error("Error submitting form:", error);
+
+      localStorage.removeItem("user_dt");
+      navigate('/')
     }
 
   };
