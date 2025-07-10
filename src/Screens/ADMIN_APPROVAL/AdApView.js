@@ -54,7 +54,7 @@ function AdApView() {
     // const csrf = await getCSRFToken(navigate);
     const tokenValue = await getLocalStoreTokenDts(navigate);
     
-    console.log(tokenValue, 'token_____');
+    // console.log(tokenValue, 'token_____');
     // alert('Token fetched successfully from local storage', newToken);
     
     setLoading(true);

@@ -66,7 +66,7 @@ function Sidebar() {
 
   // Get a value
   localforage.getItem('tokenDetails').then((value) => {
-  console.log('Stored value:', value);
+  // console.log('Stored value:', value);
   setExpairyTime(new Date(value?.expires_at.replace(" ", "T")));
 
   checkExpairyTime(new Date(value?.expires_at.replace(" ", "T")), new Date());

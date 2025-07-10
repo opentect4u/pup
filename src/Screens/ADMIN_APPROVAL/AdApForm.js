@@ -14,6 +14,7 @@ import { FilePdfOutlined, LoadingOutlined, UpCircleOutlined } from "@ant-design/
 import localforage from "localforage";
 import { getCSRFToken } from "../../CommonFunction/useCSRFToken";
 import { getLocalStoreTokenDts } from "../../CommonFunction/getLocalforageTokenDts";
+import DialogBoxAddDisBlock from "../../Components/DialogBoxAddDisBlock";
 
 const initialValues = {
   scheme_name: '',
@@ -87,6 +88,8 @@ function AdApForm() {
 
   const [projectSubBy, setProjectSubBy] = useState([]);
   const [tokenNumber, setTokenNumber] = useState('');
+  const [visible,setVisible] = useState(false)
+  const [masterPopupTitle, setMasterPopupTitle] = useState('')
 
 
   const validationSchema = Yup.object({
@@ -359,17 +362,23 @@ function AdApForm() {
     }
   };
 
-  const fetchBlockdownOption = async () => {
+  const fetchBlockdownOption = async (getDistrict_id) => {
+
+    console.log(getDistrict_id.length, 'fffffffffffffffffffffffffff', 'kkk');
+    
 
     const tokenValue = await getLocalStoreTokenDts(navigate);
 
     const formData = new FormData();
+
+    formData.append('dist_list', getDistrict_id);
     formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
-    console.log(formData, 'formDataformDataformDataformData');
-    
+    console.log(getDistrict_id, 'responseresponseresponse');
+    if(getDistrict_id.length > 0){
     try {
       const response = await axios.post(
-        url + 'index.php/webApi/Mdapi/block',
+        // url + 'index.php/webApi/Mdapi/block',
+        url + 'index.php/webApi/Mdapi/block_filter',
         formData, // Empty body
         {
           headers: {
@@ -378,28 +387,38 @@ function AdApForm() {
           },
         }
       );
-
+      
       setBlockDropList(response.data.message)
+
     } catch (error) {
       console.error("Error fetching data:", error); // Handle errors properly
-
+      setBlockDropList([])
+      
+      
       localStorage.removeItem("user_dt");
       navigate('/')
     }
+    } else {
+      setBlockDropList([])
+    }
+
   };
 
-  const fetchPoliceStnOption = async () => {
+  const fetchPoliceStnOption = async (getDistrict_id) => {
     // const formData = new FormData();
     // formData.append("dist_id", district_ID);
     // formData.append("block_id", 0);
     const tokenValue = await getLocalStoreTokenDts(navigate);
 
     const formData = new FormData();
+    formData.append('dist_list', getDistrict_id);
     formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
+    if(getDistrict_id.length > 0){
     try {
       const response = await axios.post(
-        `${url}index.php/webApi/Mdapi/get_ps`,
+        // `${url}index.php/webApi/Mdapi/get_ps`,
+        `${url}index.php/webApi/Mdapi/get_ps_filter`,
         formData,
         {
           headers: {
@@ -409,6 +428,7 @@ function AdApForm() {
           },
         }
       );
+      
 
       if (response?.data?.status > 0) {
         setpsStnDropList(response?.data?.message)
@@ -426,22 +446,30 @@ function AdApForm() {
       navigate('/')
 
     }
+    } else {
+      setpsStnDropList([])
+    }
 
 
   };
 
-  const fetch_GM_Option = async () => {
+  const fetch_GM_Option = async (getBlock_id) => {
     // const formData = new FormData();
     // formData.append("dist_id", district_ID);
     // formData.append("block_id", block_ID);
     const tokenValue = await getLocalStoreTokenDts(navigate);
 
+    console.log('formDataformDataformDataformData', getBlock_id);
+
     const formData = new FormData();
+    formData.append('block_id', getBlock_id);
     formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
+    if(getBlock_id.length > 0){
     try {
       const response = await axios.post(
-        `${url}index.php/webApi/Mdapi/get_gp`,
+        // `${url}index.php/webApi/Mdapi/get_gp`,
+        `${url}index.php/webApi/Mdapi/get_gp_filter`,
         formData,
         {
           headers: {
@@ -451,6 +479,9 @@ function AdApForm() {
           },
         }
       );
+
+      console.log(response, 'formDataformDataformDataformData', formData);
+      
 
       if (response?.data?.status > 0) {
         setGM_DropList(response?.data?.message)
@@ -462,11 +493,15 @@ function AdApForm() {
 
     } catch (error) {
       console.error("Error fetching data:", error); // Handle errors properly
-
+      console.log('formDataformDataformDataformData', error);
       localStorage.removeItem("user_dt");
       navigate('/')
 
     }
+    } else {
+      setGM_DropList([])
+    }
+
   };
 
   const fetchSourceFunddownOption = async () => {
@@ -598,9 +633,12 @@ function AdApForm() {
     fetchProjectSubmitData()
 
     fetchDistrictdownOption()
-    fetchBlockdownOption()
-    fetchPoliceStnOption()
-    fetch_GM_Option()
+
+
+
+    // fetchBlockdownOption()
+    // fetchPoliceStnOption()
+    // fetch_GM_Option()
   }, [])
 
 
@@ -769,6 +807,10 @@ function AdApForm() {
       })
 
       setEditFlagStatus(response.data.message.edit_flag)
+
+      fetchBlockdownOption(response.data.message.district_id)
+      fetchPoliceStnOption(response.data.message.district_id)
+      fetch_GM_Option(response.data.message.block_id)
 
       // setSourceFundDropList(response.data.message)
     } catch (error) {
@@ -1013,15 +1055,6 @@ function AdApForm() {
     }
   };
 
-  // useEffect(() => {
-
-  //   const schmAmt = formik.values.schm_amt; // Get the value of 'schm_amt'
-  //   const contAmt = schmAmt * 0.03; // Calculate 3% of 'schm_amt'
-
-    
-  //   formik.setFieldValue('cont_amt', contAmt);
-
-  // }, [formik.values.schm_amt]);
 
 
 
@@ -1041,6 +1074,16 @@ const handleSchmAmtChange_schm_amt = (e) => {
 
 
 
+const addMaster = (title)=>{
+  setMasterPopupTitle(title)
+
+  setVisible(true)
+}
+
+const addMasterFnc = ()=>{
+  alert('fffffffffff');
+  setVisible(false)
+}
 
 
   return (
@@ -1054,8 +1097,11 @@ const handleSchmAmtChange_schm_amt = (e) => {
           spinning={loading}
         >
           <form onSubmit={formik.handleSubmit}>
-            <div class="grid gap-4 sm:grid-cols-12 sm:gap-6">
-
+            <div class="grid gap-4 sm:grid-cols-12 sm:gap-6 hoSection pb-5">
+              
+              <div className="sm:col-span-12 text-black text-md font-bold -mb-2 titleSection">
+                To be Field By HO
+              </div>
               <div class="sm:col-span-4">
                 <TDInputTemplate
                   placeholder="Choose Project ID"
@@ -1083,23 +1129,7 @@ const handleSchmAmtChange_schm_amt = (e) => {
 
               </div>
 
-              {/* {params?.id > 0 && (
-                <div class="sm:col-span-4">
-                  <TDInputTemplate
-                    // placeholder="Choose Project ID"
-                    type="text"
-                    label="Approval No"
-                    // name="proj_id"
-                    value={params?.id}
-                    formControlName={params?.id}
-                    // handleChange={formik.handleChange}
-                    // handleBlur={formik.handleBlur}
-                    mode={1}
-                    disabled={true}
-                  />
 
-                </div>
-              )} */}
 
               <div class="sm:col-span-4">
                 <TDInputTemplate
@@ -1378,6 +1408,9 @@ const handleSchmAmtChange_schm_amt = (e) => {
                   <VError title={formik.errors.project_submit_dtl} />
                 )}
               </div>
+
+              
+
               {userDataLocalStore.user_type === 'A' && (
                 <div class="sm:col-span-12">
                   <div class="p-4 mb-0 text-sm text-yellow-800 border-2 border-yellow-500 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300" role="alert">
@@ -1385,7 +1418,13 @@ const handleSchmAmtChange_schm_amt = (e) => {
                   </div>
                 </div>
               )}
+              </div>
 
+<div class="grid gap-4 sm:grid-cols-12 sm:gap-6 hoSection pb-5">
+              
+              <div className="sm:col-span-12 text-black text-md font-bold -mb-2 titleSection">
+                To be Field By Branch
+              </div>
 
               <div class="sm:col-span-4">
 
@@ -1444,7 +1483,20 @@ const handleSchmAmtChange_schm_amt = (e) => {
                   style={{ width: '100%' }}
                   value={formik.values.dis}
                   onChange={(value) => {
-                    formik.setFieldValue("dis", value)
+                    formik.setFieldValue("dis", value ? value : [])
+                    formik.setFieldValue("block", []);
+                    formik.setFieldValue("ps_id", []);
+                    formik.setFieldValue("gp_id", []);
+                    // console.log(value, 'formDataformDataformDataformData');
+                    if(value && value.length>0){
+                      fetchBlockdownOption(value)
+                      fetchPoliceStnOption(value)
+                    } else {
+                      // formik.setFieldValue("block", []);
+                      setBlockDropList([])
+                      setpsStnDropList([])
+                    }
+                    
                   }} // Update Formik state
                   handleChange={formik.handleChange}
                   onBlur={() => formik.setFieldTouched("dis", true)}
@@ -1472,13 +1524,16 @@ const handleSchmAmtChange_schm_amt = (e) => {
 
 
 
-                <label for="block" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Block
+                <label for="block" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Block 
                 {userDataLocalStore.user_type === 'A' &&(
-                    <><span className="mandator_txt"> *</span></>
-                  )}
+                    <><span className="mandator_txt"> *</span> </> 
+                  )}  <button onClick={()=>{ addMaster('Add Block')}}>Add Block</button>
                   </label>
 
 
+
+                
+                  {/* {JSON.stringify(blockDropList, null, 2)} */}
 
                 <Select
                   placeholder="Choose Block..."
@@ -1488,7 +1543,14 @@ const handleSchmAmtChange_schm_amt = (e) => {
                   style={{ width: '100%' }}
                   value={formik.values.block}
                   onChange={(value) => {
-                    formik.setFieldValue("block", value)
+                    formik.setFieldValue("block", value ? value : [])
+                    formik.setFieldValue("gp_id", []);
+                    // console.log(value, 'formDataformDataformDataformData');
+                    if(value && value.length>0){
+                      fetch_GM_Option(value)
+                    } else {
+                      setGM_DropList([])
+                    }
                   }} // Update Formik state
                   handleChange={formik.handleChange}
                   onBlur={() => formik.setFieldTouched("block", true)}
@@ -1556,6 +1618,9 @@ const handleSchmAmtChange_schm_amt = (e) => {
                     <><span className="mandator_txt"> *</span></>
                   )}
                   </label>
+
+                  {/* {JSON.stringify(GM_DropList, null, 2)} */}
+
                 <Select
                   placeholder="Choose Gram Panchayat..."
                   label="Choose Gram Panchayat"
@@ -1756,9 +1821,12 @@ const handleSchmAmtChange_schm_amt = (e) => {
                 )}
               </div>
 
-{/* {JSON.stringify(editFlagStatus, null, 2)} */}
+
+            </div>
+
+            {/* {JSON.stringify(editFlagStatus, null, 2)} */}
 {editFlagStatus == 'Y' ? (
-<div className="sm:col-span-12 flex justify-center gap-4 mt-4">
+<div className="sm:col-span-12 flex justify-center gap-4 mt-6">
 <BtnComp title={params?.id > 0 ? 'Reload' : 'Reset'} type="reset" onClick={() => {formik.resetForm();}} width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
 <BtnComp type={'submit'} title={params?.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
 </div>
@@ -1775,12 +1843,22 @@ const handleSchmAmtChange_schm_amt = (e) => {
 <BtnComp title={params?.id > 0 ? 'Reload' : 'Reset'} type="reset" onClick={() => {formik.resetForm();}} width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 border-blue-900'} />
 <BtnComp type={'submit'} title={params?.id > 0 ? 'Update' : 'Submit'} onClick={() => { }} width={'w-1/6'} bgColor={'bg-blue-900'} />
               </div> */}
-            </div>
 
           </form>
         </Spin>
       </div>
+      <DialogBoxAddDisBlock 
+      flag={masterPopupTitle}
+      districtData={districtDropList}
+      userCheck={userDataLocalStore}
+      isModalOpen={visible} 
+      handleOk={()=>{
+        addMasterFnc()
+      }} 
+      handleCancel={()=>setVisible(false)}
+      />
     </section>
+    
   );
 }
 
