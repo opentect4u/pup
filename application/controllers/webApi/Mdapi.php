@@ -30,7 +30,6 @@ class Mdapi extends CI_Controller {
                 return;
             }
         }
-
 		$authorizeresponse = array(
 			'status' => 0,
 			'error_code' => 401,
@@ -98,6 +97,85 @@ class Mdapi extends CI_Controller {
 			echo json_encode(['status' => 0, 'message' => 'No data found']);
 		}
     }
+	public function block_filter() {
+		$dist_list = $this->input->post('dist_list');
+		if(!empty($dist_list)) {
+			$dist_array = array_filter(explode(',', $dist_list));
+			if (count($dist_array) > 0) {
+				$where = array('dist_id in(' . $dist_list . ')' => NULL);
+				$data = $this->Master->f_select('md_block', NULL, $where, NULL);
+				if (!empty($data)) {
+					echo json_encode(['status' => 1, 'message' => $data]);
+				} else {
+					echo json_encode(['status' => 0, 'message' => 'No data found']);
+				}
+			} else {
+				echo json_encode(['status' => 0, 'message' => 'Invalid district list']);
+			}
+		} else {
+			echo json_encode(['status' => 0, 'message' => 'Please select at least one district']);
+		}
+    }
+
+	public function blockSave() {
+		$sl_no = $this->input->post('sl_no');
+		$dist_id = trim($this->input->post('dist_id'));
+		$block_name = trim($this->input->post('block_name'));	
+		$user = $this->input->post('created_by');
+
+		// Check if block name is empty
+		if ($block_name == '' || $user == '' || $sl_no == '') {
+			echo json_encode([
+				'status' => 0,
+				'message' => 'Required fields missing'
+			]);
+			return;
+		}
+
+		// Check if block name already exists (excluding the current record in case of edit)
+		$query = $this->db->get_where('md_block', ['dist_id' => $dist_id, 'block_name' => $block_name]);
+		if ($query->num_rows() > 0 ) {
+			echo json_encode([
+				'status' => 0,
+				'message' => 'Already Exists'
+			]);
+			return;
+		}
+	
+		if (!empty($sl_no) && $sl_no > 0) {
+			// **Edit Mode**
+			$data = [
+				'dist_id' => $dist_id,
+				'block_name' => $block_name,
+				'modified_by' => $user,
+				'modified_at' => date('Y-m-d h:i:s')
+			];
+			$where = ['sl_no' => $sl_no];
+	
+			$id = $this->Master->f_edit('md_block', $data, $where);
+			$message = ($id > 0) ? 'Updated Successfully!' : 'Something Went Wrong';
+		} else {
+			// **Add Mode**
+			$data = [
+				'dist_id' => $dist_id,
+				'block_name' => $block_name,
+				'created_by' => $user,
+				'created_at' => date('Y-m-d h:i:s')
+			];
+	
+			$id = $this->Master->f_insert('md_block', $data);
+			$message = ($id > 0) ? 'Added Successfully!' : 'Something Went Wrong';
+		}
+	
+		// Send JSON response
+		echo json_encode([
+			'status' => ($id > 0) ? 1 : 0,
+			'message' => $message
+		]);
+	}
+
+
+
 	public function sof() {
 		$data = $this->Master->f_select('md_fund', array('sl_no','fund_type',), NULL, NULL);
 		if (!empty($data)) {
@@ -116,17 +194,6 @@ class Mdapi extends CI_Controller {
     }
 
 	public function get_ps() {
-	
-		// $this->form_validation->set_rules('dist_id', 'District ', 'required');
-		// $this->form_validation->set_rules('block_id', 'Block', 'required');
-		
-		// if ($this->form_validation->run() == FALSE) {
-		// 	echo json_encode([
-		// 		'status' => 0,
-		// 		'message' => validation_errors()
-		// 	]);
-		// }else{
-			//$where = array('dist_id' => $this->input->post('dist_id'));
 			$result_data = $this->Master->f_select('md_police_station', array('id','ps_name',), NULL, NULL);
 			$response = (!empty($result_data)) 
 			? ['status' => 1, 'message' => $result_data] 
@@ -134,20 +201,161 @@ class Mdapi extends CI_Controller {
 			$this->output
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
-	   //}
+	}
+
+	public function get_ps_filter() {
+		$dist_list = $this->input->post('dist_list');
+		if(!empty($dist_list)) {
+			$dist_array = array_filter(explode(',', $dist_list));
+			if (count($dist_array) > 0) {
+				$where = array('dist_id in(' . $dist_list . ')' => NULL);
+				$result_data = $this->Master->f_select('md_police_station', array('id','ps_name',), $where, NULL);
+				if (!empty($result_data)) {
+					echo json_encode(['status' => 1, 'message' => $result_data]);
+				} else {
+					echo json_encode(['status' => 0, 'message' => 'No data found']);
+				}
+			} else {
+				echo json_encode(['status' => 0, 'message' => 'Invalid district list']);
+			}
+		} else {
+			echo json_encode(['status' => 0, 'message' => 'Please select at least one district']);
+		}
+	}
+	public function psSave() {
+		$sl_no = $this->input->post('sl_no');
+		$dist_id = trim($this->input->post('dist_id'));
+		$ps_name = trim($this->input->post('ps_name'));	
+		$user = $this->input->post('created_by');
+
+		// Check if police station name is empty
+		if ($ps_name == '' || $user == '' || $sl_no == '') {
+			echo json_encode([
+				'status' => 0,
+				'message' => 'Required fields missing'
+			]);
+			return;
+		}
+
+		// Check if police station name already exists (excluding the current record in case of edit)
+		$query = $this->db->get_where('md_police_station', ['dist_id' => $dist_id, 'ps_name' => $ps_name]);
+		if ($query->num_rows() > 0 ) {
+			echo json_encode([
+				'status' => 0,
+				'message' => 'Already Exists'
+			]);
+			return;
+		}
+	
+		if (!empty($sl_no) && $sl_no > 0) {
+			// **Edit Mode**
+			$data = [
+				'dist_id' => $dist_id,
+				'ps_name' => $ps_name,
+				'modified_by' => $user,
+				'modified_at' => date('Y-m-d h:i:s')
+			];
+			$where = ['sl_no' => $sl_no];
+	
+			$id = $this->Master->f_edit('md_police_station', $data, $where);
+			$message = ($id > 0) ? 'Updated Successfully!' : 'Something Went Wrong';
+		} else {
+			// **Add Mode**
+			$data = [
+				'dist_id' => $dist_id,
+				'ps_name' => $ps_name,
+				'created_by' => $user,
+				'created_at' => date('Y-m-d h:i:s')
+			];
+	
+			$id = $this->Master->f_insert('md_police_station', $data);
+			$message = ($id > 0) ? 'Added Successfully!' : 'Something Went Wrong';
+		}
+	
+		// Send JSON response
+		echo json_encode([
+			'status' => ($id > 0) ? 1 : 0,
+			'message' => $message
+		]);
 	}
 	public function get_gp() {
-	
-		
 			$result_data = $this->Master->f_select('md_gp', array('gp_id','gp_name',), NULL, NULL);
-			
 			$response = (!empty($result_data)) 
 			? ['status' => 1, 'message' => $result_data] 
 			: ['status' => 0, 'message' => 'No data found'];
 			$this->output
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
-	   //}
+			
+	}
+	public function get_gp_filter() {
+		$block_id = $this->input->post('block_id');
+		if(!empty($block_id)) {
+			$block_array = array_filter(explode(',', $block_id));
+			if (count($block_array) > 0) {
+				$where = array('block_id in(' . $block_id . ')' => NULL);
+				$result_data = $this->Master->f_select('md_gp', array('gp_id','gp_name',), $where, NULL);
+				if (!empty($result_data)) {
+					echo json_encode(['status' => 1, 'message' => $result_data]);
+				} else {
+					echo json_encode(['status' => 0, 'message' => 'No data found']);
+				}
+			} else {
+				echo json_encode(['status' => 0, 'message' => 'Invalid block list']);
+			}
+		} else {
+			echo json_encode(['status' => 0, 'message' => 'Please select at least one block']);
+		}
+		  
+	}
+	public function gpSave() {
+		$sl_no = $this->input->post('sl_no');
+		$dist_id = trim($this->input->post('dist_id'));
+		$block_id = trim($this->input->post('block_id'));
+		$gp_name = trim($this->input->post('gp_name'));	
+		$user = $this->input->post('created_by');
+
+		// Check if block name is empty
+		if ($block_id == '' || $user == '' || $sl_no == '' || $gp_name == '') {
+			echo json_encode([
+				'status' => 0,
+				'message' => 'Required fields missing'
+			]);
+			return;
+		}
+	
+		if (!empty($sl_no) && $sl_no > 0) {
+			// **Edit Mode**
+			$data = [
+				'dist_id' => $dist_id,
+				'block_id' => $block_id,
+				'gp_name' => $gp_name
+			//	'modified_by' => $user,
+			//	'modified_at' => date('Y-m-d h:i:s')
+			];
+			$where = ['gp_id' => $sl_no];
+	
+			$id = $this->Master->f_edit('md_gp', $data, $where);
+			$message = ($id > 0) ? 'Updated Successfully!' : 'Something Went Wrong';
+		} else {
+			// **Add Mode**
+			$data = [
+				'dist_id' => $dist_id,
+				'block_id' => $block_id,
+				'gp_name' => $gp_name,
+				//'created_by' => $user,
+				//'created_at' => date('Y-m-d h:i:s')
+			];
+
+			$id = $this->Master->f_insert('md_gp', $data);
+			$message = ($id > 0) ? 'Added Successfully!' : 'Something Went Wrong';
+		}
+	
+		// Send JSON response
+		echo json_encode([
+			'status' => ($id > 0) ? 1 : 0,
+			'message' => $message
+		]);
 	}
 	public function projSubmitBy() {
 		
