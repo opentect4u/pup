@@ -6,22 +6,50 @@ class Login extends CI_Controller {
 	public function __construct() {
         parent::__construct();
 	
-		header("Access-Control-Allow-Origin: *");
-		header('Access-Control-Allow-Credentials: true');
-		header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-		header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
-	  // }
-		$this->load->model('Master');
+		//header("Access-Control-Allow-Origin: *");
+	// 	header("Access-Control-Allow-Origin: http://localhost:3000");
+	// 	header('Access-Control-Allow-Credentials: true');
+	// 	header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+	// 	header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+	//   // }
+	// 	$this->load->model('Master');
+	// 	if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+	// 		exit;
+	// 	} 
+	// 	$method = $this->router->method;
+	// 	if ($_SERVER['REQUEST_METHOD'] !== 'POST' && $method !== 'get_csrf') {
+	// 		$response = array(
+	// 			'status' => false,
+	// 			'message' => 'Only POST method is allowed'
+	// 		);
+	// 		echo json_encode($response);
+	// 		exit;
+	// 	}
+
+		header("Access-Control-Allow-Origin: http://localhost:3000/");
+		header("Access-Control-Allow-Credentials: true");
+		header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+		header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+
+		// Handle preflight request (OPTIONS)
 		if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+			// No further processing needed
 			exit;
-		} 
+		}
+
+		$this->load->model('Master');
+
+		// Allow only POST requests except for get_csrf
 		$method = $this->router->method;
 		if ($_SERVER['REQUEST_METHOD'] !== 'POST' && $method !== 'get_csrf') {
 			$response = array(
 				'status' => false,
 				'message' => 'Only POST method is allowed'
 			);
-			echo json_encode($response);
+			// Send JSON header
+			$this->output
+				->set_content_type('application/json')
+				->set_output(json_encode($response));
 			exit;
 		}
     }

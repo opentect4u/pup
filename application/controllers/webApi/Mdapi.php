@@ -19,27 +19,27 @@ class Mdapi extends CI_Controller {
             echo json_encode($response);
             exit;
         }
-        $headers = $this->input->request_headers();
-        $authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
-        if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
-            $token = $matches[1];
-            $user = $this->User_model->get_user_by_token($token);
+        // $headers = $this->input->request_headers();
+        // $authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
+        // if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+        //     $token = $matches[1];
+        //     $user = $this->User_model->get_user_by_token($token);
 
-            if ($user) {
-                $this->user = $user;
-                return;
-            }
-        }
-		$authorizeresponse = array(
-			'status' => 0,
-			'error_code' => 401,
-			'message' => 'Unauthorized or Token Expired'
-		);
-        $this->output
-            ->set_status_header(401)
-            ->set_content_type('application/json')
-            ->set_output(json_encode($authorizeresponse));
-        exit;
+        //     if ($user) {
+        //         $this->user = $user;
+        //         return;
+        //     }
+        // }
+		// $authorizeresponse = array(
+		// 	'status' => 0,
+		// 	'error_code' => 401,
+		// 	'message' => 'Unauthorized or Token Expired'
+		// );
+        // $this->output
+        //     ->set_status_header(401)
+        //     ->set_content_type('application/json')
+        //     ->set_output(json_encode($authorizeresponse));
+        // exit;
 		$this->load->helper('pdf');
     }
 
@@ -100,9 +100,15 @@ class Mdapi extends CI_Controller {
 	public function block_filter() {
 		$dist_list = $this->input->post('dist_list');
 		if(!empty($dist_list)) {
-			$dist_array = array_filter(explode(',', $dist_list));
+			$dist_array = array_filter(
+				explode(',', $dist_list),
+				function ($value) {
+					return is_numeric($value);
+				}
+			);
 			if (count($dist_array) > 0) {
-				$where = array('dist_id in(' . $dist_list . ')' => NULL);
+				$dist_ids = implode(',', $dist_array);
+				$where = array('dist_id in(' . $dist_ids . ')' => NULL);
 				$data = $this->Master->f_select('md_block', NULL, $where, NULL);
 				if (!empty($data)) {
 					echo json_encode(['status' => 1, 'message' => $data]);
@@ -206,9 +212,16 @@ class Mdapi extends CI_Controller {
 	public function get_ps_filter() {
 		$dist_list = $this->input->post('dist_list');
 		if(!empty($dist_list)) {
-			$dist_array = array_filter(explode(',', $dist_list));
+			$dist_array = array_filter(
+				explode(',', $dist_list),
+				function ($value) {
+					return is_numeric($value);
+				}
+			);
+		
 			if (count($dist_array) > 0) {
-				$where = array('dist_id in(' . $dist_list . ')' => NULL);
+				$dist_ids = implode(',', $dist_array);
+				$where = array('dist_id in(' . $dist_ids . ')' => NULL);
 				$result_data = $this->Master->f_select('md_police_station', array('id','ps_name',), $where, NULL);
 				if (!empty($result_data)) {
 					echo json_encode(['status' => 1, 'message' => $result_data]);
@@ -291,9 +304,16 @@ class Mdapi extends CI_Controller {
 	public function get_gp_filter() {
 		$block_id = $this->input->post('block_id');
 		if(!empty($block_id)) {
-			$block_array = array_filter(explode(',', $block_id));
+			//$block_array = array_filter(explode(',', $block_id));
+			$block_array = array_filter(
+				explode(',', $block_id),
+				function ($value) {
+					return is_numeric($value);
+				}
+			);
 			if (count($block_array) > 0) {
-				$where = array('block_id in(' . $block_id . ')' => NULL);
+				$block_iss = implode(',', $block_array);
+				$where = array('block_id in(' . $block_iss . ')' => NULL);
 				$result_data = $this->Master->f_select('md_gp', array('gp_id','gp_name',), $where, NULL);
 				if (!empty($result_data)) {
 					echo json_encode(['status' => 1, 'message' => $result_data]);
@@ -316,7 +336,7 @@ class Mdapi extends CI_Controller {
 		$user = $this->input->post('created_by');
 
 		// Check if block name is empty
-		if ($block_id == '' || $user == '' || $sl_no == '' || $gp_name == '') {
+		if ($block_id == '' || $user == '' || $sl_no == '' || $gp_name == '' || $dist_id < 1 || $dist_id == '') {
 			echo json_encode([
 				'status' => 0,
 				'message' => 'Required fields missing'
