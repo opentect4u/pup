@@ -33,6 +33,7 @@ const options = [
 
 const initialValues = {
   project_id: '',
+  td_ID: '',
   td_dt: '',
   td_pdf: '',
   tia: '',
@@ -54,6 +55,7 @@ const initialValues = {
 
 const validationSchema = Yup.object({
   // project_id: Yup.string().required('Project ID / Approval Number is Required'),
+  td_ID: Yup.string().required('Tender ID is Required'),
   td_dt: Yup.string().required('Tender Invited On is Required'),
   td_pdf: Yup.string().required('Tender Notice is Required'),
   tia: Yup.string().required('Tender Inviting Authority is Required'),
@@ -82,7 +84,8 @@ const validationSchema = Yup.object({
   // add_per_sec: Yup.string().required('Additional Performance Security is Required'),
   add_per_sec: Yup.string(),
   emd: Yup.string().required('EMD/Security Deposit is Required'),
-  date_refund: Yup.string().required('Date Of Refund is Required'),
+  // date_refund: Yup.string().required('Date Of Refund is Required'),
+  date_refund: Yup.string(),
 });
 
 function TFForm() {
@@ -389,8 +392,8 @@ function TFForm() {
   
     const formData = new FormData();
 
-    
     formData.append("tender_date", formik.values.td_dt);
+    // formData.append("tender_ID", formik.values.td_ID);
     formData.append("tender_notice", formik.values.td_pdf);  //////////
     formData.append("invite_auth", formik.values.tia);
     formData.append("mat_date", formik.values.td_mt_dt);
@@ -412,37 +415,37 @@ function TFForm() {
     formData.append("modified_by", userDataLocalStore.user_id);
     formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
-  
+    // console.log(formData, 'formDataformDataformData', 'updateFormData');
 
-    try {
-      const response = await axios.post(
-        `${url}index.php/webApi/Tender/tend_edit`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            'auth_key': auth_key, // Important for FormData
-            'Authorization': `Bearer ` + tokenValue?.token
-          },
-        }
-      );
+    // try {
+    //   const response = await axios.post(
+    //     `${url}index.php/webApi/Tender/tend_edit`,
+    //     formData,
+    //     {
+    //       headers: {
+    //         "Content-Type": "multipart/form-data",
+    //         'auth_key': auth_key, // Important for FormData
+    //         'Authorization': `Bearer ` + tokenValue?.token
+    //       },
+    //     }
+    //   );
       
-      // setLoading(false);
-      Message("success", "Updated successfully.");
-      setValues(initialValues)
-      // loadFormEditData(params?.id, sl_no)
-      // navigate(`/home/tender_formality`);
-      fundAddedList(params?.id)
+    //   // setLoading(false);
+    //   Message("success", "Updated successfully.");
+    //   setValues(initialValues)
+    //   // loadFormEditData(params?.id, sl_no)
+    //   // navigate(`/home/tender_formality`);
+    //   fundAddedList(params?.id)
 
-      formik.resetForm();
-    } catch (error) {
-      // setLoading(false);
-      Message("error", "Error Submitting Form:");
-      console.error("Error submitting form:", error);
+    //   formik.resetForm();
+    // } catch (error) {
+    //   // setLoading(false);
+    //   Message("error", "Error Submitting Form:");
+    //   console.error("Error submitting form:", error);
       
-      localStorage.removeItem("user_dt");
-      navigate('/')
-    }
+    //   localStorage.removeItem("user_dt");
+    //   navigate('/')
+    // }
 
   };
   
@@ -888,6 +891,22 @@ function TFForm() {
         <form onSubmit={formik.handleSubmit}>
           <div class="grid gap-4 sm:grid-cols-12 sm:gap-6">
 
+
+            <div class="sm:col-span-4">
+              <TDInputTemplate
+                type="text"
+                placeholder="Tender ID"
+                label={<>Tender ID<span className="mandator_txt"> *</span></>}
+                name="td_ID"
+                formControlName={formik.values.td_ID}
+                handleChange={formik.handleChange}
+                handleBlur={formik.handleBlur}
+                mode={1}
+              />
+              {formik.errors.td_ID && formik.touched.td_ID && (
+                <VError title={formik.errors.td_ID} />
+              )}
+            </div>
           
 
             <div class="sm:col-span-4">
@@ -1062,7 +1081,7 @@ function TFForm() {
               <TDInputTemplate
                 placeholder="Date Of Refund..."
                 type="date"
-                label={<>Date Of Refund<span className="mandator_txt"> *</span></>}
+                label={<>Date Of Refund </>}
                 name="date_refund"
                 formControlName={formik.values.date_refund}
                 handleChange={formik.handleChange}

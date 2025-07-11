@@ -15,6 +15,7 @@ import localforage from "localforage";
 import { getCSRFToken } from "../../CommonFunction/useCSRFToken";
 import { getLocalStoreTokenDts } from "../../CommonFunction/getLocalforageTokenDts";
 import DialogBoxAddDisBlock from "../../Components/DialogBoxAddDisBlock";
+import Radiobtn from "../../Components/Radiobtn";
 
 const initialValues = {
   scheme_name: '',
@@ -30,7 +31,7 @@ const initialValues = {
   proj_sub_by: '',
   project_submit_dtl: '',
   proj_imp_by: '',
-  dis: [],
+  dis: "",
   block: [],
   ps_id: [],
   gp_id: [],
@@ -42,6 +43,20 @@ const initialValues = {
   khatian_no: '',
   area: '',
 };
+
+
+const options = [
+	{
+		label: "Area",
+		value: "A",
+	},
+	{
+		label: "Length",
+		value: "L",
+	}
+	
+	
+]
 
 
 
@@ -90,7 +105,8 @@ function AdApForm() {
   const [tokenNumber, setTokenNumber] = useState('');
   const [visible,setVisible] = useState(false)
   const [masterPopupTitle, setMasterPopupTitle] = useState('')
-
+  const [addMasterFlag, setAddMasterFlag] = useState('')
+  const [radioType, setRadioType] = useState("A")
 
   const validationSchema = Yup.object({
     scheme_name: Yup.string().required('Scheme name is Required'),
@@ -364,17 +380,19 @@ function AdApForm() {
 
   const fetchBlockdownOption = async (getDistrict_id) => {
 
-    console.log(getDistrict_id.length, 'fffffffffffffffffffffffffff', 'kkk');
+    console.log(getDistrict_id, 'fffffffffffffffffffffffffff', 'kkk');
     
-
+    
     const tokenValue = await getLocalStoreTokenDts(navigate);
 
     const formData = new FormData();
 
     formData.append('dist_list', getDistrict_id);
     formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
-    console.log(getDistrict_id, 'responseresponseresponse');
-    if(getDistrict_id.length > 0){
+
+    if(getDistrict_id && getDistrict_id.length > 0){
+
+      console.log(getDistrict_id, 'fffffffffffffffffffffffffff', 'kkk');
     try {
       const response = await axios.post(
         // url + 'index.php/webApi/Mdapi/block',
@@ -399,7 +417,7 @@ function AdApForm() {
       navigate('/')
     }
     } else {
-      setBlockDropList([])
+      // setBlockDropList([])
     }
 
   };
@@ -774,6 +792,8 @@ function AdApForm() {
       // fetchPoliceStnOption__load(response?.data?.message?.district_id, response.data.message.ps_id)
       // fetch_GM_Option__load(response?.data?.message?.district_id, response.data.message.block_id, response.data.message.gp_id)
 
+      // console.log(response, 'formDataformDataformData', 'loadFormData');
+
       setValues({
         scheme_name: response.data.message.scheme_name,
         sector_name: response.data.message.sector_id,
@@ -804,13 +824,14 @@ function AdApForm() {
         dag_no: response.data.message.dag_no,
         khatian_no: response.data.message.khatian_no,
         area: response.data.message.area,
+        options:  setRadioType(response?.data?.message?.dimension_type),
       })
 
-      setEditFlagStatus(response.data.message.edit_flag)
+      setEditFlagStatus(response?.data?.message?.edit_flag)
 
-      fetchBlockdownOption(response.data.message.district_id)
-      fetchPoliceStnOption(response.data.message.district_id)
-      fetch_GM_Option(response.data.message.block_id)
+      fetchBlockdownOption(response?.data?.message?.district_id)
+      fetchPoliceStnOption(response?.data?.message?.district_id)
+      fetch_GM_Option(response?.data?.message?.block_id)
 
       // setSourceFundDropList(response.data.message)
     } catch (error) {
@@ -858,8 +879,12 @@ function AdApForm() {
     formData.append("dag_no", formik.values.dag_no);
     formData.append("khatian_no", formik.values.khatian_no);
     formData.append("area", formik.values.area);
+    formData.append("dimension_type", radioType);
     formData.append("created_by", userDataLocalStore.user_id);
     formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
+    // console.log(formData, 'formDataformDataformData', 'saveFormData');
+    
 
     
 
@@ -926,12 +951,13 @@ function AdApForm() {
     formData.append("dag_no", formik.values.dag_no);
     formData.append("khatian_no", formik.values.khatian_no);
     formData.append("area", formik.values.area);
+    formData.append("dimension_type", radioType);
 
     formData.append("approval_no", params?.id);
     formData.append("modified_by", userDataLocalStore.user_id);
     formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
-
+    // console.log(formData, 'formDataformDataformData', 'updateFormData');
 
 
     try {
@@ -1074,17 +1100,197 @@ const handleSchmAmtChange_schm_amt = (e) => {
 
 
 
-const addMaster = (title)=>{
+const addMasterOpenPopup = (title, addFlag)=>{
+  console.log("Submitted values:", addFlag);
   setMasterPopupTitle(title)
-
+  setAddMasterFlag(addFlag)
+  
   setVisible(true)
 }
 
-const addMasterFnc = ()=>{
-  alert('fffffffffff');
+
+
+const addMasterFnc = (submitData)=>{
+  console.log(addMasterFlag, 'Submitted values:');
+  // console.log("Submitted values:", submitData);
+
+  if(addMasterFlag == 'add_block'){
+    addBlock(submitData)
+  } else if(addMasterFlag == 'add_PS'){
+    add_PS(submitData)
+  } else if(addMasterFlag == 'add_GP'){
+    add_GP(submitData)
+  }
+
+  console.log(formik.values.dis, 'ggggggggggggg');
+  
+
+  // formik.setFieldValue("dis", value ? value : "")
+  formik.setFieldValue("dis", [])
+  formik.setFieldValue("block", []);
+  formik.setFieldValue("ps_id", []);
+  formik.setFieldValue("gp_id", []);
+
   setVisible(false)
 }
 
+  const addBlock = async (submitData) => {
+    
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append('sl_no', '0');
+    formData.append('dist_id', submitData?.dis);
+    formData.append('block_name', submitData?.block_add);
+    formData.append("created_by", userDataLocalStore.user_id);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
+    try {
+      const response = await axios.post(
+        // `${url}index.php/webApi/Mdapi/get_gp`,
+        `${url}index.php/webApi/Mdapi/blockSave`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            'auth_key': auth_key, // Important for FormData
+            'Authorization': `Bearer ` + tokenValue?.token
+          },
+        }
+      );
+
+      console.log(response, 'formDataformDataformDataformData', formData);
+      Message("success", "Updated successfully.");
+
+
+      // if (response?.data?.status > 0) {
+      //   setGM_DropList(response?.data?.message)
+      // }
+
+      // if (response?.data?.status < 1) {
+      //   setGM_DropList([])
+      // }
+
+    } catch (error) {
+      console.error("Error fetching data:", error); // Handle errors properly
+      Message("error", "Error Submitting Form:");
+      localStorage.removeItem("user_dt");
+      navigate('/')
+
+    }
+
+
+  };
+
+
+  const add_PS = async (submitData) => {
+    
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append('sl_no', '0');
+    formData.append('dist_id', submitData?.dis);
+    formData.append('ps_name', submitData?.ps_id);
+    formData.append("created_by", userDataLocalStore.user_id);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
+    try {
+      const response = await axios.post(
+        // `${url}index.php/webApi/Mdapi/get_gp`,
+        `${url}index.php/webApi/Mdapi/psSave`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            'auth_key': auth_key, // Important for FormData
+            'Authorization': `Bearer ` + tokenValue?.token
+          },
+        }
+      );
+
+      console.log(response, 'formDataformDataformDataformData', formData);
+      Message("success", "Updated successfully.");
+
+      // formik.setFieldValue("dis", "")
+      // formik.setFieldValue("block", "");
+      // formik.setFieldValue("ps_id", "");
+      // formik.setFieldValue("gp_id", "");
+
+      // if (response?.data?.status > 0) {
+      //   setGM_DropList(response?.data?.message)
+      // }
+
+      // if (response?.data?.status < 1) {
+      //   setGM_DropList([])
+      // }
+
+    } catch (error) {
+      console.error("Error fetching data:", error); // Handle errors properly
+      Message("error", "Error Submitting Form:");
+      localStorage.removeItem("user_dt");
+      navigate('/')
+
+    }
+
+
+  };
+
+  const add_GP = async (submitData) => {
+    
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append('sl_no', '0');
+    formData.append('dist_id', submitData?.dis);
+    formData.append('block_id', submitData?.block_with_gp);
+    formData.append('gp_name', submitData?.gp_id);
+    formData.append("created_by", userDataLocalStore.user_id);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
+    try {
+      const response = await axios.post(
+        // `${url}index.php/webApi/Mdapi/get_gp`,
+        `${url}index.php/webApi/Mdapi/gpSave`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            'auth_key': auth_key, // Important for FormData
+            'Authorization': `Bearer ` + tokenValue?.token
+          },
+        }
+      );
+
+      console.log(response, 'formDataformDataformDataformData', formData);
+      Message("success", "Updated successfully.");
+
+      // formik.setFieldValue("dis", "")
+      // formik.setFieldValue("block", "");
+      // formik.setFieldValue("ps_id", "");
+      // formik.setFieldValue("gp_id", "");
+
+      // if (response?.data?.status > 0) {
+      //   setGM_DropList(response?.data?.message)
+      // }
+
+      // if (response?.data?.status < 1) {
+      //   setGM_DropList([])
+      // }
+
+    } catch (error) {
+      console.error("Error fetching data:", error); // Handle errors properly
+      Message("error", "Error Submitting Form:");
+      localStorage.removeItem("user_dt");
+      navigate('/')
+
+    }
+
+
+  };
+
+  const onChangeArea = (e) => {
+      setRadioType(e)
+    }
 
   return (
     <section class="bg-white p-5 dark:bg-gray-900">
@@ -1479,16 +1685,18 @@ const addMasterFnc = ()=>{
                   placeholder="Choose District..."
                   label="Choose District"
                   name="dis"
-                  mode="tags"
+                  
+                  mode="multiple"
                   style={{ width: '100%' }}
-                  value={formik.values.dis}
+                  value={formik.values.dis || null}
                   onChange={(value) => {
-                    formik.setFieldValue("dis", value ? value : [])
+                    formik.setFieldValue("dis", value ? value : "")
+                    // formik.handleChange()
                     formik.setFieldValue("block", []);
                     formik.setFieldValue("ps_id", []);
                     formik.setFieldValue("gp_id", []);
                     // console.log(value, 'formDataformDataformDataformData');
-                    if(value && value.length>0){
+                    if(value && value.length > 0){
                       fetchBlockdownOption(value)
                       fetchPoliceStnOption(value)
                     } else {
@@ -1496,9 +1704,10 @@ const addMasterFnc = ()=>{
                       setBlockDropList([])
                       setpsStnDropList([])
                     }
-                    
+                    // console.log(formik?.values?.dis)
                   }} // Update Formik state
-                  handleChange={formik.handleChange}
+                  
+                  // handleChange={formik.handleChange}
                   onBlur={() => formik.setFieldTouched("dis", true)}
                   tokenSeparators={[]}
                   options={districtDropList?.map(item => ({
@@ -1519,15 +1728,16 @@ const addMasterFnc = ()=>{
                   <VError title={formik.errors.dis} />
                 )}
               </div>
-              <div class="sm:col-span-12 contigencySelect">
-                {/* {JSON.stringify(district_ID, null, 2)} ///  {JSON.stringify(block_ID, null, 2)} */}
+              <div class="sm:col-span-12 addMaster">
+               {/* {JSON.stringify(blockDropList, null, 2)} */}
 
 
 
                 <label for="block" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Block 
                 {userDataLocalStore.user_type === 'A' &&(
                     <><span className="mandator_txt"> *</span> </> 
-                  )}  <button onClick={()=>{ addMaster('Add Block')}}>Add Block</button>
+                  )}  <button className="ant-btn css-dev-only-do-not-override-ppv1a7 ant-btn-primary bg-blue-900 ant-btn-variant-solid floatRight_btn" 
+                  onClick={()=>{ addMasterOpenPopup('Add Block', 'add_block')}}>Add Block</button>
                   </label>
 
 
@@ -1539,12 +1749,12 @@ const addMasterFnc = ()=>{
                   placeholder="Choose Block..."
                   label="Choose Block"
                   name="block"
-                  mode="tags"
+                  mode="multiple"
                   style={{ width: '100%' }}
                   value={formik.values.block}
                   onChange={(value) => {
-                    formik.setFieldValue("block", value ? value : [])
-                    formik.setFieldValue("gp_id", []);
+                    formik.setFieldValue("block", value ? value : "")
+                    formik.setFieldValue("gp_id", "");
                     // console.log(value, 'formDataformDataformDataformData');
                     if(value && value.length>0){
                       fetch_GM_Option(value)
@@ -1570,13 +1780,14 @@ const addMasterFnc = ()=>{
               </div>
 
 
-              <div class="sm:col-span-12 contigencySelect">
+              <div class="sm:col-span-12 addMaster">
 
 
                 <label for="block" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Police Station
                 {userDataLocalStore.user_type === 'A' &&(
                     <><span className="mandator_txt"> *</span></>
-                  )}
+                  )} <button className="ant-btn css-dev-only-do-not-override-ppv1a7 ant-btn-primary bg-blue-900 ant-btn-variant-solid floatRight_btn" 
+                  onClick={()=>{ addMasterOpenPopup('Add Police Station', 'add_PS')}}>Add Police Station</button>
                   </label>
 
 
@@ -1585,11 +1796,11 @@ const addMasterFnc = ()=>{
                   placeholder="Choose Police Station..."
                   label="Choose Police Station"
                   name="ps_id"
-                  mode="tags"
+                  mode="multiple"
                   style={{ width: '100%' }}
                   value={formik.values.ps_id}
                   onChange={(value) => {
-                    formik.setFieldValue("ps_id", value)
+                    formik.setFieldValue("ps_id", value ? value : "")
                   }} // Update Formik state
                   handleChange={formik.handleChange}
                   onBlur={() => formik.setFieldTouched("ps_id", true)}
@@ -1610,13 +1821,14 @@ const addMasterFnc = ()=>{
               </div>
 
 
-              <div class="sm:col-span-12 contigencySelect">
+              <div class="sm:col-span-12 addMaster">
 
 
                 <label for="block" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Gram Panchayat
                 {userDataLocalStore.user_type === 'A' &&(
                     <><span className="mandator_txt"> *</span></>
-                  )}
+                  )} <button className="ant-btn css-dev-only-do-not-override-ppv1a7 ant-btn-primary bg-blue-900 ant-btn-variant-solid floatRight_btn" 
+                  onClick={()=>{ addMasterOpenPopup('Add Gram Panchayat', 'add_GP')}}>Add Gram Panchayat</button>
                   </label>
 
                   {/* {JSON.stringify(GM_DropList, null, 2)} */}
@@ -1625,11 +1837,11 @@ const addMasterFnc = ()=>{
                   placeholder="Choose Gram Panchayat..."
                   label="Choose Gram Panchayat"
                   name="gp_id"
-                  mode="tags"
+                  mode="multiple"
                   style={{ width: '100%' }}
                   value={formik.values.gp_id}
                   onChange={(value) => {
-                    formik.setFieldValue("gp_id", value)
+                    formik.setFieldValue("gp_id", value ? value : "")
                   }} // Update Formik state
                   handleChange={formik.handleChange}
                   onBlur={() => formik.setFieldTouched("gp_id", true)}
@@ -1801,15 +2013,28 @@ const addMasterFnc = ()=>{
                 )}
               </div>
 
-              <div class="sm:col-span-4">
-                <TDInputTemplate
-                  placeholder="Name goes here..."
-                  type="number"
-                  label={<>Area (in Acre)
+
+              <div class="sm:col-span-4 areaSec">
+                <label className="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">{radioType == "A" ? "Area" : "Length"} (in Acre) 
                   {userDataLocalStore.user_type === 'A' &&(
                     <><span className="mandator_txt"> *</span></>
                   )}
-                  </>}
+                  <Radiobtn
+                            data={options}
+                            val={radioType}
+                            onChangeVal={(value) => {
+                              onChangeArea(value)
+                            }}
+                          />
+                </label>
+                <TDInputTemplate
+                  placeholder="Name goes here..."
+                  type="number"
+                  // label={<>Area (in Acre)
+                  // {userDataLocalStore.user_type === 'A' &&(
+                  //   <><span className="mandator_txt"> *</span></>
+                  // )}
+                  // </>}
                   name="area"
                   formControlName={formik.values.area}
                   handleChange={formik.handleChange}
@@ -1848,13 +2073,21 @@ const addMasterFnc = ()=>{
         </Spin>
       </div>
       <DialogBoxAddDisBlock 
-      flag={masterPopupTitle}
+      dialogBoxTitle={masterPopupTitle}
       districtData={districtDropList}
+      blockDropList={blockDropList}
+      addMasterFlag = {addMasterFlag}
       userCheck={userDataLocalStore}
       isModalOpen={visible} 
-      handleOk={()=>{
-        addMasterFnc()
-      }} 
+      fetchBlockdownOption={fetchBlockdownOption}
+      setpsStnDropList={setpsStnDropList}
+      submitBtn={(val) => {
+        console.log("Received in screen_A:", val); // <-- "testttttttttttttttttttttt"
+        addMasterFnc(val); 
+      }}
+      // handleOk={()=>{
+      //   addMasterFnc()
+      // }} 
       handleCancel={()=>setVisible(false)}
       />
     </section>
