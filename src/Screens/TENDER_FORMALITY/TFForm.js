@@ -417,35 +417,35 @@ function TFForm() {
 
     // console.log(formData, 'formDataformDataformData', 'updateFormData');
 
-    // try {
-    //   const response = await axios.post(
-    //     `${url}index.php/webApi/Tender/tend_edit`,
-    //     formData,
-    //     {
-    //       headers: {
-    //         "Content-Type": "multipart/form-data",
-    //         'auth_key': auth_key, // Important for FormData
-    //         'Authorization': `Bearer ` + tokenValue?.token
-    //       },
-    //     }
-    //   );
+    try {
+      const response = await axios.post(
+        `${url}index.php/webApi/Tender/tend_edit`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            'auth_key': auth_key, // Important for FormData
+            'Authorization': `Bearer ` + tokenValue?.token
+          },
+        }
+      );
       
-    //   // setLoading(false);
-    //   Message("success", "Updated successfully.");
-    //   setValues(initialValues)
-    //   // loadFormEditData(params?.id, sl_no)
-    //   // navigate(`/home/tender_formality`);
-    //   fundAddedList(params?.id)
+      // setLoading(false);
+      Message("success", "Updated successfully.");
+      setValues(initialValues)
+      // loadFormEditData(params?.id, sl_no)
+      // navigate(`/home/tender_formality`);
+      fundAddedList(params?.id)
 
-    //   formik.resetForm();
-    // } catch (error) {
-    //   // setLoading(false);
-    //   Message("error", "Error Submitting Form:");
-    //   console.error("Error submitting form:", error);
+      formik.resetForm();
+    } catch (error) {
+      // setLoading(false);
+      Message("error", "Error Submitting Form:");
+      console.error("Error submitting form:", error);
       
-    //   localStorage.removeItem("user_dt");
-    //   navigate('/')
-    // }
+      localStorage.removeItem("user_dt");
+      navigate('/')
+    }
 
   };
   
