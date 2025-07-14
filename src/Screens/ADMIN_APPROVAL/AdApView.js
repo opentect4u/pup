@@ -349,7 +349,7 @@ const getSubmitData = async (value)=>{
     formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
         try {
-      const response = await axios.post(url + 'index.php/webApi/Report/proj_dtls_dist_block_ps_gp', formData, {
+      const response = await axios.post(url + 'index.php/webApi/Admapi/proj_dtls_dist_block_ps_gp', formData, {
         headers: { 'auth_key': auth_key,
           'Authorization': `Bearer ` + tokenValue?.token
          },
