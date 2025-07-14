@@ -22,7 +22,7 @@ class Tender extends CI_Controller {
             exit;
         }
        $headers = $this->input->request_headers();
-		$authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
+	   $authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
 
 		if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
 			$token = $matches[1];
@@ -57,7 +57,16 @@ class Tender extends CI_Controller {
         }
     }
 
-	
+	public function assist_eng_list() {
+		
+		$sql = "SELECT id as assistant_eng_id,user_id,name FROM td_user where user_type = 'F' and user_status = 'A' ";
+		$result_data = $this->db->query($sql)->result(); 
+		if (!empty($result_data)) {
+			echo json_encode(['status' => 1, 'message' => $result_data]);
+		} else {
+			echo json_encode(['status' => 0, 'message' => 'No data found']);
+		}
+    }
 	public function tender_list() {
 		
 	    $sql = "SELECT 
@@ -97,6 +106,7 @@ class Tender extends CI_Controller {
 				echo json_encode(['status' => 0, 'message' => 'No data found']);
 			}
     }
+
 	
 
 
@@ -185,6 +195,8 @@ class Tender extends CI_Controller {
 					'add_per_security' => $this->input->post('add_per_security'),
 					'emd' => $this->input->post('emd'),
 					'date_of_refund' => $this->input->post('date_of_refund'),
+					'tender_id' => $this->input->post('tender_id'),
+					'assistant_eng_id' => $this->input->post('assistant_eng_id'),
 					'created_by' => $this->input->post('created_by'),
 					'created_at' => date('Y-m-d h:i:s'),
 				];
@@ -269,8 +281,9 @@ class Tender extends CI_Controller {
 		$where = [];
 		$approval_no = $this->input->post('approval_no');
 	
-		$where['approval_no'] = $approval_no;
-		$result_data = $this->Master->f_select('td_tender', '*', $where, 0);
+		//$where['approval_no'] = $approval_no;
+		$where = array('a.assistant_eng_id=b.id' => NULL,'a.approval_no'  => $approval_no);
+		$result_data = $this->Master->f_select('td_tender a,td_user b', 'a.*,b.name as assistant_eng_name,b.user_id as assistant_eng_userid', $where, 0);
 		$response = (!empty($result_data)) 
 			? ['status' => 1, 'message' => $result_data] 
 			: ['status' => 0, 'message' => 'No data found'];
@@ -359,6 +372,8 @@ class Tender extends CI_Controller {
 				'add_per_security' => $this->input->post('add_per_security'),
 				'emd' => $this->input->post('emd'),
 				'date_of_refund' => $this->input->post('date_of_refund'),
+				'tender_id' => $this->input->post('tender_id'),
+				'assistant_eng_id' => $this->input->post('assistant_eng_id'),
 				'edit_flag' => 'N',
 				'modified_by' => $this->input->post('modified_by'),
 				'modified_at' => date('Y-m-d H:i:s')

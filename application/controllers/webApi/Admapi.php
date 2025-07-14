@@ -449,6 +449,9 @@ class Admapi extends CI_Controller {
 		$project_id = $this->input->post('project_id');
 		$fin_year = $this->input->post('fin_year');
 		$dist_id = $this->input->post('dist_id');
+		$block_id = $this->input->post('block_id');
+		$ps_id = $this->input->post('ps_id');
+		$gp_id = $this->input->post('gp_id');
 		$where = array('a.sector_id = b.sl_no' => NULL,'a.account_head = c.sl_no' => NULL);
 
 		if ($project_id === null) {
