@@ -149,3 +149,21 @@ h2.text-white {color: #fff;}
 .areaSec > label {display: flex !important;}
 .areaSec > label div{margin: 0 0 0 auto;}
 .areaSec > label div .ant-radio-group{padding: 0; box-shadow: none; margin: 0;}
+
+.filter_btn{background: #fff !important;
+  border: none;
+  color: #3EB8BD !important;
+  padding: 18px 15px; font-weight: 700;}
+.filter_btn:hover{background: #fff !important; border: none; color: #3EB8BD;}
+
+
+.filterForm button[type="submit"]{background: #3EB8BD !important;
+  border: none;
+  color: #fff !important;
+  padding: 5px 15px; font-weight: 700; border-radius: 5px;}
+
+  .filterForm button[type="button"]{
+  color: #3EB8BD !important;
+  padding: 5px 15px; font-weight: 700; border-radius: 5px;}  
+  
+  .filterForm button[type="button"]:hover{background: #3EB8BD !important; color: #fff !important;}

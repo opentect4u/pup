@@ -5,12 +5,13 @@ import { auth_key, url } from '../../Assets/Addresses/BaseUrl';
 import axios from 'axios';
 import { EditOutlined, EyeOutlined, LoadingOutlined } from '@ant-design/icons';
 import { useParams } from "react-router";
-import { Spin } from 'antd';
+import { Button, Modal, Popover, Select, Spin } from 'antd';
 import TableHeader from '../../Components/TableHeader';
 import TableRow from '../../Components/TableRow';
 import localforage from 'localforage';
 import { getCSRFToken } from '../../CommonFunction/useCSRFToken';
 import { getLocalStoreTokenDts } from '../../CommonFunction/getLocalforageTokenDts';
+import TableListViewFilter from '../../Components/TableListViewFilter';
 
 function AdApView() {
   const navigate = useNavigate();
@@ -27,6 +28,15 @@ function AdApView() {
   const [pageName, setPageName] = useState('');
   const [userDataLocalStore, setUserDataLocalStore] = useState([]);
 
+
+  const [districtDropList, setDistrictDropList] = useState([]);
+  const [blockDropList, setBlockDropList] = useState(() => []);
+  const [psStnDropList, setpsStnDropList] = useState(() => []);
+  const [GM_DropList, setGM_DropList] = useState(() => []);
+
+
+
+
   useEffect(() => {
     const userData = localStorage.getItem("user_dt");
     if (userData) {
@@ -34,6 +44,9 @@ function AdApView() {
     } else {
     setUserDataLocalStore([])
     }
+
+    fetchTableDataList_Fn();
+    fetchDistrictdownOption();
     }, []);
 
     // const getCSRFToken = async () => {
@@ -101,19 +114,183 @@ function AdApView() {
     }
   };
 
-  useEffect(() => {
 
-    // localforage.getItem('tokenDetails').then((value) => {
-    // console.log('token-store_/////', value);
-    // fetchTableDataList_Fn(value?.token);
-    // }).catch((err) => {
-    // console.error('Read error:', err);
-    // localStorage.removeItem("user_dt");
-    // });
+    const fetchDistrictdownOption = async () => {
+      setLoading(true);
+      const tokenValue = await getLocalStoreTokenDts(navigate);
+  
+      const formData = new FormData();
+      formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+  
+      try {
+        const response = await axios.post(
+          url + 'index.php/webApi/Mdapi/dist',
+          formData, // Empty body
+          {
+            headers: {
+              'auth_key': auth_key,
+              'Authorization': `Bearer ` + tokenValue?.token
+            },
+          }
+        );
+  
+        setDistrictDropList(response.data.message)
+        setLoading(false);
+      } catch (error) {
+        setLoading(false);
+        console.error("Error fetching data:", error); // Handle errors properly
+  
+        localStorage.removeItem("user_dt");
+        navigate('/')
+      }
+    };
+  
+    const fetchBlockdownOption = async (getDistrict_id) => {
+  
+      console.log(getDistrict_id, 'fffffffffffffffffffffffffff', 'kkk');
+      
+      
+      const tokenValue = await getLocalStoreTokenDts(navigate);
+  
+      const formData = new FormData();
+  
+      formData.append('dist_list', getDistrict_id);
+      formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+  
+      if(getDistrict_id && getDistrict_id.length > 0){
+  
+        console.log(getDistrict_id, 'fffffffffffffffffffffffffff', 'kkk');
+      try {
+        const response = await axios.post(
+          // url + 'index.php/webApi/Mdapi/block',
+          url + 'index.php/webApi/Mdapi/block_filter',
+          formData, // Empty body
+          {
+            headers: {
+              'auth_key': auth_key,
+              'Authorization': `Bearer ` + tokenValue?.token
+            },
+          }
+        );
+        
+        setBlockDropList(response.data.message)
+  
+      } catch (error) {
+        console.error("Error fetching data:", error); // Handle errors properly
+        setBlockDropList([])
+        
+        
+        localStorage.removeItem("user_dt");
+        navigate('/')
+      }
+      } else {
+        // setBlockDropList([])
+      }
+  
+    };
 
-    fetchTableDataList_Fn();
+     const fetchPoliceStnOption = async (getDistrict_id) => {
+        // const formData = new FormData();
+        // formData.append("dist_id", district_ID);
+        // formData.append("block_id", 0);
+        const tokenValue = await getLocalStoreTokenDts(navigate);
     
-  }, []);
+        const formData = new FormData();
+        formData.append('dist_list', getDistrict_id);
+        formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+    
+        if(getDistrict_id.length > 0){
+        try {
+          const response = await axios.post(
+            // `${url}index.php/webApi/Mdapi/get_ps`,
+            `${url}index.php/webApi/Mdapi/get_ps_filter`,
+            formData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+                'auth_key': auth_key, // Important for FormData
+                'Authorization': `Bearer ` + tokenValue?.token
+              },
+            }
+          );
+          
+    
+          if (response?.data?.status > 0) {
+            setpsStnDropList(response?.data?.message)
+          }
+    
+          if (response?.data?.status < 1) {
+            setpsStnDropList([])
+          }
+    
+    
+        } catch (error) {
+          console.error("Error fetching data:", error); // Handle errors properly
+    
+          localStorage.removeItem("user_dt");
+          navigate('/')
+    
+        }
+        } else {
+          setpsStnDropList([])
+        }
+    
+    
+      };
+
+      const fetch_GM_Option = async (getBlock_id) => {
+        // const formData = new FormData();
+        // formData.append("dist_id", district_ID);
+        // formData.append("block_id", block_ID);
+        const tokenValue = await getLocalStoreTokenDts(navigate);
+    
+        console.log('formDataformDataformDataformData', getBlock_id);
+    
+        const formData = new FormData();
+        formData.append('block_id', getBlock_id);
+        formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+    
+        if(getBlock_id.length > 0){
+        try {
+          const response = await axios.post(
+            // `${url}index.php/webApi/Mdapi/get_gp`,
+            `${url}index.php/webApi/Mdapi/get_gp_filter`,
+            formData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+                'auth_key': auth_key, // Important for FormData
+                'Authorization': `Bearer ` + tokenValue?.token
+              },
+            }
+          );
+    
+          console.log(response, 'formDataformDataformDataformData', formData);
+          
+    
+          if (response?.data?.status > 0) {
+            setGM_DropList(response?.data?.message)
+          }
+    
+          if (response?.data?.status < 1) {
+            setGM_DropList([])
+          }
+    
+        } catch (error) {
+          console.error("Error fetching data:", error); // Handle errors properly
+          console.log('formDataformDataformDataformData', error);
+          localStorage.removeItem("user_dt");
+          navigate('/')
+    
+        }
+        } else {
+          setGM_DropList([])
+        }
+    
+      };
+
+
+
 
   const handleSearch = (e) => {
     
@@ -136,6 +313,75 @@ function AdApView() {
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
+
+
+
+
+
+  const filterContent = (
+  
+  <TableListViewFilter
+    districtData={districtDropList}
+    blockDropList={blockDropList}
+    psStnDropList={psStnDropList}
+    GM_DropList={GM_DropList}
+    fetchBlockdownOption={fetchBlockdownOption}
+    fetchPoliceStnOption={fetchPoliceStnOption}
+    fetch_GM_Option={fetch_GM_Option}
+    getSubmitData={(value) => {
+      getSubmitData(value)
+    }}
+    resetBtn={() => {
+      fetchTableDataList_Fn()
+    }}
+  />
+);
+
+const getSubmitData = async (value)=>{
+  
+  const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append("dist_id", value?.dis == '' ? 0 : value?.dis);
+    formData.append("block_id", value?.block == '' ? 0 : value?.block);
+    formData.append("ps_id", value?.ps_id == '' ? 0 : value?.ps_id);
+    formData.append("gp_id", value?.gp_id == '' ? 0 : value?.gp_id);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
+        try {
+      const response = await axios.post(url + 'index.php/webApi/Report/proj_dtls_dist_block_ps_gp', formData, {
+        headers: { 'auth_key': auth_key,
+          'Authorization': `Bearer ` + tokenValue?.token
+         },
+      
+      });
+
+      if(response?.data?.status > 0) {
+      setLoading(false);
+      setTableDataList(response?.data?.message);
+      setFilteredDataList(response?.data?.message);
+      // setPageName('AdApView');
+      console.log(response?.data?.message, 'hhhhhhhhhh');
+      
+      }
+
+      if(response?.data?.status < 1) {
+        setLoading(false);
+        setTableDataList([]);
+        setFilteredDataList([]);
+      }
+      
+
+    } catch (error) {
+      setLoading(false);
+      console.error("Error fetching data:", error);
+
+      localStorage.removeItem("user_dt");
+      navigate('/')
+      
+    }
+
+}
 
   return (
     <section className="bg-slate-200 dark:bg-gray-900 p-3 sm:p-5">
@@ -163,6 +409,17 @@ function AdApView() {
                   />
                 </div>
               </div>
+
+              {/* <BtnComp bgColor="bg-white" color="text-blue-900" title="Filter" onClick={() => setIsFilterModalOpen(true)} /> */}
+              <Popover
+              content={filterContent}
+              title="Filter Projects"
+              trigger="click"
+              placement="bottomRight"
+              >
+              <Button type="default" bgColor="bg-white" color="text-blue-900" className='filter_btn'>Filter</Button>
+              </Popover>
+
               {userDataLocalStore.user_type != 'A' &&(
               <div className="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
                 <BtnComp bgColor="bg-white" color="text-blue-900" title="Add Project" onClick={() => { navigate('AdApcrud/0'); }} />
@@ -205,6 +462,10 @@ function AdApView() {
           </div>
         </Spin>
       </div>
+
+
+
+
     </section>
   );
 }

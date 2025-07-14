@@ -34,6 +34,7 @@ const options = [
 const initialValues = {
   project_id: '',
   td_ID: '',
+  asstEng: '',
   td_dt: '',
   td_pdf: '',
   tia: '',
@@ -56,6 +57,7 @@ const initialValues = {
 const validationSchema = Yup.object({
   // project_id: Yup.string().required('Project ID / Approval Number is Required'),
   td_ID: Yup.string().required('Tender ID is Required'),
+  asstEng: Yup.string().required('Asst. Engineer is Required'),
   td_dt: Yup.string().required('Tender Invited On is Required'),
   td_pdf: Yup.string().required('Tender Notice is Required'),
   tia: Yup.string().required('Tender Inviting Authority is Required'),
@@ -115,7 +117,7 @@ function TFForm() {
   const [errorpdf_2, setErrorpdf_2] = useState("");
   const [projectIncomplete, setProjectIncomplete] = useState(false);
   const [editFlagStatus, setEditFlagStatus] = useState("");
-
+  const [asstEngListData, setAsstEngListData] = useState([]);
 
 
 
@@ -293,6 +295,9 @@ function TFForm() {
           compl: response.data.message.comp_date_apprx != null ? response?.data?.message?.comp_date_apprx : '',
           td_pdf: response.data.message.tender_notice != null ? response?.data?.message?.tender_notice : '',
           wo_pdf: response.data.message.wo_copy != null ? response?.data?.message?.wo_copy : '',
+
+          td_ID: response.data.message.tender_id != null ? response?.data?.message?.tender_id : '',
+          asstEng: response.data.message.assistant_eng_id != null ? response?.data?.message?.assistant_eng_id : '',
         })
 
         setEditFlagStatus(response?.data?.message?.edit_flag)
@@ -315,9 +320,44 @@ function TFForm() {
 
   };
 
+    const fetchAsstEngList = async () => {
+    setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
+    try {
+      const response = await axios.post(
+        url + 'index.php/webApi/Tender/assist_eng_list',
+        formData, // Empty body
+        {
+          headers: {
+            'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
+          },
+        }
+      );
+
+      console.log(response.data.message, 'cccccccccccccccc', response);
+      
+
+      setAsstEngListData(response.data.message)
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      console.error("Error fetching data:", error); // Handle errors properly
+
+      localStorage.removeItem("user_dt");
+      navigate('/')
+    }
+  };
+
+
     useEffect(()=>{
 
       fetchProjectId()
+      fetchAsstEngList()
   
     }, [])
 
@@ -352,6 +392,9 @@ function TFForm() {
     formData.append("emd", formik.values.emd);
     formData.append("date_of_refund", formik.values.date_refund);
     formData.append("e_nit_no", formik.values.e_nit_no);
+    
+    formData.append("tender_id", formik.values.td_ID);
+    formData.append("assistant_eng_id", formik.values.asstEng);
 
     formData.append("created_by", userDataLocalStore.user_id);
     formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
@@ -409,6 +452,9 @@ function TFForm() {
     formData.append("add_per_security", formik.values.add_per_sec);
     formData.append("emd", formik.values.emd);
     formData.append("date_of_refund", formik.values.date_refund);
+
+    formData.append("tender_id", formik.values.td_ID);
+    formData.append("assistant_eng_id", formik.values.asstEng);
 
     formData.append("approval_no", params?.id);
     formData.append("sl_no", sl_no);
@@ -754,7 +800,7 @@ function TFForm() {
 						className="text-gray-500 dark:text-gray-400"
 						spinning={loading}
 					>
-{/* {JSON.stringify(fundStatus, null, 2)} //// {JSON.stringify(operation_status, null, 2)} */}
+{/* {JSON.stringify(fundStatus, null, 2)} */}
 
 
         {fundStatus?.length > 0 &&(
@@ -779,6 +825,26 @@ function TFForm() {
             Total: 
             </span>
             }
+          ></Column>
+
+          <Column
+          field="tender_id"
+          header="Tender ID"
+          // body={(rowData, { rowIndex }) => rowIndex + 1}
+          body={(rowData) => (
+              rowData?.tender_id == null ? '--' : rowData?.tender_id
+            )}
+          
+          ></Column>
+
+          <Column
+          field="assistant_eng_id"
+          header="Asst. Engineer"
+          // body={(rowData, { rowIndex }) => rowIndex + 1}
+          body={(rowData) => (
+              rowData?.assistant_eng_name.length > 0 ? rowData?.assistant_eng_name : '--'
+            )}
+          
           ></Column>
 
           <Column
@@ -907,6 +973,47 @@ function TFForm() {
                 <VError title={formik.errors.td_ID} />
               )}
             </div>
+
+          <div class="sm:col-span-4 contigencySelect">
+
+          <label for="dis" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Choose Asst. Engineer
+         
+         <span className="mandator_txt"> *</span>
+
+          </label>
+
+
+
+        <Select
+        showSearch
+        placeholder="Choose Asst. Engineer"
+        value={formik.values.asstEng || undefined} // Ensure default empty state
+        onChange={(value) => {
+        formik.setFieldValue("asstEng", value);
+        console.log(value, 'cccccccccccccccc');
+        
+        }}
+        onBlur={formik.handleBlur}
+        style={{ width: "100%" }}
+        optionFilterProp="children"
+        filterOption={(input, option) =>
+        option?.children?.toLowerCase().includes(input.toLowerCase())
+        }
+        >
+        <Select.Option value="" disabled>
+        Choose Project implemented By
+        </Select.Option>
+        {asstEngListData?.map((data) => (
+        <Select.Option key={data.assistant_eng_id} value={data.assistant_eng_id}>
+        {data.name}
+        </Select.Option>
+        ))}
+        </Select>
+
+          {formik.errors.asstEng && formik.touched.asstEng && (
+          <VError title={formik.errors.asstEng} />
+          )}
+          </div>
           
 
             <div class="sm:col-span-4">

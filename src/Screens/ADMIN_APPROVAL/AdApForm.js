@@ -993,6 +993,8 @@ function AdApForm() {
 
 
   const onSubmit = (values) => {
+    console.log('onSubmitonSubmitonSubmitonSubmit====>>', values);
+    
     if (errorpdf_1.length < 1 && errorpdf_2.length < 1) {
       if (params?.id > 0 && checkProjectId === false) {
         updateFormData()
@@ -1736,7 +1738,7 @@ const addMasterFnc = (submitData)=>{
                 <label for="block" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Block 
                 {userDataLocalStore.user_type === 'A' &&(
                     <><span className="mandator_txt"> *</span> </> 
-                  )}  <button className="ant-btn css-dev-only-do-not-override-ppv1a7 ant-btn-primary bg-blue-900 ant-btn-variant-solid floatRight_btn" 
+                  )}  <button type="button" className="ant-btn css-dev-only-do-not-override-ppv1a7 ant-btn-primary bg-blue-900 ant-btn-variant-solid floatRight_btn" 
                   onClick={()=>{ addMasterOpenPopup('Add Block', 'add_block')}}>Add Block</button>
                   </label>
 
@@ -1751,7 +1753,7 @@ const addMasterFnc = (submitData)=>{
                   name="block"
                   mode="multiple"
                   style={{ width: '100%' }}
-                  value={formik.values.block}
+                  value={formik.values.block || null}
                   onChange={(value) => {
                     formik.setFieldValue("block", value ? value : "")
                     formik.setFieldValue("gp_id", "");
@@ -1786,7 +1788,7 @@ const addMasterFnc = (submitData)=>{
                 <label for="block" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Police Station
                 {userDataLocalStore.user_type === 'A' &&(
                     <><span className="mandator_txt"> *</span></>
-                  )} <button className="ant-btn css-dev-only-do-not-override-ppv1a7 ant-btn-primary bg-blue-900 ant-btn-variant-solid floatRight_btn" 
+                  )} <button type="button" className="ant-btn css-dev-only-do-not-override-ppv1a7 ant-btn-primary bg-blue-900 ant-btn-variant-solid floatRight_btn" 
                   onClick={()=>{ addMasterOpenPopup('Add Police Station', 'add_PS')}}>Add Police Station</button>
                   </label>
 
@@ -1798,7 +1800,7 @@ const addMasterFnc = (submitData)=>{
                   name="ps_id"
                   mode="multiple"
                   style={{ width: '100%' }}
-                  value={formik.values.ps_id}
+                  value={formik.values.ps_id || null}
                   onChange={(value) => {
                     formik.setFieldValue("ps_id", value ? value : "")
                   }} // Update Formik state
@@ -1828,7 +1830,7 @@ const addMasterFnc = (submitData)=>{
                 {userDataLocalStore.user_type === 'A' &&(
                     <><span className="mandator_txt"> *</span></>
                   )} <button className="ant-btn css-dev-only-do-not-override-ppv1a7 ant-btn-primary bg-blue-900 ant-btn-variant-solid floatRight_btn" 
-                  onClick={()=>{ addMasterOpenPopup('Add Gram Panchayat', 'add_GP')}}>Add Gram Panchayat</button>
+                  type="button" onClick={()=>{ addMasterOpenPopup('Add Gram Panchayat', 'add_GP')}}>Add Gram Panchayat</button>
                   </label>
 
                   {/* {JSON.stringify(GM_DropList, null, 2)} */}
@@ -1839,7 +1841,7 @@ const addMasterFnc = (submitData)=>{
                   name="gp_id"
                   mode="multiple"
                   style={{ width: '100%' }}
-                  value={formik.values.gp_id}
+                  value={formik.values.gp_id || null}
                   onChange={(value) => {
                     formik.setFieldValue("gp_id", value ? value : "")
                   }} // Update Formik state
