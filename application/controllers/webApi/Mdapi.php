@@ -328,6 +328,18 @@ class Mdapi extends CI_Controller {
 		}
 		  
 	}
+    ///    ***************   GET CALL LIST API FOR MASTER DATA ************* //  
+	public function get_call() {
+			$result_data = $this->Master->f_select('md_call', array('call_id','call_name'), NULL, NULL);
+			$response = (!empty($result_data)) 
+			? ['status' => 1, 'message' => $result_data] 
+			: ['status' => 0, 'message' => 'No data found'];
+			$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
+			
+	}
+
 	public function gpSave() {
 		$sl_no = $this->input->post('sl_no');
 		$dist_id = trim($this->input->post('dist_id'));

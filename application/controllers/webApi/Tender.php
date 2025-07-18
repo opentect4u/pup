@@ -24,23 +24,23 @@ class Tender extends CI_Controller {
        $headers = $this->input->request_headers();
 	   $authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
 
-		if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
-			$token = $matches[1];
-			$user = $this->User_model->get_user_by_token($token);
-			if ($user) {
-				$this->user = $user;
-				return;
-			}
-		}
+		// if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+		// 	$token = $matches[1];
+		// 	$user = $this->User_model->get_user_by_token($token);
+		// 	if ($user) {
+		// 		$this->user = $user;
+		// 		return;
+		// 	}
+		// }
 
-		http_response_code(401);
-		header('Content-Type: application/json');
-		echo json_encode([
-			'status' => 0,
-			'error_code' => 401,
-			'message' => 'Unauthorized or Token Expired'
-		]);
-		exit;
+		// http_response_code(401);
+		// header('Content-Type: application/json');
+		// echo json_encode([
+		// 	'status' => 0,
+		// 	'error_code' => 401,
+		// 	'message' => 'Unauthorized or Token Expired'
+		// ]);
+		// exit;
 		$this->load->helper('pdf');
     }
 
@@ -114,14 +114,15 @@ class Tender extends CI_Controller {
 	public function tend_add() {
 
 		$this->form_validation->set_rules('approval_no', 'approval_no', 'required');
-		$this->form_validation->set_rules('tender_date', 'tender_date', 'required');
-		$this->form_validation->set_rules('e_nit_no', 'e_nit_no', 'required');
-		$this->form_validation->set_rules('invite_auth', 'invite_auth', 'required');
-		$this->form_validation->set_rules('mat_date', 'mat_date', 'required');
-		$this->form_validation->set_rules('wo_date', 'wo_date', 'required');
-		$this->form_validation->set_rules('comp_date_apprx', 'comp_date_apprx', 'required');
-		$this->form_validation->set_rules('amt_put_to_tender', 'amt_put_to_tender', 'required');
-		$this->form_validation->set_rules('dlp', 'dlp', 'required');
+		$this->form_validation->set_rules('tender_id', 'tender_id', 'required');
+	//	$this->form_validation->set_rules('tender_date', 'tender_date', 'required');
+	//	$this->form_validation->set_rules('e_nit_no', 'e_nit_no', 'required');
+	//	$this->form_validation->set_rules('invite_auth', 'invite_auth', 'required');
+	//	$this->form_validation->set_rules('mat_date', 'mat_date', 'required');
+	//	$this->form_validation->set_rules('wo_date', 'wo_date', 'required');
+	//	$this->form_validation->set_rules('comp_date_apprx', 'comp_date_apprx', 'required');
+	//	$this->form_validation->set_rules('amt_put_to_tender', 'amt_put_to_tender', 'required');
+	//	$this->form_validation->set_rules('dlp', 'dlp', 'required');
 	    
 		if ($this->form_validation->run() == FALSE) {
 			echo json_encode([
@@ -197,6 +198,9 @@ class Tender extends CI_Controller {
 					'date_of_refund' => $this->input->post('date_of_refund'),
 					'tender_id' => $this->input->post('tender_id'),
 					'assistant_eng_id' => $this->input->post('assistant_eng_id'),
+					'tend_status' => $this->input->post('tend_status'),
+					'call_id' => $this->input->post('call_id'),
+					'remarks' => $this->input->post('remarks'),
 					'created_by' => $this->input->post('created_by'),
 					'created_at' => date('Y-m-d h:i:s'),
 				];
@@ -280,10 +284,22 @@ class Tender extends CI_Controller {
 	public function tender_list_proj() {
 		$where = [];
 		$approval_no = $this->input->post('approval_no');
-	
 		//$where['approval_no'] = $approval_no;
-		$where = array('a.assistant_eng_id=b.id' => NULL,'a.approval_no'  => $approval_no);
-		$result_data = $this->Master->f_select('td_tender a,td_user b', 'a.*,b.name as assistant_eng_name,b.user_id as assistant_eng_userid', $where, 0);
+		//$where = array('a.assistant_eng_id=b.id' => NULL,'a.approval_no'  => $approval_no);
+		// $result_data = $this->Master->f_select('td_tender a,td_user b', 'a.*,b.name as assistant_eng_name,b.user_id as assistant_eng_userid', $where, 0);
+		$sql = "SELECT 
+				a.*, 
+				b.name AS assistant_eng_name, 
+				b.user_id AS assistant_eng_userid
+			FROM 
+				td_tender a
+			LEFT JOIN 
+				td_user b ON a.assistant_eng_id = b.id
+			WHERE 
+				a.approval_no = ?";
+
+        $result_data = $this->db->query($sql, array($approval_no))->result();		
+		//echo $this->db->last_query();die();
 		$response = (!empty($result_data)) 
 			? ['status' => 1, 'message' => $result_data] 
 			: ['status' => 0, 'message' => 'No data found'];
