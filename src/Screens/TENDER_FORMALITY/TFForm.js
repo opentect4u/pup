@@ -34,6 +34,8 @@ const options = [
 const initialValues = {
   project_id: '',
   td_ID: '',
+  call_no:'',
+  tenderCancel_reason: '',
   asstEng: '',
   td_dt: '',
   td_pdf: '',
@@ -43,7 +45,7 @@ const initialValues = {
   wo_pdf: '',
   wo_value: '',
   compl: '',
-
+  
   amt_put_tender: '',
   e_nit_no: '',
   dlp: '',
@@ -52,43 +54,150 @@ const initialValues = {
   date_refund: '',
 };
 
+const tenderStatus = [
+	{
+		label: "Matured Tender",
+		value: "M",
+	},
+	{
+		label: "Cancelled Tender",
+		value: "C",
+	}
+	
+	
+]
 
 
-const validationSchema = Yup.object({
-  // project_id: Yup.string().required('Project ID / Approval Number is Required'),
-  td_ID: Yup.string().required('Tender ID is Required'),
-  asstEng: Yup.string().required('Asst. Engineer is Required'),
-  td_dt: Yup.string().required('Tender Invited On is Required'),
-  td_pdf: Yup.string().required('Tender Notice is Required'),
-  tia: Yup.string().required('Tender Inviting Authority is Required'),
-  td_mt_dt: Yup.string().required('Tender Matured On is Required'),
-  // wo_dt: Yup.string().required('Work Order Issued On is Required'),
-  wo_dt: Yup.string()
-  .required('Work Order Issued On is Required')
-  .test(
-    'wo_dt-before-compl',
-    'Work Order Issued On must be before Date of Completion',
-    function (value) {
-      const { compl } = this.parent;
-      if (!value || !compl) return true; // Skip validation if one is missing
-      const woDate = new Date(value);
-      const complDate = new Date(compl);
-      return woDate < complDate; // wo_dt must be strictly less than compl
-    }
-  ),
+// const validationSchema = Yup.object({
+//   td_ID: Yup.string().required('Tender ID is Required'),
+//   asstEng: Yup.string().required('Asst. Engineer is Required'),
+//   td_dt: Yup.string().required('Tender Invited On is Required'),
+//   td_pdf: Yup.string().required('Tender Notice is Required'),
+//   tia: Yup.string().required('Tender Inviting Authority is Required'),
+//   td_mt_dt: Yup.string().required('Tender Matured On is Required'),
+//   wo_dt: Yup.string()
+//   .required('Work Order Issued On is Required')
+//   .test(
+//     'wo_dt-before-compl',
+//     'Work Order Issued On must be before Date of Completion',
+//     function (value) {
+//       const { compl } = this.parent;
+//       if (!value || !compl) return true; // Skip validation if one is missing
+//       const woDate = new Date(value);
+//       const complDate = new Date(compl);
+//       return woDate < complDate; // wo_dt must be strictly less than compl
+//     }
+//   ),
 
-  wo_pdf: Yup.string().required('Work Order Copy is Required'),
-  wo_value: Yup.number().required('Work Order Value is Required'),
-  compl: Yup.string().required('Date of Completion (As per Work Order) is Required'),
-  amt_put_tender: Yup.string().required('Amount Put to Tender is Required'),
-  e_nit_no: Yup.string().required('e-NIT No is Required'),
-  dlp: Yup.string().required('DLP is Required'),
-  // add_per_sec: Yup.string().required('Additional Performance Security is Required'),
-  add_per_sec: Yup.string(),
-  emd: Yup.string().required('EMD/Security Deposit is Required'),
-  // date_refund: Yup.string().required('Date Of Refund is Required'),
-  date_refund: Yup.string(),
-});
+//   wo_pdf: Yup.string().required('Work Order Copy is Required'),
+//   wo_value: Yup.number().required('Work Order Value is Required'),
+//   compl: Yup.string().required('Date of Completion (As per Work Order) is Required'),
+//   amt_put_tender: Yup.string().required('Amount Put to Tender is Required'),
+//   e_nit_no: Yup.string().required('e-NIT No is Required'),
+//   dlp: Yup.string().required('DLP is Required'),
+//   // add_per_sec: Yup.string().required('Additional Performance Security is Required'),
+//   add_per_sec: Yup.string(),
+//   emd: Yup.string().required('EMD/Security Deposit is Required'),
+//   // date_refund: Yup.string().required('Date Of Refund is Required'),
+//   date_refund: Yup.string(),
+// });
+
+
+const validationSchema = (maturedData) =>
+  Yup.object({
+    td_ID: Yup.string().required('Tender ID is Required'),
+
+    asstEng: Yup.string().when([], {
+      is: () => maturedData === 'M',
+      then: (schema) => schema.required('Asst. Engineer is Required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+
+    call_no: Yup.string().required('Tender Call No. is Required'),
+
+    tenderCancel_reason: Yup.string().when([], {
+      is: () => maturedData === 'C',
+      then: (schema) => schema.required('Remarks is Required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    
+    td_dt: Yup.string().when([], {
+      is: () => maturedData === 'M',
+      then: (schema) => schema.required('Tender Invited On is Required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    td_pdf: Yup.string().when([], {
+      is: () => maturedData === 'M',
+      then: (schema) => schema.required('Tender Notice is Required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    tia: Yup.string().when([], {
+      is: () => maturedData === 'M',
+      then: (schema) => schema.required('Tender Inviting Authority is Required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    td_mt_dt: Yup.string().when([], {
+      is: () => maturedData === 'M',
+      then: (schema) => schema.required('Tender Matured On is Required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    wo_dt: Yup.string()
+      .when([], {
+        is: () => maturedData === 'M',
+        then: (schema) => schema.required('Work Order Issued On is Required'),
+        otherwise: (schema) => schema.notRequired(),
+      })
+      .test(
+        'wo_dt-before-compl',
+        'Work Order Issued On must be before Date of Completion',
+        function (value) {
+          const { compl } = this.parent;
+          if (!value || !compl) return true;
+          const woDate = new Date(value);
+          const complDate = new Date(compl);
+          return woDate < complDate;
+        }
+      ),
+    wo_pdf: Yup.string().when([], {
+      is: () => maturedData === 'M',
+      then: (schema) => schema.required('Work Order Copy is Required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    wo_value: Yup.number().when([], {
+      is: () => maturedData === 'M',
+      then: (schema) => schema.required('Work Order Value is Required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    compl: Yup.string().when([], {
+      is: () => maturedData === 'M',
+      then: (schema) => schema.required('Date of Completion (As per Work Order) is Required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    amt_put_tender: Yup.string().when([], {
+      is: () => maturedData === 'M',
+      then: (schema) => schema.required('Amount Put to Tender is Required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    e_nit_no: Yup.string().when([], {
+      is: () => maturedData === 'M',
+      then: (schema) => schema.required('e-NIT No is Required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    dlp: Yup.string().when([], {
+      is: () => maturedData === 'M',
+      then: (schema) => schema.required('DLP is Required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    add_per_sec: Yup.string(), // Optional always
+    emd: Yup.string().when([], {
+      is: () => maturedData === 'M',
+      then: (schema) => schema.required('EMD/Security Deposit is Required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    date_refund: Yup.string(), // Optional always
+  });
+
+
 
 function TFForm() {
   const params = useParams();
@@ -118,7 +227,8 @@ function TFForm() {
   const [projectIncomplete, setProjectIncomplete] = useState(false);
   const [editFlagStatus, setEditFlagStatus] = useState("");
   const [asstEngListData, setAsstEngListData] = useState([]);
-
+  const [maturedData, setMaturedData] = useState("M")
+  const [tenderCallNo, setTenderCallNo] = useState([]);
 
 
   const fundAddedList = async (approvalNo_Para) => {
@@ -142,7 +252,8 @@ function TFForm() {
         }
       );
 
-
+      console.log(response?.data?.message, 'cccccccccccccc');
+      
       if(response.data.status > 0){
         setFundStatus(response?.data?.message)
         setLoading(false);
@@ -275,10 +386,11 @@ function TFForm() {
         }
       );
 
-      
       if (response?.data.status > 0) {
         setLoading(false);
         // setGetMsgData(response?.data?.message)
+        console.log(response?.data?.message?.call_id, '');
+        
         setValues({
           td_dt: response?.data?.message?.tender_date != null ? response?.data?.message?.tender_date : '',
           tia: response.data.message.invite_auth != null ? response?.data?.message?.invite_auth : '',
@@ -298,6 +410,11 @@ function TFForm() {
 
           td_ID: response.data.message.tender_id != null ? response?.data?.message?.tender_id : '',
           asstEng: response.data.message.assistant_eng_id != null ? response?.data?.message?.assistant_eng_id : '',
+
+          call_no: response.data.message.call_id != null ? response?.data?.message?.call_id : '',
+          tend_status: setMaturedData(response?.data?.message?.tend_status),
+
+
         })
 
         setEditFlagStatus(response?.data?.message?.edit_flag)
@@ -354,16 +471,66 @@ function TFForm() {
   };
 
 
+  const fetchTenderCallNo = async () => {
+    setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
+    try {
+      const response = await axios.post(
+        url + 'index.php/webApi/Mdapi/get_call',
+        formData, // Empty body
+        {
+          headers: {
+            'auth_key': auth_key,
+            'Authorization': `Bearer ` + tokenValue?.token
+          },
+        }
+      );
+
+      if(response?.data?.status > 0){
+      // fundAddedList()
+      console.log(response.data.message, 'responseresponseresponse');
+      
+      setTenderCallNo(response.data.message)
+      setLoading(false);
+      }
+
+      if(response?.data?.status < 1){
+        setLoading(false);
+      }
+      
+    } catch (error) {
+      console.error("Error fetching data:", error); // Handle errors properly
+      setLoading(false);
+      
+      // localStorage.removeItem("user_dt");
+      // navigate('/')
+    }
+  };
+
+
     useEffect(()=>{
 
       fetchProjectId()
       fetchAsstEngList()
+      fetchTenderCallNo()
   
     }, [])
 
 
     const onChange = (e) => {
       setRadioType(e)
+    }
+
+    const tenderStatusFunc = (e) => {
+      console.log(e, 'tenderStatusFunc');
+      setFilePreview_2(null)
+      setFilePreview_1(null)
+      formik.resetForm();
+      setMaturedData(e)
     }
 
   const saveFormData = async () => {
@@ -386,7 +553,7 @@ function TFForm() {
     formData.append("comp_date_apprx", formik.values.compl);
 
     formData.append("amt_put_to_tender", formik.values.amt_put_tender);
-    formData.append("tender_status", radioType);
+    formData.append("tender_status", radioType); // May be it will be remove
     formData.append("dlp", formik.values.dlp);
     formData.append("add_per_security", formik.values.add_per_sec);
     formData.append("emd", formik.values.emd);
@@ -395,6 +562,10 @@ function TFForm() {
     
     formData.append("tender_id", formik.values.td_ID);
     formData.append("assistant_eng_id", formik.values.asstEng);
+
+    formData.append("tend_status", maturedData);
+    formData.append("call_id", formik.values.call_no);
+    formData.append("remarks", formik.values.tenderCancel_reason);
 
     formData.append("created_by", userDataLocalStore.user_id);
     formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
@@ -497,6 +668,7 @@ function TFForm() {
   
 
   const onSubmit = (values) => {
+    console.log(values, 'valuesvaluesvalues');
     
     
     if(errorpdf_1.length < 1 && errorpdf_2.length < 1){
@@ -514,7 +686,8 @@ function TFForm() {
       // initialValues,
       initialValues: +params.id > 0 ? formValues : initialValues,
       onSubmit,
-      validationSchema,
+      // validationSchema,
+      validationSchema: validationSchema(maturedData),
       enableReinitialize: true,
       validateOnMount: true,
     });
@@ -791,8 +964,13 @@ function TFForm() {
 
             </div>
 
+
+           
+
           
         </Spin>
+
+
 
         <Spin
 						indicator={<LoadingOutlined spin />}
@@ -828,6 +1006,17 @@ function TFForm() {
           ></Column>
 
           <Column
+          field="call_id"
+          header="Tender Call No."
+          // body={(rowData, { rowIndex }) => rowIndex + 1}
+          body={(rowData) => (
+              rowData?.call_id == null ? '--' : 'Call No.'+rowData?.call_id
+              
+            )}
+          
+          ></Column>
+
+          <Column
           field="tender_id"
           header="Tender ID"
           // body={(rowData, { rowIndex }) => rowIndex + 1}
@@ -838,11 +1027,26 @@ function TFForm() {
           ></Column>
 
           <Column
+          field="tend_status"
+          header="Tender Status"
+          // body={(rowData, { rowIndex }) => rowIndex + 1}
+          body={(rowData) => (
+              rowData?.tend_status == 'M' ? 'Matured' : 'Cancelled'
+            )}
+          
+          ></Column>
+
+          
+
+        
+          
+
+          <Column
           field="assistant_eng_id"
           header="Asst. Engineer"
           // body={(rowData, { rowIndex }) => rowIndex + 1}
           body={(rowData) => (
-              rowData?.assistant_eng_name.length > 0 ? rowData?.assistant_eng_name : '--'
+              rowData?.assistant_eng_name === null ? '--' : rowData?.assistant_eng_name
             )}
           
           ></Column>
@@ -856,7 +1060,13 @@ function TFForm() {
           // field="instl_amt"
           header="Tender Notice"
           body={(rowData) => (
+            <>
+            {rowData?.tend_status == 'M' ?(
           <a href={url + folder_tender + rowData?.tender_notice} target='_blank'><FilePdfOutlined style={{fontSize:22, color:'red'}} /></a>
+            ) : (
+              '--'
+            )}
+          </>
           )}
           ></Column>
 
@@ -913,7 +1123,13 @@ function TFForm() {
           // field="instl_amt"
           header="Work Order Copy"
           body={(rowData) => (
+            <>
+            {rowData?.tend_status == 'M' ?(
           <a href={url + folder_tender + rowData?.wo_copy} target='_blank'><FilePdfOutlined style={{fontSize:22, color:'red'}} /></a>
+            ) : (
+              '--'
+            )}
+          </>
           )}
           ></Column>
 
@@ -938,7 +1154,12 @@ function TFForm() {
           field="comp_date_apprx"
           header="Action"
           body={(rowData) => (
-            <a onClick={() => { loadFormEditData(params?.id, rowData.sl_no)}}><EditOutlined style={{fontSize:22}} /></a>
+            <>
+            {/* rowData?.tend_status == 'M' ? 'Matured' : 'Cancelled' */}
+            {rowData?.tend_status == 'M' &&(
+              <a onClick={() => { loadFormEditData(params?.id, rowData.sl_no)}}><EditOutlined style={{fontSize:22}} /></a>
+            )}
+            </>
             )}
           ></Column>
 )}
@@ -953,16 +1174,53 @@ function TFForm() {
 
         {showForm  &&(
         <>
-      <Heading title={'Tender Formality Details'} button={'N'}/>
+      
         <form onSubmit={formik.handleSubmit}>
-          <div class="grid gap-4 sm:grid-cols-12 sm:gap-6">
 
+          <div class="grid gap-4 sm:grid-cols-12 sm:gap-6 hoSection pb-5">
+              
+              <div className="sm:col-span-12 text-black text-md font-bold -mb-2 titleSection">
+                Tender Status
+              </div>
 
-            <div class="sm:col-span-4">
+              <div class="sm:col-span-4">
+              <label for="fin_yr" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Tender Call No.
+                <span className="mandator_txt"> *</span>
+              </label>
+
+              <Select
+              placeholder="Choose Head Account"
+              value={formik.values.call_no || undefined} // Ensure default empty state
+              onChange={(value) => {
+              formik.setFieldValue("call_no", value)
+              }}
+              name="call_no"
+              onBlur={formik.handleBlur}
+              style={{ width: "100%" }}
+              >
+              <Select.Option value=""> Choose Tender Call No. </Select.Option>
+              {tenderCallNo?.map(data => (
+              <Select.Option key={data.call_id} value={data.call_id}>
+              {data.call_name}
+              </Select.Option>
+              ))}
+              <Select.Option value="1">1</Select.Option>
+              <Select.Option value="2">2</Select.Option>
+              <Select.Option value="3">3</Select.Option>
+              <Select.Option value="4">4</Select.Option>
+              </Select>
+
+                {formik.errors.call_no && formik.touched.call_no && (
+                  <VError title={formik.errors.call_no} />
+                )}
+
+              </div>
+
+                <div class="sm:col-span-4">
               <TDInputTemplate
                 type="text"
                 placeholder="Tender ID"
-                label={<>Tender ID<span className="mandator_txt"> *</span></>}
+                label={<>Tender ID <span className="mandator_txt"> *</span></>}
                 name="td_ID"
                 formControlName={formik.values.td_ID}
                 handleChange={formik.handleChange}
@@ -974,17 +1232,78 @@ function TFForm() {
               )}
             </div>
 
+              <div class="sm:col-span-4 areaSec">
+              <label className="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Tender Status </label>
+
+              <Radiobtn
+              data={tenderStatus}
+              val={maturedData}
+              onChangeVal={(value) => {
+              tenderStatusFunc(value)
+              }}
+              />
+
+              </div>
+
+              
+
+              {maturedData == 'C' &&(
+                <div class="sm:col-span-12">
+                <TDInputTemplate
+                  placeholder="Type here..."
+                  type="text"
+                  label='Remarks'
+                  name="tenderCancel_reason"
+                  formControlName={formik.values.tenderCancel_reason}
+                  handleChange={formik.handleChange}
+                  handleBlur={formik.handleBlur}
+                  mode={3}
+                  required={true}
+                  disabled={userDataLocalStore.user_type === 'A'}
+                />
+                {formik.errors.tenderCancel_reason && formik.touched.tenderCancel_reason && (
+                  <VError title={formik.errors.tenderCancel_reason} />
+                )}
+              </div>
+              )}
+            
+            </div>
+
+
+
+          {maturedData == 'M' &&(
+            <>
+            <Heading title={'Tender Formality Details'} button={'N'}/>
+            <div class="grid gap-4 sm:grid-cols-12 sm:gap-6">
+
+            {/* <div class="sm:col-span-4">
+              <TDInputTemplate
+                type="text"
+                placeholder="Tender ID"
+                label={<>Tender ID{maturedData == 'M' ? <span className="mandator_txt"> *</span> : ''}</>}
+                name="td_ID"
+                formControlName={formik.values.td_ID}
+                handleChange={formik.handleChange}
+                handleBlur={formik.handleBlur}
+                mode={1}
+              />
+              {formik.errors.td_ID && formik.touched.td_ID && (
+                <VError title={formik.errors.td_ID} />
+              )}
+            </div> */}
+
           <div class="sm:col-span-4 contigencySelect">
 
           <label for="dis" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Choose Asst. Engineer
          
-         <span className="mandator_txt"> *</span>
+         {maturedData == 'M' ? <span className="mandator_txt"> *</span> : ''}
 
           </label>
 
 
 
         <Select
+        required
         showSearch
         placeholder="Choose Asst. Engineer"
         value={formik.values.asstEng || undefined} // Ensure default empty state
@@ -1020,7 +1339,7 @@ function TFForm() {
               <TDInputTemplate
                 type="date"
                 placeholder="Tender Invited On"
-                label={<>Tender Invited On<span className="mandator_txt"> *</span></>}
+                label={<>Tender Invited On{maturedData == 'M' ? <span className="mandator_txt"> *</span> : ''}</>}
                 name="td_dt"
                 formControlName={formik.values.td_dt}
                 handleChange={formik.handleChange}
@@ -1039,7 +1358,7 @@ function TFForm() {
               type="file"
               name="td_pdf"
               placeholder="Tender Notice"
-              label={<>Tender Notice (PDF Max Size 2 MB)<span className="mandator_txt"> *</span></>}
+              label={<>Tender Notice (PDF Max Size 2 MB){maturedData == 'M' ? <span className="mandator_txt"> *</span> : ''}</>}
               // handleChange={(event) => {
               //   const file = event.currentTarget.files[0];
               //   if (file) {
@@ -1081,7 +1400,7 @@ function TFForm() {
               <TDInputTemplate
                 placeholder="Tender Inviting Authority"
                 type="text"
-                label={<>Tender Inviting Authority<span className="mandator_txt"> *</span></>}
+                label={<>Tender Inviting Authority{maturedData == 'M' ? <span className="mandator_txt"> *</span> : ''}</>}
                 name="tia"
                 formControlName={formik.values.tia}
                 handleChange={formik.handleChange}
@@ -1097,7 +1416,7 @@ function TFForm() {
               <TDInputTemplate
                 type="text"
                 placeholder="e-NIT No...."
-                label={<>e-NIT No<span className="mandator_txt"> *</span></>}
+                label={<>e-NIT No{maturedData == 'M' ? <span className="mandator_txt"> *</span> : ''}</>}
                 name="e_nit_no"
                 formControlName={formik.values.e_nit_no}
                 handleChange={formik.handleChange}
@@ -1113,7 +1432,7 @@ function TFForm() {
               <TDInputTemplate
                 placeholder="Amount Put to Tender..."
                 type="number"
-                label={<>Amount Put to Tender<span className="mandator_txt"> *</span></>}
+                label={<>Amount Put to Tender{maturedData == 'M' ? <span className="mandator_txt"> *</span> : ''}</>}
                 name="amt_put_tender"
                 formControlName={formik.values.amt_put_tender}
                 handleChange={formik.handleChange}
@@ -1140,7 +1459,7 @@ function TFForm() {
               <TDInputTemplate
                 placeholder="DLP..."
                 type="text"
-                label={<>DLP<span className="mandator_txt"> *</span></>}
+                label={<>DLP{maturedData == 'M' ? <span className="mandator_txt"> *</span> : ''}</>}
                 name="dlp"
                 formControlName={formik.values.dlp}
                 handleChange={formik.handleChange}
@@ -1172,7 +1491,7 @@ function TFForm() {
               <TDInputTemplate
                 placeholder="EMD/Security Deposit..."
                 type="number"
-                label={<>EMD/Security Deposit<span className="mandator_txt"> *</span></>}
+                label={<>EMD/Security Deposit{maturedData == 'M' ? <span className="mandator_txt"> *</span> : ''}</>}
                 name="emd"
                 formControlName={formik.values.emd}
                 handleChange={formik.handleChange}
@@ -1204,7 +1523,7 @@ function TFForm() {
               <TDInputTemplate
                 placeholder="Tender Matured On"
                 type="date"
-                label={<>Tender Matured On<span className="mandator_txt"> *</span></>}
+                label={<>Tender Matured On{maturedData == 'M' ? <span className="mandator_txt"> *</span> : ''}</>}
                 name="td_mt_dt"
                 formControlName={formik.values.td_mt_dt}
                 handleChange={formik.handleChange}
@@ -1237,7 +1556,7 @@ function TFForm() {
               type="file"
               name="wo_pdf"
               placeholder="Work Order Copy"
-              label={<>Work Order Copy (PDF Max Size 2 MB)<span className="mandator_txt"> *</span></>}
+              label={<>Work Order Copy (PDF Max Size 2 MB){maturedData == 'M' ? <span className="mandator_txt"> *</span> : ''}</>}
               // handleChange={(event) => {
               //   const file = event.currentTarget.files[0];
               //   if (file) {
@@ -1278,7 +1597,7 @@ function TFForm() {
               <TDInputTemplate
                 placeholder="Type Work Order Value..."
                 type="number"
-                label={<>Work Order Value<span className="mandator_txt"> *</span></>}
+                label={<>Work Order Value{maturedData == 'M' ? <span className="mandator_txt"> *</span> : ''}</>}
                 name="wo_value"
                 formControlName={formik.values.wo_value}
                 handleChange={formik.handleChange}
@@ -1293,7 +1612,7 @@ function TFForm() {
               <TDInputTemplate
                 placeholder="Date of Completion (As per Work Order)"
                 type="date"
-                label={<>Date of Completion (As per Work Order)<span className="mandator_txt"> *</span></>}
+                label={<>Date of Completion (As per Work Order){maturedData == 'M' ? <span className="mandator_txt"> *</span> : ''}</>}
                 name="compl"
                 formControlName={formik.values.compl}
                 handleChange={formik.handleChange}
@@ -1304,6 +1623,11 @@ function TFForm() {
                 <VError title={formik.errors.compl} />
               )}
             </div>
+            
+          </div>
+            </>
+          )}
+          <div class="grid gap-4 sm:grid-cols-12 sm:gap-6">
             {projectIncomplete === false &&(
 
 <div className="sm:col-span-12 flex justify-center gap-4 mt-4">

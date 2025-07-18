@@ -229,6 +229,8 @@ function AdApForm() {
     const formData = new FormData();
     formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
 
+    // var tokenValue_ = {csrfName: 'fghfgjhgfhj', csrfValue: '123554447'}
+
     try {
       const response = await axios.post(
         url + 'index.php/webApi/Mdapi/sector',
