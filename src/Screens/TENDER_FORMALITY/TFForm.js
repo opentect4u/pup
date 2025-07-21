@@ -36,6 +36,7 @@ const initialValues = {
   td_ID: '',
   call_no:'',
   tenderCancel_reason: '',
+  agency: '',
   asstEng: '',
   td_dt: '',
   td_pdf: '',
@@ -103,9 +104,54 @@ const tenderStatus = [
 // });
 
 
-const validationSchema = (maturedData) =>
+
+
+
+
+function TFForm() {
+  const params = useParams();
+  const [formValues, setValues] = useState(initialValues);
+  const location = useLocation();
+  // const operation_status = location.state?.operation_status || "add";
+  // const sl_no = location.state?.sl_no || "";
+  const navigate = useNavigate()
+  const [filePreview_1, setFilePreview_1] = useState(null);
+  const [filePreview_2, setFilePreview_2] = useState(null);
+  const [loading, setLoading] = useState(false)
+  // const [projectId, setProjectId] = useState([]);
+
+  const [projectId, setProjectId] = useState([]);
+  // const [getStatusData, setGetStatusData] = useState([]);
+  const [getMsgData, setGetMsgData] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [approvalNo, setApprovalNo] = useState('');
+  const [fundStatus, setFundStatus] = useState(() => []);
+  const toast = useRef(null)
+  const [radioType, setRadioType] = useState("M")
+  const [userDataLocalStore, setUserDataLocalStore] = useState([]);
+  const [operation_status, setOperation_status] = useState('');
+  const [sl_no, setSl_no] = useState('');
+  const [errorpdf_1, setErrorpdf_1] = useState("");
+  const [errorpdf_2, setErrorpdf_2] = useState("");
+  const [projectIncomplete, setProjectIncomplete] = useState(false);
+  const [editFlagStatus, setEditFlagStatus] = useState("");
+  const [asstEngListData, setAsstEngListData] = useState([]);
+  const [maturedData, setMaturedData] = useState("M")
+  const [tenderCallNo, setTenderCallNo] = useState([]);
+  const [agencyList, setAgencyList] = useState([]);
+  const [agencyDetails, setAgencyDetails] = useState([]);
+  const [useSchematicAmt, setUseSchematicAmt] = useState(0);
+
+
+  const validationSchema = (maturedData) =>
   Yup.object({
     td_ID: Yup.string().required('Tender ID is Required'),
+
+    agency: Yup.string().when([], {
+      is: () => maturedData === 'M',
+      then: (schema) => schema.required('Agency is Required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
 
     asstEng: Yup.string().when([], {
       is: () => maturedData === 'M',
@@ -163,11 +209,24 @@ const validationSchema = (maturedData) =>
       then: (schema) => schema.required('Work Order Copy is Required'),
       otherwise: (schema) => schema.notRequired(),
     }),
-    wo_value: Yup.number().when([], {
-      is: () => maturedData === 'M',
-      then: (schema) => schema.required('Work Order Value is Required'),
-      otherwise: (schema) => schema.notRequired(),
+
+    // wo_value: Yup.number().when([], {
+    //   is: () => maturedData === 'M',
+    //   then: (schema) => schema.required('Work Order Value is Required'),
+    //   otherwise: (schema) => schema.notRequired(),
+    // }),
+
+    wo_value: Yup.number()
+    .when([], {
+    is: () => maturedData === 'M',
+    then: (schema) =>
+    schema
+    .required('Work Order Value is Required')
+    .moreThan(0, 'Work Order Value must be greater than 0')
+    .max(`${useSchematicAmt}`, `Work Order Value must be less than or equal to ${useSchematicAmt}`),
+    otherwise: (schema) => schema.notRequired(),
     }),
+
     compl: Yup.string().when([], {
       is: () => maturedData === 'M',
       then: (schema) => schema.required('Date of Completion (As per Work Order) is Required'),
@@ -196,39 +255,6 @@ const validationSchema = (maturedData) =>
     }),
     date_refund: Yup.string(), // Optional always
   });
-
-
-
-function TFForm() {
-  const params = useParams();
-  const [formValues, setValues] = useState(initialValues);
-  const location = useLocation();
-  // const operation_status = location.state?.operation_status || "add";
-  // const sl_no = location.state?.sl_no || "";
-  const navigate = useNavigate()
-  const [filePreview_1, setFilePreview_1] = useState(null);
-  const [filePreview_2, setFilePreview_2] = useState(null);
-  const [loading, setLoading] = useState(false)
-  // const [projectId, setProjectId] = useState([]);
-
-  const [projectId, setProjectId] = useState([]);
-  // const [getStatusData, setGetStatusData] = useState([]);
-  const [getMsgData, setGetMsgData] = useState([]);
-  const [showForm, setShowForm] = useState(false);
-  const [approvalNo, setApprovalNo] = useState('');
-  const [fundStatus, setFundStatus] = useState(() => []);
-  const toast = useRef(null)
-  const [radioType, setRadioType] = useState("M")
-  const [userDataLocalStore, setUserDataLocalStore] = useState([]);
-  const [operation_status, setOperation_status] = useState('');
-  const [sl_no, setSl_no] = useState('');
-  const [errorpdf_1, setErrorpdf_1] = useState("");
-  const [errorpdf_2, setErrorpdf_2] = useState("");
-  const [projectIncomplete, setProjectIncomplete] = useState(false);
-  const [editFlagStatus, setEditFlagStatus] = useState("");
-  const [asstEngListData, setAsstEngListData] = useState([]);
-  const [maturedData, setMaturedData] = useState("M")
-  const [tenderCallNo, setTenderCallNo] = useState([]);
 
 
   const fundAddedList = async (approvalNo_Para) => {
@@ -312,6 +338,40 @@ function TFForm() {
     }
   };
 
+    const fetchAgencyList = async () => {
+    setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append("agency_id", '0');
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
+    try {
+      const response = await axios.post(`${url}index.php/webApi/Mdapi/agencyList`, formData, {
+        headers: { 
+          auth_key,
+          'Authorization': `Bearer ` + tokenValue?.token
+        },
+      });
+
+      console.log(response?.data?.message, 'response');
+      if (response?.data?.status > 0) {
+        
+        
+        setAgencyList(response?.data?.message);
+      } else {
+        setAgencyList([]);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      
+      localStorage.removeItem("user_dt");
+      navigate('/')
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const loadFormData = async (project_id) => {
     setLoading(true); // Set loading state
     const tokenValue = await getLocalStoreTokenDts(navigate);
@@ -337,10 +397,8 @@ function TFForm() {
       if (response?.data.status > 0) {
         setLoading(false);
         setGetMsgData(response?.data?.message)
+        setUseSchematicAmt(response?.data?.message[0]?.sch_amt);
         setProjectIncomplete(false)
-        // setGetStatusData(response?.data?.prog_img)
-        // setFolderProgres(response?.data?.folder_name)
-
       }
 
       if (response?.data.status < 1) {
@@ -410,12 +468,13 @@ function TFForm() {
 
           td_ID: response.data.message.tender_id != null ? response?.data?.message?.tender_id : '',
           asstEng: response.data.message.assistant_eng_id != null ? response?.data?.message?.assistant_eng_id : '',
+          agency: response.data.message.agency_id != null ? response?.data?.message?.agency_id : '',
 
           call_no: response.data.message.call_id != null ? response?.data?.message?.call_id : '',
           tend_status: setMaturedData(response?.data?.message?.tend_status),
-
-
         })
+
+        generateAgencyDetails(response?.data?.message?.agency_id)
 
         setEditFlagStatus(response?.data?.message?.edit_flag)
         
@@ -490,9 +549,11 @@ function TFForm() {
         }
       );
 
+      // console.log(response.data.message, 'responsereyyyyyysponseresponse');
+
       if(response?.data?.status > 0){
       // fundAddedList()
-      console.log(response.data.message, 'responseresponseresponse');
+      
       
       setTenderCallNo(response.data.message)
       setLoading(false);
@@ -506,8 +567,8 @@ function TFForm() {
       console.error("Error fetching data:", error); // Handle errors properly
       setLoading(false);
       
-      // localStorage.removeItem("user_dt");
-      // navigate('/')
+      localStorage.removeItem("user_dt");
+      navigate('/')
     }
   };
 
@@ -517,6 +578,7 @@ function TFForm() {
       fetchProjectId()
       fetchAsstEngList()
       fetchTenderCallNo()
+      fetchAgencyList()
   
     }, [])
 
@@ -562,6 +624,7 @@ function TFForm() {
     
     formData.append("tender_id", formik.values.td_ID);
     formData.append("assistant_eng_id", formik.values.asstEng);
+    formData.append("agency_id", formik.values.agency);
 
     formData.append("tend_status", maturedData);
     formData.append("call_id", formik.values.call_no);
@@ -626,6 +689,7 @@ function TFForm() {
 
     formData.append("tender_id", formik.values.td_ID);
     formData.append("assistant_eng_id", formik.values.asstEng);
+    formData.append("agency_id", formik.values.agency);
 
     formData.append("approval_no", params?.id);
     formData.append("sl_no", sl_no);
@@ -653,7 +717,7 @@ function TFForm() {
       // loadFormEditData(params?.id, sl_no)
       // navigate(`/home/tender_formality`);
       fundAddedList(params?.id)
-
+      setAgencyDetails([])
       formik.resetForm();
     } catch (error) {
       // setLoading(false);
@@ -767,7 +831,73 @@ function TFForm() {
     }
   };
     
+const generateAgencyDetails = async (agency_id) => {
+    setLoading(true);
+    const tokenValue = await getLocalStoreTokenDts(navigate);
+
+    const formData = new FormData();
+    formData.append("agency_id", agency_id);
+    formData.append("created_by", userDataLocalStore.user_id);
+    formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+    
+        try {
+    
+          const response = await axios.post( `${url}index.php/webApi/Mdapi/agencyList`, 
+          formData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+                'auth_key': auth_key,
+                'Authorization': `Bearer ` + tokenValue?.token
+              },
+            }
+          );
+
+          
+          
   
+          if(response?.data?.status > 0) {
+            console.log(response, 'responseresponseresponse', response?.data?.message[0]?.agency_name);
+            setAgencyDetails(response?.data?.message[0])
+            setLoading(false);
+          }
+  
+          if(response?.data?.status < 1) {
+          setLoading(false);
+          // Message("error", response?.data?.message);
+          }
+
+          } catch (error) {
+          setLoading(false);
+          Message("error", "Error Submitting Form:");
+          console.error("Error submitting form:", error);
+
+          localStorage.removeItem("user_dt");
+          navigate('/')
+          }
+
+  };
+
+    // useEffect(() => {
+    //   if (getMsgData[0] && Array.isArray(fundStatus)) {
+    //     const total = fundStatus.reduce(
+    //       (sum, item) => sum + (parseFloat(item?.sch_amt) || 0),
+    //       0
+    //     );
+    //     console.log(total.toFixed(2), 'hhhhhhhhhhhhhhhh', getMsgData[0].sch_amt);
+        
+    //     setUseSchematicAmt(total.toFixed(2)); // toFixed returns a string
+    //   }
+  
+    //   // if (fundStatus && Array.isArray(fundStatus)) {
+    //   //   const total = fundStatus.reduce(
+    //   //     (sum, item) => sum + (parseFloat(item?.cont_amt) || 0),
+    //   //     0
+    //   //   );
+    //   //   setUseContigencyAmt(total.toFixed(2)); // toFixed returns a string
+    //   // }
+  
+    // }, [getMsgData[0]]);
 
   return (
     <section class="bg-white p-5 dark:bg-gray-900">
@@ -846,6 +976,9 @@ function TFForm() {
               {/* {getMsgData.length}
               {JSON.stringify(projectIncomplete, null, 2)} */}
 
+              {/* {JSON.stringify(getMsgData[0], null, 2)}
+              {useSchematicAmt} */}
+
             {projectIncomplete &&(
             <div class="sm:col-span-12">
             <div class="p-4 mb-0 text-sm text-yellow-800 border-2 border-yellow-500 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300" role="alert">
@@ -876,21 +1009,28 @@ function TFForm() {
               <div class="sm:col-span-4">
                 <TDInputTemplate
                   type="text"
-                  label="Enter scheme name"
+                  label="scheme name"
                   formControlName={getMsgData[0]?.scheme_name ? getMsgData[0]?.scheme_name : 'No Data'}
                   mode={1}
                   disabled={true}
                 />
-
               </div>
+
               <div class="sm:col-span-4">
-
-
-                
-
                 <TDInputTemplate
                   type="text"
-                  label="Enter Sector name"
+                  label="Scheme Amount"
+                  formControlName={getMsgData[0]?.scheme_name ? getMsgData[0]?.sch_amt : 'No Data'}
+                  mode={1}
+                  disabled={true}
+                />
+              </div>
+
+
+              <div class="sm:col-span-4">
+                <TDInputTemplate
+                  type="text"
+                  label="Sector name"
                   formControlName={getMsgData[0]?.sector_name ? getMsgData[0]?.sector_name : 'No Data'}
                   mode={1}
                   disabled={true}
@@ -1010,7 +1150,7 @@ function TFForm() {
           header="Tender Call No."
           // body={(rowData, { rowIndex }) => rowIndex + 1}
           body={(rowData) => (
-              rowData?.call_id == null ? '--' : 'Call No.'+rowData?.call_id
+              rowData?.call_id == null ? '--' : 'Call '+rowData?.call_id
               
             )}
           
@@ -1036,13 +1176,18 @@ function TFForm() {
           
           ></Column>
 
+          <Column
+          field="agency_name"
+          header="Agency Name"
+          // body={(rowData, { rowIndex }) => rowIndex + 1}
+          body={(rowData) => (
+              rowData?.agency_name === null ? '--' : rowData?.agency_name
+            )}
           
-
-        
-          
+          ></Column>
 
           <Column
-          field="assistant_eng_id"
+          field="assistant_eng_name"
           header="Asst. Engineer"
           // body={(rowData, { rowIndex }) => rowIndex + 1}
           body={(rowData) => (
@@ -1171,7 +1316,6 @@ function TFForm() {
           </>
         )}
         </Spin>
-
         {showForm  &&(
         <>
       
@@ -1204,10 +1348,6 @@ function TFForm() {
               {data.call_name}
               </Select.Option>
               ))}
-              <Select.Option value="1">1</Select.Option>
-              <Select.Option value="2">2</Select.Option>
-              <Select.Option value="3">3</Select.Option>
-              <Select.Option value="4">4</Select.Option>
               </Select>
 
                 {formik.errors.call_no && formik.touched.call_no && (
@@ -1292,16 +1432,68 @@ function TFForm() {
               )}
             </div> */}
 
+            <div class="sm:col-span-4">
+        {/* {JSON.stringify(agencyList, null, 2)} */}
+          <label for="agency" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Choose Agency
+         {maturedData == 'M' ? <span className="mandator_txt"> *</span> : ''}
+          </label>
+        <Select
+        required
+        showSearch
+        placeholder="Choose Agency"
+        value={formik.values.agency || undefined} // Ensure default empty state
+        onChange={(value) => {
+        formik.setFieldValue("agency", value);
+        generateAgencyDetails(value)
+        }}
+        onBlur={formik.handleBlur}
+        style={{ width: "100%" }}
+        optionFilterProp="children"
+        filterOption={(input, option) =>
+        option?.children?.toLowerCase().includes(input.toLowerCase())
+        }
+        >
+        <Select.Option value="" disabled>
+        Choose Project implemented By
+        </Select.Option>
+        {agencyList?.map((data) => (
+        <Select.Option key={data.agency_id} value={data.agency_id}>
+        {data.agency_name}
+        </Select.Option>
+        ))}
+        </Select>
+
+          {formik.errors.agency && formik.touched.agency && (
+          <VError title={formik.errors.agency} />
+          )}
+          </div>
+          {/* {JSON.stringify(agencyDetails?.agency_name, null, 2)} // {JSON.stringify(agencyDetails.length, null, 2)} */}
+
+
+          {agencyDetails && Object.keys(agencyDetails).length > 0 && (
+  <div className="sm:col-span-12 agencyDetails agency_sec">
+    <div className="sm:col-span-12 text-black text-md font-bold -mb-2 titleSection">
+                Agency Details
+              </div>
+    {/* {JSON.stringify(agencyDetails, null, 2)} */}
+    <label><span>Agency Name:</span> {agencyDetails?.agency_name}</label>
+    <label><span>Contact No.:</span> {agencyDetails?.ph_no}</label>
+    <label><span>Registration No.:</span> {agencyDetails?.reg_no}</label>
+    <label><span>GST No.:</span> {agencyDetails?.gst_no}</label>
+    <label><span>PAN No.:</span> {agencyDetails?.pan_no}</label>
+    <label><span>Bank A/C No.:</span> {agencyDetails?.acc_no}</label>
+    <label><span>IFSC Code:</span> {agencyDetails?.ifs_code}</label>
+    <label className='address'><span>Address :</span> {agencyDetails?.address}</label>
+
+  </div>
+)}
+          
+
           <div class="sm:col-span-4 contigencySelect">
 
           <label for="dis" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Choose Asst. Engineer
-         
          {maturedData == 'M' ? <span className="mandator_txt"> *</span> : ''}
-
           </label>
-
-
-
         <Select
         required
         showSearch
@@ -1309,8 +1501,6 @@ function TFForm() {
         value={formik.values.asstEng || undefined} // Ensure default empty state
         onChange={(value) => {
         formik.setFieldValue("asstEng", value);
-        console.log(value, 'cccccccccccccccc');
-        
         }}
         onBlur={formik.handleBlur}
         style={{ width: "100%" }}

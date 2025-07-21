@@ -94,8 +94,14 @@ export const menus = [
     {
       label: "Manage User",
       path: "/home/user",
-      roles: ["S"],
+      roles: ["S", "A"],
       id: 11,
+    },
+    {
+      label: "Manage Agency",
+      path: "/home/agency",
+      roles: ["S"],
+      id: 15,
     },
     {
       label: " Report",

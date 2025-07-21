@@ -63,8 +63,10 @@ function FundRelForm() {
 
   const [useSchematicAmt, setUseSchematicAmt] = useState(0);
   const [useContigencyAmt, setUseContigencyAmt] = useState(0);
+  const [useOwrkOrderValue, setUseOwrkOrderValue] = useState(0);
   const [projectIncomplete, setProjectIncomplete] = useState(false);
   const [editFlagStatus, setEditFlagStatus] = useState("");
+  const [owrkOrderValue, setOwrkOrderValue] = useState(0);
 
 
   const validationSchema = Yup.object({
@@ -79,14 +81,32 @@ function FundRelForm() {
     sch_amt_one: Yup.number()
       .typeError('Schematic Amount must be a number')
       .positive('Schematic Amount must be greater than zero')
-      .max(`${sanctionSchemaContiAmt?.sch_amt - useSchematicAmt}`, `Amount must be within ${sanctionSchemaContiAmt?.sch_amt - useSchematicAmt}`)
+      // .max(`${sanctionSchemaContiAmt?.sch_amt - useSchematicAmt}`, `Amount must be within ${sanctionSchemaContiAmt?.sch_amt - useSchematicAmt}`)
+      .max(`${owrkOrderValue - useSchematicAmt}`, `Amount must be within ${owrkOrderValue - useSchematicAmt}`)
       .required('Schematic Amount is required'),
     // cont_amt_one: Yup.string().required('Contigency Amount is Required'),
+
     cont_amt_one: Yup.number()
       .typeError('Contigency Amount must be a number')
       // .positive('Contigency Amount must be greater than zero')
-      .max(`${sanctionSchemaContiAmt?.cont_amt - useContigencyAmt}`, `Amount must be within ${sanctionSchemaContiAmt?.cont_amt - useContigencyAmt}`)
+      // .max(`${sanctionSchemaContiAmt?.cont_amt - useContigencyAmt}`, `Amount must be within ${sanctionSchemaContiAmt?.cont_amt - useContigencyAmt}`)
+      .max(`${owrkOrderValue - useContigencyAmt}`, `Amount must be within ${owrkOrderValue - useContigencyAmt}`)
       .required('Contigency Amount is required'),
+
+    // cont_amt_one: Yup.number()
+    // .typeError('Contingency Amount must be a number')
+    // // .max(`${owrkOrderValue - useContigencyAmt}`, `Amount must be within ${owrkOrderValue - useContigencyAmt}`)
+    // .required('Contingency Amount is required')
+    // .test(
+    // 'is-less-than-sch_amt_one',
+    // 'Contingency Amount must be less than Schematic Amount',
+    // function (value) {
+    // const { sch_amt_one } = this.parent;
+    // return value < sch_amt_one;
+    // }
+    // ),
+
+
     isntl_date: Yup.string().required('Installment Date is Required'),
     tot_amt: Yup.string(),
     // receipt_first: Yup.string(),
@@ -374,7 +394,8 @@ function FundRelForm() {
 
     try {
       const response = await axios.post(
-        url + 'index.php/webApi/Tender/progress_list',
+        // url + 'index.php/webApi/Tender/progress_list',
+        url + 'index.php/webApi/Tender/projTender',
         formData,
         {
           headers: {
@@ -387,6 +408,7 @@ function FundRelForm() {
       if (response?.data.status > 0) {
         setLoading(false);
         setGetMsgData(response?.data?.message)
+        setOwrkOrderValue(response?.data?.message[0]?.wo_value);
         setProjectIncomplete(false)
 
       }
@@ -558,6 +580,14 @@ function FundRelForm() {
       setUseContigencyAmt(total.toFixed(2)); // toFixed returns a string
     }
 
+    // if (fundStatus && Array.isArray(fundStatus)) {
+    //   const total = fundStatus.reduce(
+    //     (sum, item) => sum + (parseFloat(item?.cont_amt) || 0),
+    //     0
+    //   );
+    //   setUseContigencyAmt(total.toFixed(2)); // toFixed returns a string
+    // }
+
   }, [fundStatus]);
 
 
@@ -645,6 +675,8 @@ function FundRelForm() {
               </div>
             )}
 
+            {/* {JSON.stringify(getMsgData[0], null, 2)} */}
+
             <div className="sm:col-span-12 text-blue-900 text-md font-bold mt-0 -mb-0">
               {/* Progress Details */}
             </div>
@@ -669,13 +701,9 @@ function FundRelForm() {
                 mode={1}
                 disabled={true}
               />
-
             </div>
+
             <div class="sm:col-span-4">
-
-
-
-
               <TDInputTemplate
                 type="text"
                 label="Enter Sector name"
@@ -690,8 +718,6 @@ function FundRelForm() {
 
             </div>
             <div class="sm:col-span-4">
-
-
               <TDInputTemplate
                 type="text"
                 label="Financial Year"
@@ -699,7 +725,6 @@ function FundRelForm() {
                 mode={1}
                 disabled={true}
               />
-
             </div>
 
             <div class="sm:col-span-4">
@@ -791,6 +816,14 @@ function FundRelForm() {
                     <span className="flex items-center font-bold mr-1">
                       {/* <InfoCircleOutlined className="dark:text-green-400" style={{marginRight: 5, marginLeft: 3 }} />  */}
                       Sanction Contigency Amount:</span> ₹. {sanctionSchemaContiAmt?.cont_amt}
+                  </p>
+                </div>
+
+                <div class="sm:col-span-4">
+                  <p class="mb-0 font-normal items-center text-sm flex mt-0">
+                    <span className="flex items-center font-bold mr-1">
+                      {/* <InfoCircleOutlined className="dark:text-green-400" style={{marginRight: 5, marginLeft: 3 }} />  */}
+                      Work Order Value:</span> ₹. {getMsgData[0]?.wo_value}
                   </p>
                 </div>
               </div>
@@ -931,6 +964,16 @@ function FundRelForm() {
                       Balance Of Contigency Amount:</span> ₹. {sanctionSchemaContiAmt?.cont_amt - useContigencyAmt}
                   </p>
                 </div>
+
+                <div class="sm:col-span-4">
+                  <p class="mb-0 font-normal items-center text-sm flex mt-0">
+                    <span className="flex items-center font-bold mr-1">
+                      {/* <InfoCircleOutlined className="dark:text-green-400" style={{marginRight: 5, marginLeft: 3 }} />  */}
+                      Balance Of Work Order Value:</span> ₹. {owrkOrderValue - useSchematicAmt}
+                  </p>
+                </div>
+
+
               </div>
 
 

@@ -167,3 +167,34 @@ h2.text-white {color: #fff;}
   padding: 5px 15px; font-weight: 700; border-radius: 5px;}  
   
   .filterForm button[type="button"]:hover{background: #3EB8BD !important; color: #fff !important;}
+
+.agencyDetails{padding: 10px; border: #5CCACE solid 2px; border-radius: 10px;}
+.agencyDetails label{width: 25%; float: left; font-size: 13px; color: #000; margin-bottom: 10px;}
+.agencyDetails label.address{width: 100%; float: left; margin-bottom: 0;}
+
+
+
+.agency_sec {
+  padding: 25px 15px 15px 15px;
+  border: #5CCACE solid 2px;
+  border-radius: 10px;
+  margin-bottom: 0;
+  margin-top:0; position: relative;}
+
+.agency_sec .titleSection{margin-top: -19px;
+  background: #fff;
+  display: inline-block;
+  width: auto;
+  position: absolute;
+  padding: 3px 5px;
+  top: 2px;
+  left: 20px;
+  color: #000;}
+  .agency_sec .titleSection span{text-decoration: underline;}
+
+
+
+
+
+
+

@@ -7,6 +7,7 @@ import reportWebVitals from './reportWebVitals';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 
+
 const loadable = (importFunc) => 
   React.lazy(() => 
     importFunc().catch((err) => {
@@ -80,6 +81,9 @@ const FundExpView = loadable(()=>import('./Screens/FUND_EXP/FundExpView'))
 const FundExpComp = loadable(()=>import('./Screens/FUND_EXP/FundExpComp'))
 const UCComp = loadable(()=>import('./Screens/UC/UCComp'))
 const UCView = loadable(()=>import('./Screens/UC/UCView'))
+
+const AgencyComp =loadable(()=>import('./Screens/MANAGE_Agency/AgencyComp'));
+const AgencyManage =loadable(()=>import('./Screens/MANAGE_Agency/AgencyManage'));
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -353,6 +357,17 @@ const router = createBrowserRouter([
             {
                 path: "manage-user",
                 element: <UserManage />,
+            }
+          
+          ]
+        },
+        {
+          path: "agency",
+          element: <AgencyComp />,
+          children: [
+            {
+                path: "manage-agency",
+                element: <AgencyManage />,
             }
           
           ]

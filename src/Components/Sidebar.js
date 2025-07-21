@@ -231,6 +231,16 @@ function Sidebar() {
     </Collapse>
   );
 
+    const AgencyAccordion = () => (
+    <Collapse accordion>
+      <Panel header="Manage Agency" key="1">
+        <ul>
+          <li><Link to={"agency/manage-agency"}>Add/Edit Agency</Link></li>
+        </ul>
+      </Panel>
+    </Collapse>
+  );
+
   const ReportAccordion = () => (
     <Collapse accordion>
       <Panel header="Report" key="1">
@@ -312,6 +322,12 @@ function Sidebar() {
 
         {userType === 'S' ? (
           <UserAccordion />
+        ) : userType === 'A' ? (
+          <UserAccordion />
+        ) : null}
+
+        {userType === 'S' ? (
+          <AgencyAccordion />
         ) : null}
 
         {userType === 'S' ? (
