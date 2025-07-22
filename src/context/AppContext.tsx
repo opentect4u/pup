@@ -106,7 +106,7 @@ const AppContext = ({ children }: any) => {
 
   useEffect(() => {
     const expiryDate = new Date(loginTokenStore?.expires_at?.replace(' ', 'T'));
-    console.log(loginTokenStore?.expires_at, 'expairyTime', new Date(loginTokenStore?.expires_at?.replace(' ', 'T')));
+    console.log(loginTokenStore?.expires_at, 'expairyTime', expiryDate);
     
     // handleLogout()
   }, []);
