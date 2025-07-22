@@ -5,6 +5,12 @@ function csrf_override()
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
 
     // Only if CSRF is enabled
+      $request_uri = $_SERVER['REQUEST_URI'] ?? '';
+
+     if (strpos($request_uri, '/mobileApi/') !== false) {
+        log_message('debug', "CSRF override: Skipping for App URI: $request_uri");
+        return;
+    }
     if (!config_item('csrf_protection')) return;
 
     $csrf_token_name  = config_item('csrf_token_name');

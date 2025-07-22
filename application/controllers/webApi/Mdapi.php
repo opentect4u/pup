@@ -19,27 +19,27 @@ class Mdapi extends CI_Controller {
             echo json_encode($response);
             exit;
         }
-        // $headers = $this->input->request_headers();
-        // $authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
-        // if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
-        //     $token = $matches[1];
-        //     $user = $this->User_model->get_user_by_token($token);
+        $headers = $this->input->request_headers();
+        $authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
+        if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+            $token = $matches[1];
+            $user = $this->User_model->get_user_by_token($token);
 
-        //     if ($user) {
-        //         $this->user = $user;
-        //         return;
-        //     }
-        // }
-		// $authorizeresponse = array(
-		// 	'status' => 0,
-		// 	'error_code' => 401,
-		// 	'message' => 'Unauthorized or Token Expired'
-		// );
-        // $this->output
-        //     ->set_status_header(401)
-        //     ->set_content_type('application/json')
-        //     ->set_output(json_encode($authorizeresponse));
-        // exit;
+            if ($user) {
+                $this->user = $user;
+                return;
+            }
+        }
+		$authorizeresponse = array(
+			'status' => 0,
+			'error_code' => 401,
+			'message' => 'Unauthorized or Token Expired'
+		);
+        $this->output
+            ->set_status_header(401)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($authorizeresponse));
+        exit;
 		$this->load->helper('pdf');
     }
 
@@ -180,6 +180,101 @@ class Mdapi extends CI_Controller {
 		]);
 	}
 
+	public function agencySave() {
+
+		// Set validation rules
+		$this->form_validation->set_rules('agency_id', 'Agency ID', 'required');
+		$this->form_validation->set_rules('agency_name', 'Agency Name', 'required');
+		$this->form_validation->set_rules('ph_no', 'Phone Number', 'required');
+		$this->form_validation->set_rules('address', 'Address', 'required');
+		$this->form_validation->set_rules('gst_no', 'GST Number', 'required');
+		$this->form_validation->set_rules('created_by', 'Created By', 'required');
+		// Optional fields (uncomment if needed)
+		// $this->form_validation->set_rules('reg_no', 'Registration Number', 'required');
+		// $this->form_validation->set_rules('pan_no', 'PAN Number', 'required');
+		// $this->form_validation->set_rules('acc_no', 'Account Number', 'required');
+		// $this->form_validation->set_rules('ifs_code', 'IFSC Code', 'required');
+
+		// Check validation
+		if ($this->form_validation->run() == FALSE) {
+			echo json_encode([
+				'status' => 0,
+				'message' => 'Required fields missing'
+			]);
+			return;
+		}
+
+		// Get input values
+		$agency_id    = $this->input->post('agency_id');
+		$agency_name  = $this->input->post('agency_name');
+
+		// Check for duplicate agency name (excluding same record during update)
+		$this->db->where('agency_name', $agency_name);
+		if (!empty($agency_id)) {
+			$this->db->where('agency_id !=', $agency_id);
+		}
+		$query = $this->db->get('md_agency');
+
+		if ($query->num_rows() > 0) {
+			echo json_encode([
+				'status' => 0,
+				'message' => 'Agency already exists'
+			]);
+			return;
+		}
+
+		// Prepare data array
+		$data = [
+			'agency_name' => $agency_name,
+			'ph_no'       => $this->input->post('ph_no'),
+			'address'     => $this->input->post('address'),
+			'gst_no'      => $this->input->post('gst_no'),
+			'pan_no'      => $this->input->post('pan_no'),
+			'acc_no'      => $this->input->post('acc_no'),
+			'ifs_code'    => $this->input->post('ifs_code'),
+			'reg_no'      => $this->input->post('reg_no')
+		];
+
+		if (!empty($agency_id) && $agency_id > 0) {
+			// Edit Mode
+			$data['modified_by'] = $this->input->post('created_by');
+			$data['modified_at'] = date('Y-m-d H:i:s');
+			$where = ['agency_id' => $agency_id];
+
+			$id = $this->Master->f_edit('md_agency', $data, $where);
+			$message = ($id > 0) ? 'Updated Successfully!' : 'Something Went Wrong';
+		} else {
+			// Add Mode
+			$data['created_by'] = $this->input->post('created_by');
+			$data['created_at'] = date('Y-m-d H:i:s');
+
+			$id = $this->Master->f_insert('md_agency', $data);
+			$message = ($id > 0) ? 'Added Successfully!' : 'Something Went Wrong';
+		}
+
+		// Send JSON response
+		echo json_encode([
+			'status' => ($id > 0) ? 1 : 0,
+			'message' => $message
+		]);
+	}
+    public function agencyList() {
+		$this->form_validation->set_rules('agency_id', 'Agency ID', 'required');
+		if ($this->form_validation->run() == FALSE) {
+			echo json_encode([
+				'status' => 0,
+				'message' => 'Required fields missing'
+			]);
+			return;
+		}
+		$where = $this->input->post('agency_id') > 0 ? array('agency_id' => $this->input->post('agency_id')) : array();
+		$data = $this->Master->f_select('md_agency', array('agency_id','agency_name','ph_no','address','reg_no','gst_no','pan_no','acc_no','ifs_code'), $where, NULL);
+		if (!empty($data)) {
+			echo json_encode(['status' => 1, 'message' => $data]);
+		} else {
+			echo json_encode(['status' => 0, 'message' => 'No data found']);
+		}
+    }
 
 
 	public function sof() {

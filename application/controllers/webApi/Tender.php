@@ -198,6 +198,7 @@ class Tender extends CI_Controller {
 					'date_of_refund' => $this->input->post('date_of_refund'),
 					'tender_id' => $this->input->post('tender_id'),
 					'assistant_eng_id' => $this->input->post('assistant_eng_id'),
+					'agency_id'	=> $this->input->post('agency_id'),
 					'tend_status' => $this->input->post('tend_status'),
 					'call_id' => $this->input->post('call_id'),
 					'remarks' => $this->input->post('remarks'),
@@ -269,10 +270,7 @@ class Tender extends CI_Controller {
 	   
 		$where['approval_no'] = $approval_no;
 		$where['sl_no'] = $sl_no;
-		
-	
 		$result_data = $this->Master->f_select('td_tender', '*', $where, 1);
-	
 		$response = (!empty($result_data)) 
 			? ['status' => 1, 'message' => $result_data] 
 			: ['status' => 0, 'message' => 'No data found'];
@@ -290,11 +288,14 @@ class Tender extends CI_Controller {
 		$sql = "SELECT 
 				a.*, 
 				b.name AS assistant_eng_name, 
-				b.user_id AS assistant_eng_userid
+				b.user_id AS assistant_eng_userid,
+				c.agency_name AS agency_name
 			FROM 
 				td_tender a
 			LEFT JOIN 
 				td_user b ON a.assistant_eng_id = b.id
+			LEFT JOIN
+			     md_agency c ON a.agency_id = c.agency_id
 			WHERE 
 				a.approval_no = ?";
 
@@ -390,6 +391,10 @@ class Tender extends CI_Controller {
 				'date_of_refund' => $this->input->post('date_of_refund'),
 				'tender_id' => $this->input->post('tender_id'),
 				'assistant_eng_id' => $this->input->post('assistant_eng_id'),
+				'agency_id'	=> $this->input->post('agency_id'),
+				//'tend_status' => $this->input->post('tend_status'),
+			//	'call_id' => $this->input->post('call_id'),
+			//	'remarks' => $this->input->post('remarks'),
 				'edit_flag' => 'N',
 				'modified_by' => $this->input->post('modified_by'),
 				'modified_at' => date('Y-m-d H:i:s')
@@ -465,6 +470,38 @@ class Tender extends CI_Controller {
 		
 		$response = (!empty($result_data)) 
 			? ['status' => 1, 'message' => array_merge($result_data,$wo_date),'prog_img'=>$image_data,'OPERATION_STATUS' => 'edit','folder_name'=>'uploads/progress_image/','fund_total'=>$fund_total,'expense_total'=>$expense_total] 
+			: ['status' => 0, 'message' => 'No data found'];
+	
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
+    }
+
+	public function projTender() {
+		   
+		$approval_no = $this->input->post('approval_no');
+		$result_data = $this->db->query("SELECT a.admin_approval_dt, a.scheme_name,
+										a.project_id,a.sch_amt,a.cont_amt,a.approval_no,a.edit_flag,
+										b.sector_desc AS sector_name,c.fin_year,g.agency_name,h.wo_value,h.wo_date,
+										GROUP_CONCAT(DISTINCT e.dist_name ORDER BY e.dist_name SEPARATOR ', ') AS dist_name,
+										GROUP_CONCAT(DISTINCT f.block_name ORDER BY f.block_name SEPARATOR ', ') as block_name
+										FROM td_admin_approval a
+										INNER JOIN md_sector b ON a.sector_id = b.sl_no
+										INNER JOIN md_fin_year c ON a.fin_year = c.sl_no
+										INNER JOIN td_admin_approval_dist pd ON a.approval_no = pd.approval_no
+										JOIN md_district e ON pd.dist_id = e.dist_code 
+										JOIN td_admin_approval_block pb ON a.approval_no = pb.approval_no
+										JOIN md_block f ON pb.block_id = f.block_id 
+										INNER JOIN md_proj_imp_agency g ON a.impl_agency = g.id
+										INNER JOIN td_tender h ON a.approval_no = h.approval_no 
+										WHERE a.approval_no = $approval_no AND h.tender_status= 'M' group by a.admin_approval_dt, 
+										a.scheme_name,h.wo_value,
+										a.project_id,a.sch_amt,a.cont_amt,a.approval_no,
+										b.sector_desc,
+										c.fin_year,g.agency_name")->result();
+
+		$response = (!empty($result_data)) 
+			? ['status' => 1, 'message' => $result_data] 
 			: ['status' => 0, 'message' => 'No data found'];
 	
 		$this->output

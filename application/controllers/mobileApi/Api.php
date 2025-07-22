@@ -19,34 +19,69 @@ class Api extends CI_Controller {
             echo json_encode($response);
             exit;
         }
-       // $this->validate_auth_key();
-    }
+		$headers = $this->input->request_headers();
+		//log_message('error', print_r($headers, true));
+        // $authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
+		$authHeader = '';
+		foreach ($headers as $key => $value) {
+			if (strtolower($key) === 'authorization') {
+				$authHeader = $value;
+				break;
+			}
+		}
+        if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+            $token = $matches[1];
+            $user = $this->User_model->get_user_by_token($token);
 
-	private function validate_auth_key() {
-        $auth_key = $this->input->get_request_header('auth_key'); // Get from header
-        $valid_key = AUTH_KEY; // Store securely in .env or database
-        if ($auth_key !== $valid_key) {
-            $response = array(
-                'status' => false,
-                'message' => 'Unauthorized access'
-            );
-            echo json_encode($response);
-            exit; // Stop execution
+            if ($user) {
+                $this->user = $user;
+                return;
+            }
         }
+		$authorizeresponse = array(
+			'status' => 0,
+			'error_code' => 401,
+			'message' => 'Unauthorized or Token Expired'
+		);
+        $this->output
+            ->set_status_header(401)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($authorizeresponse));
+        exit;
+     
     }
 
 	public function projectlist() {
-		$result_data = $this->Master->f_select('td_admin_approval', array('scheme_name','project_id','approval_no'), NULL, NULL);
-
+	    $this->form_validation->set_rules('user_id', 'user_id', 'required');
+		if ($this->form_validation->run() == FALSE) {
+			echo json_encode([
+				'status' => 0,
+				'message' => validation_errors()
+			]);
+		}else{
+		$user_id = $this->input->post('user_id');
+		$result_data = $this->db->query("SELECT  a.scheme_name,a.project_id,a.approval_no
+									FROM td_admin_approval a
+									JOIN td_tender h ON a.approval_no = h.approval_no 
+									JOIN td_user u ON u.id = h.assistant_eng_id
+									WHERE u.user_id = '$user_id' AND h.tender_status= 'M' ")->result();
 		$response = (!empty($result_data)) 
 			? ['status' => 1, 'message' => $result_data] 
 			: ['status' => 0, 'message' => 'No data found'];
-	
 		$this->output
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
+
+		}
     }
 	public function projectrange() {
+		  $this->form_validation->set_rules('project_id', 'project_id', 'required');
+		if ($this->form_validation->run() == FALSE) {
+			echo json_encode([
+				'status' => 0,
+				'message' => validation_errors()
+			]);
+		}else{
 		$result_data = $this->Master->f_select('td_progress_range', array('project_id','visit_no','work_per_st','work_per_end'), array('project_id'=>$this->input->post('project_id')), NULL);
 
 		$response = (!empty($result_data)) 
@@ -56,6 +91,7 @@ class Api extends CI_Controller {
 		$this->output
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
+		}
     }
 
     public function progress_update(){
@@ -152,10 +188,35 @@ class Api extends CI_Controller {
 			 echo json_encode($response);
 	}
 	 
+	// public function progress_list() {
+	// 	$where = array('a.approval_no = b.approval_no' => NULL,'b.sector_id = c.sl_no' => NULL,
+	// 	               'b.fin_year = d.sl_no' => NULL,'b.district_id = e.dist_code' => NULL,
+	// 				   'b.block_id = f.block_id' => NULL,'b.impl_agency = g.id' => NULL);
+	// 	$where2 = array('a.approval_no = b.approval_no' => NULL);			   
+	// 	$approval_no = $this->input->post('approval_no');
+	// 	if ($approval_no > 0) {
+	// 		$where = array_merge($where, ['b.approval_no' => $approval_no]); 
+	// 		$where2 = array_merge($where2, ['b.approval_no' => $approval_no]);
+	// 	}
+		
+	// 	$result_data = $this->Master->f_select('td_progress a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f,md_proj_imp_agency g,td_tender h', 'b.scheme_name,c.sector_desc as sector_name,b.project_id,e.dist_name,f.block_name,a.approval_no', array_merge($where, ['1 limit 1' => NULL]), NULL);
+		
+	// 	$image_data = $this->Master->f_select('td_progress a,td_admin_approval b', 'a.approval_no,a.visit_no,a.progress_percent,a.pic_path', array_merge($where2, ['1 limit 6' => NULL]), NULL);
+	// 	$progress_percent = $this->Master->f_select('td_progress', 'ifnull(sum(progress_percent),0) progress_percent', array('approval_no'=>$approval_no), 1);
+		
+	// 	$response = (!empty($result_data)) 
+	// 		? ['status' => 1, 'message' => $result_data,'prog_img'=>$image_data,'progress_percent'=>$progress_percent->progress_percent,'OPERATION_STATUS' => 'edit','folder_name'=>'uploads/progress_image/'] 
+	// 		: ['status' => 0, 'message' => 'No data found','progress_percent'=>$progress_percent->progress_percent];
+	
+	// 	$this->output
+	// 		->set_content_type('application/json')
+	// 		->set_output(json_encode($response));
+    // }
+
 	public function progress_list() {
 		$where = array('a.approval_no = b.approval_no' => NULL,'b.sector_id = c.sl_no' => NULL,
-		               'b.fin_year = d.sl_no' => NULL,'b.district_id = e.dist_code' => NULL,
-					   'b.block_id = f.block_id' => NULL,'b.impl_agency = g.id' => NULL);
+		               'b.fin_year = d.sl_no' => NULL,
+					   'b.impl_agency = g.id' => NULL);
 		$where2 = array('a.approval_no = b.approval_no' => NULL);			   
 		$approval_no = $this->input->post('approval_no');
 		if ($approval_no > 0) {
@@ -163,7 +224,8 @@ class Api extends CI_Controller {
 			$where2 = array_merge($where2, ['b.approval_no' => $approval_no]);
 		}
 		
-		$result_data = $this->Master->f_select('td_progress a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f,md_proj_imp_agency g,td_tender h', 'b.scheme_name,c.sector_desc as sector_name,b.project_id,e.dist_name,f.block_name,a.approval_no', array_merge($where, ['1 limit 1' => NULL]), NULL);
+		$result_data = $this->Master->f_select('td_progress a,td_admin_approval b,md_sector c,md_fin_year d,md_proj_imp_agency g,td_tender h', 'b.scheme_name,c.sector_desc as sector_name,b.project_id,a.approval_no', array_merge($where, ['1 limit 1' => NULL]), NULL);
+		
 		$image_data = $this->Master->f_select('td_progress a,td_admin_approval b', 'a.approval_no,a.visit_no,a.progress_percent,a.pic_path', array_merge($where2, ['1 limit 6' => NULL]), NULL);
 		$progress_percent = $this->Master->f_select('td_progress', 'ifnull(sum(progress_percent),0) progress_percent', array('approval_no'=>$approval_no), 1);
 		
