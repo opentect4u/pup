@@ -11,7 +11,7 @@ import { AppStore } from '../context/AppContext';
 export default function MainNavigation() {
   const Stack = createNativeStackNavigator();
   const { isConnected } = useNetInfo();
-  console.log('NET INFOOOOOOO', isConnected);
+  // console.log('NET INFOOOOOOO', isConnected);
 
   const { isLogin } = useContext<any>(AppStore);
 

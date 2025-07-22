@@ -27,6 +27,7 @@ import Header from '../../components/Header';
 import {
     fileStorage,
     loginStorage,
+    loginToken,
     projectStorage,
 } from '../../storage/appStorage';
 // @ts-ignore
@@ -64,6 +65,11 @@ const HomeScreen = () => {
         [],
     );
 
+    const loginTokenStore = useMemo(
+        () => JSON.parse(loginToken?.getString('login-token') ?? '{}'),
+        [],
+    );
+
     const [refreshing, setRefreshing] = useState(() => false);
     const [imgData, setImgData] = useState<Asset[]>([]);
     const [projectsList, setProjectsList] = useState<any[]>([]);
@@ -88,7 +94,7 @@ const HomeScreen = () => {
     // const [projectRangeCaps, setProjectRangeCaps] = useState<any[]>(() => [])
     const [checkErr, setCheckErr] = useState(() => false);
 
-    console.log('LOCATION: ', location);
+    // console.log('LOCATION: ', location);
 
     const handleFormChange = useCallback((field: string, value: any) => {
         setFormData1(prev => ({
@@ -137,10 +143,12 @@ const HomeScreen = () => {
     }, [location]);
 
     const fetchProjectsList = useCallback(async () => {
+        
         setLoading(true);
         const formData = new FormData();
-        formData.append('', null);
+        formData.append('user_id', loginStore?.user_id);
 
+        
         try {
             const res = await axios.post(
                 `${ADDRESSES.FETCH_PROJECTS_LIST}`,
@@ -148,11 +156,17 @@ const HomeScreen = () => {
                 {
                     headers: {
                         'Content-Type': 'multipart/form-data',
-                        auth_key: AUTH_KEY,
+                        // auth_key: AUTH_KEY,
+                        // 'Authorization': `Bearer ` + loginTokenStore?.token
+                        'Authorization': `Bearer ` + loginTokenStore?.token
                     },
                 },
             );
+
+            
+            
             if (res?.data?.status === 1) {
+                // console.log(formData, 'utsabbbbbbbbbbb', loginStore?.user_id, 'kkk', res?.data, 'hh', loginTokenStore);
                 console.log('PROJECTS : ', res?.data);
                 const newProjectsList = res?.data?.message?.map((item: any) => ({
                     // label: `${item?.project_id} / ${item?.approval_no}\n${item?.scheme_name}`,
@@ -164,6 +178,7 @@ const HomeScreen = () => {
                 ToastAndroid.show('Projects fetch error.', ToastAndroid.SHORT);
             }
         } catch (err) {
+            console.log(formData, 'hhhhhhhhhhhhhhhhh', err);
             console.log('ERR PROJ', err);
             ToastAndroid.show(
                 'Some error occurred while fetching projects.',
@@ -186,12 +201,16 @@ const HomeScreen = () => {
                 {
                     headers: {
                         'Content-Type': 'multipart/form-data',
-                        auth_key: AUTH_KEY,
+                        // auth_key: AUTH_KEY,
+                        'Authorization': `Bearer ` + loginTokenStore?.token
                     },
                 },
             );
+
+            console.log('Percentage_ ', res?.data);
+
             if (res?.data?.status === 1) {
-                console.log('Percentage_ ', res?.data);
+                console.log('Percentage_ ', res, 'iffffffff');
                 // const newProjectsList = res?.data?.message?.map((item: any) => ({
                 //     label: `${item?.project_id} / ${item?.approval_no}\n${item?.scheme_name}`,
                 //     value: `${item?.approval_no},${item?.project_id}`
@@ -200,6 +219,7 @@ const HomeScreen = () => {
                 setProgressComplete(res?.data?.progress_percent);
                 setProgressCompleteAPI(res?.data?.progress_percent);
             } else {
+                console.log('Percentage_ ', res, 'else');
                 setProgressComplete(Number(0));
                 setProgressCompleteAPI(Number(0));
                 ToastAndroid.show('Percentage fetch error.', ToastAndroid.SHORT);
@@ -218,6 +238,10 @@ const HomeScreen = () => {
         fetchProjectsList();
     }, [fetchProjectsList]);
 
+    //  useEffect(() => {
+    //     fetchProjectsList();
+    // }, []);
+
     const fetchProjectDetails = async () => {
         setLoading(true);
         const formData = new FormData();
@@ -230,7 +254,8 @@ const HomeScreen = () => {
                 {
                     headers: {
                         'Content-Type': 'multipart/form-data',
-                        auth_key: AUTH_KEY,
+                        // auth_key: AUTH_KEY,
+                        'Authorization': `Bearer ` + loginTokenStore?.token
                     },
                 },
             );
@@ -358,7 +383,8 @@ const HomeScreen = () => {
             .post(ADDRESSES.FETCH_PROJECT_RANGE, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
-                    auth_key: AUTH_KEY,
+                    // auth_key: AUTH_KEY,
+                    'Authorization': `Bearer ` + loginTokenStore?.token
                 },
             })
             .then(res => {
@@ -450,7 +476,8 @@ const HomeScreen = () => {
         await axios.post(`${ADDRESSES.PROJECT_PROGRESS_UPDATE}`, formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
-                "auth_key": AUTH_KEY
+                // "auth_key": AUTH_KEY
+                'Authorization': `Bearer ` + loginTokenStore?.token
             }
         }).then(res => {
             console.log("Response:", res?.data)
@@ -597,7 +624,9 @@ const HomeScreen = () => {
                 <View style={{ padding: 30, gap: 5, flex: 1 }}>
                     <Text variant="titleLarge" style={{ color: theme.colors.secondary }}>
                         {strings.projectDropdownLabel}
-                        {/* {JSON.stringify(formData1, null, 2)} */}
+
+                        {/* {JSON.stringify(loginTokenStore, null, 2)}
+                        {loginStore?.user_id} */}
                     </Text>
                     <Dropdown
                         style={[

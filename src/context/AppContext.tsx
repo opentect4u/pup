@@ -1,9 +1,10 @@
 import axios from 'axios';
-import React, { createContext, useEffect, useRef, useState } from 'react';
+import React, { createContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, AppState, ToastAndroid } from 'react-native';
 import {
   fileStorage,
   loginStorage,
+  loginToken,
   projectStorage,
 } from '../storage/appStorage';
 import { ADDRESSES } from '../config/api_list';
@@ -27,6 +28,11 @@ const AppContext = ({ children }: any) => {
   const [isLogin, setIsLogin] = useState<boolean>(() => false);
   const [isLoading, setIsLoading] = useState<boolean>(() => false);
 
+  const loginTokenStore = useMemo(
+      () => JSON.parse(loginToken?.getString('login-token') ?? '{}'),
+      [],
+  );
+
   const handleLogin = async (username: string, password: string , loginType: string) => {
     setIsLoading(true);
 
@@ -41,13 +47,23 @@ const AppContext = ({ children }: any) => {
       .post(`${ADDRESSES.LOGIN}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          auth_key: AUTH_KEY,
+          // auth_key: AUTH_KEY,
         },
       })
       .then(res => {
         if (res?.data?.status === 1) {
-          console.log('Login Data : ', res?.data);
+          // console.log('Login Data : ', res?.data);
+          console.log('utsabbbbbbbbbbb', res?.data);
+
           loginStorage.set('login-data', JSON.stringify(res?.data?.message));
+
+          loginToken.set(
+          'login-token', JSON.stringify({
+          expires_at: res?.data?.expires_at,
+          token: res?.data?.token
+          }
+          ));
+
           setIsLogin(true);
         } else {
           Alert.alert('Not Found', 'User not found!');
@@ -67,6 +83,7 @@ const AppContext = ({ children }: any) => {
   };
 
   const isLoggedIn = () => {
+    
     if (loginStorage.getAllKeys().length === 0) {
       console.log('IF - isLoggedIn');
       setIsLogin(false);
@@ -82,10 +99,24 @@ const AppContext = ({ children }: any) => {
     }
   }, []);
 
+
+// const expairyTime = loginTokenStore?.expires_at;
+// const currentDate = new Date();
+
+
+  useEffect(() => {
+    const expiryDate = new Date(loginTokenStore?.expires_at?.replace(' ', 'T'));
+    console.log(loginTokenStore?.expires_at, 'expairyTime', new Date(loginTokenStore?.expires_at?.replace(' ', 'T')));
+    
+    // handleLogout()
+  }, []);
+  
+
   const handleLogout = async () => {
     loginStorage.clearAll();
     fileStorage.clearAll();
     projectStorage.clearAll();
+    loginToken.clearAll();
     setIsLogin(false);
   };
 

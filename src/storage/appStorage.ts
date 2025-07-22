@@ -6,6 +6,12 @@ export const loginStorage = new MMKV({
   mode: Mode.MULTI_PROCESS,
 });
 
+export const loginToken = new MMKV({
+  id: `login-datatoken`,
+  encryptionKey: `ssspl@signature`,
+  mode: Mode.MULTI_PROCESS,
+});
+
 export const fileStorage = new MMKV({
   id: `file-store`,
   encryptionKey: `ssspl@signature`,
