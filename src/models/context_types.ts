@@ -3,4 +3,5 @@ export type AppStoreContext = {
   isLoading: boolean;
   handleLogin: (loginText: string, passwordText: string, loginType: string) => Promise<void>;
   handleLogout: () => Promise<void>;
+  checkTokenExpiry: () => Promise<void>;
 };

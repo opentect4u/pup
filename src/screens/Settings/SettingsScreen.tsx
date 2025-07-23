@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import {
   Alert,
   SafeAreaView,
@@ -13,7 +13,7 @@ import ButtonPaper from '../../components/ButtonPaper';
 import { AppStore } from '../../context/AppContext';
 import Header from '../../components/Header';
 import { projectStorage } from '../../storage/appStorage';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CommonActions, useIsFocused, useNavigation } from '@react-navigation/native';
 import navigationRoutes from '../../routes/routes';
 
 const strings = settingsScreenStrings.getStrings();
@@ -26,6 +26,15 @@ const SettingsScreen = () => {
   const { screenHeight, screenWidth } = useScreenDimensions();
   const { handleLogout } = useContext(AppStore);
   const navigation = useNavigation();
+  const { checkTokenExpiry } = useContext(AppStore);
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+      if(isFocused){
+      checkTokenExpiry();
+      }
+  }, [isFocused]);
+
   return (
     <SafeAreaView>
       <ScrollView

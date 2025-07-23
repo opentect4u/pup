@@ -17,9 +17,15 @@ const defaultAppStoreContext: AppStoreContext = {
   isLoading: false,
   handleLogin: async () => {},
   handleLogout: async () => {},
+  checkTokenExpiry: async () => {},
 };
 
 export const AppStore = createContext<AppStoreContext>(defaultAppStoreContext);
+
+// const loginTokenStore = JSON.parse(loginToken?.getString('login-token') ?? '{}');
+
+// const expiryDate = new Date(loginTokenStore.expires_at.replace(' ', 'T'));
+// const currentDate = new Date();
 
 const AppContext = ({ children }: any) => {
   console.log('AUTH KEY', AUTH_KEY);
@@ -27,11 +33,27 @@ const AppContext = ({ children }: any) => {
 
   const [isLogin, setIsLogin] = useState<boolean>(() => false);
   const [isLoading, setIsLoading] = useState<boolean>(() => false);
+  const [storeExpires, setStoreExpires] = useState<string>('');
 
-  const loginTokenStore = useMemo(
-      () => JSON.parse(loginToken?.getString('login-token') ?? '{}'),
-      [],
-  );
+
+  // const loginTokenStore = useMemo(
+  //     () => JSON.parse(loginToken?.getString('login-token') ?? '{}'),
+  //     [],
+  // );
+
+
+
+  const checkTokenExpiry = async () => {
+    const storedToken = await loginToken.getString('login-token');
+    const tokenData = JSON.parse(storedToken ?? '{}');
+
+    if (tokenData?.expires_at && new Date() > new Date(tokenData.expires_at.replace(' ', 'T'))) {
+    // Alert.alert('Session Expired', 'Please login again.');
+    handleLogout()
+    }
+    
+  };
+
 
   const handleLogin = async (username: string, password: string , loginType: string) => {
     setIsLoading(true);
@@ -63,6 +85,11 @@ const AppContext = ({ children }: any) => {
           token: res?.data?.token
           }
           ));
+          
+          setStoreExpires(res?.data?.expires_at);
+
+          console.log(res?.data?.expires_at, 'vvvvvvvvvv');
+          
 
           setIsLogin(true);
         } else {
@@ -100,18 +127,6 @@ const AppContext = ({ children }: any) => {
   }, []);
 
 
-// const expairyTime = loginTokenStore?.expires_at;
-// const currentDate = new Date();
-
-
-  useEffect(() => {
-    const expiryDate = new Date(loginTokenStore?.expires_at?.replace(' ', 'T'));
-    console.log(loginTokenStore?.expires_at, 'expairyTime', expiryDate);
-    
-    // handleLogout()
-  }, []);
-  
-
   const handleLogout = async () => {
     loginStorage.clearAll();
     fileStorage.clearAll();
@@ -127,6 +142,7 @@ const AppContext = ({ children }: any) => {
         isLoading,
         handleLogin,
         handleLogout,
+        checkTokenExpiry
       }}>
       {children}
     </AppStore.Provider>

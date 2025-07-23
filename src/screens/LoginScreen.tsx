@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   Image,
   SafeAreaView,
@@ -15,6 +15,7 @@ import { usePaperColorScheme } from '../theme/theme';
 import useScreenDimensions from '../hooks/useScreenDimensions';
 import { AppStore } from '../context/AppContext';
 import { AppStoreContext } from '../models/context_types';
+import { version } from '../../package.json';
 
 const strings = loginScreenStrings.getStrings();
 
@@ -23,6 +24,7 @@ const LoginScreen = () => {
   const { screenHeight } = useScreenDimensions();
   const [visiblePassword, setVisiblePassword] = useState(() => true);
   const { handleLogin, isLoading } = useContext<AppStoreContext>(AppStore);
+  const [appVersion, setAppVersion] = useState('');
 
   const [formData, setFormData] = useState({
     username: '',
@@ -36,6 +38,8 @@ const LoginScreen = () => {
       [field]: value,
     }));
   };
+
+
 
   return (
     <SafeAreaView>
@@ -117,6 +121,10 @@ const LoginScreen = () => {
             }}>
             {strings.buttonText}
           </ButtonPaper>
+
+          <Text style={{ marginTop: 20, fontSize: 12, color: '#888', textAlign:'center' }}>
+        App Version: {version}
+      </Text>
         </View>
       </ScrollView>
     </SafeAreaView>

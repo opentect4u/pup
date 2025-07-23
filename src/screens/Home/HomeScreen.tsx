@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useContext } from 'react';
 import {
     Alert,
     Image,
@@ -34,7 +34,7 @@ import {
 import { AUTH_KEY, REVERSE_GEOENCODING_API_KEY } from '@env';
 import { ADDRESSES } from '../../config/api_list';
 import axios from 'axios';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CommonActions, useIsFocused, useNavigation } from '@react-navigation/native';
 import {
     Asset,
     ImageLibraryOptions,
@@ -48,6 +48,7 @@ import RNFS from 'react-native-fs';
 import { ProjectStoreModel } from '../../models/global_models';
 import ProjectGrid from '../../components/complex/ProjectGrid';
 import DatePicker from 'react-native-date-picker';
+import { AppStore } from '../../context/AppContext';
 
 const strings = homeScreenStrings.getStrings();
 
@@ -55,6 +56,10 @@ const HomeScreen = () => {
     const navigation = useNavigation();
     const theme = usePaperColorScheme();
     const { location, error } = useGeoLocation();
+    const { checkTokenExpiry } = useContext(AppStore);
+
+    const isFocused = useIsFocused();
+
     const [geolocationFetchedAddress, setGeolocationFetchedAddress] = useState(
         () => '',
     );
@@ -94,7 +99,8 @@ const HomeScreen = () => {
     // const [projectRangeCaps, setProjectRangeCaps] = useState<any[]>(() => [])
     const [checkErr, setCheckErr] = useState(() => false);
 
-    // console.log('LOCATION: ', location);
+  
+
 
     const handleFormChange = useCallback((field: string, value: any) => {
         setFormData1(prev => ({
@@ -238,6 +244,8 @@ const HomeScreen = () => {
         fetchProjectsList();
     }, [fetchProjectsList]);
 
+
+
     //  useEffect(() => {
     //     fetchProjectsList();
     // }, []);
@@ -364,6 +372,12 @@ const HomeScreen = () => {
         ]);
     }, [openCamera, openGallery]);
 
+    useEffect(() => {
+        if(isFocused){
+        checkTokenExpiry();
+        }
+    }, [isFocused, formData1.projectId, formData1.progress]);
+
     const removeImage = useCallback((index: number) => {
         setImgData(prev => prev.filter((_, i) => i !== index));
     }, []);
@@ -407,7 +421,7 @@ const HomeScreen = () => {
 
     useEffect(() => {
         fetchProgressRangeCap();
-    }, [formData1.projectId, formData1.progress]);
+    }, [formData1.projectId, formData1.progress, handleFormChange]);
 
     const updateProjectProgressDetails = useCallback(async () => {
         setLoading(true);
