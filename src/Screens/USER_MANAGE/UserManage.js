@@ -533,12 +533,14 @@ function UserManage() {
               >
                 <Select.Option value="" disabled> Choose Head Account </Select.Option>
                 {userTypes_Form?.map(data => (
+                  data?.user_val !== 'S' && (
                   <Select.Option key={data?.user_val} value={data?.user_val}>
                     {data?.userTypeNam}
                   </Select.Option>
+                  )
                 ))}
               </Select>
-
+              
               {formik.errors.user_type && formik.touched.user_type && (
                 <VError title={formik.errors.user_type} />
               )}
@@ -793,6 +795,7 @@ function UserManage() {
                   </thead>
                   <tbody>
                     {currentTableData.map((data, index) => (
+                      data?.user_type !== 'S' && (
                       <tr key={index} className="border-b">
                         <td className="px-4 py-3">{(currentPage - 1) * rowsPerPage + index + 1}</td>
                         <td className="px-4 py-3">{data?.name}</td>
@@ -823,6 +826,7 @@ function UserManage() {
                           </button>
                         </td>
                       </tr>
+                      )
                     ))}
                   </tbody>
                 </table>

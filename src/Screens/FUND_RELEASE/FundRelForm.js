@@ -78,33 +78,50 @@ function FundRelForm() {
     allotment_order_date: Yup.string().required('Allotment Order Date is Required'),
     al1_pdf: Yup.string().required('Upload Allotment Order is Required'),
     // sch_amt_one: Yup.string().required('Schematic Amount is Required'),
-    sch_amt_one: Yup.number()
-      .typeError('Schematic Amount must be a number')
-      .positive('Schematic Amount must be greater than zero')
-      // .max(`${sanctionSchemaContiAmt?.sch_amt - useSchematicAmt}`, `Amount must be within ${sanctionSchemaContiAmt?.sch_amt - useSchematicAmt}`)
-      .max(`${owrkOrderValue - useSchematicAmt}`, `Amount must be within ${owrkOrderValue - useSchematicAmt}`)
-      .required('Schematic Amount is required'),
-    // cont_amt_one: Yup.string().required('Contigency Amount is Required'),
 
-    cont_amt_one: Yup.number()
-      .typeError('Contigency Amount must be a number')
-      // .positive('Contigency Amount must be greater than zero')
-      // .max(`${sanctionSchemaContiAmt?.cont_amt - useContigencyAmt}`, `Amount must be within ${sanctionSchemaContiAmt?.cont_amt - useContigencyAmt}`)
-      .max(`${owrkOrderValue - useContigencyAmt}`, `Amount must be within ${owrkOrderValue - useContigencyAmt}`)
-      .required('Contigency Amount is required'),
+
+    // sch_amt_one: Yup.number()
+    //   .typeError('Schematic Amount must be a number')
+    //   .positive('Schematic Amount must be greater than zero')
+    //   // .max(`${sanctionSchemaContiAmt?.sch_amt - useSchematicAmt}`, `Amount must be within ${sanctionSchemaContiAmt?.sch_amt - useSchematicAmt}`)
+    //   .max(`${(owrkOrderValue - (useSchematicAmt+useContigencyAmt))}`, `Amount must be within ${(owrkOrderValue - (useSchematicAmt + useContigencyAmt))}`)
+    //   .required('Schematic Amount is required'),
+    // // cont_amt_one: Yup.string().required('Contigency Amount is Required'),
 
     // cont_amt_one: Yup.number()
-    // .typeError('Contingency Amount must be a number')
-    // // .max(`${owrkOrderValue - useContigencyAmt}`, `Amount must be within ${owrkOrderValue - useContigencyAmt}`)
-    // .required('Contingency Amount is required')
-    // .test(
-    // 'is-less-than-sch_amt_one',
-    // 'Contingency Amount must be less than Schematic Amount',
-    // function (value) {
-    // const { sch_amt_one } = this.parent;
-    // return value < sch_amt_one;
-    // }
-    // ),
+    //   .typeError('Contigency Amount must be a number')
+    //   // .positive('Contigency Amount must be greater than zero')
+    //   // .max(`${sanctionSchemaContiAmt?.cont_amt - useContigencyAmt}`, `Amount must be within ${sanctionSchemaContiAmt?.cont_amt - useContigencyAmt}`)
+    //   .max(`${owrkOrderValue - useContigencyAmt}`, `Amount must be within ${owrkOrderValue - useContigencyAmt}`)
+    //   .required('Contigency Amount is required'),
+
+
+
+    sch_amt_one: Yup.number()
+    .typeError('Schematic Amount must be a number')
+    .positive('Schematic Amount must be greater than zero')
+    .required('Schematic Amount is required'),
+
+  cont_amt_one: Yup.number()
+    .typeError('Contingency Amount must be a number')
+    .required('Contingency Amount is required')
+    .test(
+      'sum-validation',
+      // `Sum of Schematic and Contingency must be ≤ ${Number(owrkOrderValue) - (Number(useSchematicAmt) + Number(useContigencyAmt))}`,
+      `Sum of Schematic and Contingency must be ≤ ${(Number(owrkOrderValue) + Number(formValues?.sch_amt_one) + Number(formValues?.cont_amt_one)) - (Number(useSchematicAmt) + Number(useContigencyAmt))}`,
+      function (cont_amt_one) {
+        const { sch_amt_one } = this.parent;
+        if (!sch_amt_one || !cont_amt_one) return true; // skip test if values are empty (let required handle)
+
+        if (operation_status == 'edit') {
+          return sch_amt_one + cont_amt_one <= (Number(owrkOrderValue) + Number(formValues?.sch_amt_one) + Number(formValues?.cont_amt_one)) - (Number(useSchematicAmt) + Number(useContigencyAmt));
+        } else {
+            // Create condition
+          return sch_amt_one + cont_amt_one <= Number(owrkOrderValue) - (Number(useSchematicAmt) + Number(useContigencyAmt));
+        }
+        
+      }
+    ),
 
 
     isntl_date: Yup.string().required('Installment Date is Required'),
@@ -280,6 +297,9 @@ function FundRelForm() {
     formData.append("receive_no", receive_no);
     formData.append("modified_by", userDataLocalStore.user_id);
     formData.append(tokenValue?.csrfName, tokenValue?.csrfValue); // csrf_token
+
+    console.log(formData, 'formData');
+    
 
     // approval_no,
     // receive_no,
@@ -945,7 +965,14 @@ function FundRelForm() {
               </DataTable>
 
 
-              <div class="grid gap-4 sm:grid-cols-12 sm:gap-6 mb-5 mt-2 p-4 border-t-4 border-yellow-800 text-yellow-800 rounded-b bg-yellow-50 dark:bg-gray-800 dark:text-green-400">
+              
+
+
+            </>
+          )}
+        </Spin>
+
+        <div class="grid gap-4 sm:grid-cols-12 sm:gap-6 mb-5 mt-2 p-4 border-t-4 border-yellow-800 text-yellow-800 rounded-b bg-yellow-50 dark:bg-gray-800 dark:text-green-400">
                 {/* <div class="sm:col-span-12"><p class="font-bold">Our privacy policy has changed</p></div>   */}
                 <div class="sm:col-span-4">
                   <p class="mb-0 font-normal items-center text-sm flex mt-0">
@@ -969,17 +996,13 @@ function FundRelForm() {
                   <p class="mb-0 font-normal items-center text-sm flex mt-0">
                     <span className="flex items-center font-bold mr-1">
                       {/* <InfoCircleOutlined className="dark:text-green-400" style={{marginRight: 5, marginLeft: 3 }} />  */}
-                      Balance Of Work Order Value:</span> ₹. {owrkOrderValue - useSchematicAmt}
+                      Balance Of Work Order Value:</span> ₹. {Number(owrkOrderValue) - (Number(useSchematicAmt) + Number(useContigencyAmt))}
                   </p>
+                
                 </div>
 
 
               </div>
-
-
-            </>
-          )}
-        </Spin>
 
         {/* {JSON.stringify(approvalNo, null, 2)} ////////
        {JSON.stringify(showForm, null, 2)} */}

@@ -2019,7 +2019,7 @@ const addMasterFnc = (submitData)=>{
 
 
               <div class="sm:col-span-4 areaSec">
-                <label className="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">{radioType == "A" ? "Area" : "Length"} (in Acre) 
+                <label className="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">{radioType == "A" ? "Area (in Acre)" : "Length"}  
                   {userDataLocalStore.user_type === 'A' &&(
                     <><span className="mandator_txt"> *</span></>
                   )}
