@@ -326,7 +326,7 @@ function Sidebar() {
           <UserAccordion />
         ) : null}
 
-        {userType === 'S' ? (
+        {userType === 'S' || userType === 'A' ? (
           <AgencyAccordion />
         ) : null}
 

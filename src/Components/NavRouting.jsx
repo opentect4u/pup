@@ -100,7 +100,7 @@ export const menus = [
     {
       label: "Manage Agency",
       path: "/home/agency",
-      roles: ["S"],
+      roles: ["S", "A"],
       id: 15,
     },
     {
