@@ -24,7 +24,7 @@ const LoginScreen = () => {
   const { screenHeight } = useScreenDimensions();
   const [visiblePassword, setVisiblePassword] = useState(() => true);
   const { handleLogin, isLoading } = useContext<AppStoreContext>(AppStore);
-  const [appVersion, setAppVersion] = useState('');
+  // const [appVersion, setAppVersion] = useState('');
 
   const [formData, setFormData] = useState({
     username: '',
@@ -123,8 +123,8 @@ const LoginScreen = () => {
           </ButtonPaper>
 
           <Text style={{ marginTop: 20, fontSize: 12, color: '#888', textAlign:'center' }}>
-        App Version: {version}
-      </Text>
+          App Version: {version}
+          </Text>
         </View>
       </ScrollView>
     </SafeAreaView>

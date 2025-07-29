@@ -73,9 +73,10 @@ const AppContext = ({ children }: any) => {
         },
       })
       .then(res => {
+        console.log('utsabbbbbbbbbbb', res);
         if (res?.data?.status === 1) {
           // console.log('Login Data : ', res?.data);
-          console.log('utsabbbbbbbbbbb', res?.data);
+          
 
           loginStorage.set('login-data', JSON.stringify(res?.data?.message));
 

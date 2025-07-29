@@ -49,7 +49,6 @@ import { ProjectStoreModel } from '../../models/global_models';
 import ProjectGrid from '../../components/complex/ProjectGrid';
 import DatePicker from 'react-native-date-picker';
 import { AppStore } from '../../context/AppContext';
-import GetLocation from 'react-native-get-location';
 
 const strings = homeScreenStrings.getStrings();
 
@@ -101,10 +100,6 @@ const HomeScreen = () => {
     const [checkErr, setCheckErr] = useState(() => false);
 
   
-    
-    // useEffect(() =>{
-    //     console.log(location, 'Location');
-    // },[location])
 
 
     const handleFormChange = useCallback((field: string, value: any) => {
@@ -152,8 +147,8 @@ const HomeScreen = () => {
             fetchGeoLocaltionAddress();
         }
 
-        // console.log(location, 'locationlocationlocation', error);
-
+        console.log(location, 'locationlocationlocation', error);
+        
     }, [location]);
 
     const fetchProjectsList = useCallback(async () => {
@@ -433,14 +428,6 @@ const HomeScreen = () => {
     }, [formData1.projectId, formData1.progress, handleFormChange]);
 
     const updateProjectProgressDetails = useCallback(async () => {
-
-        const currentLocation = await GetLocation.getCurrentPosition({
-          enableHighAccuracy: true,
-          timeout: 60000,
-        });
-
-        console.log(location, 'ddddddddddddd', currentLocation, 'adddd', geolocationFetchedAddress);
-        
         setLoading(true);
         const formData = new FormData();
         formData.append('approval_no', formData1.projectId?.split(',')[0] || '');
@@ -448,9 +435,6 @@ const HomeScreen = () => {
         formData.append('progressive_percent', (Number(progressComplete) + Number(formData1.progress)).toString());
         formData.append('lat', location?.latitude!);
         formData.append('long', location.longitude!);
-        // formData.append('lat', currentLocation?.latitude!);
-        // formData.append('long', currentLocation.longitude!);
-
         formData.append('address', geolocationFetchedAddress);
         formData.append('actual_date_comp', dateFinal);
         formData.append('remarks', formData1.remarks);
@@ -663,7 +647,6 @@ const HomeScreen = () => {
                         {loginStore?.user_id} */}
                     </Text>
                     <Dropdown
-                    // disable={!location?.latitude || !location?.longitude}
                         style={[
                             styles.dropdown,
                             {
@@ -701,11 +684,7 @@ const HomeScreen = () => {
                             
                         }}
                         renderLeftIcon={() => <Icon size={25} source={'creation'} />}
-                        
                     />
-
-
-
                     <ButtonPaper
                         icon={'cloud-search-outline'}
                         mode="contained"
@@ -843,7 +822,7 @@ const HomeScreen = () => {
                         <InputPaper
                             error={checkErr}
                             label="Project Progress..."
-                            maxLength={100}
+                            maxLength={10}
                             leftIcon="progress-clock"
                             keyboardType="number-pad"
                             value={formData1.progress}
@@ -870,7 +849,7 @@ const HomeScreen = () => {
                             <TextInput
                                 error={checkErr}
                                 label="Remarks..."
-                                maxLength={100}
+                                maxLength={10}
                                 value={formData1.remarks}
                                 onChangeText={(txt: any) => handleFormChange('remarks', txt)}
                                 // disabled={progressComplet === 100}
@@ -958,7 +937,7 @@ const HomeScreen = () => {
                         </ScrollView>
                     )}
 
-                    {/* <ButtonPaper
+                    <ButtonPaper
                         icon={'progress-clock'}
                         mode="outlined"
                         onPress={() => {
@@ -985,117 +964,15 @@ const HomeScreen = () => {
                             checkErr ||
                             imgData?.length === 0 ||
                             Number(formData1.progress) < 1 ? true : false ||
+                            // (100 - progressComplete === parseInt(formData1.progress, 10)
                             (Number(progressComplete) + Number(formData1.progress) >= 100 && Number(formData1.progress) + Number(progressComplete) > progressCompleteAPI
                                 ? !formData1.remarks
                                 : false) ||
+                            // (100 - progressComplete === parseInt(formData1.progress, 10) ? dateFinal.length == 0 : false)
                             (Number(progressComplete) + Number(formData1.progress) >= 100 && Number(formData1.progress) + Number(progressComplete) > progressCompleteAPI ? dateFinal.length == 0 : false)
                         }>
                         Update Progress
-                    </ButtonPaper> */}
-
- <ButtonPaper
-    icon={'progress-clock'}
-    mode="outlined"
-    onPress={async () => {
-        try{
-        const currentLocation = await GetLocation.getCurrentPosition({
-          enableHighAccuracy: true,
-          timeout: 60000,
-        });
-        console.log(currentLocation, ' : currentLocation')
-        Alert.alert(
-        'Alert',
-        'Are you sure you want to submit the details?',
-        [
-        { text: strings.noTxt, onPress: () => null },
-        {
-        text: strings.yesTxt,
-        onPress: async () => {
-        await updateProjectProgressDetails();
-        },
-        },
-        ],
-        );
-      } catch (err) {
-         console.log(err);
-         if(err.code == 'UNAVAILABLE'){
-            Alert.alert(
-                'Turn on Location',
-                'Please turn on GPS/location services to update progress.',
-                [
-                    {
-                        text: 'Go to Settings',
-                        onPress: () => Linking.openSettings(),
-                        style: 'default',
-                    },
-                    {
-                        text: 'Cancel',
-                        style: 'cancel',
-                    },
-                ],
-            ); 
-         }
-      }
-
-    }}
-    style={{ marginTop: 15, paddingVertical: 8 }}
-    loading={loading}
-    disabled={
-        !formData1.progress ||
-        !formData1.projectId ||
-        loading ||
-        checkErr ||
-        imgData?.length === 0 ||
-        Number(formData1.progress) < 1 ? true : false ||
-        (Number(progressComplete) + Number(formData1.progress) >= 100 &&
-        Number(formData1.progress) + Number(progressComplete) > progressCompleteAPI
-            ? !formData1.remarks
-            : false) ||
-        (Number(progressComplete) + Number(formData1.progress) >= 100 &&
-        Number(formData1.progress) + Number(progressComplete) > progressCompleteAPI
-            ? dateFinal.length == 0
-            : false)
-    }>
-    Update Progress
-</ButtonPaper>
-
-
-                    {/* <ButtonPaper
-                    icon={'progress-clock'}
-                    mode="outlined"
-                    onPress={() => {
-                    Alert.alert(
-                    'Alert',
-                    'Are you sure you want to submit the details?',
-                    [
-                    { text: strings.noTxt, onPress: () => null },
-                    {
-                    text: strings.yesTxt,
-                    onPress: async () => {
-                    await updateProjectProgressDetails();
-                    },
-                    },
-                    ],
-                    );
-                    }}
-                    style={{ marginTop: 15, paddingVertical: 8 }}
-                    loading={loading}
-                    disabled={
-                    !formData1.progress ||
-                    !formData1.projectId ||
-                    loading ||
-                    checkErr ||
-                    imgData?.length === 0 ||
-                    Number(formData1.progress) < 1 ? true : false ||
-                    // (100 - progressComplete === parseInt(formData1.progress, 10)
-                    (Number(progressComplete) + Number(formData1.progress) >= 100 && Number(formData1.progress) + Number(progressComplete) > progressCompleteAPI
-                    ? !formData1.remarks
-                    : false) ||
-                    // (100 - progressComplete === parseInt(formData1.progress, 10) ? dateFinal.length == 0 : false)
-                    (Number(progressComplete) + Number(formData1.progress) >= 100 && Number(formData1.progress) + Number(progressComplete) > progressCompleteAPI ? dateFinal.length == 0 : false)
-                    }>
-                    Update Progress
-                    </ButtonPaper> */}
+                    </ButtonPaper>
 
                     <ButtonPaper
                         icon={'content-save-outline'}
