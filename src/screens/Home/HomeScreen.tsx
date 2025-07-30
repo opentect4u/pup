@@ -100,8 +100,8 @@ const HomeScreen = () => {
     // const [projectRangeCaps, setProjectRangeCaps] = useState<any[]>(() => [])
     const [checkErr, setCheckErr] = useState(() => false);
 
-  
-    
+
+
     // useEffect(() =>{
     //     console.log(location, 'Location');
     // },[location])
@@ -132,37 +132,36 @@ const HomeScreen = () => {
         }
     }, [error]);
 
-    const fetchGeoLocaltionAddress = async () => {
-        console.log('REVERSE GEO ENCODING API CALLING...');
-        await axios
-            .get(
-                `https://maps.googleapis.com/maps/api/geocode/json?latlng=${location?.latitude},${location?.longitude}&key=${REVERSE_GEOENCODING_API_KEY}`,
-            )
-            .then(res => {
-                setGeolocationFetchedAddress(res?.data?.results[0]?.formatted_address);
-            });
-        // await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${location?.latitude},${location?.longitude}&key=AIzaSyAhSuw5-ThQnJTZCGC4e_oBsL1iIUbJxts`).then(res => {
-        //     setGeolocationFetchedAddress(res?.data?.results[0]?.formatted_address)
-        // })
-    };
+    // const fetchGeoLocaltionAddress = async () => {
+    //     console.log('REVERSE GEO ENCODING API CALLING...');
+    //     await axios
+    //         .get(
+    //             `https://maps.googleapis.com/maps/api/geocode/json?latlng=${location?.latitude},${location?.longitude}&key=${REVERSE_GEOENCODING_API_KEY}`,
+    //         )
+    //         .then(res => {
+    //             setGeolocationFetchedAddress(res?.data?.results[0]?.formatted_address);
+    //         });
+    //     // await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${location?.latitude},${location?.longitude}&key=AIzaSyAhSuw5-ThQnJTZCGC4e_oBsL1iIUbJxts`).then(res => {
+    //     //     setGeolocationFetchedAddress(res?.data?.results[0]?.formatted_address)
+    //     // })
+    // };
 
     // to be enabled later...
-    useEffect(() => {
-        if (location?.latitude && location.longitude) {
-            fetchGeoLocaltionAddress();
-        }
+    // useEffect(() => {
+    //     if (location?.latitude && location.longitude) {
+    //         fetchGeoLocaltionAddress();
+    //     }
 
-        // console.log(location, 'locationlocationlocation', error);
 
-    }, [location]);
+    // }, [location]);
 
     const fetchProjectsList = useCallback(async () => {
-        
+
         setLoading(true);
         const formData = new FormData();
         formData.append('user_id', loginStore?.user_id);
 
-        
+
         try {
             const res = await axios.post(
                 `${ADDRESSES.FETCH_PROJECTS_LIST}`,
@@ -177,7 +176,7 @@ const HomeScreen = () => {
                 },
             );
 
-            
+
             // console.log(formData, 'utsabbbbbbbbbbb', loginStore?.user_id, 'kkk', res?.data, 'hh', loginTokenStore);
 
             if (res?.data?.status === 1) {
@@ -382,8 +381,8 @@ const HomeScreen = () => {
     }, [openCamera, openGallery]);
 
     useEffect(() => {
-        if(isFocused){
-        checkTokenExpiry();
+        if (isFocused) {
+            checkTokenExpiry();
         }
     }, [isFocused, formData1.projectId, formData1.progress]);
 
@@ -432,113 +431,117 @@ const HomeScreen = () => {
         fetchProgressRangeCap();
     }, [formData1.projectId, formData1.progress, handleFormChange]);
 
-    const updateProjectProgressDetails = useCallback(async () => {
+    const updateProjectProgressDetails = useCallback(async (currentLocation: any) => {
+        await axios
+            .get(
+                `https://maps.googleapis.com/maps/api/geocode/json?latlng=${currentLocation?.latitude},${currentLocation?.longitude}&key=${REVERSE_GEOENCODING_API_KEY}`,
+            )
+            .then(async (res) => {
+                // setGeolocationFetchedAddress(res?.data?.results[0]?.formatted_address);
 
-        const currentLocation = await GetLocation.getCurrentPosition({
-          enableHighAccuracy: true,
-          timeout: 60000,
-        });
+                setLoading(true);
+                const formData = new FormData();
+                formData.append('approval_no', formData1.projectId?.split(',')[0] || '');
+                formData.append('progress_percent', formData1.progress);
+                formData.append('progressive_percent', (Number(progressComplete) + Number(formData1.progress)).toString());
+                // formData.append('lat', location?.latitude!);
+                // formData.append('long', location.longitude!);
+                formData.append('lat', currentLocation?.latitude!);
+                formData.append('long', currentLocation.longitude!);
 
-        console.log(location, 'ddddddddddddd', currentLocation, 'adddd', geolocationFetchedAddress);
-        
-        setLoading(true);
-        const formData = new FormData();
-        formData.append('approval_no', formData1.projectId?.split(',')[0] || '');
-        formData.append('progress_percent', formData1.progress);
-        formData.append('progressive_percent', (Number(progressComplete) + Number(formData1.progress)).toString());
-        formData.append('lat', location?.latitude!);
-        formData.append('long', location.longitude!);
-        // formData.append('lat', currentLocation?.latitude!);
-        // formData.append('long', currentLocation.longitude!);
+                formData.append('address', res?.data?.results[0]?.formatted_address);
+                formData.append('actual_date_comp', dateFinal);
+                formData.append('remarks', formData1.remarks);
 
-        formData.append('address', geolocationFetchedAddress);
-        formData.append('actual_date_comp', dateFinal);
-        formData.append('remarks', formData1.remarks);
+                console.log(dateFinal, 'FORM DATA UPDATE', formData);
 
-        console.log(dateFinal, 'FORM DATA UPDATE', formData);
-
-        // Process each image to ensure its size is under 2MB (2 * 1024 * 1024 bytes)
-        const processedImages = await Promise.all(
-            imgData.map(async (asset, index) => {
-                if (asset.fileSize && asset.fileSize > 2 * 1024 * 1024) {
-                    // Reduce dimensions by 80% (adjust factor as needed)
-                    const targetWidth = asset.width ? Math.round(asset.width * 0.8) : 800;
-                    const targetHeight = asset.height
-                        ? Math.round(asset.height * 0.8)
-                        : 600;
-                    try {
-                        const resizedImage = await ImageResizer.createResizedImage(
-                            asset.uri!,
-                            targetWidth,
-                            targetHeight,
-                            'JPEG',
-                            80, // quality (0-100)
-                            0, // rotation
-                            null, // outputPath (null uses cache folder)
-                            true, // keepMeta
-                            {}, // options
-                        );
-                        return {
-                            ...asset,
-                            uri: resizedImage.uri,
-                            fileName:
-                                resizedImage.name ||
-                                asset.fileName ||
-                                `progress_pic_${index}.jpg`,
-                            type: 'image/jpeg',
-                        };
-                    } catch (err) {
-                        console.log('Image resizing error', err);
+                // Process each image to ensure its size is under 2MB (2 * 1024 * 1024 bytes)
+                const processedImages = await Promise.all(
+                    imgData.map(async (asset, index) => {
+                        if (asset.fileSize && asset.fileSize > 2 * 1024 * 1024) {
+                            // Reduce dimensions by 80% (adjust factor as needed)
+                            const targetWidth = asset.width ? Math.round(asset.width * 0.8) : 800;
+                            const targetHeight = asset.height
+                                ? Math.round(asset.height * 0.8)
+                                : 600;
+                            try {
+                                const resizedImage = await ImageResizer.createResizedImage(
+                                    asset.uri!,
+                                    targetWidth,
+                                    targetHeight,
+                                    'JPEG',
+                                    80, // quality (0-100)
+                                    0, // rotation
+                                    null, // outputPath (null uses cache folder)
+                                    true, // keepMeta
+                                    {}, // options
+                                );
+                                return {
+                                    ...asset,
+                                    uri: resizedImage.uri,
+                                    fileName:
+                                        resizedImage.name ||
+                                        asset.fileName ||
+                                        `progress_pic_${index}.jpg`,
+                                    type: 'image/jpeg',
+                                };
+                            } catch (err) {
+                                console.log('Image resizing error', err);
+                                return asset;
+                            }
+                        }
                         return asset;
+                    }),
+                );
+
+                // Append processed images to formData
+                processedImages.forEach((asset, index) => {
+                    formData.append('progress_pic[]', {
+                        uri: asset.uri!,
+                        type: asset.type || 'image/jpeg',
+                        name: asset.fileName || `progress_pic_${index}.jpg`,
+                    } as any);
+                });
+
+                formData.append('created_by', loginStore?.user_id);
+
+                await axios.post(`${ADDRESSES.PROJECT_PROGRESS_UPDATE}`, formData, {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                        // "auth_key": AUTH_KEY
+                        'Authorization': `Bearer ` + loginTokenStore?.token
                     }
-                }
-                return asset;
-            }),
-        );
-
-        // Append processed images to formData
-        processedImages.forEach((asset, index) => {
-            formData.append('progress_pic[]', {
-                uri: asset.uri!,
-                type: asset.type || 'image/jpeg',
-                name: asset.fileName || `progress_pic_${index}.jpg`,
-            } as any);
-        });
-
-        formData.append('created_by', loginStore?.user_id);
-
-        await axios.post(`${ADDRESSES.PROJECT_PROGRESS_UPDATE}`, formData, {
-            headers: {
-                "Content-Type": "multipart/form-data",
-                // "auth_key": AUTH_KEY
-                'Authorization': `Bearer ` + loginTokenStore?.token
-            }
-        }).then(res => {
-            console.log("Response:", res?.data)
-            if (res?.data?.status === 1) {
-                Alert.alert("Approval Photo", "Approval project photo(s) uploaded successfully.")
-                removeAllImages()
-                setFormData1({
-                    projectId: "",
-                    progress: "",
-                    latitude: "",
-                    longitude: "",
-                    locationAddress: "",
-                    actual_date_comp: '',
-                    remarks: "",
+                }).then(res => {
+                    console.log("Response:", res?.data)
+                    if (res?.data?.status === 1) {
+                        Alert.alert("Approval Photo", "Approval project photo(s) uploaded successfully.")
+                        removeAllImages()
+                        setFormData1({
+                            projectId: "",
+                            progress: "",
+                            latitude: "",
+                            longitude: "",
+                            locationAddress: "",
+                            actual_date_comp: '',
+                            remarks: "",
+                        })
+                        setProgressComplete(Number(0))
+                        setFetchedProjectDetails(() => "")
+                    } else {
+                        ToastAndroid.show("Sending details with photo error.", ToastAndroid.SHORT)
+                    }
+                }).catch(err => {
+                    console.log("Response:", err)
+                    console.log("Upload error:", err)
                 })
-                setProgressComplete(Number(0))
-                setFetchedProjectDetails(() => "")
-            } else {
-                ToastAndroid.show("Sending details with photo error.", ToastAndroid.SHORT)
-            }
-        }).catch(err => {
-            console.log("Response:", err)
-            console.log("Upload error:", err)
-        })
 
-        setLoading(false);
+                setLoading(false);
+
+            });
+
+
     }, [formData1, imgData, loginStore, removeAllImages, handleFormChange]);
+    // }, [formData1, imgData, loginStore, removeAllImages, handleFormChange]);
 
     const saveLocally = useCallback(async () => {
         if (
@@ -546,8 +549,8 @@ const HomeScreen = () => {
             !formData1.progress ||
             (100 - progressComplete === parseInt(formData1.progress, 10)
                 ? !formData1.remarks
-                : false)  ||
-                (100 - progressComplete === parseInt(formData1.progress, 10) ? dateFinal.length == 0 : false) ||
+                : false) ||
+            (100 - progressComplete === parseInt(formData1.progress, 10) ? dateFinal.length == 0 : false) ||
             imgData.length === 0
         ) {
             ToastAndroid.show(
@@ -646,6 +649,56 @@ const HomeScreen = () => {
         return [work_per_st, work_per_end];
     };
 
+    const checkAndSubmit = async () => {
+        try {
+            const currentLocation = await GetLocation.getCurrentPosition({
+                enableHighAccuracy: true,
+                timeout: 60000,
+            });
+
+            console.log(currentLocation, ' : currentLocation', location, 'ddddddddddddd');
+
+            Alert.alert(
+                'Alert',
+                'Are you sure you want to submit the details?',
+                [
+                    { text: strings.noTxt, onPress: () => null },
+                    {
+                        text: strings.yesTxt,
+                        onPress: async () => {
+                            await updateProjectProgressDetails(currentLocation);
+                            // fetchGeoLocaltionAddress();
+                        },
+                    },
+                ],
+            );
+        } catch (err) {
+            console.log(err);
+            // if (err.code === 'UNAVAILABLE') {
+            // console.log(err.code, 'codeerror');
+            if (typeof err === 'object' && err !== null && 'code' in err && (err as any).code === 'UNAVAILABLE') {
+                console.log((err as any).code, 'codeerror');
+
+                Alert.alert(
+                    'Turn on Location',
+                    'Please turn on GPS/location services to update progress.',
+                    [
+                        {
+                            text: 'Go to Settings',
+                            onPress: () => Linking.openSettings(),
+                            style: 'default',
+                        },
+                        {
+                            text: 'Cancel',
+                            style: 'cancel',
+                        },
+                    ],
+                );
+            }
+        }
+    };
+
+
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <ScrollView
@@ -663,7 +716,7 @@ const HomeScreen = () => {
                         {loginStore?.user_id} */}
                     </Text>
                     <Dropdown
-                    // disable={!location?.latitude || !location?.longitude}
+                        // disable={!location?.latitude || !location?.longitude}
                         style={[
                             styles.dropdown,
                             {
@@ -698,10 +751,10 @@ const HomeScreen = () => {
                             handleFormChange('progress', '');
                             handleFormChange('remarks', '');
                             setDateFinal('')
-                            
+
                         }}
                         renderLeftIcon={() => <Icon size={25} source={'creation'} />}
-                        
+
                     />
 
 
@@ -799,69 +852,58 @@ const HomeScreen = () => {
 
                     <View style={{ marginVertical: 10, marginBottom: 0 }}>
 
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 0 }}>
-<Text style={{ color: theme.colors.primary, fontWeight: 'bold' }}>
-{Number(progressComplete)}% {strings.complete}
-</Text>
-<Text style={{ color: theme.colors.primary, fontWeight: 'bold' }}>
-{strings.current_prg} {Number(progressComplete) + Number(formData1.progress)}%
-</Text>
-</View>
-                        {/* <Text
-                            style={{
-                                color: theme.colors.primary,
-                                fontWeight: 'bold',
-                                marginBottom: 5,
-                            }}>
-                            {Number(progressComplete)}% {strings.complete} | {strings.current_prg} {Number(progressComplete) + Number(formData1.progress)}%
-                        </Text> */}
-                        
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 0 }}>
+                            <Text style={{ color: theme.colors.primary, fontWeight: 'bold' }}>
+                                {Number(progressComplete)}% {strings.complete}
+                            </Text>
+                            <Text style={{ color: theme.colors.primary, fontWeight: 'bold' }}>
+                                {strings.current_prg} {Number(progressComplete) + Number(formData1.progress)}%
+                            </Text>
+                        </View>
+
                         {Number(progressComplete) + Number(formData1.progress) > 100 && (
                             <Text
-                            style={{
-                                color: theme.colors.error,
-                                fontWeight: 'bold',
-                                marginBottom: 5,
-                            }}>
-                            Don't exceed {100}% & not less than {progressComplete}%
-                        </Text>
+                                style={{
+                                    color: theme.colors.error,
+                                    fontWeight: 'bold',
+                                    marginBottom: 5,
+                                }}>
+                                Don't exceed {100}% & not less than {progressComplete}%
+                            </Text>
                         )}
-                        
+
 
                         <ProgressBar
-                            progress={progressComplete / 100 +  Number(formData1.progress) / 100}
+                            progress={progressComplete / 100 + Number(formData1.progress) / 100}
                             color={theme.colors.primary}
                             style={{ height: 12, borderRadius: 6 }}
                         />
-                        
+
                     </View>
 
                     {formData1.projectId && (
                         <>
 
-                        
-                        <InputPaper
-                            error={checkErr}
-                            label="Project Progress..."
-                            maxLength={100}
-                            leftIcon="progress-clock"
-                            keyboardType="number-pad"
-                            value={formData1.progress}
-                            // onChangeText={(txt: any) => handleFormChange("progress", txt)}
-                            onChangeText={(txt: any) => {
-                                
-                                handleFormChange('remarks', '');
-                                setDateFinal('')
-                                // handleFormChange('date', '');
-                                                                
-                                let num = parseInt(txt, 10);
 
-                                console.log(!isNaN(num), 'bbbbbbbbbbb', num, 'bbbbbbbbbbb', progressComplete, !isNaN(num) && num > progressComplete);
+                            <InputPaper
+                                error={checkErr}
+                                label="Project Progress..."
+                                maxLength={100}
+                                leftIcon="progress-clock"
+                                keyboardType="number-pad"
+                                value={formData1.progress}
+                                // onChangeText={(txt: any) => handleFormChange("progress", txt)}
+                                onChangeText={(txt: any) => {
+                                    const cleanedText = txt.replace(/[.,]/g, '');
+                                    handleFormChange('remarks', '');
+                                    setDateFinal('')
+                                    // handleFormChange('date', '');
+                                    let num = parseInt(cleanedText, 10);
+                                    handleFormChange('progress', cleanedText);
+                                }}
 
-                                    handleFormChange('progress', txt);
-                            }}
-                            customStyle={{ backgroundColor: theme.colors.background }}
-                        />
+                                customStyle={{ backgroundColor: theme.colors.background }}
+                            />
                         </>
                     )}
 
@@ -878,40 +920,40 @@ const HomeScreen = () => {
                             />
 
 
-<ButtonPaper
-                        icon={'calendar-month-outline'}
-                        mode="contained"
-                        buttonColor={theme.colors.tertiary}
-                        onPress={() => setOpenDate(true)}
-                        // style={{ marginTop: 15, paddingVertical: 8}}
-                        style={{ marginTop: 15, paddingVertical: 8, backgroundColor: theme.colors.primary,}}
-                        disabled={!formData1.projectId}>
-                        {strings.dateText}  { dateFinal}
-                    </ButtonPaper>
+                            <ButtonPaper
+                                icon={'calendar-month-outline'}
+                                mode="contained"
+                                buttonColor={theme.colors.tertiary}
+                                onPress={() => setOpenDate(true)}
+                                // style={{ marginTop: 15, paddingVertical: 8}}
+                                style={{ marginTop: 15, paddingVertical: 8, backgroundColor: theme.colors.primary, }}
+                                disabled={!formData1.projectId}>
+                                {strings.dateText}  {dateFinal}
+                            </ButtonPaper>
 
-                    <DatePicker
-                        modal
-                        mode="date"
-                        open={openDate}
-                        date={new Date()}
-                        onConfirm={date => {
-                            setOpenDate(false);
-                            handleFormChange('date', date);
-                            console.log(date.toISOString().split('T')[0], 'datedatedate');
-                            setDateFinal(date.toISOString().split('T')[0])
-                        }}
-                        onCancel={() => {
-                            setOpenDate(false);
-                            setDateFinal('')
-                        }}
-                    />
+                            <DatePicker
+                                modal
+                                mode="date"
+                                open={openDate}
+                                date={new Date()}
+                                onConfirm={date => {
+                                    setOpenDate(false);
+                                    handleFormChange('date', date);
+                                    console.log(date.toISOString().split('T')[0], 'datedatedate');
+                                    setDateFinal(date.toISOString().split('T')[0])
+                                }}
+                                onCancel={() => {
+                                    setOpenDate(false);
+                                    setDateFinal('')
+                                }}
+                            />
 
 
 
                         </>
                     )}
 
-                    
+
 
                     <ButtonPaper
                         icon={'camera'}
@@ -958,106 +1000,32 @@ const HomeScreen = () => {
                         </ScrollView>
                     )}
 
-                    {/* <ButtonPaper
+
+                    <ButtonPaper
                         icon={'progress-clock'}
                         mode="outlined"
-                        onPress={() => {
-                            Alert.alert(
-                                'Alert',
-                                'Are you sure you want to submit the details?',
-                                [
-                                    { text: strings.noTxt, onPress: () => null },
-                                    {
-                                        text: strings.yesTxt,
-                                        onPress: async () => {
-                                            await updateProjectProgressDetails();
-                                        },
-                                    },
-                                ],
-                            );
-                        }}
+                        onPress={() => checkAndSubmit()}
                         style={{ marginTop: 15, paddingVertical: 8 }}
                         loading={loading}
                         disabled={
                             !formData1.progress ||
-                            !formData1.projectId ||
-                            loading ||
-                            checkErr ||
-                            imgData?.length === 0 ||
-                            Number(formData1.progress) < 1 ? true : false ||
-                            (Number(progressComplete) + Number(formData1.progress) >= 100 && Number(formData1.progress) + Number(progressComplete) > progressCompleteAPI
-                                ? !formData1.remarks
-                                : false) ||
-                            (Number(progressComplete) + Number(formData1.progress) >= 100 && Number(formData1.progress) + Number(progressComplete) > progressCompleteAPI ? dateFinal.length == 0 : false)
-                        }>
+                                !formData1.projectId ||
+                                loading ||
+                                checkErr ||
+                                imgData?.length === 0 ||
+                                Number(formData1.progress) < 1 ? true : false ||
+                                (Number(progressComplete) + Number(formData1.progress) >= 100 &&
+                                    Number(formData1.progress) + Number(progressComplete) > progressCompleteAPI
+                                    ? !formData1.remarks
+                                    : false) ||
+                            (Number(progressComplete) + Number(formData1.progress) >= 100 &&
+                                Number(formData1.progress) + Number(progressComplete) > progressCompleteAPI
+                                ? dateFinal.length == 0
+                                : false)
+                        }
+                    >
                         Update Progress
-                    </ButtonPaper> */}
-
- <ButtonPaper
-    icon={'progress-clock'}
-    mode="outlined"
-    onPress={async () => {
-        try{
-        const currentLocation = await GetLocation.getCurrentPosition({
-          enableHighAccuracy: true,
-          timeout: 60000,
-        });
-        console.log(currentLocation, ' : currentLocation')
-        Alert.alert(
-        'Alert',
-        'Are you sure you want to submit the details?',
-        [
-        { text: strings.noTxt, onPress: () => null },
-        {
-        text: strings.yesTxt,
-        onPress: async () => {
-        await updateProjectProgressDetails();
-        },
-        },
-        ],
-        );
-      } catch (err) {
-         console.log(err);
-         if(err.code == 'UNAVAILABLE'){
-            Alert.alert(
-                'Turn on Location',
-                'Please turn on GPS/location services to update progress.',
-                [
-                    {
-                        text: 'Go to Settings',
-                        onPress: () => Linking.openSettings(),
-                        style: 'default',
-                    },
-                    {
-                        text: 'Cancel',
-                        style: 'cancel',
-                    },
-                ],
-            ); 
-         }
-      }
-
-    }}
-    style={{ marginTop: 15, paddingVertical: 8 }}
-    loading={loading}
-    disabled={
-        !formData1.progress ||
-        !formData1.projectId ||
-        loading ||
-        checkErr ||
-        imgData?.length === 0 ||
-        Number(formData1.progress) < 1 ? true : false ||
-        (Number(progressComplete) + Number(formData1.progress) >= 100 &&
-        Number(formData1.progress) + Number(progressComplete) > progressCompleteAPI
-            ? !formData1.remarks
-            : false) ||
-        (Number(progressComplete) + Number(formData1.progress) >= 100 &&
-        Number(formData1.progress) + Number(progressComplete) > progressCompleteAPI
-            ? dateFinal.length == 0
-            : false)
-    }>
-    Update Progress
-</ButtonPaper>
+                    </ButtonPaper>
 
 
                     {/* <ButtonPaper
@@ -1120,7 +1088,7 @@ const HomeScreen = () => {
                             !location.longitude ||
                             // (100 - progressComplete === parseInt(formData1.progress, 10)
                             (Number(progressComplete) + Number(formData1.progress) >= 100 && Number(formData1.progress) + Number(progressComplete) > progressCompleteAPI
-                            // (Number(progressComplete) + Number(formData1.progress) > 100 && Number(formData1.progress) + Number(progressComplete) > progressCompleteAPI
+                                // (Number(progressComplete) + Number(formData1.progress) > 100 && Number(formData1.progress) + Number(progressComplete) > progressCompleteAPI
                                 ? !formData1.remarks
                                 : false) ||
                             // (100 - progressComplete === parseInt(formData1.progress, 10) ? dateFinal.length == 0 : false) ||
