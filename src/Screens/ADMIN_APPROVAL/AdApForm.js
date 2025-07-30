@@ -848,7 +848,7 @@ function AdApForm() {
 
   const saveFormData = async () => {
 
-    // setLoading(true);
+    setLoading(true);
     // const csrf = await getCSRFToken(navigate);
     const tokenValue = await getLocalStoreTokenDts(navigate);
 
@@ -903,10 +903,19 @@ function AdApForm() {
         }
       );
 
+      if(response?.data?.status > 0){
       Message("success", "Add successfully.");
       navigate('/home/admin_approval')
       setLoading(false);
       formik.resetForm();
+      } else {
+      setLoading(false);
+      Message("error", "Updated failed.");
+      }
+      
+      console.log(response, 'formDataformDataformData', 'updateFormData');
+      
+      
     } catch (error) {
       setLoading(false);
       Message("error", "Error Submitting Form:");
@@ -920,7 +929,7 @@ function AdApForm() {
   };
 
   const updateFormData = async () => {
-    // setLoading(true); // Set loading state
+    setLoading(true); // Set loading state
     // const csrf = await getCSRFToken(navigate);
     const tokenValue = await getLocalStoreTokenDts(navigate);
 
@@ -975,12 +984,16 @@ function AdApForm() {
         }
       );
 
-
+      if(response?.data?.status > 0){
       setLoading(false);
       Message("success", "Updated successfully.");
       navigate('/home/admin_approval')
-
       formik.resetForm();
+      } else {
+      setLoading(false);
+      Message("error", "Updated failed.");
+      }
+      
     } catch (error) {
       setLoading(false);
       Message("error", "Error Submitting Form:");
