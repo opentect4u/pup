@@ -7,7 +7,11 @@
 
 // export const url='https://pup.test/backend/' // State DC
 
-export const url='https://pup.opentech4u.co.in/pup/'
+export const url='https://adminpuad.wb.gov.in/backend/' // State DC LIVE
+
+
+// export const url='https://pup.opentech4u.co.in/pup/'
+
 
 export const auth_key='c299cf0ae55db8193eb2d3116'
 export const folder_admin='uploads/'
