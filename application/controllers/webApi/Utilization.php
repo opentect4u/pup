@@ -618,8 +618,8 @@ class Utilization extends CI_Controller {
 			FROM td_admin_approval b
 			INNER JOIN md_sector c ON b.sector_id = c.sl_no
 			INNER JOIN md_fin_year d ON b.fin_year = d.sl_no
-			INNER JOIN md_district e ON b.district_id = e.dist_code
-			INNER JOIN md_block f ON b.block_id = f.block_id
+			LEFT JOIN md_district e ON b.district_id = e.dist_code
+			LEFT JOIN md_block f ON b.block_id = f.block_id
 			INNER JOIN md_proj_imp_agency g ON b.impl_agency = g.id
 			WHERE b.approval_no = $approval_no";
 			$result_data = $this->db->query($sql)->result();

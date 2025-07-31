@@ -68,8 +68,10 @@ class Report extends CI_Controller {
 						FROM td_admin_approval a 
 						JOIN md_sector c ON a.sector_id = c.sl_no 
 						JOIN md_fin_year d ON a.fin_year = d.sl_no 
-						JOIN md_district e ON a.district_id = e.dist_code 
-						JOIN md_block f ON a.block_id = f.block_id 
+						LEFT JOIN td_admin_approval_dist pd ON a.approval_no = pd.approval_no
+                        LEFT JOIN md_district e ON pd.dist_id = e.dist_code 
+						LEFT JOIN td_admin_approval_block pb ON a.approval_no = pb.approval_no
+						LEFT JOIN md_block f ON pb.block_id = f.block_id 
 						JOIN md_proj_imp_agency g ON a.impl_agency = g.id
 						LEFT JOIN td_fund_receive fr ON fr.approval_no = a.approval_no
 						LEFT JOIN td_expenditure exp ON exp.approval_no = a.approval_no 
@@ -236,7 +238,7 @@ class Report extends CI_Controller {
 			$sector_name .= $this->db->query('select sector_desc FROM md_sector where sl_no="'.$sector_id.'"')->row()->sector_desc;
 		}
 		if ($dist > 0) {
-			$con .= " AND pd.district_id = '".$dist."'";
+			$con .= " AND pd.dist_id = '".$dist."'";
 			$dist_name .= $this->db->query('select dist_name FROM md_district where dist_code="'.$dist.'"')->row()->dist_name;
 		}
 
@@ -262,17 +264,27 @@ class Report extends CI_Controller {
 						FROM td_admin_approval a 
 						JOIN md_sector c ON a.sector_id = c.sl_no 
 						JOIN md_fin_year d ON a.fin_year = d.sl_no 
-						JOIN td_admin_approval_dist pd ON a.approval_no = pd.approval_no
-                        JOIN md_district e ON pd.dist_id = e.dist_code 
-						JOIN td_admin_approval_block pb ON a.approval_no = pb.approval_no
-						JOIN md_block f ON pb.block_id = f.block_id 
-						JOIN md_proj_imp_agency g ON a.impl_agency = g.id
+						LEFT JOIN td_admin_approval_dist pd ON a.approval_no = pd.approval_no
+                        LEFT JOIN md_district e ON pd.dist_id = e.dist_code 
+						LEFT JOIN td_admin_approval_block pb ON a.approval_no = pb.approval_no
+						LEFT JOIN md_block f ON pb.block_id = f.block_id 
+						LEFT JOIN md_proj_imp_agency g ON a.impl_agency = g.id
 						LEFT JOIN td_fund_receive fr ON fr.approval_no = a.approval_no
 						LEFT JOIN td_expenditure exp ON exp.approval_no = a.approval_no 
-						JOIN md_account h ON h.sl_no = a.account_head 
-						JOIN md_fund i ON i.sl_no = a.fund_id
-					    WHERE a.fin_year = '".$fin_year."' $con GROUP BY 
-    a.approval_no, a.admin_approval_dt, a.scheme_name,a.project_submit,c.sector_desc,d.fin_year, a.project_id, g.agency_name,h.account_head";
+						LEFT JOIN md_account h ON h.sl_no = a.account_head 
+						LEFT JOIN md_fund i ON i.sl_no = a.fund_id
+					    WHERE a.fin_year = '".$fin_year."' $con GROUP BY a.approval_no,
+							a.admin_approval_dt,
+							a.scheme_name,
+							a.project_id,
+							a.project_submit,
+							a.admin_approval,
+							a.vetted_dpr,
+							c.sector_desc,
+							d.fin_year,
+							g.agency_name,
+							h.account_head,
+							i.fund_type";
 	   // echo $sql;
 	    $result_data = $this->db->query($sql)->result();
 				if($fin_year == ''){
