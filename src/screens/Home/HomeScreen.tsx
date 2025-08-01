@@ -50,6 +50,8 @@ import ProjectGrid from '../../components/complex/ProjectGrid';
 import DatePicker from 'react-native-date-picker';
 import { AppStore } from '../../context/AppContext';
 import GetLocation from 'react-native-get-location';
+import NetInfo from "@react-native-community/netinfo";
+import InternetStatusContext from '../../context/InternetStatusContext';
 
 const strings = homeScreenStrings.getStrings();
 
@@ -60,6 +62,9 @@ const HomeScreen = () => {
     const { checkTokenExpiry } = useContext(AppStore);
 
     const isFocused = useIsFocused();
+
+
+
 
     const [geolocationFetchedAddress, setGeolocationFetchedAddress] = useState(
         () => '',
@@ -86,6 +91,16 @@ const HomeScreen = () => {
     const [openDate, setOpenDate] = useState(() => false);
     const [dateFinal, setDateFinal] = useState(() => '');
 
+    const isOnline = useContext(InternetStatusContext);
+
+    useEffect(() => {
+        console.log(isOnline, 'isOnlineisOnlineisOnlineisOnline');
+        
+    if (!isOnline) {
+    Alert.alert('No Internet', 'Please connect to the internet.');
+    }
+    }, [isOnline]);
+
     // Set projectId to null instead of "" to indicate no selection
     const [formData1, setFormData1] = useState({
         projectId: null as string | null,
@@ -103,8 +118,20 @@ const HomeScreen = () => {
 
 
     // useEffect(() =>{
-    //     console.log(location, 'Location');
-    // },[location])
+    //     console.log("..............CHECK NET STATUS >>>>>> isOnline ..............", isOnline);
+    //     if (isOnline != true) {
+    //         Alert.alert(
+    //             'Turn on Internet',
+    //             'Please connect to the internet.',
+    //             [
+    //                 {
+    //                 text: 'OK', // <- Changed button text to OK
+    //                 onPress: () => {}, // <- Optional: empty function just to dismiss alert
+    //                 },
+    //             ],
+    //         );
+    //     }
+    // },[isOnline])
 
 
     const handleFormChange = useCallback((field: string, value: any) => {
@@ -132,28 +159,7 @@ const HomeScreen = () => {
         }
     }, [error]);
 
-    // const fetchGeoLocaltionAddress = async () => {
-    //     console.log('REVERSE GEO ENCODING API CALLING...');
-    //     await axios
-    //         .get(
-    //             `https://maps.googleapis.com/maps/api/geocode/json?latlng=${location?.latitude},${location?.longitude}&key=${REVERSE_GEOENCODING_API_KEY}`,
-    //         )
-    //         .then(res => {
-    //             setGeolocationFetchedAddress(res?.data?.results[0]?.formatted_address);
-    //         });
-    //     // await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${location?.latitude},${location?.longitude}&key=AIzaSyAhSuw5-ThQnJTZCGC4e_oBsL1iIUbJxts`).then(res => {
-    //     //     setGeolocationFetchedAddress(res?.data?.results[0]?.formatted_address)
-    //     // })
-    // };
-
-    // to be enabled later...
-    // useEffect(() => {
-    //     if (location?.latitude && location.longitude) {
-    //         fetchGeoLocaltionAddress();
-    //     }
-
-
-    // }, [location]);
+    
 
     const fetchProjectsList = useCallback(async () => {
 
@@ -1000,7 +1006,7 @@ const HomeScreen = () => {
                         </ScrollView>
                     )}
 
-
+                    {/* {isOnline ? ( */}
                     <ButtonPaper
                         icon={'progress-clock'}
                         mode="outlined"
@@ -1026,46 +1032,8 @@ const HomeScreen = () => {
                     >
                         Update Progress
                     </ButtonPaper>
-
-
-                    {/* <ButtonPaper
-                    icon={'progress-clock'}
-                    mode="outlined"
-                    onPress={() => {
-                    Alert.alert(
-                    'Alert',
-                    'Are you sure you want to submit the details?',
-                    [
-                    { text: strings.noTxt, onPress: () => null },
-                    {
-                    text: strings.yesTxt,
-                    onPress: async () => {
-                    await updateProjectProgressDetails();
-                    },
-                    },
-                    ],
-                    );
-                    }}
-                    style={{ marginTop: 15, paddingVertical: 8 }}
-                    loading={loading}
-                    disabled={
-                    !formData1.progress ||
-                    !formData1.projectId ||
-                    loading ||
-                    checkErr ||
-                    imgData?.length === 0 ||
-                    Number(formData1.progress) < 1 ? true : false ||
-                    // (100 - progressComplete === parseInt(formData1.progress, 10)
-                    (Number(progressComplete) + Number(formData1.progress) >= 100 && Number(formData1.progress) + Number(progressComplete) > progressCompleteAPI
-                    ? !formData1.remarks
-                    : false) ||
-                    // (100 - progressComplete === parseInt(formData1.progress, 10) ? dateFinal.length == 0 : false)
-                    (Number(progressComplete) + Number(formData1.progress) >= 100 && Number(formData1.progress) + Number(progressComplete) > progressCompleteAPI ? dateFinal.length == 0 : false)
-                    }>
-                    Update Progress
-                    </ButtonPaper> */}
-
-                    <ButtonPaper
+                    {/* ):( */}
+                      <ButtonPaper
                         icon={'content-save-outline'}
                         mode="contained"
                         buttonColor={theme.colors.tertiary}
@@ -1097,6 +1065,10 @@ const HomeScreen = () => {
                         }>
                         {strings.saveText}
                     </ButtonPaper>
+                    {/* )} */}
+                    
+
+                    
                 </View>
             </ScrollView>
         </SafeAreaView>
