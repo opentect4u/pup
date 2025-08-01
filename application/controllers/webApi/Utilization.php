@@ -632,23 +632,24 @@ class Utilization extends CI_Controller {
 			sum(cont_amt) as expen_tot_amt';
 			$res_expense = $this->Master->f_select('td_expenditure',$select1, $where, 1);
 			$sql = "SELECT 
-						exp.expen_sch_amt - util.utilize_sche_amt AS unutilize_sche_amt,
-						exp.expen_cont_amt - util.utilize_cont_amt AS unutilize_cont_amt
+						 (util.utilize_sche_amt -exp.expen_sch_amt) as unutilize_sche_amt,
+						 (util.utilize_cont_amt - exp.expen_cont_amt) as unutilize_cont_amt
 					FROM
+					(  SELECT 
+							IFNULL(SUM(sch_amt), 0) AS utilize_sche_amt,
+						    IFNULL(SUM(cont_amt), 0) AS utilize_cont_amt
+						FROM td_fund_receive a
+						WHERE a.approval_no = $approval_no
+					) util,
 					(
 						SELECT 
 							IFNULL(SUM(sch_amt), 0) AS expen_sch_amt,
 							IFNULL(SUM(cont_amt), 0) AS expen_cont_amt
 						FROM td_expenditure
-						WHERE approval_no = 1
-					) exp,
-					(   SELECT 
-							ifnull(SUM(CASE WHEN a.certi_type = 'S' THEN IFNULL(b.exp_amt, 0) ELSE 0 END),0) AS utilize_sche_amt,
-							ifnull(SUM(CASE WHEN a.certi_type = 'C' THEN IFNULL(b.exp_amt, 0) ELSE 0 END),0) AS utilize_cont_amt
-						FROM td_utilization a
-						JOIN td_utilizationcerti_funddtls b ON a.approval_no = b.approval_no
-						WHERE a.approval_no = 1
-					) util";
+						WHERE approval_no = $approval_no
+					) exp
+					";
+			//echo $sql;
 		    $res_unutil = $this->db->query($sql)->row();
 			$res_expense->fund_rece_sch_amt = $res_fund->fund_rece_sch_amt;
 			$res_expense->fund_rece_cont_amt = $res_fund->fund_rece_cont_amt;
