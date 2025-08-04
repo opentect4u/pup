@@ -1,4 +1,4 @@
-const UAT = false;
+const UAT = true;
 
 const BASE_URL = UAT
   ? `http://192.168.1.60/back-end/index.php`

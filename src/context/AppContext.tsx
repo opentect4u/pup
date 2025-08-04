@@ -73,7 +73,7 @@ const AppContext = ({ children }: any) => {
         },
       })
       .then(res => {
-        console.log('utsabbbbbbbbbbb', res);
+        // console.log('utsabbbbbbbbbbb', res);
         if (res?.data?.status === 1) {
           // console.log('Login Data : ', res?.data);
           
@@ -131,7 +131,7 @@ const AppContext = ({ children }: any) => {
   const handleLogout = async () => {
     loginStorage.clearAll();
     fileStorage.clearAll();
-    projectStorage.clearAll();
+    // projectStorage.clearAll();
     loginToken.clearAll();
     setIsLogin(false);
   };

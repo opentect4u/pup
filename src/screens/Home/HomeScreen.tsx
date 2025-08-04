@@ -52,6 +52,7 @@ import { AppStore } from '../../context/AppContext';
 import GetLocation from 'react-native-get-location';
 import NetInfo from "@react-native-community/netinfo";
 import InternetStatusContext from '../../context/InternetStatusContext';
+import navigationRoutes from '../../routes/routes';
 
 const strings = homeScreenStrings.getStrings();
 
@@ -62,6 +63,10 @@ const HomeScreen = () => {
     const { checkTokenExpiry } = useContext(AppStore);
 
     const isFocused = useIsFocused();
+
+    const maxSaveProjCount = 5; // Maximum number of projects allowed
+    const nowDate = new Date();
+    // const nowDate = '2025-08-05T09:11:56.915Z';
 
 
 
@@ -90,6 +95,8 @@ const HomeScreen = () => {
     const [progressCompleteAPI, setProgressCompleteAPI] = useState(() => Number(0));
     const [openDate, setOpenDate] = useState(() => false);
     const [dateFinal, setDateFinal] = useState(() => '');
+    const [projects, setProjects] = useState<ProjectStoreModel[]>([]);
+    const [projectsDate, setProjectsDate] = useState('');
 
     const isOnline = useContext(InternetStatusContext);
 
@@ -114,24 +121,8 @@ const HomeScreen = () => {
     });
     // const [projectRangeCaps, setProjectRangeCaps] = useState<any[]>(() => [])
     const [checkErr, setCheckErr] = useState(() => false);
+    
 
-
-
-    // useEffect(() =>{
-    //     console.log("..............CHECK NET STATUS >>>>>> isOnline ..............", isOnline);
-    //     if (isOnline != true) {
-    //         Alert.alert(
-    //             'Turn on Internet',
-    //             'Please connect to the internet.',
-    //             [
-    //                 {
-    //                 text: 'OK', // <- Changed button text to OK
-    //                 onPress: () => {}, // <- Optional: empty function just to dismiss alert
-    //                 },
-    //             ],
-    //         );
-    //     }
-    // },[isOnline])
 
 
     const handleFormChange = useCallback((field: string, value: any) => {
@@ -459,7 +450,7 @@ const HomeScreen = () => {
                 formData.append('actual_date_comp', dateFinal);
                 formData.append('remarks', formData1.remarks);
 
-                console.log(dateFinal, 'FORM DATA UPDATE', formData);
+                console.log(dateFinal, 'projectsprojectsprojectsprojectsprojects', formData);
 
                 // Process each image to ensure its size is under 2MB (2 * 1024 * 1024 bytes)
                 const processedImages = await Promise.all(
@@ -549,112 +540,6 @@ const HomeScreen = () => {
     }, [formData1, imgData, loginStore, removeAllImages, handleFormChange]);
     // }, [formData1, imgData, loginStore, removeAllImages, handleFormChange]);
 
-    const saveLocally = useCallback(async () => {
-        if (
-            !formData1.projectId ||
-            !formData1.progress ||
-            (100 - progressComplete === parseInt(formData1.progress, 10)
-                ? !formData1.remarks
-                : false) ||
-            (100 - progressComplete === parseInt(formData1.progress, 10) ? dateFinal.length == 0 : false) ||
-            imgData.length === 0
-        ) {
-            ToastAndroid.show(
-                'Please fill all fields and add at least one photo.',
-                ToastAndroid.SHORT,
-            );
-            return;
-        }
-        try {
-            let permanentUris: string[] = [];
-            // Copy each selected image to a permanent location
-            for (const asset of imgData) {
-                const filename = asset.fileName || `progress_pic_${Date.now()}.jpg`;
-                const newPath = `${RNFS.DocumentDirectoryPath}/${filename}`;
-                // Copy file from temporary URI to DocumentDirectoryPath (permanent storage)
-                await RNFS.copyFile(asset.uri!, newPath);
-                // Ensure the URI has a file:// prefix
-                const permanentUri = newPath.startsWith('file://')
-                    ? newPath
-                    : 'file://' + newPath;
-                permanentUris.push(permanentUri);
-            }
-
-            // Retrieve existing projects from projectStorage
-            let storedProjects: any[] = [];
-            const projectsData = await projectStorage.getString('projects');
-            if (projectsData) {
-                storedProjects = JSON.parse(projectsData);
-            }
-
-            // Create a new project object with permanent image URIs
-            const newProject: ProjectStoreModel = {
-                projectId: formData1.projectId?.split(',')[0],
-                progress: +formData1.progress,
-                'progress_pic[]': permanentUris,
-                lat: location?.latitude!,
-                lng: location.longitude!,
-                locationAddress: geolocationFetchedAddress,
-                actual_date_comp: dateFinal,
-                remarks: formData1.remarks,
-            };
-
-            console.log(newProject, 'newProjectnewProject', formData1.remarks);
-
-            storedProjects.push(newProject);
-
-            // Save the updated projects list to projectStorage
-            await projectStorage.set('projects', JSON.stringify(storedProjects));
-
-            ToastAndroid.show('Project saved in device.', ToastAndroid.SHORT);
-            removeAllImages();
-            setFormData1({
-                projectId: '',
-                progress: '',
-                latitude: '',
-                longitude: '',
-                locationAddress: '',
-                // actual_date_comp: '',
-                remarks: '',
-                actual_date_comp: '',
-            });
-            setFetchedProjectDetails(() => '');
-        } catch (err) {
-            console.log('Error saving locally:', err);
-            ToastAndroid.show('Error saving project locally.', ToastAndroid.SHORT);
-        }
-    }, [formData1, imgData, removeAllImages]);
-
-    const onRefresh = () => {
-        setRefreshing(true);
-
-        fetchProjectsList();
-        setImgData([]);
-        fileStorage.delete('file-data');
-        fileStorage.delete('file-uri');
-        setFetchedProjectDetails(() => '');
-
-        setTimeout(() => {
-            setRefreshing(false);
-            ToastAndroid.show('Home Refreshed.', ToastAndroid.SHORT);
-        }, 2000);
-    };
-
-    const getWorkRange = (projectRangeCaps: any[]) => {
-        if (!fetchedProjectDetails) return null;
-
-        const projectDetails = JSON.parse(fetchedProjectDetails);
-        const progImgLength = projectDetails?.prog_img?.length || 0;
-        const nextVisitNo = (progImgLength + 1).toString();
-        const rangeObj = projectRangeCaps?.find(
-            item => +item?.visit_no === +nextVisitNo,
-        );
-
-        if (!rangeObj) return null;
-        const { work_per_st, work_per_end } = rangeObj;
-        return [work_per_st, work_per_end];
-    };
-
     const checkAndSubmit = async () => {
         try {
             const currentLocation = await GetLocation.getCurrentPosition({
@@ -704,6 +589,314 @@ const HomeScreen = () => {
         }
     };
 
+      const fetchProjects = useCallback(async () => {
+        try {
+          const projectsData = await projectStorage.getString('projects');
+          if (projectsData) {
+            var parsedProjects = JSON.parse(projectsData);
+            console.log(parsedProjects, 'projectsprojectsprojectsprojectsprojects', 'parsedProjects');
+
+            if(parsedProjects.length > maxSaveProjCount) {
+            // Alert.alert('Alert', 'You have more than 3 saved projects. Please go to settings to view them.')
+                Alert.alert(
+                'Offline Limit Reached',
+                `You’ve saved the maximum of ${maxSaveProjCount} projects offline. Please connect to the internet to sync your data before adding new projects.`
+                );
+                navigation.dispatch(
+                CommonActions.navigate({
+                  name: navigationRoutes.settingsNavigation,
+                }),
+              )
+            }
+
+            // setProjects(parsedProjects);
+          } else {
+            // setProjects([]);
+          }
+
+          try {
+          const projectsData_Date = await projectStorage.getString('projects_date');
+          console.log(projectsData_Date, 'projectsprojectsprojectsprojectsprojects', 'projectsData');
+          if (projectsData_Date) {
+            const parsedProjects_Date = JSON.parse(projectsData_Date);
+            // const nowDate = new Date();
+            // const nowDate = '2025-08-05T09:11:56.915Z';
+            // Alert.alert(
+            //     'Offline Limit Reached',
+            //     `You’ve saved the maximum of ${maxSaveProjCount} projects offline. Please connect to the internet to sync your data before adding new projects.`
+            //     );
+            if(parsedProjects.length > 0) {
+                if (parsedProjects_Date && parsedProjects_Date < nowDate) {
+                Alert.alert(
+                'Sync Needed',
+                'New day detected. Please sync your saved projects before adding more.'
+                );
+
+                navigation.dispatch(
+                CommonActions.navigate({
+                  name: navigationRoutes.settingsNavigation,
+                }),
+              )
+
+                }
+            }
+            
+
+            // Alert.alert(parsedProjects_Date)
+            // setProjectsDate(parsedProjects_Date);
+          } else {
+            // setProjectsDate('');
+          }
+        } catch (error) {
+          console.log('Error fetching projects:', error);
+          ToastAndroid.show('Error fetching saved projects.', ToastAndroid.SHORT);
+        }
+
+
+        } catch (error) {
+          console.log('Error fetching projects:', error);
+          ToastAndroid.show('Error fetching saved projects.', ToastAndroid.SHORT);
+        }
+      }, []);
+
+    
+
+
+    useEffect(() => {
+        // fetchProjects_Date()
+        if (isFocused) {
+        fetchProjects();
+        }
+
+      }, [isFocused]);
+
+
+    
+    //   useEffect(() => {
+    //     if (isFocused) {
+    //     if(projects.length > 3) {
+    //         Alert.alert('Alert', 'You have more than 3 saved projects. Please go to settings to view them.')
+    //             // navigation.navigate(navigationRoutes.settingsNavigation);
+    //             navigation.dispatch(
+    //             CommonActions.navigate({
+    //               name: navigationRoutes.settingsNavigation,
+    //             }),
+    //           )
+    //         }
+    //     }
+    //   }, [isFocused]);
+
+    const saveLocally = useCallback(async (currentLocation: any) => {
+        setLoading(true);
+
+        await axios
+        .get(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${currentLocation?.latitude},${currentLocation?.longitude}&key=${REVERSE_GEOENCODING_API_KEY}`,
+        )
+        .then(async (res) => {
+
+            if (
+            !formData1.projectId ||
+            !formData1.progress ||
+            (100 - progressComplete === parseInt(formData1.progress, 10)
+                ? !formData1.remarks
+                : false) ||
+            (100 - progressComplete === parseInt(formData1.progress, 10) ? dateFinal.length == 0 : false) ||
+            imgData.length === 0
+        ) {
+            ToastAndroid.show(
+                'Please fill all fields and add at least one photo.',
+                ToastAndroid.SHORT,
+            );
+            return;
+        }
+        try {
+            let permanentUris: string[] = [];
+            // Copy each selected image to a permanent location
+            for (const asset of imgData) {
+
+            const filename = asset.fileName || `progress_pic_${Date.now()}.jpg`;
+            const newPath = `${RNFS.DocumentDirectoryPath}/${filename}`;
+            await RNFS.copyFile(asset.uri!, newPath);
+            // Ensure the URI has a file:// prefix
+            const permanentUri = newPath.startsWith('file://')
+            ? newPath
+            : 'file://' + newPath;
+            permanentUris.push(permanentUri);
+            }
+
+            // Retrieve existing projects from projectStorage
+            let storedProjects: any[] = [];
+
+            const projectsData = await projectStorage.getString('projects');
+            
+            
+
+            if (projectsData) {
+                storedProjects = JSON.parse(projectsData);
+            }
+
+            // Create a new project object with permanent image URIs
+            const newProject: ProjectStoreModel = {
+                approval_no: formData1.projectId?.split(',')[0],
+                progress_percent: +formData1.progress,
+                progressive_percent: (Number(progressComplete) + Number(formData1.progress)).toString(),
+                lat: currentLocation?.latitude!,
+                long: currentLocation?.longitude!,
+                address: res?.data?.results[0]?.formatted_address,
+                actual_date_comp: dateFinal,
+                remarks: formData1.remarks,
+                'progress_pic[]': permanentUris,
+                created_by: loginStore?.user_id,
+                
+            };
+
+            // console.log(newProject, 'projectsprojectsprojectsprojectsprojects', formData1.remarks, 'vvvv', storedProjects);
+            console.log(storedProjects.length, 'projectsprojectsprojectsprojectsprojects', 'top');
+
+            if (storedProjects.length < 1) {
+                await projectStorage.set('projects_date', JSON.stringify(new Date().toISOString()));
+            }
+
+            // storedProjects.push(newProject);
+            const existingIndex = storedProjects.findIndex(
+            (project) => project.approval_no === newProject.approval_no
+            );
+
+            if (existingIndex !== -1) {
+            // If found, update the existing project
+            storedProjects[existingIndex] = newProject;
+            } else {
+            // If not found, add as new project
+            storedProjects.push(newProject);
+            }
+
+            console.log(storedProjects.length, 'projectsprojectsprojectsprojectsprojects');
+            
+
+            
+
+            // Save the updated projects list to projectStorage
+            await projectStorage.set('projects', JSON.stringify(storedProjects));
+
+            // const projectsString = await projectStorage.getString('projects');
+            // const projects = JSON.parse(projectsString ?? '{}')
+
+            // const projectsDate = await projectStorage.getString('projects_date');
+            // const projectsDT = JSON.parse(projectsDate ?? '')
+
+            console.log(projects, 'projectsprojectsprojectsprojectsprojects', projectsDate, 'submit');
+
+            ToastAndroid.show('Project saved in device.', ToastAndroid.SHORT);
+            removeAllImages();
+            setFormData1({
+                projectId: '',
+                progress: '',
+                latitude: '',
+                longitude: '',
+                locationAddress: '',
+                // actual_date_comp: '',
+                remarks: '',
+                actual_date_comp: '',
+            });
+            setFetchedProjectDetails(() => '');
+        } catch (err) {
+            console.log('Error saving locally:', err);
+            ToastAndroid.show('Error saving project locally.', ToastAndroid.SHORT);
+        }
+
+        // const formData = new FormData();
+        // formData.append('address', res?.data?.results[0]?.formatted_address);
+
+
+        setLoading(false);
+
+        });
+
+        
+    }, [formData1, imgData, removeAllImages]);
+
+    const checkLocalAndSubmit = async () => {
+        try {
+            const currentLocation = await GetLocation.getCurrentPosition({
+                enableHighAccuracy: true,
+                timeout: 60000,
+            });
+
+            console.log(currentLocation, ' : currentLocation', location, 'ddddddddddddd');
+
+            Alert.alert(
+                'Alert',
+                'Are you sure you want to submit the details?',
+                [
+                    { text: strings.noTxt, onPress: () => null },
+                    {
+                        text: strings.yesTxt,
+                        onPress: async () => {
+                            await saveLocally(currentLocation);
+                            // fetchGeoLocaltionAddress();
+                        },
+                    },
+                ],
+            );
+        } catch (err) {
+            console.log(err);
+            // if (err.code === 'UNAVAILABLE') {
+            // console.log(err.code, 'codeerror');
+            if (typeof err === 'object' && err !== null && 'code' in err && (err as any).code === 'UNAVAILABLE') {
+                console.log((err as any).code, 'codeerror');
+
+                Alert.alert(
+                    'Turn on Location',
+                    'Please turn on GPS/location services to update progress.',
+                    [
+                        {
+                            text: 'Go to Settings',
+                            onPress: () => Linking.openSettings(),
+                            style: 'default',
+                        },
+                        {
+                            text: 'Cancel',
+                            style: 'cancel',
+                        },
+                    ],
+                );
+            }
+        }
+    };
+
+    const onRefresh = () => {
+        setRefreshing(true);
+
+        fetchProjectsList();
+        setImgData([]);
+        fileStorage.delete('file-data');
+        fileStorage.delete('file-uri');
+        setFetchedProjectDetails(() => '');
+
+        setTimeout(() => {
+            setRefreshing(false);
+            ToastAndroid.show('Home Refreshed.', ToastAndroid.SHORT);
+        }, 2000);
+    };
+
+    const getWorkRange = (projectRangeCaps: any[]) => {
+        if (!fetchedProjectDetails) return null;
+
+        const projectDetails = JSON.parse(fetchedProjectDetails);
+        const progImgLength = projectDetails?.prog_img?.length || 0;
+        const nextVisitNo = (progImgLength + 1).toString();
+        const rangeObj = projectRangeCaps?.find(
+            item => +item?.visit_no === +nextVisitNo,
+        );
+
+        if (!rangeObj) return null;
+        const { work_per_st, work_per_end } = rangeObj;
+        return [work_per_st, work_per_end];
+    };
+
+    
+
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
@@ -718,8 +911,8 @@ const HomeScreen = () => {
                     <Text variant="titleLarge" style={{ color: theme.colors.secondary }}>
                         {strings.projectDropdownLabel}
 
-                        {/* {JSON.stringify(loginTokenStore, null, 2)}
-                        {loginStore?.user_id} */}
+                       {/* {JSON.stringify(projects, null, 2)} */}
+                        {/* {loginStore?.user_id} */}
                     </Text>
                     <Dropdown
                         // disable={!location?.latitude || !location?.longitude}
@@ -1037,32 +1230,50 @@ const HomeScreen = () => {
                         icon={'content-save-outline'}
                         mode="contained"
                         buttonColor={theme.colors.tertiary}
-                        onPress={() => {
-                            Alert.alert(
-                                'Alert',
-                                'Are you sure you want to save the details?',
-                                [
-                                    { text: strings.noTxt, onPress: () => null },
-                                    { text: strings.yesTxt, onPress: () => saveLocally() },
-                                ],
-                            );
-                        }}
+                        onPress={() => checkLocalAndSubmit()}
+                        // onPress={() => {
+                        //     Alert.alert(
+                        //         'Alert',
+                        //         'Are you sure you want to save the details?',
+                        //         [
+                        //             { text: strings.noTxt, onPress: () => null },
+                        //             { text: strings.yesTxt, onPress: () => saveLocally() },
+                        //         ],
+                        //     );
+                        // }}
+
                         style={{ marginTop: 15, paddingVertical: 8 }}
+                        // disabled={
+                        //     imgData?.length === 0 ||
+                        //     !formData1.progress ||
+                        //     !formData1.projectId ||
+                        //     !location.latitude ||
+                        //     !location.longitude ||
+                        //     (Number(progressComplete) + Number(formData1.progress) >= 100 && Number(formData1.progress) + Number(progressComplete) > progressCompleteAPI
+                        //         ? !formData1.remarks
+                        //         : false) ||
+                        //     (Number(progressComplete) + Number(formData1.progress) >= 100 && Number(formData1.progress) + Number(progressComplete) > progressCompleteAPI ? dateFinal.length == 0 : false) ||
+                        //     !geolocationFetchedAddress
+                        // }
+
                         disabled={
-                            imgData?.length === 0 ||
                             !formData1.progress ||
-                            !formData1.projectId ||
-                            !location.latitude ||
-                            !location.longitude ||
-                            // (100 - progressComplete === parseInt(formData1.progress, 10)
-                            (Number(progressComplete) + Number(formData1.progress) >= 100 && Number(formData1.progress) + Number(progressComplete) > progressCompleteAPI
-                                // (Number(progressComplete) + Number(formData1.progress) > 100 && Number(formData1.progress) + Number(progressComplete) > progressCompleteAPI
-                                ? !formData1.remarks
-                                : false) ||
-                            // (100 - progressComplete === parseInt(formData1.progress, 10) ? dateFinal.length == 0 : false) ||
-                            (Number(progressComplete) + Number(formData1.progress) >= 100 && Number(formData1.progress) + Number(progressComplete) > progressCompleteAPI ? dateFinal.length == 0 : false) ||
-                            !geolocationFetchedAddress
-                        }>
+                                !formData1.projectId ||
+                                loading ||
+                                checkErr ||
+                                imgData?.length === 0 ||
+                                Number(formData1.progress) < 1 ? true : false ||
+                                (Number(progressComplete) + Number(formData1.progress) >= 100 &&
+                                    Number(formData1.progress) + Number(progressComplete) > progressCompleteAPI
+                                    ? !formData1.remarks
+                                    : false) ||
+                            (Number(progressComplete) + Number(formData1.progress) >= 100 &&
+                                Number(formData1.progress) + Number(progressComplete) > progressCompleteAPI
+                                ? dateFinal.length == 0
+                                : false)
+                        }
+
+                        >
                         {strings.saveText}
                     </ButtonPaper>
                     {/* )} */}
