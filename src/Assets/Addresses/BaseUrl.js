@@ -4,11 +4,7 @@
 
 // export const url='http://localhost/back-end/'
 
-
-// export const url='https://pup.test/backend/' // State DC
-
 export const url='https://adminpuad.wb.gov.in/backend/' // State DC LIVE
-
 
 // export const url='https://pup.opentech4u.co.in/pup/'
 

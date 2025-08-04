@@ -82,7 +82,7 @@ export const menus = [
     {
       label: "Utilization Certificate List",
       path: "/home/uc",
-      roles: ["S", "AC"],
+      roles: ["S", "AC", "A"],
       id: 9,
     },
     {

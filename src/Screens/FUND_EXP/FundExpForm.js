@@ -419,13 +419,15 @@ function FundExpForm() {
 
       
       if (response?.data.status > 0) {
+        console.log(response?.data?.cont_remark, 'expense_single_data');
+        
         setLoading(false);
         setValues({
           payment_date: response?.data?.message?.payment_date != null ? response?.data?.message?.payment_date : '',
           sch_amt_one: response.data.message.sch_amt != null ? response?.data?.message?.sch_amt : '',
           cont_amt_one: response.data.message.cont_amt != null ? response?.data?.message?.cont_amt : '',
           sch_remark:  response.data.message.sch_remark != null ? response?.data?.message?.sch_remark : '',
-          cont_remark: response?.data?.cont_remark != null ? response?.data?.message?.cont_remark : '',
+          cont_remark: response?.data?.cont_remark.length > 0 ? response?.data?.cont_remark : '',
         })
         setEditFlagStatus(response?.data?.message?.edit_flag)
 
@@ -491,20 +493,20 @@ function FundExpForm() {
     }, [])
 
 
-    const data = [
-      { gp_id: "294", gp_name: "BIPRATIKURI" },
-      { gp_id: "295", gp_name: "CHAUHATTA-MAHODARI-I" },
-      { gp_id: "296", gp_name: "CHAUHATTA-MAHODARI-II" },
-      { gp_id: "297", gp_name: "DWARAKA" },
-      { gp_id: "298", gp_name: "HATIA" },
-      { gp_id: "299", gp_name: "INDUS" },
-      { gp_id: "300", gp_name: "JAMNA" },
-      { gp_id: "301", gp_name: "KIRNAHAR-I" },
-      { gp_id: "302", gp_name: "KURUNNAHAR" },
-      { gp_id: "303", gp_name: "LABPUR-I" },
-      { gp_id: "304", gp_name: "LABPUR-II" },
-      { gp_id: "305", gp_name: "THIBA" }
-    ];
+    // const data = [
+    //   { gp_id: "294", gp_name: "BIPRATIKURI" },
+    //   { gp_id: "295", gp_name: "CHAUHATTA-MAHODARI-I" },
+    //   { gp_id: "296", gp_name: "CHAUHATTA-MAHODARI-II" },
+    //   { gp_id: "297", gp_name: "DWARAKA" },
+    //   { gp_id: "298", gp_name: "HATIA" },
+    //   { gp_id: "299", gp_name: "INDUS" },
+    //   { gp_id: "300", gp_name: "JAMNA" },
+    //   { gp_id: "301", gp_name: "KIRNAHAR-I" },
+    //   { gp_id: "302", gp_name: "KURUNNAHAR" },
+    //   { gp_id: "303", gp_name: "LABPUR-I" },
+    //   { gp_id: "304", gp_name: "LABPUR-II" },
+    //   { gp_id: "305", gp_name: "THIBA" }
+    // ];
     
     const options = contigencyRemarks.map(item => ({
       value: item.sl_no,
@@ -887,7 +889,7 @@ function FundExpForm() {
               )}
             </div>
 
-            <div class="sm:col-span-6 contigencySelect">
+            <div class="sm:col-span-12 contigencySelect">
             <label for="sch_amt_one" class="block mb-2 text-sm capitalize font-bold text-slate-500 dark:text-gray-100">Choose Contigency Remarks<span className="mandator_txt"> *</span></label>
             
               <Select

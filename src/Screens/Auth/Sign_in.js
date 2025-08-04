@@ -11,6 +11,8 @@ import { auth_key, url } from "../../Assets/Addresses/BaseUrl";
 import { Message } from "../../Components/Message";
 import localforage from 'localforage';
 import { getCSRFToken } from "../../CommonFunction/useCSRFToken";
+import { LoadingOutlined } from "@ant-design/icons";
+import { Spin } from "antd";
 
 
 const initialValues = {
@@ -149,17 +151,9 @@ const loginFnc = async () => {
 
 const onSubmit = (e) => {
     // saveFormData()
+    setLoading(true)
+    setLoginBtnDisable(true)
 
-    // setLoginBtnDisable(true)
-
-    // if (userCaptchaInput !== captchaText) {
-    //   alert("CAPTCHA incorrect. Please try again.");
-    //   generateCaptcha();
-    //   return;
-    // }
-
-    // Proceed with login
-    // alert("CAPTCHA correct. Logging in...");
     loginFnc()
   
 };
@@ -184,6 +178,12 @@ const formik = useFormik({
             {/* <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
                   Sign in to your account
               </h1> */}
+            <Spin
+          indicator={<LoadingOutlined spin />}
+          size="large"
+          className="text-gray-500 dark:text-gray-400"
+          spinning={loading}
+        >
             <form className="space-y-4 md:space-y-6" onSubmit={formik.handleSubmit}>
               <div>
               <TDInputTemplate
@@ -253,6 +253,7 @@ const formik = useFormik({
                 {attempLogin}
               </p>
             </form>
+            </Spin>
           </div>
         </div>
       </div>
