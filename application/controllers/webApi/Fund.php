@@ -25,6 +25,7 @@ class Fund extends CI_Controller {
             echo json_encode($response);
             exit;
         }
+		//   *********   Auth Token Validation    ********** //
 		$headers = $this->input->request_headers();
 		$authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
 
@@ -48,20 +49,7 @@ class Fund extends CI_Controller {
 		$this->load->helper('pdf');
     }
 
-	private function validate_auth_key() {
-        $auth_key = $this->input->get_request_header('auth_key'); // Get from header
-        $valid_key = AUTH_KEY; // Store securely in .env or database
-        if ($auth_key !== $valid_key) {
-            $response = array(
-                'status' => false,
-                'message' => 'Unauthorized access'
-            );
-            echo json_encode($response);
-            exit; // Stop execution
-        }
-    }
-
-
+    //  **********   Get Project list using approval_no,project_id **********
 	public function proj_approv_list() {
 		$json_data = file_get_contents("php://input");
 		$data = json_decode($json_data, true);
@@ -101,6 +89,7 @@ class Fund extends CI_Controller {
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
     }
+	//  **********   Get Added Fund List using approval_no **********
 	public function get_added_fund_list() {
 		
 		$approval_no = $this->input->post('approval_no') ;
@@ -115,30 +104,8 @@ class Fund extends CI_Controller {
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
     }
-
+	//  **********   Fund List **********
 	public function fund_list() {
-		
-		// $result_data = $this->db->query("SELECT a.admin_approval_dt, a.scheme_name,
-		// a.project_id,a.sch_amt,a.cont_amt,a.approval_no,
-		// b.sector_desc AS sector_name,c.fin_year,g.agency_name,
-		// d.receive_no,d.receive_date,d.allot_order_no,d.allot_order_dt,
-		// GROUP_CONCAT(DISTINCT e.dist_name ORDER BY e.dist_name SEPARATOR ', ') AS dist_name,
-		// GROUP_CONCAT(DISTINCT f.block_name ORDER BY f.block_name SEPARATOR ', ') as block_name,
-		// d.edit_flag
-		// FROM td_admin_approval a
-		// INNER JOIN md_sector b ON a.sector_id = b.sl_no
-		// INNER JOIN md_fin_year c ON a.fin_year = c.sl_no
-		// INNER JOIN td_fund_receive d ON a.approval_no = d.approval_no
-		// INNER JOIN td_admin_approval_dist pd ON a.approval_no = pd.approval_no
-		// JOIN md_district e ON pd.dist_id = e.dist_code 
-		// JOIN td_admin_approval_block pb ON a.approval_no = pb.approval_no
-		// JOIN md_block f ON pb.block_id = f.block_id 
-		// INNER JOIN md_proj_imp_agency g ON a.impl_agency = g.id 
-		// group by a.admin_approval_dt, 
-		// a.scheme_name,
-		// a.project_id,a.sch_amt,a.cont_amt,a.approval_no,d.edit_flag,
-		// b.sector_desc,d.receive_no,d.receive_date,d.allot_order_no,d.allot_order_dt,
-		// c.fin_year,g.agency_name")->result();
 
 		$result_data = $this->db->query("SELECT a.admin_approval_dt, a.scheme_name,
 		a.project_id,a.sch_amt,a.cont_amt,a.approval_no,
@@ -164,7 +131,7 @@ class Fund extends CI_Controller {
 			echo json_encode(['status' => 0, 'message' => 'No data found']);
 		}
     }
-
+    //  **********   Fund Added List using approval_no, project_id **********
 	public function fund_added_list() {
 		$where = array('a.approval_no = b.approval_no' => NULL,'b.sector_id = c.sl_no' => NULL,
 		               'b.fin_year = d.sl_no' => NULL,'b.district_id = e.dist_code' => NULL,
@@ -195,7 +162,7 @@ class Fund extends CI_Controller {
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
     }
-
+    //  **********   Get Project Sanctioned Amount using approval_no **********
 	public function proj_sanc_amt() {
 		$this->form_validation->set_rules('approval_no', 'Approval No', 'required');
 		
@@ -217,7 +184,7 @@ class Fund extends CI_Controller {
 			->set_output(json_encode($response));
 		}
 	}
-    // ****************************  Fund Formalities  *******************   //
+    //  **********   Fund Add **********
 	public function fund_add() {
 	
 		$upload_paths = []; // Store file paths
@@ -296,7 +263,7 @@ class Fund extends CI_Controller {
 			]);
 		}
 	}
-
+	//  **********   Fund Single Data using approval_no, receive_no, receive_date **********
 	public function fund_single_data() {
 		$where = [];
 		$approval_no = $this->input->post('approval_no') ?? null;
@@ -316,7 +283,7 @@ class Fund extends CI_Controller {
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
 	}
-
+	//  **********   Fund Edit **********
 	public function fund_edit() {
 		$upload_paths = []; // Store file paths
 	
@@ -397,8 +364,5 @@ class Fund extends CI_Controller {
 			'message' => 'Fund updated successfully!'
 		]);
 	}
-	
-
-	
 	
 }

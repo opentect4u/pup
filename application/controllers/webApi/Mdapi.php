@@ -19,6 +19,7 @@ class Mdapi extends CI_Controller {
             echo json_encode($response);
             exit;
         }
+		//   *********   Auth Token Validation    ********** //
         $headers = $this->input->request_headers();
         $authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
         if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
@@ -42,20 +43,7 @@ class Mdapi extends CI_Controller {
         exit;
 		$this->load->helper('pdf');
     }
-
-	private function validate_auth_key() {
-        $auth_key = $this->input->get_request_header('auth_key'); // Get from header
-        $valid_key = AUTH_KEY; // Store securely in .env or database
-        if ($auth_key !== $valid_key) {
-            $response = array(
-                'status' => false,
-                'message' => 'Unauthorized access'
-            );
-            echo json_encode($response);
-            exit; // Stop execution
-        }
-    }
-
+    // **********   Get Master Data for sector **********
     public function sector() {
 		$data = $this->Master->f_select('md_sector', array('sl_no','sector_desc'), NULL, NULL);
 		if (!empty($data)) {
@@ -64,6 +52,7 @@ class Mdapi extends CI_Controller {
 			echo json_encode(['status' => 0, 'message' => 'No data found']);
 		}
     }
+	// **********   Get Master Data for Financial Year **********
 	public function fin_year() {
 		$data = $this->Master->f_select('md_fin_year', NULL, NULL, NULL);
 		if (!empty($data)) {
@@ -72,6 +61,7 @@ class Mdapi extends CI_Controller {
 			echo json_encode(['status' => 0, 'message' => 'No data found']);
 		}
     }
+	// **********   Get Master Data for Head of Account **********
 	public function head_of_acc() {
 		$data = $this->Master->f_select('md_account', array('sl_no','account_head'), NULL, NULL);
 		if (!empty($data)) {
@@ -80,6 +70,7 @@ class Mdapi extends CI_Controller {
 			echo json_encode(['status' => 0, 'message' => 'No data found']);
 		}
     }
+	// **********   Get Master Data for District **********
 	public function dist() {
 		$data = $this->Master->f_select('md_district', NULL, NULL, NULL);
 		if (!empty($data)) {
@@ -88,6 +79,7 @@ class Mdapi extends CI_Controller {
 			echo json_encode(['status' => 0, 'message' => 'No data found']);
 		}
     }
+	// **********   Get Master Data for Block **********
 	public function block() {
 		
 		$data = $this->Master->f_select('md_block', NULL, NULL, NULL);
@@ -97,6 +89,7 @@ class Mdapi extends CI_Controller {
 			echo json_encode(['status' => 0, 'message' => 'No data found']);
 		}
     }
+	// **********   Get Master Data for Block using District List **********
 	public function block_filter() {
 		$dist_list = $this->input->post('dist_list');
 		if(!empty($dist_list)) {
@@ -122,7 +115,7 @@ class Mdapi extends CI_Controller {
 			echo json_encode(['status' => 0, 'message' => 'Please select at least one district']);
 		}
     }
-
+	// **********   ADD , Edit Block **********
 	public function blockSave() {
 		$sl_no = $this->input->post('sl_no');
 		$dist_id = trim($this->input->post('dist_id'));
@@ -179,9 +172,8 @@ class Mdapi extends CI_Controller {
 			'message' => $message
 		]);
 	}
-
+    // **********   Add,Edit a Agency **********
 	public function agencySave() {
-
 		// Set validation rules
 		$this->form_validation->set_rules('agency_id', 'Agency ID', 'required');
 		$this->form_validation->set_rules('agency_name', 'Agency Name', 'required');
@@ -258,6 +250,7 @@ class Mdapi extends CI_Controller {
 			'message' => $message
 		]);
 	}
+	// **********   Get Agency List **********
     public function agencyList() {
 		$this->form_validation->set_rules('agency_id', 'Agency ID', 'required');
 		if ($this->form_validation->run() == FALSE) {
@@ -276,7 +269,7 @@ class Mdapi extends CI_Controller {
 		}
     }
 
-
+	// **********   Get Master Data for Source of Fund **********
 	public function sof() {
 		$data = $this->Master->f_select('md_fund', array('sl_no','fund_type',), NULL, NULL);
 		if (!empty($data)) {
@@ -285,6 +278,7 @@ class Mdapi extends CI_Controller {
 			echo json_encode(['status' => 0, 'message' => 'No data found']);
 		}
     }
+	// **********   Get Master Data for Implementing Agency **********
 	public function impagency() {
 		$data = $this->Master->f_select('md_proj_imp_agency', array('id','agency_name',), NULL, NULL);
 		if (!empty($data)) {
@@ -293,7 +287,7 @@ class Mdapi extends CI_Controller {
 			echo json_encode(['status' => 0, 'message' => 'No data found']);
 		}
     }
-
+	// **********   Get Master Data for Police Station **********
 	public function get_ps() {
 			$result_data = $this->Master->f_select('md_police_station', array('id','ps_name',), NULL, NULL);
 			$response = (!empty($result_data)) 
@@ -303,7 +297,7 @@ class Mdapi extends CI_Controller {
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
 	}
-
+	// **********   Get Master Data for Police Station using District List **********
 	public function get_ps_filter() {
 		$dist_list = $this->input->post('dist_list');
 		if(!empty($dist_list)) {
@@ -330,6 +324,7 @@ class Mdapi extends CI_Controller {
 			echo json_encode(['status' => 0, 'message' => 'Please select at least one district']);
 		}
 	}
+	// **********   Add,Edit Police Station **********
 	public function psSave() {
 		$sl_no = $this->input->post('sl_no');
 		$dist_id = trim($this->input->post('dist_id'));
@@ -386,6 +381,7 @@ class Mdapi extends CI_Controller {
 			'message' => $message
 		]);
 	}
+	// **********   Get Master Data for Gram Panchayat **********
 	public function get_gp() {
 			$result_data = $this->Master->f_select('md_gp', array('gp_id','gp_name',), NULL, NULL);
 			$response = (!empty($result_data)) 
@@ -396,6 +392,7 @@ class Mdapi extends CI_Controller {
 			->set_output(json_encode($response));
 			
 	}
+	// **********   Get Master Data for Gram Panchayat using Block List **********
 	public function get_gp_filter() {
 		$block_id = $this->input->post('block_id');
 		if(!empty($block_id)) {
@@ -434,7 +431,7 @@ class Mdapi extends CI_Controller {
 			->set_output(json_encode($response));
 			
 	}
-
+	// **********   Add,Edit Gram Panchayat **********
 	public function gpSave() {
 		$sl_no = $this->input->post('sl_no');
 		$dist_id = trim($this->input->post('dist_id'));
@@ -484,6 +481,7 @@ class Mdapi extends CI_Controller {
 			'message' => $message
 		]);
 	}
+	// **********   Get Master Data for Project Submit By **********
 	public function projSubmitBy() {
 		
 		$result_data = $this->Master->f_select('md_proj_submit_by', array('sl_no','proj_submit_by',), NULL, NULL);
@@ -495,7 +493,7 @@ class Mdapi extends CI_Controller {
 		->set_output(json_encode($response));
 	 
 	}
-
+    // **********   Get Master Data for Contingent Remarks **********
 	public function contRmrks() {
 		
 		$result_data = $this->Master->f_select('md_cont_remarks', array('sl_no','cont_rmrks',), NULL, NULL);
@@ -508,6 +506,7 @@ class Mdapi extends CI_Controller {
 	 
 	}
 	//////// *************    API FOR FUND MASTER  ************* ////////
+	// **********    Fund add **********
 	public function fundAdd() {
 		$query = $this->db->get_where('md_fund', ['fund_type' => trim($this->input->post('fund_type'))]);
 		if($query->num_rows() == 0) {
@@ -543,6 +542,7 @@ class Mdapi extends CI_Controller {
 			]);
 		}
 	}
+	// **********    Fund edit **********
 	public function fundedit() {
 		$query = $this->db->get_where('md_fund', ['fund_type' => trim($this->input->post('fund_type'))]);
 		if($query->num_rows() == 0) {
@@ -580,6 +580,7 @@ class Mdapi extends CI_Controller {
 		}
 	}
     //////// *************    API FOR Implementing Agency  ************* ////////
+	// **********    Implementing Agency add **********
 	public function impAdd() {
 		$query = $this->db->get_where('md_proj_imp_agency', ['agency_name' => trim($this->input->post('agency_name'))]);
 		if($query->num_rows() == 0) {
@@ -615,6 +616,7 @@ class Mdapi extends CI_Controller {
 			]);
 		}
 	}
+	// **********    Implementing Agency edit **********
 	public function impedit() {
 		$query = $this->db->get_where('md_proj_imp_agency', ['agency_name' => trim($this->input->post('agency_name'))]);
 		if($query->num_rows() == 0) {
@@ -687,6 +689,7 @@ class Mdapi extends CI_Controller {
 			]);
 		}
 	}
+	// **********    Sector edit **********
 	public function secedit() {
 		$query = $this->db->get_where('md_sector', ['sector_desc' => trim($this->input->post('sector_desc'))]);
 		if($query->num_rows() == 0) {
@@ -725,6 +728,7 @@ class Mdapi extends CI_Controller {
 	}
 
 	//////// *************    API FOR Sector  ************* ////////
+	// **********    Account Head add **********
 	public function accAdd() {
 		$query = $this->db->get_where('md_account', ['account_head' => trim($this->input->post('account_head'))]);
 		if($query->num_rows() == 0) {
@@ -760,6 +764,7 @@ class Mdapi extends CI_Controller {
 			]);
 		}
 	}
+	// **********    Account Head edit **********
 	public function accedit() {
 		$query = $this->db->get_where('md_account', ['account_head' => trim($this->input->post('account_head'))]);
 		if($query->num_rows() == 0) {
@@ -806,6 +811,7 @@ class Mdapi extends CI_Controller {
 			echo json_encode(['status' => 0, 'message' => 'No data found']);
 		}
     }
+	// **********   Add,Edit a Department **********
 	public function deptSave() {
 		$sl_no = $this->input->post('sl_no');
 		$dept_name = trim($this->input->post('dept_name'));
@@ -859,7 +865,7 @@ class Mdapi extends CI_Controller {
 			'message' => $message
 		]);
 	}
-	
+	// **********   Get Master Data for Designation **********
 	public function designation() {
 		$data = $this->Master->f_select('md_designation', array('sl_no','desig_name'), NULL, NULL);
 		if (!empty($data)) {
@@ -868,7 +874,7 @@ class Mdapi extends CI_Controller {
 			echo json_encode(['status' => 0, 'message' => 'No data found']);
 		}
     }
-
+	// **********   Add,Edit a Designation **********
 	public function desigSave() {
 		$sl_no = $this->input->post('sl_no');
 		$desig_name = trim($this->input->post('desig_name'));
@@ -921,6 +927,7 @@ class Mdapi extends CI_Controller {
 			'message' => $message
 		]);
 	}
+	// **********   Get Master Data for Project Submit By **********
 	public function projsubbysave() {
 		$sl_no = $this->input->post('sl_no');
 		$proj_submit_by = trim($this->input->post('proj_submit_by'));
@@ -973,6 +980,7 @@ class Mdapi extends CI_Controller {
 			'message' => $message
 		]);
 	}
+    // **********   Edit Permission for Project Approval **********
 	public function editpermission() {
 		$this->form_validation->set_rules('project_id', 'project_id', 'required');
 		$this->form_validation->set_rules('approval_no', 'approval_no', 'required');

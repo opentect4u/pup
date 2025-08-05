@@ -25,6 +25,7 @@ class Expense extends CI_Controller {
             echo json_encode($response);
             exit;
         }
+		//   *********   Auth Token Validation    ********** //
 		$headers = $this->input->request_headers();
 		$authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
 
@@ -45,30 +46,14 @@ class Expense extends CI_Controller {
 			'message' => 'Unauthorized or Token Expired'
 		]);
 		exit;
-       // $this->validate_auth_key();
 	   $this->load->helper('pdf');
     }
-
-	private function validate_auth_key() {
-        $auth_key = $this->input->get_request_header('auth_key');
-		//$auth_key = $_SERVER['HTTP_AUTH_KEY']; // Get from header // Get from header
-        $valid_key = AUTH_KEY; // Store securely in .env or database
-        if ($auth_key !== $valid_key) {
-            $response = array(
-                'status' => false,
-                'message' => 'Unauthorized access'
-            );
-            echo json_encode($response);
-            exit; // Stop execution
-        }
-    }
-
-
+    //  ******  Expense List using approval_no *********   //
 	public function get_added_expense_list() {
 		
 		$approval_no = $this->input->post('approval_no') ;
 		//$where = array('approval_no' => $approval_no,'order by payment_no ASC'); 
-	//	$result_data = $this->Master->f_select('td_expenditure', 'payment_no,approval_no,payment_date,payment_to,sch_amt,cont_amt,sch_remark,cont_remark', $where, NULL);
+	//	$result_data = $this->Master->f_select('td_expenditure','payment_no,approval_no,payment_date,payment_to,sch_amt,cont_amt,sch_remark,cont_remark', $where, NULL);
 		$result_data = $this->db->query("SELECT 
 										e.approval_no,
 										e.payment_no,
@@ -104,15 +89,9 @@ class Expense extends CI_Controller {
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
     }
-	
+	//  **********   Expense List **********
 	public function expense_list() {
 		
-		// $where = array('a.approval_no = b.approval_no' => NULL,'b.sector_id = c.sl_no' => NULL,
-		//                'b.fin_year = d.sl_no' => NULL,'b.district_id = e.dist_code' => NULL,
-		// 			   'b.block_id = f.block_id' => NULL,'1 group by b.admin_approval_dt,b.scheme_name,sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no,a.payment_no,a.payment_date'=>NULL);
-		
-		// $result_data = $this->Master->f_select('td_expenditure a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f', 'b.admin_approval_dt,b.scheme_name,c.sector_desc as sector_name,d.fin_year,b.project_id,e.dist_name,f.block_name,a.approval_no,a.payment_no,a.payment_date', $where, NULL);
-
 		$result_data = $this->db->query("SELECT a.admin_approval_dt, a.scheme_name,
 		a.project_id,a.sch_amt,a.cont_amt,a.approval_no,
 		b.sector_desc AS sector_name,c.fin_year,g.agency_name,
@@ -143,7 +122,7 @@ class Expense extends CI_Controller {
     }
 
 
-    // ****************************  Fund Formalities  *******************   //
+    // ****************************  Expense Add  *******************   //
 	public function expense_add() {
 	    $app_res_data = $this->Master->f_select('td_expenditure','IFNULL(MAX(payment_no), 0) + 1 AS payment_no',array('approval_no'=>$this->input->post('approval_no')),NULL,1);
 		$data = [
@@ -188,7 +167,7 @@ class Expense extends CI_Controller {
 			]);
 		}
 	}
-
+    // **********   Expense Single Data usig approval_no, payment_no, payment_date ********** 
 	public function expense_single_data() {
 		$where = [];
 
@@ -212,7 +191,7 @@ class Expense extends CI_Controller {
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
 	}
-
+	//  **********   Expense Edit **********
 	public function expense_edit() {
 
 		$this->form_validation->set_rules('approval_no', 'Approval No', 'required');

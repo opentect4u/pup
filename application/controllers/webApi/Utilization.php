@@ -19,6 +19,7 @@ class Utilization extends CI_Controller {
             echo json_encode($response);
             exit;
         }
+		//   *********   Auth Token Validation    ********** //
         $headers = $this->input->request_headers();
 		$authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
 
@@ -42,20 +43,7 @@ class Utilization extends CI_Controller {
 		$this->load->helper('pdf');
     }
 
-	private function validate_auth_key() {
-        $auth_key = $this->input->get_request_header('auth_key'); // Get from header
-        $valid_key = AUTH_KEY; // Store securely in .env or database
-        if ($auth_key !== $valid_key) {
-            $response = array(
-                'status' => false,
-                'message' => 'Unauthorized access'
-            );
-            echo json_encode($response);
-            exit; // Stop execution
-        }
-    }
-
-
+	//  ******  Project approve List *********   //
 	public function proj_approv_list() {
 		$json_data = file_get_contents("php://input");
 		$data = json_decode($json_data, true);
@@ -95,6 +83,7 @@ class Utilization extends CI_Controller {
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
     }
+	//  ******  Utilization List by approval_no *********   //
 	public function get_added_utlization_list() {
 		
 		$approval_no = $this->input->post('approval_no') ;
@@ -115,7 +104,7 @@ class Utilization extends CI_Controller {
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
     }
-
+	//  ******  Utilization List *********   //
 	public function utlization_list() {
 		
 		$where = array('a.approval_no = b.approval_no' => NULL,'b.sector_id = c.sl_no' => NULL,

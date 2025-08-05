@@ -20,6 +20,7 @@ class User extends CI_Controller {
             echo json_encode($response);
             exit;
         }
+		//   *********   Auth Token Validation    ********** //
         $headers = $this->input->request_headers();
 		$authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
 
@@ -42,20 +43,7 @@ class User extends CI_Controller {
 		exit;
 		$this->load->helper('pdf');
     }
-
-	private function validate_auth_key() {
-        $auth_key = $this->input->get_request_header('auth_key'); // Get from header
-        $valid_key = AUTH_KEY; // Store securely in .env or database
-        if ($auth_key !== $valid_key) {
-            $response = array(
-                'status' => false,
-                'message' => 'Unauthorized access'
-            );
-            echo json_encode($response);
-            exit; // Stop execution
-        }
-    }
-
+	//  ******  User List *********   //
 	public function userlist() {
 		$data = $this->Master->f_select('td_user a,md_department b,md_designation c,md_district d', array('a.user_id','a.user_type','a.name','a.user_status','b.dept_name','c.desig_name','d.dist_name'), array('a.dept_id=b.sl_no'=>NULL,'a.desig_id=c.sl_no'=>NULL,'a.dist_id=d.dist_code'=>NULL), NULL);
 		if (!empty($data)) {
@@ -120,6 +108,7 @@ class User extends CI_Controller {
 		}
 	
 	}
+	//  ******  User Edit *********   //
 	public function userEdit() {
 		$this->form_validation->set_rules('name', 'Name', 'required|min_length[2]|max_length[100]');
 		$this->form_validation->set_rules('user_type', 'User Type', 'required');
@@ -180,6 +169,7 @@ class User extends CI_Controller {
 		}
 	
 	}
+	//  ******  User change password *********   //
 	public function changepass() {
 		
 		//$this->form_validation->set_rules('pass', 'User Pass', 'required');
@@ -233,7 +223,7 @@ class User extends CI_Controller {
 		    }
 		}
 	}
-
+	//  ******  User Data *********   //
 	public function userdata() {
 		
 		$this->form_validation->set_rules('user_id', 'User ID', 'required');
@@ -257,7 +247,7 @@ class User extends CI_Controller {
 			}
 		}
 	}
-
+	//  ******  User Profile Edit *********   //
 	public function profileEdit() {
 		$this->form_validation->set_rules('name', 'Name', 'required|min_length[2]|max_length[100]');
 		$this->form_validation->set_rules('dept_id', 'Department', 'required');

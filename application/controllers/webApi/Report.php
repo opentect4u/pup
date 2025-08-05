@@ -19,6 +19,7 @@ class Report extends CI_Controller {
             echo json_encode($response);
             exit;
         }
+		//   *********   Auth Token Validation    ********** //
         $headers = $this->input->request_headers();
 		$authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
 
@@ -41,20 +42,7 @@ class Report extends CI_Controller {
 		exit;
 		$this->load->helper('pdf');
     }
-
-	private function validate_auth_key() {
-        $auth_key = $this->input->get_request_header('auth_key'); // Get from header
-        $valid_key = AUTH_KEY; // Store securely in .env or database
-        if ($auth_key !== $valid_key) {
-            $response = array(
-                'status' => false,
-                'message' => 'Unauthorized access'
-            );
-            echo json_encode($response);
-            exit; // Stop execution
-        }
-    }
-
+	//  ******  Project Detail Report Financial Year Wise *********   //
 	public function proj_dtl_finyearwise() {
 		
 	$fin_year = $this->input->post('fin_year');
@@ -95,7 +83,7 @@ class Report extends CI_Controller {
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
     }
-
+	//  ******  Project Detail Report Account Wise *********   //
 	public function tender_list() {
 		$where = [];
 		$approval_no = $this->input->post('approval_no');
@@ -110,6 +98,7 @@ class Report extends CI_Controller {
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
 	}
+	//  ******  Project Detail Report Using approval_no *********   //
 	public function progress_list() {
 		$where = [];
 		$approval_no = $this->input->post('approval_no');
@@ -122,6 +111,7 @@ class Report extends CI_Controller {
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
 	}
+	//  ******  Project Detail Report Using Fund Release *********   //
 	public function fundrelease() {
 		$where = [];
 		$approval_no = $this->input->post('approval_no');
@@ -134,6 +124,7 @@ class Report extends CI_Controller {
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
 	}
+	//  ******  Project Detail Report Using Expenditure *********   //
 	public function expenditure() {
 		$where = [];
 		$approval_no = $this->input->post('approval_no');
@@ -146,6 +137,7 @@ class Report extends CI_Controller {
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
 	}
+	// **********   Project Detail Report Using Utilization **********
 	public function utilization() {
 		$where = [];
 		$approval_no = $this->input->post('approval_no');
@@ -159,7 +151,7 @@ class Report extends CI_Controller {
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
 	}
-
+	//  ******  Project Detail Report Financial Year Wise *********   //
 	public function graphical_data_finyearwise(){
 		$fin_year = $this->input->post('fin_year');
 		$sql = "select count(*) as number_of_project,b.sector_desc as sector_name from td_admin_approval a,md_sector b where a.sector_id = b.sl_no and a.fin_year = '".$fin_year."' group by a.sector_id";
@@ -305,7 +297,7 @@ class Report extends CI_Controller {
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
     }
-
+	//  **********   Expense Detail Report Using approval_no FOR GRAPHICAL VIEW **********
 	public function graphical_data_finawith(){
 		
 		$con = '';
@@ -383,7 +375,7 @@ class Report extends CI_Controller {
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
 	}
-
+	// **********   Project Status List **********
 	public function projetc_status_list(){
 
 		$report_type = $this->input->post('report_type');
