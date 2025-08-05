@@ -66,7 +66,7 @@ const HomeScreen = () => {
 
     const maxSaveProjCount = 5; // Maximum number of projects allowed
     const nowDate = new Date();
-    // const nowDate = '2025-08-05T09:11:56.915Z';
+    // const nowDate = '2025-08-06T09:11:56.915Z';
 
 
 
@@ -173,7 +173,7 @@ const HomeScreen = () => {
                 },
             );
 
-
+            console.log(res, 'fetchProjectsList__');
             // console.log(formData, 'utsabbbbbbbbbbb', loginStore?.user_id, 'kkk', res?.data, 'hh', loginTokenStore);
 
             if (res?.data?.status === 1) {
@@ -190,7 +190,7 @@ const HomeScreen = () => {
             }
         } catch (err) {
             console.log(formData, 'hhhhhhhhhhhhhhhhh', err);
-            console.log('ERR PROJ', err);
+            console.log('ERR PROJ', err, 'fetchProjectsList__');
             ToastAndroid.show(
                 'Some error occurred while fetching projects.',
                 ToastAndroid.SHORT,
@@ -218,7 +218,7 @@ const HomeScreen = () => {
                 },
             );
 
-            console.log('Percentage_ ', res?.data);
+            console.log(res, 'fetchProgressDone_ ');
 
             if (res?.data?.status === 1) {
                 console.log('Percentage_ ', res, 'iffffffff');
@@ -236,7 +236,7 @@ const HomeScreen = () => {
                 ToastAndroid.show('Percentage fetch error.', ToastAndroid.SHORT);
             }
         } catch (err) {
-            console.log('ERR PROJ', err);
+            console.log('ERR PROJ', err, 'fetchProgressDone_ ');
             ToastAndroid.show(
                 'Some error occurred while fetching projects.',
                 ToastAndroid.SHORT,
@@ -272,6 +272,7 @@ const HomeScreen = () => {
                     },
                 },
             );
+            console.log(res, 'fetchProjectDetails_');
             if (res?.data?.status === 1) {
                 console.log('PROJECT DTLS : ', res?.data);
                 // const newProjectsList = res?.data?.message?.map((item: any) => ({
@@ -284,7 +285,7 @@ const HomeScreen = () => {
                 ToastAndroid.show('Project details fetch error.', ToastAndroid.SHORT);
             }
         } catch (err) {
-            console.log('ERR PROJ DTLS', err);
+            console.log('ERR PROJ DTLS', err, 'fetchProjectDetails_');
             ToastAndroid.show(
                 'Some error occurred while fetching project details.',
                 ToastAndroid.SHORT,
@@ -408,15 +409,15 @@ const HomeScreen = () => {
             })
             .then(res => {
                 console.log('Project Ranges CAP === ', res?.data);
+                console.log(res, 'fetchProgressRangeCap__');
                 if (res?.data?.status === 1) {
                     // setProjectRangeCaps(res?.data?.message)
                     const [a, b] = getWorkRange(res?.data?.message) ?? [];
-                    console.log('AAAAAAAAAAa, BBBBBBBBBB', a, b);
                     setCheckErr(formData1.progress < a || formData1.progress > b);
                 }
             })
             .catch(err => {
-                console.log('Project Ranges CAP ERRRR === ', err);
+                console.log('Project Ranges CAP ERRRR === ', err, 'fetchProgressRangeCap__');
                 ToastAndroid.show(
                     'Some error occurred while fetching Project Ranges.',
                     ToastAndroid.SHORT,
@@ -589,12 +590,12 @@ const HomeScreen = () => {
         }
     };
 
-      const fetchProjects = useCallback(async () => {
+      const fetchProjects = async () => {
         try {
           const projectsData = await projectStorage.getString('projects');
           if (projectsData) {
             var parsedProjects = JSON.parse(projectsData);
-            console.log(parsedProjects, 'projectsprojectsprojectsprojectsprojects', 'parsedProjects');
+            // console.log(parsedProjects, 'projectsprojectsprojectsprojectsprojects', 'parsedProjects');
 
             if(parsedProjects.length > maxSaveProjCount) {
             // Alert.alert('Alert', 'You have more than 3 saved projects. Please go to settings to view them.')
@@ -616,9 +617,12 @@ const HomeScreen = () => {
 
           try {
           const projectsData_Date = await projectStorage.getString('projects_date');
-          console.log(projectsData_Date, 'projectsprojectsprojectsprojectsprojects', 'projectsData');
+          
           if (projectsData_Date) {
-            const parsedProjects_Date = JSON.parse(projectsData_Date);
+            const parsedProjects_Date = JSON.parse(projectsData_Date ?? '');
+
+            console.log(parsedProjects_Date, 'projectsprojectsprojectsprojectsprojects', parsedProjects);
+            
             // const nowDate = new Date();
             // const nowDate = '2025-08-05T09:11:56.915Z';
             // Alert.alert(
@@ -649,17 +653,23 @@ const HomeScreen = () => {
           }
         } catch (error) {
           console.log('Error fetching projects:', error);
-          ToastAndroid.show('Error fetching saved projects.', ToastAndroid.SHORT);
+        //   ToastAndroid.show('Error fetching saved projects.', ToastAndroid.SHORT);
         }
 
 
         } catch (error) {
           console.log('Error fetching projects:', error);
-          ToastAndroid.show('Error fetching saved projects.', ToastAndroid.SHORT);
+        //   ToastAndroid.show('Error fetching saved projects.', ToastAndroid.SHORT);
         }
-      }, []);
+      };
 
     
+    useEffect(() => {
+    // fetchProjects_Date()
+    fetchProjects();
+
+    }, []);
+ 
 
 
     useEffect(() => {
@@ -770,6 +780,7 @@ const HomeScreen = () => {
             // If not found, add as new project
             storedProjects.push(newProject);
             }
+            fetchProjects()
 
             console.log(storedProjects.length, 'projectsprojectsprojectsprojectsprojects');
             

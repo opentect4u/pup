@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ToastAndroid,
   Linking,
+  Alert,
 } from 'react-native';
 import { ActivityIndicator, Divider, Text, TouchableRipple } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -33,10 +34,15 @@ const SavedProjectsScreen = () => {
       );
 
   const fetchProjects = async () => {
+    Alert.alert('Fetching Projects', 'Please wait while we fetch your saved projects.');
     setLoadingPro(true)
     try {
+      const projectsData_Date = await projectStorage.getString('projects_date');
+      const parsedProjects_Date = JSON.parse(projectsData_Date ?? '');
+      console.log(parsedProjects_Date, 'projects_date____');
       
-      const projectsData = projectStorage.getString('projects');
+      
+      const projectsData = await projectStorage.getString('projects');
       if (projectsData) {
         const parsedProjects = JSON.parse(projectsData);
         console.log(parsedProjects, 'projects____', projects);
@@ -218,7 +224,22 @@ const updateProjectLive = async () => {
     (project) => !successfullyUploadedApprovalNos.includes(project.approval_no)
   );
 
+  
+
+  // Clear all old 'projects' data from storage first
+  await projectStorage.clearAll();
+  fetchProjects();
+
+  if (remainingProjects.length > 0) {
+  console.log('Remaining projects after upload:', remainingProjects);
   await projectStorage.set('projects', JSON.stringify(remainingProjects));
+  // projectStorage.clearAll();
+  
+  }
+
+
+  // await projectStorage.set('projects', JSON.stringify(remainingProjects));
+  // projectStorage.clearAll(); 
 
   ToastAndroid.show('Upload completed.', ToastAndroid.SHORT);
   setLoading(false);
