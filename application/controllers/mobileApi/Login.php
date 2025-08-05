@@ -65,8 +65,7 @@ class Login extends CI_Controller {
 						if($match){
 							$result    = $this->Master->f_select('td_user',array('user_id','user_type','name','user_status'),array('user_id'=>$user_id),1);
 							$token = bin2hex(random_bytes(32));
-							//$expires_at = date('Y-m-d H:i:s', strtotime('+2 hours')); // token valid for 2 hours
-							$expires_at = date('Y-m-d H:i:s', strtotime('+5 minutes')); // token valid for 5 minutes
+							$expires_at = date('Y-m-d H:i:s', strtotime('+2 hours')); // token valid for 2 hours
 
 							$this->db->where('user_id', $result->user_id);
 							$this->db->delete('td_auth_tokens'); // Or whatever table you're using

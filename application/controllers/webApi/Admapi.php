@@ -18,7 +18,7 @@ class Admapi extends CI_Controller {
 			echo json_encode(['status' => 0, 'message' => 'Only POST method allowed']);
 			exit;
 		}
-
+        //   *********   Auth Token Validation    ********** //
 		$headers = $this->input->request_headers();
 		$authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
 
@@ -40,7 +40,8 @@ class Admapi extends CI_Controller {
 		]);
 		exit;
 	}
-
+     
+	///   **********   Check Project ID Availability **********
     public function check_pi() {
 		$this->form_validation->set_rules('project_id', 'project_id', 'required');
 		if ($this->form_validation->run() == FALSE) {
@@ -64,7 +65,9 @@ class Admapi extends CI_Controller {
 			}
 	    }
 	}
-	
+
+	///   **********   Add Admin Approval **********
+
 	public function adm_appr_add() {
 
 		$this->form_validation->set_rules('scheme_name', 'scheme_name', 'required');
@@ -247,7 +250,9 @@ class Admapi extends CI_Controller {
 			}	
 	     }
 	}
-	
+
+	///   **********   Edit Admin Approval **********
+
 	public function adm_appr_edit() {
 
 		$this->form_validation->set_rules('scheme_name', 'scheme_name', 'required');
@@ -445,6 +450,7 @@ class Admapi extends CI_Controller {
 
 	}
 
+	///   **********   Admin Approval List **********
 	public function adm_approv_list() {
 		$project_id = $this->input->post('project_id');
 		$fin_year = $this->input->post('fin_year');
@@ -480,6 +486,7 @@ class Admapi extends CI_Controller {
 		}
     }
 
+	///   **********   Admin Approval Details by District, Block, PS, GP **********
 	public function proj_dtls_dist_block_ps_gp() {
 		$con = '';
 		$dist = $this->input->post('dist_id');
@@ -579,7 +586,7 @@ class Admapi extends CI_Controller {
 			echo json_encode(['status' => 0, 'message' => 'No data found']);
 		}
     }
-
+	//  **********   Get Approval No **********
 	public function get_approval_no() {
 		
 		$result_data = $this->Master->f_select('td_admin_approval', 'approval_no,project_id', NULL, 0);

@@ -11,17 +11,17 @@ class Api extends CI_Controller {
 		if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 			exit;
 		} 
-		if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $response = array(
-                'status' => false,
-                'message' => 'Only POST method is allowed'
-            );
-            echo json_encode($response);
-            exit;
-        }
+		// if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        //     $response = array(
+        //         'status' => false,
+        //         'message' => 'Only POST method is allowed'
+        //     );
+        //     echo json_encode($response);
+        //     exit;
+        // }
+
+		//   *********   Auth Token Validation    ********** //
 		$headers = $this->input->request_headers();
-		//log_message('error', print_r($headers, true));
-        // $authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
 		$authHeader = '';
 		foreach ($headers as $key => $value) {
 			if (strtolower($key) === 'authorization') {
@@ -50,7 +50,7 @@ class Api extends CI_Controller {
         exit;
      
     }
-
+    // ******  Get project list by user_id *********   //
 	public function projectlist() {
 	    $this->form_validation->set_rules('user_id', 'user_id', 'required');
 		if ($this->form_validation->run() == FALSE) {
@@ -74,6 +74,7 @@ class Api extends CI_Controller {
 
 		}
     }
+	// ******  Get project progress detail *********   //
 	public function projectrange() {
 		  $this->form_validation->set_rules('project_id', 'project_id', 'required');
 		if ($this->form_validation->run() == FALSE) {
@@ -93,7 +94,7 @@ class Api extends CI_Controller {
 			->set_output(json_encode($response));
 		}
     }
-
+    // ******  Progress Update of project using image and location *********   //
     public function progress_update(){
 
 		  // Get client IP address
@@ -187,32 +188,79 @@ class Api extends CI_Controller {
 		 
 			 echo json_encode($response);
 	}
-	 
-	// public function progress_list() {
-	// 	$where = array('a.approval_no = b.approval_no' => NULL,'b.sector_id = c.sl_no' => NULL,
-	// 	               'b.fin_year = d.sl_no' => NULL,'b.district_id = e.dist_code' => NULL,
-	// 				   'b.block_id = f.block_id' => NULL,'b.impl_agency = g.id' => NULL);
-	// 	$where2 = array('a.approval_no = b.approval_no' => NULL);			   
-	// 	$approval_no = $this->input->post('approval_no');
-	// 	if ($approval_no > 0) {
-	// 		$where = array_merge($where, ['b.approval_no' => $approval_no]); 
-	// 		$where2 = array_merge($where2, ['b.approval_no' => $approval_no]);
-	// 	}
-		
-	// 	$result_data = $this->Master->f_select('td_progress a,td_admin_approval b,md_sector c,md_fin_year d,md_district e,md_block f,md_proj_imp_agency g,td_tender h', 'b.scheme_name,c.sector_desc as sector_name,b.project_id,e.dist_name,f.block_name,a.approval_no', array_merge($where, ['1 limit 1' => NULL]), NULL);
-		
-	// 	$image_data = $this->Master->f_select('td_progress a,td_admin_approval b', 'a.approval_no,a.visit_no,a.progress_percent,a.pic_path', array_merge($where2, ['1 limit 6' => NULL]), NULL);
-	// 	$progress_percent = $this->Master->f_select('td_progress', 'ifnull(sum(progress_percent),0) progress_percent', array('approval_no'=>$approval_no), 1);
-		
-	// 	$response = (!empty($result_data)) 
-	// 		? ['status' => 1, 'message' => $result_data,'prog_img'=>$image_data,'progress_percent'=>$progress_percent->progress_percent,'OPERATION_STATUS' => 'edit','folder_name'=>'uploads/progress_image/'] 
-	// 		: ['status' => 0, 'message' => 'No data found','progress_percent'=>$progress_percent->progress_percent];
-	
-	// 	$this->output
-	// 		->set_content_type('application/json')
-	// 		->set_output(json_encode($response));
-    // }
+//     public function progress_update_sync()
+//     {
+// 	// Logging
+// 		$client_ip = $this->input->ip_address();
+// 		$headers = json_encode($this->input->request_headers());
+// 		$post_data = $this->input->post();
+// 		$timestamp = date('Y-m-d H:i:s');
+// 		$log_entry = "[{$timestamp}] IP: {$client_ip} | Headers: {$headers} | POST Data: " . json_encode($post_data) . PHP_EOL;
+// 		file_put_contents(APPPATH . 'logs/api_requests.log', $log_entry, FILE_APPEND);
 
+// 		$response = [];
+
+// 		$count = count($post_data['approval_no']); // How many records
+
+// 		for ($i = 0; $i < $count; $i++) {
+
+// 		// Get next visit number
+// 		$app_res_data = $this->Master->f_select(
+// 			'td_progress',
+// 			'IFNULL(MAX(visit_no), 0) + 1 AS visit_no',
+// 			['approval_no' => $post_data['approval_no'][$i]],
+// 			1
+// 		);
+
+// 		// Handle progress_pic (file URIs, not real uploads)
+// 		$upload_paths = [];
+
+// 		if (isset($post_data['progress_pic'][$i])) {
+// 			if (is_array($post_data['progress_pic'][$i])) {
+// 				foreach ($post_data['progress_pic'][$i] as $pic_uri) {
+// 					$upload_paths[] = basename($pic_uri); // Just keep file name
+// 				}
+// 			} else {
+// 				$upload_paths[] = basename($post_data['progress_pic'][$i]);
+// 			}
+// 		}
+
+// 		// Prepare insert data
+// 		$data = [
+// 			'approval_no'         => $post_data['approval_no'][$i],
+// 			'visit_no'            => $app_res_data->visit_no,
+// 			'progress_percent'    => $post_data['progress_percent'][$i],
+// 			'progressive_percent' => $post_data['progressive_percent'][$i],
+// 			'pic_path'            => json_encode($upload_paths),
+// 			'lat'                 => $post_data['lat'][$i],
+// 			'long'                => $post_data['long'][$i],
+// 			'address'             => $post_data['address'][$i],
+// 			'actual_date_comp'    => strlen($post_data['actual_date_comp'][$i]) > 9 ? $post_data['actual_date_comp'][$i] : null,
+// 			'proj_comp_status'    => strlen($post_data['actual_date_comp'][$i]) > 9 ? 1 : 0,
+// 			'remarks'             => $post_data['remarks'][$i],
+// 			'created_by'          => $post_data['created_by'][$i],
+// 			'created_at'          => $timestamp,
+// 		];
+
+// 		// Insert into DB
+// 		$inserted = $this->db->insert('td_progress', $data);
+
+// 		$response[] = [
+// 			'approval_no' => $post_data['approval_no'][$i],
+// 			'status'      => $inserted ? 1 : 0,
+// 			'message'     => $inserted ? 'Inserted successfully' : 'Insert failed',
+// 			'file_paths'  => $upload_paths
+// 		];
+// 	}
+
+// 	// Log response
+// 	$response_log = "[{$timestamp}] Response: " . json_encode($response) . PHP_EOL;
+// 	file_put_contents(APPPATH . 'logs/api_requests.log', $response_log, FILE_APPEND);
+
+// 	echo json_encode($response);
+//    }
+
+	// ******  Progress List of project *********   //
 	public function progress_list() {
 		$where = array('a.approval_no = b.approval_no' => NULL,'b.sector_id = c.sl_no' => NULL,
 		               'b.fin_year = d.sl_no' => NULL,

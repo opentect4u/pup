@@ -53,6 +53,8 @@ class Login extends CI_Controller {
 			exit;
 		}
     }
+
+	//  ******  Get CSRF Token *********   //
 	public function get_csrf()
 	{
 		echo json_encode([
@@ -60,6 +62,7 @@ class Login extends CI_Controller {
 			'csrf_token_value' => $this->security->get_csrf_hash()
 		]);
 	}
+	//  ******  Login Function *********   //
 	public function login() {
 		if($_SERVER['REQUEST_METHOD']=="POST"){
             //  $pass  = 123;
@@ -83,7 +86,7 @@ class Login extends CI_Controller {
 							->get('td_login_attempts')
 							->row();
 
-					if ($attempt && $attempt->is_locked) {
+					if ($attempt && $attempt->is_locked) {         //  Login attempt check
 					if (strtotime($attempt->lock_until) > time()) {
 					$this->output
 					->set_content_type('application/json')
@@ -96,7 +99,6 @@ class Login extends CI_Controller {
 					}
 					$result     = $this->Master->f_select('td_user',array('user_status','pass'),array('user_id'=>$user_id,'user_status'=>'A'),1);
 					
-				
 					if($result){
 					if($result->user_status=='A'){
 							
