@@ -21,42 +21,30 @@ class Tender extends CI_Controller {
             echo json_encode($response);
             exit;
         }
+		//   *********   Auth Token Validation    ********** //
        $headers = $this->input->request_headers();
 	   $authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
 
-		// if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
-		// 	$token = $matches[1];
-		// 	$user = $this->User_model->get_user_by_token($token);
-		// 	if ($user) {
-		// 		$this->user = $user;
-		// 		return;
-		// 	}
-		// }
+		if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+			$token = $matches[1];
+			$user = $this->User_model->get_user_by_token($token);
+			if ($user) {
+				$this->user = $user;
+				return;
+			}
+		}
 
-		// http_response_code(401);
-		// header('Content-Type: application/json');
-		// echo json_encode([
-		// 	'status' => 0,
-		// 	'error_code' => 401,
-		// 	'message' => 'Unauthorized or Token Expired'
-		// ]);
-		// exit;
+		http_response_code(401);
+		header('Content-Type: application/json');
+		echo json_encode([
+			'status' => 0,
+			'error_code' => 401,
+			'message' => 'Unauthorized or Token Expired'
+		]);
+		exit;
 		$this->load->helper('pdf');
     }
-
-	private function validate_auth_key() {
-        $auth_key = $this->input->get_request_header('auth_key'); // Get from header
-        $valid_key = AUTH_KEY; // Store securely in .env or database
-        if ($auth_key !== $valid_key) {
-            $response = array(
-                'status' => false,
-                'message' => 'Unauthorized access'
-            );
-            echo json_encode($response);
-            exit; // Stop execution
-        }
-    }
-
+	//  ******  Assistant Engineer List *********   //
 	public function assist_eng_list() {
 		
 		$sql = "SELECT id as assistant_eng_id,user_id,name FROM td_user where user_type = 'F' and user_status = 'A' ";
@@ -67,6 +55,7 @@ class Tender extends CI_Controller {
 			echo json_encode(['status' => 0, 'message' => 'No data found']);
 		}
     }
+	//  ******  Tender List *********   //
 	public function tender_list() {
 		
 	    $sql = "SELECT 
@@ -222,7 +211,7 @@ class Tender extends CI_Controller {
 				}
 	    }
 	}
-
+     // **********   Tender Single Data usig approval_no, project_id **********
 	public function proj_approv_list() {
 		$json_data = file_get_contents("php://input");
 		$data = json_decode($json_data, true);
@@ -262,7 +251,7 @@ class Tender extends CI_Controller {
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
     }
-
+    // **********   Tender Single Data usig approval_no, sl_no **********
 	public function tender_single_data() {
 		$where = [];
 		$approval_no = $this->input->post('approval_no');
@@ -279,6 +268,7 @@ class Tender extends CI_Controller {
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
 	}
+	//  ******  Tender List Project Wise *********   //
 	public function tender_list_proj() {
 		$where = [];
 		$approval_no = $this->input->post('approval_no');
@@ -309,7 +299,7 @@ class Tender extends CI_Controller {
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
 	}
-
+	//  ******  Tender Edit *********   //
 	public function tend_edit() {
 
 		$this->form_validation->set_rules('approval_no', 'Approval No', 'required');
@@ -425,6 +415,8 @@ class Tender extends CI_Controller {
 	   }
 	}
 
+	//  ******  Tender Progress List *********   //
+
 	public function progress_list() {
 		$where = array('a.approval_no = b.approval_no' => NULL,'b.sector_id = c.sl_no' => NULL,
 		               'b.fin_year = d.sl_no' => NULL,'b.district_id = e.dist_code' => NULL,
@@ -477,6 +469,7 @@ class Tender extends CI_Controller {
 			->set_output(json_encode($response));
     }
 
+	//  ******  Project Tender Detail *********   //
 	public function projTender() {
 		   
 		$approval_no = $this->input->post('approval_no');
@@ -508,7 +501,7 @@ class Tender extends CI_Controller {
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
     }
-
+	//  ******  Progress List *********   //
 	public function prog_ls() {
 
 		$result_data = $this->db->query("SELECT a.admin_approval_dt, a.scheme_name,
