@@ -1,2 +1,4 @@
 uploads/
 application/config/
+config.bat
+node_modules
