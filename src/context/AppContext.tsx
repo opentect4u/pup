@@ -131,7 +131,7 @@ const AppContext = ({ children }: any) => {
   const handleLogout = async () => {
     loginStorage.clearAll();
     fileStorage.clearAll();
-    // projectStorage.clearAll();
+    projectStorage.clearAll();
     loginToken.clearAll();
     setIsLogin(false);
   };

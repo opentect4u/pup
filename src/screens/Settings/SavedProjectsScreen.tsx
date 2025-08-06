@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useContext } from 'react';
 import {
   View,
   ScrollView,
@@ -19,6 +19,7 @@ import { ProjectStoreModel } from '../../models/global_models';
 import FileViewer from 'react-native-file-viewer';
 import axios from 'axios';
 import { ADDRESSES } from '../../config/api_list';
+import InternetStatusContext from '../../context/InternetStatusContext';
 
 const SavedProjectsScreen = () => {
   const theme = usePaperColorScheme();
@@ -27,22 +28,30 @@ const SavedProjectsScreen = () => {
   const [loadingPro, setLoadingPro] = useState(false);
   const [loading, setLoading] = useState(false);
   const isFocused = useIsFocused();
+  const isOnline = useContext(InternetStatusContext);
 
   const loginTokenStore = useMemo(
           () => JSON.parse(loginToken?.getString('login-token') ?? '{}'),
           [],
       );
 
-  const fetchProjects = async () => {
-    Alert.alert('Fetching Projects', 'Please wait while we fetch your saved projects.');
+  const fetchLocalStorageProjects = () => {
+    // Alert.alert('Fetching Projects', 'Please wait while we fetch your saved projects.');
     setLoadingPro(true)
     try {
-      const projectsData_Date = await projectStorage.getString('projects_date');
-      const parsedProjects_Date = JSON.parse(projectsData_Date ?? '');
-      console.log(parsedProjects_Date, 'projects_date____');
+      // Alert.alert('Fetching Projects ggg', 'Please wait while we fetch your saved projects.');
+      // console.log('projects_date____utsabbbbbbbbbbbbbbbbb :--' );
+       
+      // const projectsData_Date = projectStorage.getString('projects_date');
+      const parsedProjects_Date = projectStorage.getString('projects_date');
+      // const parsedProjects_Date = JSON.parse(projectsData_Date ?? '');
+      console.log(parsedProjects_Date, 'projects_date____utsabbbbbbbbbbbbbbbbb');
       
       
-      const projectsData = await projectStorage.getString('projects');
+      const projectsData = projectStorage.getString('projects');
+
+      console.log(projectsData, 'projects_date____utsabbbbbbbbbbbbbbbbb', parsedProjects_Date);
+
       if (projectsData) {
         const parsedProjects = JSON.parse(projectsData);
         console.log(parsedProjects, 'projects____', projects);
@@ -58,20 +67,21 @@ const SavedProjectsScreen = () => {
         setLoadingPro(false)
       }
     } catch (error) {
-      console.log('Error fetching projects:', error);
-      ToastAndroid.show('Error fetching saved projects.', ToastAndroid.SHORT);
+      console.log('Clear All Projects:', error);
+      ToastAndroid.show('Clear All Projects.', ToastAndroid.SHORT);
       setLoadingPro(false)
     }
   };
 
   // useEffect(() => {
-  //   fetchProjects();
-  // }, [fetchProjects]);
+  //   fetchLocalStorageProjects();
+  // }, []);
 
 
     useEffect(() => {
+       console.log('isFocused', isFocused);
         if(isFocused){
-        fetchProjects();
+        fetchLocalStorageProjects();
         }
     }, [isFocused]);
 
@@ -157,7 +167,7 @@ const SavedProjectsScreen = () => {
 
 //       console.log(`✅ Uploaded project ${project.approval_no}`, response.data);
 //       projectStorage.clearAll(); 
-//       fetchProjects();
+//       fetchLocalStorageProjects();
 //     } catch (err) {
 //       console.log(`❌ Failed to upload project ${project.approval_no}`, err);
 //       // Optionally break or continue depending on needs
@@ -228,18 +238,21 @@ const updateProjectLive = async () => {
 
   // Clear all old 'projects' data from storage first
   await projectStorage.clearAll();
-  fetchProjects();
+  // fetchLocalStorageProjects();
 
   if (remainingProjects.length > 0) {
   console.log('Remaining projects after upload:', remainingProjects);
   await projectStorage.set('projects', JSON.stringify(remainingProjects));
   // projectStorage.clearAll();
+  // fetchLocalStorageProjects();
   
   }
 
 
   // await projectStorage.set('projects', JSON.stringify(remainingProjects));
   // projectStorage.clearAll(); 
+
+  fetchLocalStorageProjects();
 
   ToastAndroid.show('Upload completed.', ToastAndroid.SHORT);
   setLoading(false);
@@ -271,7 +284,7 @@ const updateProjectLive = async () => {
             <Text variant="titleMedium">No saved projects found.</Text>
           {loadingPro && (
             <View style={styles.spinnerContainer}>
-              <ActivityIndicator size="small" color="#6B7280" /> {/* Tailwind gray-500 */}
+              <ActivityIndicator size="small" color="#6B7280" /> 
             </View>
           )} 
           
@@ -308,19 +321,29 @@ const updateProjectLive = async () => {
               </View>
             ))
           )}
-   {projects.length > 0 && (
-          <ButtonPaper
+          {projects.length > 0 && (
+            <>
+            {isOnline ? (
+
+            <ButtonPaper
             icon={'refresh'}
             mode="contained"
             loading={loading}
-            // onPress={fetchProjects}
             onPress={()=>{updateProjectLive()}}
             style={{
-              paddingVertical: 8,
+            paddingVertical: 8,
             }}>
             Make Data Live
-          </ButtonPaper>
-   )}
+            </ButtonPaper>
+
+            ):(
+            <>
+            <Text variant="bodyMedium" style={styles.oflineText}>
+              You are offline. Please connect to the internet to make data live.  </Text>
+            </> 
+            )}
+            </>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -355,5 +378,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flex: 1,
+  },
+  oflineText: {
+    color: '#fff', 
+    textAlign: 'center', 
+    fontWeight:700, 
+    fontSize:14, 
+    backgroundColor: '#cf820fff', 
+    padding: 6, 
+    borderRadius: 10
   }
 });

@@ -64,8 +64,12 @@ const HomeScreen = () => {
 
     const isFocused = useIsFocused();
 
-    const maxSaveProjCount = 5; // Maximum number of projects allowed
+    const maxSaveProjCount = 4; // Maximum number of projects allowed 5
     const nowDate = new Date();
+
+    // const now = new Date();
+    // const nowDate = new Date(now);
+    // nowDate.setDate(now.getDate() + 1);
     // const nowDate = '2025-08-06T09:11:56.915Z';
 
 
@@ -590,18 +594,20 @@ const HomeScreen = () => {
         }
     };
 
-      const fetchProjects = async () => {
+      const fetchLocalStorageProjects = async () => {
         try {
-          const projectsData = await projectStorage.getString('projects');
+
+          const projectsData = projectStorage.getString('projects');
+          console.log(projectsData, '(:-projectsprojectsprojectsprojectsprojects');
           if (projectsData) {
             var parsedProjects = JSON.parse(projectsData);
-            // console.log(parsedProjects, 'projectsprojectsprojectsprojectsprojects', 'parsedProjects');
+            console.log(parsedProjects.length, '>>>', 'projectsprojectsprojectsprojectsprojects', maxSaveProjCount);
 
             if(parsedProjects.length > maxSaveProjCount) {
             // Alert.alert('Alert', 'You have more than 3 saved projects. Please go to settings to view them.')
                 Alert.alert(
                 'Offline Limit Reached',
-                `You’ve saved the maximum of ${maxSaveProjCount} projects offline. Please connect to the internet to sync your data before adding new projects.`
+                `You’ve saved the maximum of ${maxSaveProjCount+1} projects offline. Please connect to the internet to sync your data before adding new projects.`
                 );
                 navigation.dispatch(
                 CommonActions.navigate({
@@ -616,21 +622,23 @@ const HomeScreen = () => {
           }
 
           try {
-          const projectsData_Date = await projectStorage.getString('projects_date');
-          
+          const projectsData_Date = projectStorage.getString('projects_date');
+          console.log(projectsData_Date, '-------projectsData_Date-------')
           if (projectsData_Date) {
-            const parsedProjects_Date = JSON.parse(projectsData_Date ?? '');
+            // const parsedProjects_Date = JSON.parse(projectsData_Date ?? '');
+            const parsedProjects_Date = projectsData_Date ?? '';
 
-            console.log(parsedProjects_Date, 'projectsprojectsprojectsprojectsprojects', parsedProjects);
+
+            console.log(parsedProjects_Date, 'projectsprojectsprojectsprojectsprojects', parsedProjects, 'hhhhhh', JSON.stringify(nowDate.toISOString()));
             
-            // const nowDate = new Date();
-            // const nowDate = '2025-08-05T09:11:56.915Z';
-            // Alert.alert(
-            //     'Offline Limit Reached',
-            //     `You’ve saved the maximum of ${maxSaveProjCount} projects offline. Please connect to the internet to sync your data before adding new projects.`
-            //     );
+            const parsedDateOnly = parsedProjects_Date.split('T')[0];
+            const currentDateOnly = nowDate.toISOString().split('T')[0];
+            console.log(parsedDateOnly, '__________mm__', currentDateOnly, 'kkk', nowDate.toISOString(), 'storeDate', parsedProjects_Date);
+            
+
             if(parsedProjects.length > 0) {
-                if (parsedProjects_Date && parsedProjects_Date < nowDate) {
+                // Alert.alert(parsedProjects_Date > JSON.stringify(nowDate.toISOString()) ? 'New Day Detected' : 'Same Day Detected', `Projects saved on ${new Date(parsedProjects_Date).toLocaleDateString()}.`);
+                if (parsedDateOnly < currentDateOnly) {
                 Alert.alert(
                 'Sync Needed',
                 'New day detected. Please sync your saved projects before adding more.'
@@ -664,18 +672,18 @@ const HomeScreen = () => {
       };
 
     
-    useEffect(() => {
-    // fetchProjects_Date()
-    fetchProjects();
+    // useEffect(() => {
+    // // fetchProjects_Date()
+    // fetchLocalStorageProjects();
 
-    }, []);
+    // }, [fetchLocalStorageProjects]);
  
 
 
     useEffect(() => {
         // fetchProjects_Date()
         if (isFocused) {
-        fetchProjects();
+        fetchLocalStorageProjects();
         }
 
       }, [isFocused]);
@@ -740,7 +748,7 @@ const HomeScreen = () => {
 
             const projectsData = await projectStorage.getString('projects');
             
-            
+            console.log(projectsData, ' projectsData:-')
 
             if (projectsData) {
                 storedProjects = JSON.parse(projectsData);
@@ -763,9 +771,11 @@ const HomeScreen = () => {
 
             // console.log(newProject, 'projectsprojectsprojectsprojectsprojects', formData1.remarks, 'vvvv', storedProjects);
             console.log(storedProjects.length, 'projectsprojectsprojectsprojectsprojects', 'top');
-
-            if (storedProjects.length < 1) {
-                await projectStorage.set('projects_date', JSON.stringify(new Date().toISOString()));
+ console.log('ENTER IN stored Projects.length < 1', storedProjects.length, 'projectsprojectsprojectsprojectsprojects');
+            if (storedProjects.length == 0) {
+                // console.log(JSON.stringify(new Date().toISOString()), ' TIME');
+                // projectStorage.set('projects_date', JSON.stringify(new Date().toISOString()));
+                projectStorage.set('projects_date', new Date().toISOString());
             }
 
             // storedProjects.push(newProject);
@@ -780,7 +790,7 @@ const HomeScreen = () => {
             // If not found, add as new project
             storedProjects.push(newProject);
             }
-            fetchProjects()
+            
 
             console.log(storedProjects.length, 'projectsprojectsprojectsprojectsprojects');
             
@@ -788,7 +798,8 @@ const HomeScreen = () => {
             
 
             // Save the updated projects list to projectStorage
-            await projectStorage.set('projects', JSON.stringify(storedProjects));
+            projectStorage.set('projects', JSON.stringify(storedProjects));
+            fetchLocalStorageProjects()
 
             // const projectsString = await projectStorage.getString('projects');
             // const projects = JSON.parse(projectsString ?? '{}')
