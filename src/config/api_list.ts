@@ -9,4 +9,7 @@ export const ADDRESSES = {
   FETCH_PROJECT_PROCESS: `${BASE_URL}/mobileApi/Api/progress_list`,
   FETCH_PROJECT_RANGE: `${BASE_URL}/mobileApi/Api/projectrange`,
   FETCH_PROGRESS_DONE: `${BASE_URL}/mobileApi/Api/progress_list`,
+  
+  LOAD_LIVE_PROJECT: `${BASE_URL}/mobileApi/Api/progress_list_bulk`,
+  
 };

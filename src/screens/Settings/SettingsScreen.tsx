@@ -12,13 +12,13 @@ import useScreenDimensions from '../../hooks/useScreenDimensions';
 import ButtonPaper from '../../components/ButtonPaper';
 import { AppStore } from '../../context/AppContext';
 import Header from '../../components/Header';
-import { projectStorage } from '../../storage/appStorage';
+import { projectSaveSpecificStorage } from '../../storage/appStorage';
 import { CommonActions, useIsFocused, useNavigation } from '@react-navigation/native';
 import navigationRoutes from '../../routes/routes';
 
 const strings = settingsScreenStrings.getStrings();
 
-console.log('Project STORE : ', projectStorage?.getString('projects'));
+console.log('Project STORE : ', projectSaveSpecificStorage?.getString('projects'));
 console.log('Project STORE : helloooo=== ');
 
 const SettingsScreen = () => {

@@ -5,7 +5,7 @@ import {
   fileStorage,
   loginStorage,
   loginToken,
-  projectStorage,
+  projectSaveSpecificStorage,
 } from '../storage/appStorage';
 import { ADDRESSES } from '../config/api_list';
 import { AppStoreContext } from '../models/context_types';
@@ -131,7 +131,7 @@ const AppContext = ({ children }: any) => {
   const handleLogout = async () => {
     loginStorage.clearAll();
     fileStorage.clearAll();
-    projectStorage.clearAll();
+    // projectSaveSpecificStorage.clearAll();
     loginToken.clearAll();
     setIsLogin(false);
   };

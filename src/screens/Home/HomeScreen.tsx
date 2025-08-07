@@ -11,6 +11,7 @@ import {
     Linking,
 } from 'react-native';
 import {
+    ActivityIndicator,
     Icon,
     ProgressBar,
     Text,
@@ -26,9 +27,10 @@ import InputPaper from '../../components/InputPaper';
 import Header from '../../components/Header';
 import {
     fileStorage,
+    livPprojectListStorage,
     loginStorage,
     loginToken,
-    projectStorage,
+    projectSaveSpecificStorage,
 } from '../../storage/appStorage';
 // @ts-ignore
 import { AUTH_KEY, REVERSE_GEOENCODING_API_KEY } from '@env';
@@ -94,6 +96,7 @@ const HomeScreen = () => {
     const [imgData, setImgData] = useState<Asset[]>([]);
     const [projectsList, setProjectsList] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
+    const [loadingLivePro, setLoadingLivePro] = useState(false);
     const [fetchedProjectDetails, setFetchedProjectDetails] = useState(() => '');
     const [progressComplete, setProgressComplete] = useState(() => Number(0));
     const [progressCompleteAPI, setProgressCompleteAPI] = useState(() => Number(0));
@@ -101,15 +104,27 @@ const HomeScreen = () => {
     const [dateFinal, setDateFinal] = useState(() => '');
     const [projects, setProjects] = useState<ProjectStoreModel[]>([]);
     const [projectsDate, setProjectsDate] = useState('');
+    const [fetchDataDetails, setFetchDataDetails] = useState(false);
+
+    const [internetStatus, setInternetStatus] = useState(false);
 
     const isOnline = useContext(InternetStatusContext);
 
     useEffect(() => {
-        console.log(isOnline, 'isOnlineisOnlineisOnlineisOnline');
-        
-    if (!isOnline) {
-    Alert.alert('No Internet', 'Please connect to the internet.');
+        console.log('isOnlineCopy', isOnline, 'isFocusedCopy', isFocused);
+    if (isOnline) {
+    // Alert.alert('Online', 'Please connect to the internet.');
+    console.log('interStatus', 'Online Please connect to the internet.');
+    setInternetStatus(true);
+    
     }
+
+    if (!isOnline) {
+    // Alert.alert('No Internet', 'Please connect to the internet.');
+    // console.log('interStatus', 'No Internet Please connect to the internet.');
+    setInternetStatus(false);
+    }
+
     }, [isOnline]);
 
     // Set projectId to null instead of "" to indicate no selection
@@ -123,11 +138,6 @@ const HomeScreen = () => {
         remarks: '',
         actual_date_comp: '',
     });
-    // const [projectRangeCaps, setProjectRangeCaps] = useState<any[]>(() => [])
-    const [checkErr, setCheckErr] = useState(() => false);
-    
-
-
 
     const handleFormChange = useCallback((field: string, value: any) => {
         setFormData1(prev => ({
@@ -156,13 +166,16 @@ const HomeScreen = () => {
 
     
 
-    const fetchProjectsList = useCallback(async () => {
+    const fetchProjectsList = async () => {
 
+
+       console.log('fetchProjectsList__', isOnline, 'isOnline'); 
+    if(isOnline) {
         setLoading(true);
+
+        // Alert.alert('Online Mode__', 'You are online. Fetching live projects.'+ isOnline);
         const formData = new FormData();
         formData.append('user_id', loginStore?.user_id);
-
-
         try {
             const res = await axios.post(
                 `${ADDRESSES.FETCH_PROJECTS_LIST}`,
@@ -170,40 +183,58 @@ const HomeScreen = () => {
                 {
                     headers: {
                         'Content-Type': 'multipart/form-data',
-                        // auth_key: AUTH_KEY,
-                        // 'Authorization': `Bearer ` + loginTokenStore?.token
                         'Authorization': `Bearer ` + loginTokenStore?.token
                     },
                 },
             );
 
-            console.log(res, 'fetchProjectsList__');
-            // console.log(formData, 'utsabbbbbbbbbbb', loginStore?.user_id, 'kkk', res?.data, 'hh', loginTokenStore);
-
+            
             if (res?.data?.status === 1) {
-                // console.log(formData, 'utsabbbbbbbbbbb', loginStore?.user_id, 'kkk', res?.data, 'hh', loginTokenStore);
-                console.log('PROJECTS : ', res?.data);
+
                 const newProjectsList = res?.data?.message?.map((item: any) => ({
                     // label: `${item?.project_id} / ${item?.approval_no}\n${item?.scheme_name}`,
                     label: `${item?.project_id} \n${item?.scheme_name}`,
                     value: `${item?.approval_no},${item?.project_id}`,
                 }));
+                console.log(newProjectsList, 'newProjectsList__');
+                
                 setProjectsList(newProjectsList);
+                setLoading(false);
             } else {
                 ToastAndroid.show('Projects fetch error.', ToastAndroid.SHORT);
             }
         } catch (err) {
             console.log(formData, 'hhhhhhhhhhhhhhhhh', err);
             console.log('ERR PROJ', err, 'fetchProjectsList__');
+            setLoading(false);
             ToastAndroid.show(
                 'Some error occurred while fetching projects.',
                 ToastAndroid.SHORT,
             );
         }
-        setLoading(false);
-    }, []);
+    }
+    else{
+        const projectsData__live = livPprojectListStorage.getString('liveProjectListStore');
+            if (projectsData__live) {
+            var parsedProjects__ = JSON.parse(projectsData__live);
+            console.log('projectsData__live', parsedProjects__);
+            const dt = parsedProjects__.map((item: any) => ({
+                    // label: `${item?.project_id} / ${item?.approval_no}\n${item?.scheme_name}`,
+                    label: `${item?.project_id} \n${item?.scheme_name} + ${item?.approval_no}`,
+                    value: `${item?.approval_no},${item?.project_id}`,
+                }));
+                console.log(dt, 'dt____________');
+                setProjectsList(dt)
+            }
+    }
+
+        
+    };
+
 
     const fetchProgressDone = async (data: any) => {
+
+    if(isOnline) {
         setLoading(true);
         console.log('Percentage_', data);
         const formData = new FormData();
@@ -239,19 +270,49 @@ const HomeScreen = () => {
                 setProgressCompleteAPI(Number(0));
                 ToastAndroid.show('Percentage fetch error.', ToastAndroid.SHORT);
             }
+            setLoading(false);
         } catch (err) {
             console.log('ERR PROJ', err, 'fetchProgressDone_ ');
             ToastAndroid.show(
-                'Some error occurred while fetching projects.',
+                'Some error occurred while fetching projects uuuuu.',
                 ToastAndroid.SHORT,
             );
+            
+            setLoading(false);
         }
-        setLoading(false);
+    } else {
+
+    const projectsData__live = livPprojectListStorage.getString('liveProjectListStore');
+    if (projectsData__live) {
+    var parsedProjects__ = JSON.parse(projectsData__live);
+    console.log('projectsData__live', parsedProjects__);
+
+    const result = parsedProjects__.find((item: any) => item?.approval_no === data);
+    console.log(result, 'fetchProgressDone__data', isOnline, 'isOnline');
+
+    setProgressComplete(result?.progress_percent);
+    setProgressCompleteAPI(result?.progress_percent);
+
+    // setProgressComplete(res?.data?.progress_percent);
+    // setProgressCompleteAPI(res?.data?.progress_percent);
+
+    // const dt = parsedProjects__.map((item: any) => ({
+    // // label: `${item?.project_id} / ${item?.approval_no}\n${item?.scheme_name}`,
+    // label: `${item?.project_id} \n${item?.scheme_name}`,
+    // value: `${item?.approval_no},${item?.project_id}`,
+    // }));
+    // console.log(dt, 'dt____________');
+    // setProjectsList(dt)
+    }
+    }
+        
     };
 
-    useEffect(() => {
-        fetchProjectsList();
-    }, [fetchProjectsList]);
+ 
+
+    // useEffect(() => {
+    //     fetchProjectsList();
+    // }, [fetchProjectsList]);
 
 
 
@@ -259,7 +320,27 @@ const HomeScreen = () => {
     //     fetchProjectsList();
     // }, []);
 
+     useEffect(() => {
+        // fetchProjectDetails();
+        // if(fetchDataDetails) {
+        setFetchDataDetails(false);
+        // } else {
+        // setFetchDataDetails(true);
+        // }
+
+    }, [formData1.projectId]);
+    
+
     const fetchProjectDetails = async () => {
+
+        // if(fetchDataDetails) {
+        // setFetchDataDetails(false);
+        // } else {
+        // setFetchDataDetails(true);
+        // }
+        
+        setFetchDataDetails(true);
+
         setLoading(true);
         const formData = new FormData();
         formData.append('approval_no', formData1?.projectId?.split(',')[0]);
@@ -286,7 +367,8 @@ const HomeScreen = () => {
                 // setProjectsList(newProjectsList)
                 setFetchedProjectDetails(JSON.stringify(res?.data));
             } else {
-                ToastAndroid.show('Project details fetch error.', ToastAndroid.SHORT);
+                setFetchedProjectDetails('');
+                ToastAndroid.show('Have No Project Data.', ToastAndroid.SHORT);
             }
         } catch (err) {
             console.log('ERR PROJ DTLS', err, 'fetchProjectDetails_');
@@ -398,40 +480,39 @@ const HomeScreen = () => {
         fileStorage.delete('file-uri');
     }, []);
 
-    const fetchProgressRangeCap = async () => {
-        const formData = new FormData();
+    // Start Now its not working (Use for fixed the range of progress)
+    // const fetchProgressRangeCap = async () => {
+    //     const formData = new FormData();
 
-        formData.append('project_id', formData1.projectId?.split(',')[1]);
+    //     formData.append('project_id', formData1.projectId?.split(',')[1]);
 
-        await axios
-            .post(ADDRESSES.FETCH_PROJECT_RANGE, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    // auth_key: AUTH_KEY,
-                    'Authorization': `Bearer ` + loginTokenStore?.token
-                },
-            })
-            .then(res => {
-                console.log('Project Ranges CAP === ', res?.data);
-                console.log(res, 'fetchProgressRangeCap__');
-                if (res?.data?.status === 1) {
-                    // setProjectRangeCaps(res?.data?.message)
-                    const [a, b] = getWorkRange(res?.data?.message) ?? [];
-                    setCheckErr(formData1.progress < a || formData1.progress > b);
-                }
-            })
-            .catch(err => {
-                console.log('Project Ranges CAP ERRRR === ', err, 'fetchProgressRangeCap__');
-                ToastAndroid.show(
-                    'Some error occurred while fetching Project Ranges.',
-                    ToastAndroid.SHORT,
-                );
-            });
-    };
+    //     await axios
+    //         .post(ADDRESSES.FETCH_PROJECT_RANGE, formData, {
+    //             headers: {
+    //                 'Content-Type': 'multipart/form-data',
+    //                 // auth_key: AUTH_KEY,
+    //                 'Authorization': `Bearer ` + loginTokenStore?.token
+    //             },
+    //         })
+    //         .then(res => {
+    //             if (res?.data?.status === 1) {
+    //                 const [a, b] = getWorkRange(res?.data?.message) ?? [];
+    //                 setCheckErr(formData1.progress < a || formData1.progress > b);
+    //             }
+    //         })
+    //         .catch(err => {
+    //             console.log('Project Ranges CAP ERRRR === ', err, 'fetchProgressRangeCap__');
+    //             ToastAndroid.show(
+    //                 'Some error occurred while fetching Project Ranges.',
+    //                 ToastAndroid.SHORT,
+    //             );
+    //         });
+    // };
+    // End Now its not working (Use for fixed the range of progress)
 
-    useEffect(() => {
-        fetchProgressRangeCap();
-    }, [formData1.projectId, formData1.progress, handleFormChange]);
+    // useEffect(() => {
+    //     fetchProgressRangeCap();
+    // }, [formData1.projectId, formData1.progress, handleFormChange]);
 
     const updateProjectProgressDetails = useCallback(async (currentLocation: any) => {
         await axios
@@ -529,6 +610,8 @@ const HomeScreen = () => {
                         })
                         setProgressComplete(Number(0))
                         setFetchedProjectDetails(() => "")
+
+                        loadLiveProjectList();
                     } else {
                         ToastAndroid.show("Sending details with photo error.", ToastAndroid.SHORT)
                     }
@@ -597,7 +680,7 @@ const HomeScreen = () => {
       const fetchLocalStorageProjects = async () => {
         try {
 
-          const projectsData = projectStorage.getString('projects');
+          const projectsData = projectSaveSpecificStorage.getString('projects');
           console.log(projectsData, '(:-projectsprojectsprojectsprojectsprojects');
           if (projectsData) {
             var parsedProjects = JSON.parse(projectsData);
@@ -622,7 +705,7 @@ const HomeScreen = () => {
           }
 
           try {
-          const projectsData_Date = projectStorage.getString('projects_date');
+          const projectsData_Date = projectSaveSpecificStorage.getString('projects_date');
           console.log(projectsData_Date, '-------projectsData_Date-------')
           if (projectsData_Date) {
             // const parsedProjects_Date = JSON.parse(projectsData_Date ?? '');
@@ -672,12 +755,6 @@ const HomeScreen = () => {
       };
 
     
-    // useEffect(() => {
-    // // fetchProjects_Date()
-    // fetchLocalStorageProjects();
-
-    // }, [fetchLocalStorageProjects]);
- 
 
 
     useEffect(() => {
@@ -689,22 +766,9 @@ const HomeScreen = () => {
       }, [isFocused]);
 
 
-    
-    //   useEffect(() => {
-    //     if (isFocused) {
-    //     if(projects.length > 3) {
-    //         Alert.alert('Alert', 'You have more than 3 saved projects. Please go to settings to view them.')
-    //             // navigation.navigate(navigationRoutes.settingsNavigation);
-    //             navigation.dispatch(
-    //             CommonActions.navigate({
-    //               name: navigationRoutes.settingsNavigation,
-    //             }),
-    //           )
-    //         }
-    //     }
-    //   }, [isFocused]);
-
     const saveLocally = useCallback(async (currentLocation: any) => {
+
+        if(isOnline) {
         setLoading(true);
 
         await axios
@@ -743,10 +807,10 @@ const HomeScreen = () => {
             permanentUris.push(permanentUri);
             }
 
-            // Retrieve existing projects from projectStorage
+            // Retrieve existing projects from projectSaveSpecificStorage
             let storedProjects: any[] = [];
 
-            const projectsData = await projectStorage.getString('projects');
+            const projectsData = await projectSaveSpecificStorage.getString('projects');
             
             console.log(projectsData, ' projectsData:-')
 
@@ -769,13 +833,8 @@ const HomeScreen = () => {
                 
             };
 
-            // console.log(newProject, 'projectsprojectsprojectsprojectsprojects', formData1.remarks, 'vvvv', storedProjects);
-            console.log(storedProjects.length, 'projectsprojectsprojectsprojectsprojects', 'top');
- console.log('ENTER IN stored Projects.length < 1', storedProjects.length, 'projectsprojectsprojectsprojectsprojects');
             if (storedProjects.length == 0) {
-                // console.log(JSON.stringify(new Date().toISOString()), ' TIME');
-                // projectStorage.set('projects_date', JSON.stringify(new Date().toISOString()));
-                projectStorage.set('projects_date', new Date().toISOString());
+                projectSaveSpecificStorage.set('projects_date', new Date().toISOString());
             }
 
             // storedProjects.push(newProject);
@@ -790,21 +849,15 @@ const HomeScreen = () => {
             // If not found, add as new project
             storedProjects.push(newProject);
             }
-            
 
-            console.log(storedProjects.length, 'projectsprojectsprojectsprojectsprojects');
-            
-
-            
-
-            // Save the updated projects list to projectStorage
-            projectStorage.set('projects', JSON.stringify(storedProjects));
+            // Save the updated projects list to projectSaveSpecificStorage
+            projectSaveSpecificStorage.set('projects', JSON.stringify(storedProjects));
             fetchLocalStorageProjects()
 
-            // const projectsString = await projectStorage.getString('projects');
+            // const projectsString = await projectSaveSpecificStorage.getString('projects');
             // const projects = JSON.parse(projectsString ?? '{}')
 
-            // const projectsDate = await projectStorage.getString('projects_date');
+            // const projectsDate = await projectSaveSpecificStorage.getString('projects_date');
             // const projectsDT = JSON.parse(projectsDate ?? '')
 
             console.log(projects, 'projectsprojectsprojectsprojectsprojects', projectsDate, 'submit');
@@ -834,6 +887,113 @@ const HomeScreen = () => {
         setLoading(false);
 
         });
+
+    } else {
+        console.log(formData1.projectId, 'formData1projectId', progressComplete);
+        
+        if (
+            !formData1.projectId ||
+            !formData1.progress ||
+            (100 - progressComplete === parseInt(formData1.progress, 10)
+                ? !formData1.remarks
+                : false) ||
+            (100 - progressComplete === parseInt(formData1.progress, 10) ? dateFinal.length == 0 : false) ||
+            imgData.length === 0
+        ) {
+            ToastAndroid.show(
+                'Please fill all fields and add at least one photo.',
+                ToastAndroid.SHORT,
+            );
+            return;
+        }
+        try {
+            let permanentUris: string[] = [];
+            // Copy each selected image to a permanent location
+            for (const asset of imgData) {
+
+            const filename = asset.fileName || `progress_pic_${Date.now()}.jpg`;
+            const newPath = `${RNFS.DocumentDirectoryPath}/${filename}`;
+            await RNFS.copyFile(asset.uri!, newPath);
+            // Ensure the URI has a file:// prefix
+            const permanentUri = newPath.startsWith('file://')
+            ? newPath
+            : 'file://' + newPath;
+            permanentUris.push(permanentUri);
+            }
+
+            // Retrieve existing projects from projectSaveSpecificStorage
+            let storedProjects: any[] = [];
+
+            const projectsData = await projectSaveSpecificStorage.getString('projects');
+            
+            console.log(projectsData, ' projectsData:-')
+
+            if (projectsData) {
+                storedProjects = JSON.parse(projectsData);
+            }
+
+            // Create a new project object with permanent image URIs
+            const newProject: ProjectStoreModel = {
+                approval_no: formData1.projectId?.split(',')[0],
+                progress_percent: +formData1.progress,
+                progressive_percent: (Number(progressComplete) + Number(formData1.progress)).toString(),
+                lat: currentLocation?.latitude!,
+                long: currentLocation?.longitude!,
+                address: '',
+                actual_date_comp: dateFinal,
+                remarks: formData1.remarks,
+                'progress_pic[]': permanentUris,
+                created_by: loginStore?.user_id,
+                
+            };
+
+            if (storedProjects.length == 0) {
+                projectSaveSpecificStorage.set('projects_date', new Date().toISOString());
+            }
+
+            // storedProjects.push(newProject);
+            const existingIndex = storedProjects.findIndex(
+            (project) => project.approval_no === newProject.approval_no
+            );
+
+            if (existingIndex !== -1) {
+            // If found, update the existing project
+            storedProjects[existingIndex] = newProject;
+            } else {
+            // If not found, add as new project
+            storedProjects.push(newProject);
+            }
+
+            // Save the updated projects list to projectSaveSpecificStorage
+            projectSaveSpecificStorage.set('projects', JSON.stringify(storedProjects));
+            fetchLocalStorageProjects()
+
+            // const projectsString = await projectSaveSpecificStorage.getString('projects');
+            // const projects = JSON.parse(projectsString ?? '{}')
+
+            // const projectsDate = await projectSaveSpecificStorage.getString('projects_date');
+            // const projectsDT = JSON.parse(projectsDate ?? '')
+
+            console.log(projects, 'projectsprojectsprojectsprojectsprojects', projectsDate, 'submit');
+
+            ToastAndroid.show('Project saved in device.', ToastAndroid.SHORT);
+            removeAllImages();
+            setFormData1({
+                projectId: '',
+                progress: '',
+                latitude: '',
+                longitude: '',
+                locationAddress: '',
+                // actual_date_comp: '',
+                remarks: '',
+                actual_date_comp: '',
+            });
+            setFetchedProjectDetails(() => '');
+        } catch (err) {
+            console.log('Error saving locally:', err);
+            ToastAndroid.show('Error saving project locally.', ToastAndroid.SHORT);
+        }
+    }
 
         
     }, [formData1, imgData, removeAllImages]);
@@ -917,6 +1077,79 @@ const HomeScreen = () => {
         return [work_per_st, work_per_end];
     };
 
+
+    const loadLiveProjectList = async ()=>{
+        setLoadingLivePro(true)
+        setProjectsList([]);
+        setTimeout(async () => {
+        
+        const formData = new FormData();
+        formData.append('user_id', loginStore?.user_id);
+
+
+        try {
+            const res = await axios.post(
+                `${ADDRESSES.LOAD_LIVE_PROJECT}`,
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        // auth_key: AUTH_KEY,
+                        // 'Authorization': `Bearer ` + loginTokenStore?.token
+                        'Authorization': `Bearer ` + loginTokenStore?.token
+                    },
+                },
+            );
+
+            console.log('PROJECTS___', res?.data?.message);
+            if (res?.data?.status === 1) {
+                const newProjectsList = res?.data?.message?.map((item: any) => ({
+                    // label: `${item?.project_id} / ${item?.approval_no}\n${item?.scheme_name}`,
+                    label: `${item?.project_id} \n${item?.scheme_name} + ${item?.approval_no}`,
+                    value: `${item?.approval_no},${item?.project_id}`,
+                }));
+                setProjectsList(newProjectsList);
+                console.log('livPprojectListStorage.clearAll()', 'check________');
+                
+                // livPprojectListStorage.clearAll();
+                livPprojectListStorage.set('liveProjectListStore', JSON.stringify(res?.data?.message));
+                setLoadingLivePro(false);
+                console.log('fetchProjectsList()')
+                
+            } else {
+                setLoadingLivePro(false);
+                ToastAndroid.show('Projects fetch error.', ToastAndroid.SHORT);
+            }
+        } catch (err) {
+            setLoadingLivePro(false);
+            ToastAndroid.show(
+                'Some error occurred while fetching projects.',
+                ToastAndroid.SHORT,
+            );
+        }
+        // Alert.alert('Sync Projects', 'Do you want to sync your saved projects with the server?')
+
+        }, 0);
+
+        
+        
+        
+    }
+
+    useEffect(() => {
+        // && isFocused
+        if (isOnline) {
+            console.log('isOnline', isOnline, 'isFocused', isFocused);
+            loadLiveProjectList();
+        }
+        else{
+            console.log('isOffline', !isOnline, 'isFocused', isFocused);
+
+            fetchProjectsList()
+        }
+
+        
+    }, [isOnline, isFocused]);
     
 
 
@@ -929,14 +1162,26 @@ const HomeScreen = () => {
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                 }>
                 <Header />
-                <View style={{ padding: 30, gap: 5, flex: 1 }}>
-                    <Text variant="titleLarge" style={{ color: theme.colors.secondary }}>
+                {/* <Spin
+                indicator={<LoadingOutlined spin />}
+                size="large"
+                className="text-gray-500 dark:text-gray-400"
+                spinning={loading}
+                ></Spin> */}
+
+                {/* <ActivityIndicator size="small" color="#6200ee" /> */}
+
+                <View style={{ padding: 30, gap: 5, flex: 1}}>
+
+                
+
+                    {/* <Text variant="titleLarge" style={{ color: theme.colors.secondary }}>
                         {strings.projectDropdownLabel}
 
-                       {/* {JSON.stringify(projects, null, 2)} */}
-                        {/* {loginStore?.user_id} */}
-                    </Text>
+                       {JSON.stringify(isOnline, null, 2)}
+                    </Text> */}
                     <Dropdown
+                        mode='auto'
                         // disable={!location?.latitude || !location?.longitude}
                         style={[
                             styles.dropdown,
@@ -959,14 +1204,14 @@ const HomeScreen = () => {
                         iconStyle={styles.iconStyle}
                         data={projectsList}
                         search
-                        maxHeight={300}
+                        maxHeight={550}
                         labelField="label"
                         valueField="value"
                         placeholder="Choose Project"
                         searchPlaceholder="Search Project..."
                         value={formData1?.projectId}
                         onChange={item => {
-                            console.log('Selected project:', item);
+                            // console.log('Selected project:', item?.value.split(',')[0]);
                             handleFormChange('projectId', item?.value);
                             fetchProgressDone(item?.value.split(',')[0]);
                             handleFormChange('progress', '');
@@ -979,7 +1224,7 @@ const HomeScreen = () => {
                     />
 
 
-
+                    {/* {JSON.stringify(fetchedProjectDetails.length, null, 2)} */}
                     <ButtonPaper
                         icon={'cloud-search-outline'}
                         mode="contained"
@@ -990,13 +1235,17 @@ const HomeScreen = () => {
                         {strings.fetchProgress}
                     </ButtonPaper>
 
+                    
+                    {/* <view><text>{JSON.stringify(fetchedProjectDetails ? fetchedProjectDetails : '', null, 2)}</text></view> */}
+                    {fetchDataDetails && (
+                    <>
                     {fetchedProjectDetails && (
                         <View
                             style={{
                                 paddingVertical: 5,
                             }}>
                             <Text variant="titleLarge">Project Details</Text>
-                            <InputPaper
+                            {/* <InputPaper
                                 label="District"
                                 leftIcon="map-marker-radius-outline"
                                 keyboardType="default"
@@ -1010,8 +1259,8 @@ const HomeScreen = () => {
                                     marginTop: 10,
                                 }}
                                 disabled
-                            />
-                            <InputPaper
+                            /> */}
+                            {/* <InputPaper
                                 label="Block"
                                 leftIcon="map-legend"
                                 keyboardType="default"
@@ -1025,7 +1274,7 @@ const HomeScreen = () => {
                                     marginTop: 10,
                                 }}
                                 disabled
-                            />
+                            /> */}
                             <InputPaper
                                 label="Scheme"
                                 leftIcon="file-document-outline"
@@ -1061,9 +1310,10 @@ const HomeScreen = () => {
                                 }}
                                 disabled
                             />
-
                             <ProjectGrid fetchedProjectDetails={fetchedProjectDetails} />
                         </View>
+                    )}
+                    </>
                     )}
 
 
@@ -1107,7 +1357,7 @@ const HomeScreen = () => {
 
 
                             <InputPaper
-                                error={checkErr}
+                                // error={checkErr}
                                 label="Project Progress..."
                                 maxLength={100}
                                 leftIcon="progress-clock"
@@ -1131,7 +1381,7 @@ const HomeScreen = () => {
                     {100 - Number(progressComplete) === Number(formData1.progress) && (
                         <>
                             <TextInput
-                                error={checkErr}
+                                // error={checkErr}
                                 label="Remarks..."
                                 maxLength={100}
                                 value={formData1.remarks}
@@ -1232,7 +1482,7 @@ const HomeScreen = () => {
                             !formData1.progress ||
                                 !formData1.projectId ||
                                 loading ||
-                                checkErr ||
+                                // checkErr ||
                                 imgData?.length === 0 ||
                                 Number(formData1.progress) < 1 ? true : false ||
                                 (Number(progressComplete) + Number(formData1.progress) >= 100 &&
@@ -1282,7 +1532,7 @@ const HomeScreen = () => {
                             !formData1.progress ||
                                 !formData1.projectId ||
                                 loading ||
-                                checkErr ||
+                                // checkErr ||
                                 imgData?.length === 0 ||
                                 Number(formData1.progress) < 1 ? true : false ||
                                 (Number(progressComplete) + Number(formData1.progress) >= 100 &&
@@ -1303,6 +1553,7 @@ const HomeScreen = () => {
 
                     
                 </View>
+                
             </ScrollView>
         </SafeAreaView>
     );

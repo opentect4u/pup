@@ -18,7 +18,13 @@ export const fileStorage = new MMKV({
   mode: Mode.MULTI_PROCESS,
 });
 
-export const projectStorage = new MMKV({
+export const projectSaveSpecificStorage = new MMKV({
+  id: `project-store`,
+  encryptionKey: `ssspl@signature`,
+  mode: Mode.MULTI_PROCESS,
+});
+
+export const livPprojectListStorage = new MMKV({
   id: `project-store`,
   encryptionKey: `ssspl@signature`,
   mode: Mode.MULTI_PROCESS,

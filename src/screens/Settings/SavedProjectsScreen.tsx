@@ -11,7 +11,7 @@ import {
 import { ActivityIndicator, Divider, Text, TouchableRipple } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
-import { loginToken, projectStorage } from '../../storage/appStorage';
+import { loginToken, projectSaveSpecificStorage } from '../../storage/appStorage';
 import Header from '../../components/Header';
 import ButtonPaper from '../../components/ButtonPaper';
 import { usePaperColorScheme } from '../../theme/theme';
@@ -20,6 +20,9 @@ import FileViewer from 'react-native-file-viewer';
 import axios from 'axios';
 import { ADDRESSES } from '../../config/api_list';
 import InternetStatusContext from '../../context/InternetStatusContext';
+// import { AUTH_KEY, REVERSE_GEOENCODING_API_KEY } from '@env';
+
+const REVERSE_GEOENCODING_API_KEY = 'AIzaSyDdA5VPRPZXt3IiE3zP15pet1Nn200CRzg'
 
 const SavedProjectsScreen = () => {
   const theme = usePaperColorScheme();
@@ -29,6 +32,7 @@ const SavedProjectsScreen = () => {
   const [loading, setLoading] = useState(false);
   const isFocused = useIsFocused();
   const isOnline = useContext(InternetStatusContext);
+  const [loadingAddresses, setLoadingAddresses] = useState(false);
 
   const loginTokenStore = useMemo(
           () => JSON.parse(loginToken?.getString('login-token') ?? '{}'),
@@ -42,13 +46,13 @@ const SavedProjectsScreen = () => {
       // Alert.alert('Fetching Projects ggg', 'Please wait while we fetch your saved projects.');
       // console.log('projects_date____utsabbbbbbbbbbbbbbbbb :--' );
        
-      // const projectsData_Date = projectStorage.getString('projects_date');
-      const parsedProjects_Date = projectStorage.getString('projects_date');
+      // const projectsData_Date = projectSaveSpecificStorage.getString('projects_date');
+      const parsedProjects_Date = projectSaveSpecificStorage.getString('projects_date');
       // const parsedProjects_Date = JSON.parse(projectsData_Date ?? '');
       console.log(parsedProjects_Date, 'projects_date____utsabbbbbbbbbbbbbbbbb');
       
       
-      const projectsData = projectStorage.getString('projects');
+      const projectsData = projectSaveSpecificStorage.getString('projects');
 
       console.log(projectsData, 'projects_date____utsabbbbbbbbbbbbbbbbb', parsedProjects_Date);
 
@@ -76,6 +80,25 @@ const SavedProjectsScreen = () => {
   // useEffect(() => {
   //   fetchLocalStorageProjects();
   // }, []);
+
+  useEffect(() => {
+  const enrichWithAddresses = async () => {
+    setLoadingAddresses(true);
+    const enriched = await Promise.all(
+      projects.map(async (proj) => {
+        if (!proj.address) {
+          const address = await getAddressFromCoordinates(proj.lat.toString(), proj.long.toString());
+          return { ...proj, address };
+        }
+        return proj;
+      })
+    );
+    setProjects(enriched);
+    setLoadingAddresses(false);
+  };
+
+  if (projects.length > 0) enrichWithAddresses();
+}, [projects]);
 
 
     useEffect(() => {
@@ -166,7 +189,7 @@ const SavedProjectsScreen = () => {
 //       );
 
 //       console.log(`✅ Uploaded project ${project.approval_no}`, response.data);
-//       projectStorage.clearAll(); 
+//       projectSaveSpecificStorage.clearAll(); 
 //       fetchLocalStorageProjects();
 //     } catch (err) {
 //       console.log(`❌ Failed to upload project ${project.approval_no}`, err);
@@ -178,10 +201,26 @@ const SavedProjectsScreen = () => {
 //   ToastAndroid.show('All projects processed.', ToastAndroid.SHORT);
 // };
 
+
+const getAddressFromCoordinates = async (lat: string, long: string): Promise<string> => {
+  try {
+    const response = await axios.get(
+      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=${REVERSE_GEOENCODING_API_KEY}`
+    );
+
+    const address = response?.data?.results?.[0]?.formatted_address;
+    return address || '';
+  } catch (error) {
+    console.log(`Failed to fetch address for lat: ${lat}, long: ${long}`, error);
+    return '';
+  }
+};
+
+
 const updateProjectLive = async () => {
   setLoading(true);
 
-  const stored = await projectStorage.getString('projects');
+  const stored = await projectSaveSpecificStorage.getString('projects');
   let storedProjects: any[] = stored ? JSON.parse(stored) : [];
 
   const successfullyUploadedApprovalNos: string[] = [];
@@ -190,12 +229,14 @@ const updateProjectLive = async () => {
     const project = storedProjects[i];
     const formData = new FormData();
 
+    const address = await getAddressFromCoordinates(project.lat.toString(), project.long.toString());
+
     formData.append('approval_no', project.approval_no);
     formData.append('progress_percent', project.progress_percent.toString());
     formData.append('progressive_percent', project.progressive_percent.toString());
     formData.append('lat', project.lat.toString());
     formData.append('long', project.long.toString());
-    formData.append('address', project.address);
+    formData.append('address', address);
     formData.append('actual_date_comp', project.actual_date_comp);
     formData.append('remarks', project.remarks);
     formData.append('created_by', project.created_by);
@@ -237,20 +278,20 @@ const updateProjectLive = async () => {
   
 
   // Clear all old 'projects' data from storage first
-  await projectStorage.clearAll();
+  await projectSaveSpecificStorage.clearAll();
   // fetchLocalStorageProjects();
 
   if (remainingProjects.length > 0) {
   console.log('Remaining projects after upload:', remainingProjects);
-  await projectStorage.set('projects', JSON.stringify(remainingProjects));
-  // projectStorage.clearAll();
+  await projectSaveSpecificStorage.set('projects', JSON.stringify(remainingProjects));
+  // projectSaveSpecificStorage.clearAll();
   // fetchLocalStorageProjects();
   
   }
 
 
-  // await projectStorage.set('projects', JSON.stringify(remainingProjects));
-  // projectStorage.clearAll(); 
+  // await projectSaveSpecificStorage.set('projects', JSON.stringify(remainingProjects));
+  // projectSaveSpecificStorage.clearAll(); 
 
   fetchLocalStorageProjects();
 
