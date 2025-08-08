@@ -55,6 +55,7 @@ import GetLocation from 'react-native-get-location';
 import NetInfo from "@react-native-community/netinfo";
 import InternetStatusContext from '../../context/InternetStatusContext';
 import navigationRoutes from '../../routes/routes';
+import useloadLiveProjectList from '../../hooks/useLoadLiveProjectList';
 
 const strings = homeScreenStrings.getStrings();
 
@@ -73,6 +74,7 @@ const HomeScreen = () => {
     // const nowDate = new Date(now);
     // nowDate.setDate(now.getDate() + 1);
     // const nowDate = '2025-08-06T09:11:56.915Z';
+    const { loadingLivePro, loadLiveProjectList } = useloadLiveProjectList();
 
 
 
@@ -96,7 +98,7 @@ const HomeScreen = () => {
     const [imgData, setImgData] = useState<Asset[]>([]);
     const [projectsList, setProjectsList] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
-    const [loadingLivePro, setLoadingLivePro] = useState(false);
+    // const [loadingLivePro, setLoadingLivePro] = useState(false);
     const [fetchedProjectDetails, setFetchedProjectDetails] = useState(() => '');
     const [progressComplete, setProgressComplete] = useState(() => Number(0));
     const [progressCompleteAPI, setProgressCompleteAPI] = useState(() => Number(0));
@@ -193,7 +195,7 @@ const HomeScreen = () => {
 
                 const newProjectsList = res?.data?.message?.map((item: any) => ({
                     // label: `${item?.project_id} / ${item?.approval_no}\n${item?.scheme_name}`,
-                    label: `${item?.project_id} \n${item?.scheme_name}`,
+                    label: `${item?.project_id} \n${item?.scheme_name} online`,
                     value: `${item?.approval_no},${item?.project_id}`,
                 }));
                 console.log(newProjectsList, 'newProjectsList__');
@@ -220,7 +222,7 @@ const HomeScreen = () => {
             console.log('projectsData__live', parsedProjects__);
             const dt = parsedProjects__.map((item: any) => ({
                     // label: `${item?.project_id} / ${item?.approval_no}\n${item?.scheme_name}`,
-                    label: `${item?.project_id} \n${item?.scheme_name} + ${item?.approval_no}`,
+                    label: `${item?.project_id} \n${item?.scheme_name} + ${item?.approval_no} ofline`,
                     value: `${item?.approval_no},${item?.project_id}`,
                 }));
                 console.log(dt, 'dt____________');
@@ -1078,69 +1080,61 @@ const HomeScreen = () => {
     };
 
 
-    const loadLiveProjectList = async ()=>{
-        setLoadingLivePro(true)
-        setProjectsList([]);
-        setTimeout(async () => {
+    // const loadLiveProjectList = async ()=>{
+    //     setLoadingLivePro(true)
+    //     // setProjectsList([]);
+    //     setTimeout(async () => {
         
-        const formData = new FormData();
-        formData.append('user_id', loginStore?.user_id);
+    //     const formData = new FormData();
+    //     formData.append('user_id', loginStore?.user_id);
 
 
-        try {
-            const res = await axios.post(
-                `${ADDRESSES.LOAD_LIVE_PROJECT}`,
-                formData,
-                {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                        // auth_key: AUTH_KEY,
-                        // 'Authorization': `Bearer ` + loginTokenStore?.token
-                        'Authorization': `Bearer ` + loginTokenStore?.token
-                    },
-                },
-            );
+    //     try {
+    //         const res = await axios.post(
+    //             `${ADDRESSES.LOAD_LIVE_PROJECT}`,
+    //             formData,
+    //             {
+    //                 headers: {
+    //                     'Content-Type': 'multipart/form-data',
+    //                     // auth_key: AUTH_KEY,
+    //                     // 'Authorization': `Bearer ` + loginTokenStore?.token
+    //                     'Authorization': `Bearer ` + loginTokenStore?.token
+    //                 },
+    //             },
+    //         );
 
-            console.log('PROJECTS___', res?.data?.message);
-            if (res?.data?.status === 1) {
-                const newProjectsList = res?.data?.message?.map((item: any) => ({
-                    // label: `${item?.project_id} / ${item?.approval_no}\n${item?.scheme_name}`,
-                    label: `${item?.project_id} \n${item?.scheme_name} + ${item?.approval_no}`,
-                    value: `${item?.approval_no},${item?.project_id}`,
-                }));
-                setProjectsList(newProjectsList);
-                console.log('livPprojectListStorage.clearAll()', 'check________');
+    //         console.log('PROJECTS___', res?.data?.message);
+    //         if (res?.data?.status === 1) {
+    //             livPprojectListStorage.set('liveProjectListStore', JSON.stringify(res?.data?.message));
+    //             setLoadingLivePro(false);
+    //             console.log('fetchProjectsList()')
                 
-                // livPprojectListStorage.clearAll();
-                livPprojectListStorage.set('liveProjectListStore', JSON.stringify(res?.data?.message));
-                setLoadingLivePro(false);
-                console.log('fetchProjectsList()')
-                
-            } else {
-                setLoadingLivePro(false);
-                ToastAndroid.show('Projects fetch error.', ToastAndroid.SHORT);
-            }
-        } catch (err) {
-            setLoadingLivePro(false);
-            ToastAndroid.show(
-                'Some error occurred while fetching projects.',
-                ToastAndroid.SHORT,
-            );
-        }
-        // Alert.alert('Sync Projects', 'Do you want to sync your saved projects with the server?')
+    //         } else {
+    //             setLoadingLivePro(false);
+    //             ToastAndroid.show('Projects fetch error.', ToastAndroid.SHORT);
+    //         }
+    //     } catch (err) {
+    //         setLoadingLivePro(false);
+    //         ToastAndroid.show(
+    //             'Some error occurred while fetching projects.',
+    //             ToastAndroid.SHORT,
+    //         );
+    //     }
+    //     // Alert.alert('Sync Projects', 'Do you want to sync your saved projects with the server?')
 
-        }, 0);
+    //     }, 0);
 
         
         
         
-    }
+    // }
 
     useEffect(() => {
         // && isFocused
         if (isOnline) {
             console.log('isOnline', isOnline, 'isFocused', isFocused);
             loadLiveProjectList();
+            fetchProjectsList()
         }
         else{
             console.log('isOffline', !isOnline, 'isFocused', isFocused);

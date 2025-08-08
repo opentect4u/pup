@@ -20,6 +20,7 @@ import FileViewer from 'react-native-file-viewer';
 import axios from 'axios';
 import { ADDRESSES } from '../../config/api_list';
 import InternetStatusContext from '../../context/InternetStatusContext';
+import useloadLiveProjectList from '../../hooks/useLoadLiveProjectList';
 // import { AUTH_KEY, REVERSE_GEOENCODING_API_KEY } from '@env';
 
 const REVERSE_GEOENCODING_API_KEY = 'AIzaSyDdA5VPRPZXt3IiE3zP15pet1Nn200CRzg'
@@ -32,6 +33,7 @@ const SavedProjectsScreen = () => {
   const [loading, setLoading] = useState(false);
   const isFocused = useIsFocused();
   const isOnline = useContext(InternetStatusContext);
+  const { loadingLivePro, loadLiveProjectList } = useloadLiveProjectList();
   const [loadingAddresses, setLoadingAddresses] = useState(false);
 
   const loginTokenStore = useMemo(
@@ -39,7 +41,7 @@ const SavedProjectsScreen = () => {
           [],
       );
 
-  const fetchLocalStorageProjects = () => {
+  const fetchLocalStorageProjects = async () => {
     // Alert.alert('Fetching Projects', 'Please wait while we fetch your saved projects.');
     setLoadingPro(true)
     try {
@@ -62,8 +64,19 @@ const SavedProjectsScreen = () => {
         // setTimeout(() => {
          
         // }, 2000);
+        // Enrich projects with addresses if missing
+      const enrichedProjects = await Promise.all(
+        parsedProjects.map(async (proj: ProjectStoreModel) => {
+          if (!proj.address && proj.lat && proj.long) {
+            const address = await getAddressFromCoordinates(proj.lat.toString(), proj.long.toString());
+            return { ...proj, address };
+          }
+          return proj;
+        })
+      );
 
-        setProjects(parsedProjects); 
+
+        setProjects(enrichedProjects); 
         setLoadingPro(false)
         
       } else {
@@ -77,28 +90,15 @@ const SavedProjectsScreen = () => {
     }
   };
 
-  // useEffect(() => {
-  //   fetchLocalStorageProjects();
-  // }, []);
-
   useEffect(() => {
-  const enrichWithAddresses = async () => {
-    setLoadingAddresses(true);
-    const enriched = await Promise.all(
-      projects.map(async (proj) => {
-        if (!proj.address) {
-          const address = await getAddressFromCoordinates(proj.lat.toString(), proj.long.toString());
-          return { ...proj, address };
-        }
-        return proj;
-      })
-    );
-    setProjects(enriched);
-    setLoadingAddresses(false);
-  };
-
-  if (projects.length > 0) enrichWithAddresses();
-}, [projects]);
+  // && isFocused
+  if (isOnline) {
+  fetchLocalStorageProjects()
+  }
+  
+ 
+         
+     }, [isOnline, isFocused]);
 
 
     useEffect(() => {
@@ -119,87 +119,7 @@ const SavedProjectsScreen = () => {
 
 
 
-  // const updateProjectLive = async () => {
-  //   setLoading(true)
-  //   console.log(projects, 'Response_________');
-    
-  //       await axios.post(`${ADDRESSES.PROJECT_OFFLINE_UPDATE}`, projects, {
-  //                   headers: {
-  //                       "Content-Type": "multipart/form-data",
-  //                       // "auth_key": AUTH_KEY
-  //                       'Authorization': `Bearer ` + loginTokenStore?.token
-  //                   }
-  //               }).then(res => {
-  //                   console.log("Response_________", res)
-  //                   setLoading(false)
-                    
-  //               }).catch(err => {
-  //                   console.log("Response:", err)
-  //                   console.log("Upload error:", err)
-  //                   console.log("Response_________", err)
-  //                   // setLoading(false)
-  //               })
-  //   };
-
-// const updateProjectLive = async () => {
-//   setLoading(true);
-//   console.log(projects, 'Submitting Projects One by One');
-
-//   for (let i = 0; i < projects.length; i++) {
-
-    
-
-//     const project = projects[i];
-//     const formData = new FormData();
-
-//     formData.append('approval_no', project.approval_no);
-//     formData.append('progress_percent', project.progress_percent.toString());
-//     formData.append('progressive_percent', project.progressive_percent.toString());
-//     formData.append('lat', project.lat.toString());
-//     formData.append('long', project.long.toString());
-//     formData.append('address', project.address);
-//     formData.append('actual_date_comp', project.actual_date_comp);
-//     formData.append('remarks', project.remarks);
-//     formData.append('created_by', project.created_by);
-
-//     // Append images
-//     const progressPics = project['progress_pic[]'] || project["progress_pic[]"] || [];
-//     for (let j = 0; j < progressPics.length; j++) {
-//       const uri = progressPics[j];
-
-//       formData.append('progress_pic[]', {
-//         uri,
-//         name: uri.split('/').pop() || `image_${j}.jpg`,
-//         type: 'image/jpeg',
-//       });
-//     }
-
-//     console.log(formData, 'Response_________');
-
-//     try {
-//       const response = await axios.post(
-//         `${ADDRESSES.PROJECT_PROGRESS_UPDATE}`,
-//         formData,
-//         {
-//           headers: {
-//             'Content-Type': 'multipart/form-data',
-//             'Authorization': `Bearer ${loginTokenStore?.token}`,
-//           },
-//         }
-//       );
-
-//       console.log(`✅ Uploaded project ${project.approval_no}`, response.data);
-//       projectSaveSpecificStorage.clearAll(); 
-//       fetchLocalStorageProjects();
-//     } catch (err) {
-//       console.log(`❌ Failed to upload project ${project.approval_no}`, err);
-//       // Optionally break or continue depending on needs
-//     }
-//   }
-
-//   setLoading(false);
-//   ToastAndroid.show('All projects processed.', ToastAndroid.SHORT);
-// };
+ 
 
 
 const getAddressFromCoordinates = async (lat: string, long: string): Promise<string> => {
@@ -278,15 +198,19 @@ const updateProjectLive = async () => {
   
 
   // Clear all old 'projects' data from storage first
-  await projectSaveSpecificStorage.clearAll();
+  console.log('Clearing all old projects data from storage', 'projectSaveSpecificStorage');
+  
+  projectSaveSpecificStorage.clearAll();
+  setProjects([]);
+  console.log('Clearing all old projects data from storage', 'setProjects([])');
   // fetchLocalStorageProjects();
 
   if (remainingProjects.length > 0) {
   console.log('Remaining projects after upload:', remainingProjects);
-  await projectSaveSpecificStorage.set('projects', JSON.stringify(remainingProjects));
-  // projectSaveSpecificStorage.clearAll();
-  // fetchLocalStorageProjects();
-  
+  projectSaveSpecificStorage.set('projects', JSON.stringify(remainingProjects));
+  loadLiveProjectList()
+  } else {
+  loadLiveProjectList()
   }
 
 
