@@ -22,6 +22,7 @@ import { ADDRESSES } from '../../config/api_list';
 import InternetStatusContext from '../../context/InternetStatusContext';
 import useloadLiveProjectList from '../../hooks/useLoadLiveProjectList';
 import { AUTH_KEY, REVERSE_GEOENCODING_API_KEY } from '@env';
+import GetLocation from 'react-native-get-location';
 
 // const REVERSE_GEOENCODING_API_KEY = 'AIzaSyDdA5VPRPZXt3IiE3zP15pet1Nn200CRzg'
 
@@ -41,64 +42,145 @@ const SavedProjectsScreen = () => {
           [],
       );
 
-  const fetchLocalStorageProjects = async () => {
-    // Alert.alert('Fetching Projects', 'Please wait while we fetch your saved projects.');
-    setLoadingPro(true)
-    try {
-      // Alert.alert('Fetching Projects ggg', 'Please wait while we fetch your saved projects.');
-      // console.log('projects_date____utsabbbbbbbbbbbbbbbbb :--' );
-       
-      // const projectsData_Date = projectSaveSpecificStorage.getString('projects_date');
-      const parsedProjects_Date = projectSaveSpecificStorage.getString('projects_date');
-      // const parsedProjects_Date = JSON.parse(projectsData_Date ?? '');
-      console.log(parsedProjects_Date, 'projects_date____utsabbbbbbbbbbbbbbbbb');
+  // const fetchLocalStorageProjects = async () => {
+  //   setLoadingPro(true)
+  //   try {
+  //     const parsedProjects_Date = projectSaveSpecificStorage.getString('projects_date');
       
-      
-      const projectsData = projectSaveSpecificStorage.getString('projects');
+  //     const projectsData = projectSaveSpecificStorage.getString('projects');
 
-      console.log(projectsData, 'projects_date____utsabbbbbbbbbbbbbbbbb', parsedProjects_Date);
 
-      if (projectsData) {
-        const parsedProjects = JSON.parse(projectsData);
-        console.log(parsedProjects, 'projects____', projects);
-        // setTimeout(() => {
+  //     if (projectsData) {
+  //       const parsedProjects = JSON.parse(projectsData);
+  //       console.log(parsedProjects, 'projects____', projects);
+  //       // setTimeout(() => {
          
-        // }, 2000);
-        // Enrich projects with addresses if missing
+  //       // }, 2000);
+  //       // Enrich projects with addresses if missing
+  //     const enrichedProjects = await Promise.all(
+  //       parsedProjects.map(async (proj: ProjectStoreModel) => {
+  //         if (!proj.address && proj.lat && proj.long) {
+  //           const address = await getAddressFromCoordinates(proj.lat.toString(), proj.long.toString());
+  //           return { ...proj, address };
+  //         }
+  //         return proj;
+  //       })
+  //     );
+
+
+  //       setProjects(enrichedProjects); 
+  //       setLoadingPro(false)
+        
+  //     } else {
+  //       setProjects([]);
+  //       setLoadingPro(false)
+  //     }
+  //   } catch (error) {
+  //     console.log('Clear All Projects:', error);
+  //     ToastAndroid.show('Clear All Projects.', ToastAndroid.SHORT);
+  //     setLoadingPro(false)
+  //   }
+  // };
+
+
+  const fetchLocalStorageProjects = async () => {
+  setLoadingPro(true);
+  try {
+    let currentLocation: any = null;
+
+    try {
+      currentLocation = await GetLocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 60000,
+      });
+
+      
+    } catch (err) {
+      console.log(err);
+      // setCurrentLocation(false);
+      if (
+        typeof err === 'object' &&
+        err !== null &&
+        'code' in err &&
+        (err as any).code === 'UNAVAILABLE'
+      ) {
+        console.log((err as any).code, 'codeerror');
+
+        Alert.alert(
+          'Turn on Location',
+          'Please turn on GPS/location services to update progress.',
+          [
+            {
+              text: 'Go to Settings',
+              onPress: () => Linking.openSettings(),
+              style: 'default',
+            },
+            {
+              text: 'Cancel',
+              style: 'cancel',
+            },
+          ]
+        );
+      }
+    }
+
+    // const parsedProjects_Date = projectSaveSpecificStorage.getString('projects_date');
+    const projectsData = projectSaveSpecificStorage.getString('projects');
+
+    if (projectsData) {
+      const parsedProjects = JSON.parse(projectsData);
+
       const enrichedProjects = await Promise.all(
         parsedProjects.map(async (proj: ProjectStoreModel) => {
-          if (!proj.address && proj.lat && proj.long) {
-            const address = await getAddressFromCoordinates(proj.lat.toString(), proj.long.toString());
-            return { ...proj, address };
+          let updatedProj = { ...proj };
+
+          // If lat/long missing, set from currentLocation
+          if ((proj.lat === 0 || proj.long === 0) && currentLocation) {
+            updatedProj.lat = currentLocation.latitude;
+            updatedProj.long = currentLocation.longitude;
           }
-          return proj;
+
+          // If address missing but lat/long present, fetch address
+          if (!proj.address && updatedProj.lat !== 0 && updatedProj.long !== 0) {
+            const address = await getAddressFromCoordinates(
+              updatedProj.lat.toString(),
+              updatedProj.long.toString()
+            );
+            updatedProj.address = address;
+          }
+
+          return updatedProj;
         })
       );
 
-
-        setProjects(enrichedProjects); 
-        setLoadingPro(false)
-        
-      } else {
-        setProjects([]);
-        setLoadingPro(false)
-      }
-    } catch (error) {
-      console.log('Clear All Projects:', error);
-      ToastAndroid.show('Clear All Projects.', ToastAndroid.SHORT);
-      setLoadingPro(false)
+      setProjects(enrichedProjects);
+    } else {
+      setProjects([]);
     }
-  };
+
+    setLoadingPro(false);
+  } catch (error) {
+    console.log('Clear All Projects:', error);
+    ToastAndroid.show('Clear All Projects.', ToastAndroid.SHORT);
+    setLoadingPro(false);
+  }
+};
+
+
+
 
   useEffect(() => {
-  // && isFocused
   if (isOnline) {
   fetchLocalStorageProjects()
+  // Alert.alert('ffffffffffff')
   }
-  
- 
-         
-     }, [isOnline, isFocused]);
+
+  if (!isOnline) {
+  fetchLocalStorageProjects()
+  // Alert.alert('ffffffffffff')
+  }
+
+  }, [isOnline, isFocused]);
 
 
     useEffect(() => {
@@ -296,8 +378,9 @@ const updateProjectLive = async () => {
             <ButtonPaper
             icon={'refresh'}
             mode="contained"
-            loading={loading}
+            loading={loading || loadingPro}
             onPress={()=>{updateProjectLive()}}
+            disabled={loading || loadingPro}
             style={{
             paddingVertical: 8,
             }}>
