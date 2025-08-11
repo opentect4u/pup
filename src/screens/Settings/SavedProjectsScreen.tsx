@@ -21,9 +21,9 @@ import axios from 'axios';
 import { ADDRESSES } from '../../config/api_list';
 import InternetStatusContext from '../../context/InternetStatusContext';
 import useloadLiveProjectList from '../../hooks/useLoadLiveProjectList';
-// import { AUTH_KEY, REVERSE_GEOENCODING_API_KEY } from '@env';
+import { AUTH_KEY, REVERSE_GEOENCODING_API_KEY } from '@env';
 
-const REVERSE_GEOENCODING_API_KEY = 'AIzaSyDdA5VPRPZXt3IiE3zP15pet1Nn200CRzg'
+// const REVERSE_GEOENCODING_API_KEY = 'AIzaSyDdA5VPRPZXt3IiE3zP15pet1Nn200CRzg'
 
 const SavedProjectsScreen = () => {
   const theme = usePaperColorScheme();
@@ -195,8 +195,6 @@ const updateProjectLive = async () => {
     (project) => !successfullyUploadedApprovalNos.includes(project.approval_no)
   );
 
-  
-
   // Clear all old 'projects' data from storage first
   console.log('Clearing all old projects data from storage', 'projectSaveSpecificStorage');
   
@@ -221,6 +219,11 @@ const updateProjectLive = async () => {
 
   ToastAndroid.show('Upload completed.', ToastAndroid.SHORT);
   setLoading(false);
+
+
+
+
+  
 };
 
 

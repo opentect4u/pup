@@ -32,7 +32,7 @@ import {
     loginToken,
     projectSaveSpecificStorage,
 } from '../../storage/appStorage';
-// @ts-ignore
+// import { AUTH_KEY, REVERSE_GEOENCODING_API_KEY } from '@env';
 import { AUTH_KEY, REVERSE_GEOENCODING_API_KEY } from '@env';
 import { ADDRESSES } from '../../config/api_list';
 import axios from 'axios';
@@ -56,6 +56,7 @@ import NetInfo from "@react-native-community/netinfo";
 import InternetStatusContext from '../../context/InternetStatusContext';
 import navigationRoutes from '../../routes/routes';
 import useloadLiveProjectList from '../../hooks/useLoadLiveProjectList';
+
 
 const strings = homeScreenStrings.getStrings();
 
@@ -115,8 +116,6 @@ const HomeScreen = () => {
     useEffect(() => {
         console.log('isOnlineCopy', isOnline, 'isFocusedCopy', isFocused);
     if (isOnline) {
-    // Alert.alert('Online', 'Please connect to the internet.');
-    console.log('interStatus', 'Online Please connect to the internet.');
     setInternetStatus(true);
     
     }
@@ -1080,54 +1079,7 @@ const HomeScreen = () => {
     };
 
 
-    // const loadLiveProjectList = async ()=>{
-    //     setLoadingLivePro(true)
-    //     // setProjectsList([]);
-    //     setTimeout(async () => {
-        
-    //     const formData = new FormData();
-    //     formData.append('user_id', loginStore?.user_id);
-
-
-    //     try {
-    //         const res = await axios.post(
-    //             `${ADDRESSES.LOAD_LIVE_PROJECT}`,
-    //             formData,
-    //             {
-    //                 headers: {
-    //                     'Content-Type': 'multipart/form-data',
-    //                     // auth_key: AUTH_KEY,
-    //                     // 'Authorization': `Bearer ` + loginTokenStore?.token
-    //                     'Authorization': `Bearer ` + loginTokenStore?.token
-    //                 },
-    //             },
-    //         );
-
-    //         console.log('PROJECTS___', res?.data?.message);
-    //         if (res?.data?.status === 1) {
-    //             livPprojectListStorage.set('liveProjectListStore', JSON.stringify(res?.data?.message));
-    //             setLoadingLivePro(false);
-    //             console.log('fetchProjectsList()')
-                
-    //         } else {
-    //             setLoadingLivePro(false);
-    //             ToastAndroid.show('Projects fetch error.', ToastAndroid.SHORT);
-    //         }
-    //     } catch (err) {
-    //         setLoadingLivePro(false);
-    //         ToastAndroid.show(
-    //             'Some error occurred while fetching projects.',
-    //             ToastAndroid.SHORT,
-    //         );
-    //     }
-    //     // Alert.alert('Sync Projects', 'Do you want to sync your saved projects with the server?')
-
-    //     }, 0);
-
-        
-        
-        
-    // }
+    
 
     useEffect(() => {
         // && isFocused
@@ -1465,7 +1417,7 @@ const HomeScreen = () => {
                         </ScrollView>
                     )}
 
-                    {/* {isOnline ? ( */}
+                    {isOnline ? (
                     <ButtonPaper
                         icon={'progress-clock'}
                         mode="outlined"
@@ -1491,7 +1443,7 @@ const HomeScreen = () => {
                     >
                         Update Progress
                     </ButtonPaper>
-                    {/* ):( */}
+                    ):(
                       <ButtonPaper
                         icon={'content-save-outline'}
                         mode="contained"
@@ -1542,7 +1494,7 @@ const HomeScreen = () => {
                         >
                         {strings.saveText}
                     </ButtonPaper>
-                    {/* )} */}
+                    )}
                     
 
                     
