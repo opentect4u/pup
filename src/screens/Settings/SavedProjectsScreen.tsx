@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { ActivityIndicator, Divider, Text, TouchableRipple } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { CommonActions, useIsFocused, useNavigation } from '@react-navigation/native';
 import { loginToken, projectSaveSpecificStorage } from '../../storage/appStorage';
 import Header from '../../components/Header';
 import ButtonPaper from '../../components/ButtonPaper';
@@ -23,6 +23,7 @@ import InternetStatusContext from '../../context/InternetStatusContext';
 import useloadLiveProjectList from '../../hooks/useLoadLiveProjectList';
 import { AUTH_KEY, REVERSE_GEOENCODING_API_KEY } from '@env';
 import GetLocation from 'react-native-get-location';
+import navigationRoutes from '../../routes/routes';
 
 // const REVERSE_GEOENCODING_API_KEY = 'AIzaSyDdA5VPRPZXt3IiE3zP15pet1Nn200CRzg'
 
@@ -170,25 +171,43 @@ const SavedProjectsScreen = () => {
 
 
   useEffect(() => {
-  if (isOnline) {
-  fetchLocalStorageProjects()
-  // Alert.alert('ffffffffffff')
-  }
+//  && isFocused
 
-  if (!isOnline) {
-  fetchLocalStorageProjects()
-  // Alert.alert('ffffffffffff')
-  }
+      if(isOnline){
+          fetchLocalStorageProjects()
+      }
 
-  }, [isOnline, isFocused]);
+    // if (!isOnline) {
+    // fetchLocalStorageProjects()
+    // }
 
 
-    useEffect(() => {
-       console.log('isFocused', isFocused);
-        if(isFocused){
-        fetchLocalStorageProjects();
-        }
-    }, [isFocused]);
+// isOnline, 
+
+  }, [isFocused]);
+
+  useEffect(()=>{
+    console.log(isOnline,'isOnline');
+      if (!isOnline) {
+        Alert.alert(
+        'You are Offline',
+        `Please make sure you are connected to the internet to make data live.`,
+        );
+        navigation.dispatch(
+        CommonActions.navigate({
+        name: navigationRoutes.settingsScreen,
+        }),
+        )
+      }
+  },[isOnline])
+
+
+    // useEffect(() => {
+    //    console.log('isFocused', isFocused);
+    //     if(isFocused){
+    //     fetchLocalStorageProjects();
+    //     }
+    // }, [isFocused]);
 
   const handleImagePress = async (uri: string) => {
     try {
@@ -288,10 +307,12 @@ const updateProjectLive = async () => {
   if (remainingProjects.length > 0) {
   console.log('Remaining projects after upload:', remainingProjects);
   projectSaveSpecificStorage.set('projects', JSON.stringify(remainingProjects));
-  loadLiveProjectList()
+  // loadLiveProjectList()
   } else {
-  loadLiveProjectList()
+    // loadLiveProjectList()
   }
+
+  loadLiveProjectList()
 
 
   // await projectSaveSpecificStorage.set('projects', JSON.stringify(remainingProjects));

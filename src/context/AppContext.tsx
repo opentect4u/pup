@@ -3,6 +3,7 @@ import React, { createContext, useEffect, useMemo, useRef, useState } from 'reac
 import { Alert, AppState, ToastAndroid } from 'react-native';
 import {
   fileStorage,
+  livPprojectListStorage,
   loginStorage,
   loginToken,
   projectSaveSpecificStorage,
@@ -132,6 +133,7 @@ const AppContext = ({ children }: any) => {
     loginStorage.clearAll();
     fileStorage.clearAll();
     // projectSaveSpecificStorage.clearAll();
+    livPprojectListStorage.clearAll();
     loginToken.clearAll();
     setIsLogin(false);
   };

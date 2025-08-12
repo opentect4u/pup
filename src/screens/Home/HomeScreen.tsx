@@ -168,10 +168,11 @@ const HomeScreen = () => {
     
 
     const fetchProjectsList = async () => {
+        // setProjectsList([])
 
-
-       console.log('fetchProjectsList__', isOnline, 'isOnline'); 
+       
     if(isOnline) {
+        console.log('fetchProjectsList__', isOnline, 'isOnline'); 
         setLoading(true);
 
         // Alert.alert('Online Mode__', 'You are online. Fetching live projects.'+ isOnline);
@@ -194,7 +195,8 @@ const HomeScreen = () => {
 
                 const newProjectsList = res?.data?.message?.map((item: any) => ({
                     // label: `${item?.project_id} / ${item?.approval_no}\n${item?.scheme_name}`,
-                    label: `${item?.project_id} \n${item?.scheme_name} online`,
+                    // label: `${item?.project_id} \n${item?.scheme_name} ---online`,
+                    label: `${item?.project_id} \n${item?.scheme_name}`,
                     value: `${item?.approval_no},${item?.project_id}`,
                 }));
                 console.log(newProjectsList, 'newProjectsList__');
@@ -215,13 +217,17 @@ const HomeScreen = () => {
         }
     }
     else{
+        console.log('fetchProjectsList__', isOnline, 'isOFFline'); 
         const projectsData__live = livPprojectListStorage.getString('liveProjectListStore');
+        console.log(projectsData__live, 'projectsData__live');
+        
             if (projectsData__live) {
             var parsedProjects__ = JSON.parse(projectsData__live);
             console.log('projectsData__live', parsedProjects__);
             const dt = parsedProjects__.map((item: any) => ({
                     // label: `${item?.project_id} / ${item?.approval_no}\n${item?.scheme_name}`,
-                    label: `${item?.project_id} \n${item?.scheme_name} + ${item?.approval_no} ofline`,
+                    // label: `${item?.project_id} \n${item?.scheme_name} + ${item?.approval_no} ofline`,
+                    label: `${item?.project_id} \n${item?.scheme_name}`,
                     value: `${item?.approval_no},${item?.project_id}`,
                 }));
                 console.log(dt, 'dt____________');
@@ -688,16 +694,23 @@ const HomeScreen = () => {
             console.log(parsedProjects.length, '>>>', 'projectsprojectsprojectsprojectsprojects', maxSaveProjCount);
 
             if(parsedProjects.length > maxSaveProjCount) {
-            // Alert.alert('Alert', 'You have more than 3 saved projects. Please go to settings to view them.')
                 Alert.alert(
                 'Offline Limit Reached',
-                `You’ve saved the maximum of ${maxSaveProjCount+1} projects offline. Please connect to the internet to sync your data before adding new projects.`
-                );
+                `You’ve saved the maximum of ${maxSaveProjCount + 1} projects offline. Please connect to the internet to sync your data before adding new projects.`,
+                [
+                {
+                text: 'OK',
+                onPress: () => {
+                // Nasted navigation to settings
                 navigation.dispatch(
-                CommonActions.navigate({
-                  name: navigationRoutes.settingsNavigation,
-                }),
-              )
+                CommonActions.navigate(
+                navigationRoutes.settingsNavigation, { screen: navigationRoutes.settingsScreen }));
+                },
+                },
+                ],
+                { cancelable: false } // prevents closing without pressing OK
+                );
+
             }
 
             // setProjects(parsedProjects);
@@ -1173,7 +1186,8 @@ const HomeScreen = () => {
 
 
                     {/* {JSON.stringify(fetchedProjectDetails.length, null, 2)} */}
-                    <ButtonPaper
+                    {isOnline && (
+                        <ButtonPaper
                         icon={'cloud-search-outline'}
                         mode="contained"
                         onPress={async () => await fetchProjectDetails()}
@@ -1181,7 +1195,9 @@ const HomeScreen = () => {
                         disabled={!formData1.projectId || loading}
                         loading={loading}>
                         {strings.fetchProgress}
-                    </ButtonPaper>
+                        </ButtonPaper>
+                    )}
+                    
 
                     
                     {/* <view><text>{JSON.stringify(fetchedProjectDetails ? fetchedProjectDetails : '', null, 2)}</text></view> */}

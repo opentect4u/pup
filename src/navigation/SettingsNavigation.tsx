@@ -8,7 +8,10 @@ export default function SettingsNavigation() {
   const Stack = createNativeStackNavigator();
 
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator 
+    
+    // initialRouteName={navigationRoutes.settingsNavigation}
+    screenOptions={{ headerShown: false }}>
       <Stack.Screen
         name={navigationRoutes.settingsScreen}
         component={SettingsScreen}

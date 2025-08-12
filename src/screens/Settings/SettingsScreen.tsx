@@ -15,6 +15,7 @@ import Header from '../../components/Header';
 import { projectSaveSpecificStorage } from '../../storage/appStorage';
 import { CommonActions, useIsFocused, useNavigation } from '@react-navigation/native';
 import navigationRoutes from '../../routes/routes';
+import InternetStatusContext from '../../context/InternetStatusContext';
 
 const strings = settingsScreenStrings.getStrings();
 
@@ -28,6 +29,7 @@ const SettingsScreen = () => {
   const navigation = useNavigation();
   const { checkTokenExpiry } = useContext(AppStore);
   const isFocused = useIsFocused();
+  const isOnline = useContext(InternetStatusContext);
 
   useEffect(() => {
       if(isFocused){
@@ -68,12 +70,22 @@ const SettingsScreen = () => {
             icon={'content-save-move-outline'}
             buttonColor={theme.colors.secondary}
             mode="contained"
-            onPress={() =>
-              navigation.dispatch(
-                CommonActions.navigate({
-                  name: navigationRoutes.savedProjectsScreen,
-                }),
-              )
+            onPress={() =>{
+                if(!isOnline){
+                  Alert.alert(
+                    'You are Offline',
+                    'Please connect to the internet to access saved projects.',
+                  );
+                }else{
+                  navigation.dispatch(
+                    CommonActions.navigate({
+                      name: navigationRoutes.savedProjectsScreen,
+                    }),
+                  )
+                }
+            
+            }
+              
             }
             style={{
               marginTop: 15,

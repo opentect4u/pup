@@ -36,10 +36,10 @@ const useloadLiveProjectList = () => {
         },
       );
 
-      console.log('PROJECTS___', res?.data?.message);
+      console.log('PROJECTS___', res?.data);
 
       if (res?.data?.status === 1) {
-        await livPprojectListStorage.set(
+        livPprojectListStorage.set(
           'liveProjectListStore',
           JSON.stringify(res?.data?.message)
         );
@@ -48,6 +48,7 @@ const useloadLiveProjectList = () => {
         ToastAndroid.show('Projects fetch error.', ToastAndroid.SHORT);
       }
     } catch (err) {
+      console.log('PROJECTS___', err);
       ToastAndroid.show(
         'Some error occurred while fetching projects.',
         ToastAndroid.SHORT
