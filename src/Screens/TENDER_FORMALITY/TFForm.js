@@ -10,7 +10,7 @@ import axios from 'axios';
 import { auth_key, url, folder_tender } from '../../Assets/Addresses/BaseUrl';
 import { Message } from '../../Components/Message';
 import { EditOutlined, FilePdfOutlined, LoadingOutlined } from '@ant-design/icons';
-import { Select, Spin } from 'antd';
+import { Modal, Select, Spin } from 'antd';
 import { DataTable } from 'primereact/datatable';
 import Column from 'antd/es/table/Column';
 import { Toast } from "primereact/toast"
@@ -142,6 +142,11 @@ function TFForm() {
   const [agencyDetails, setAgencyDetails] = useState([]);
   const [useSchematicAmt, setUseSchematicAmt] = useState(0);
 
+  const [visible, setVisible] = useState(false);
+  const [flag, setFlag] = useState(0);
+
+
+
 
   const validationSchema = (maturedData) =>
   Yup.object({
@@ -210,10 +215,17 @@ function TFForm() {
       otherwise: (schema) => schema.notRequired(),
     }),
 
-    // wo_value: Yup.number().when([], {
-    //   is: () => maturedData === 'M',
-    //   then: (schema) => schema.required('Work Order Value is Required'),
-    //   otherwise: (schema) => schema.notRequired(),
+
+
+    // wo_value: Yup.number()
+    // .when([], {
+    // is: () => maturedData === 'M',
+    // then: (schema) =>
+    // schema
+    // .required('Work Order Value is Required')
+    // .moreThan(0, 'Work Order Value must be greater than 0')
+    // .max(`${useSchematicAmt}`, `Work Order Value must be less than or equal to ${useSchematicAmt}`),
+    // otherwise: (schema) => schema.notRequired(),
     // }),
 
     wo_value: Yup.number()
@@ -222,8 +234,8 @@ function TFForm() {
     then: (schema) =>
     schema
     .required('Work Order Value is Required')
-    .moreThan(0, 'Work Order Value must be greater than 0')
-    .max(`${useSchematicAmt}`, `Work Order Value must be less than or equal to ${useSchematicAmt}`),
+    .moreThan(0, 'Work Order Value must be greater than 0'),
+    // .max(`${useSchematicAmt}`, `Work Order Value must be less than or equal to ${useSchematicAmt}`),
     otherwise: (schema) => schema.notRequired(),
     }),
 
@@ -664,7 +676,13 @@ function TFForm() {
   };
 
   const updateFormData = async () => {
+
+    setVisible(false);
+
     // setLoading(true); // Set loading state
+    // alert("Update Form Data Called", useSchematicAmt);
+    console.log(Number(useSchematicAmt), 'useSchematicAmtuseSchematicAmt', Number(useSchematicAmt) < formik.values.wo_value, 'll', formik.values.wo_value);
+    
   const tokenValue = await getLocalStoreTokenDts(navigate);
   
     const formData = new FormData();
@@ -737,7 +755,14 @@ function TFForm() {
     
     if(errorpdf_1.length < 1 && errorpdf_2.length < 1){
       if(params?.id > 0){
-        updateFormData()
+        // updateFormData()
+        if(Number(useSchematicAmt) < formik.values.wo_value){
+          setFlag(1); // show logout warning
+          setVisible(true);
+        } else {
+          updateFormData()
+        }
+        
       } else {
         saveFormData()
       }
@@ -1856,6 +1881,18 @@ width={'w-1/6'} bgColor={'bg-white'} color="text-blue-900" border={'border-2 bor
 
 
       </div>
+
+      {/* DialogBox code inline here */}
+      <Modal
+        title={flag === 1 ? "Warning!" : ""}
+        open={visible}
+        onOk={updateFormData}
+        onCancel={() => setVisible(false)}
+        okText="Submit"
+      >
+        {flag === 1 && <p><strong style={{fontSize:15}}>Work Order Value is gratter than Scheme Amount</strong>, <br/> Are you sure you want to Proceed?</p>}
+      </Modal>
+
     </section>
   )
 }

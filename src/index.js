@@ -19,9 +19,6 @@ const loadable = (importFunc) =>
 
 const Home = loadable(() => import('./Screens/HomeScreen/Home'));
 const HomeScreen =loadable(()=>import('./Screens/HomeScreen/HomeScreen'));
-const FundRelListEditForm =loadable(()=>import('./Screens/FUND_RELEASE/FundRelListEditForm'));
-const FundExpListEditForm =loadable(()=>import('./Screens/FUND_EXP/FundExpListEditForm'));
-const UCListEditForm =loadable(()=>import('./Screens/UC/UCListEditForm'));
 const PRView =loadable(()=>import('./Screens/Progress_Report/PRView'));
 const PRDetails =loadable(()=>import('./Screens/Progress_Report/PRDetails'));
 const PRComp =loadable(()=>import('./Screens/Progress_Report/PRComp'));
@@ -100,14 +97,6 @@ const router = createBrowserRouter([
           path: "",
           element: <Sign_in />,
         },
-        // {
-        //   path: "signup",
-        //   element: <Signup />,
-        // },
-        // {
-        //   path: "forgotpassword",
-        //   element: <ForgotPass />,
-        // },
       ],
     },
     {
@@ -116,7 +105,6 @@ const router = createBrowserRouter([
       children: [
         {
           path: "",
-          // element: <HomeScreen />,
           element: <AdApView />,
         },
         {
@@ -146,10 +134,6 @@ const router = createBrowserRouter([
               path: "tfcrud/:id",
               element: <TFForm />,
             },
-            // {
-            //   path: "tftenderlist",
-            //   element: <TFTenderList />,
-            // }
           ]
         },
         {
@@ -164,10 +148,6 @@ const router = createBrowserRouter([
               path: "pcr-add/:id",
               element: <PCRForm />,
             },
-            // {
-            //   path: "tftenderlist",
-            //   element: <TFTenderList />,
-            // }
           ]
         },
         {
@@ -210,10 +190,6 @@ const router = createBrowserRouter([
               path: "frcrud/:id",
               element: <FundRelForm />,
             },
-            {
-              path: "frlistedit/:id",
-              element: <FundRelListEditForm />,
-            },
             
           ]
         },
@@ -229,14 +205,6 @@ const router = createBrowserRouter([
               path: "fecrud/:id",
               element: <FundExpForm />,
             },
-            {
-              path: "felistedit/:id",
-              element: <FundExpListEditForm />,
-            },
-            // {
-            //   path: "felist",
-            //   element: <FundExpList />,
-            // },
           ]
         },
         {
@@ -250,14 +218,6 @@ const router = createBrowserRouter([
             {
               path: "uccrud/:id",
               element: <UCForm />,
-            },
-            // {
-            //   path: "uclist/",
-            //   element: <UCList />,
-            // },
-            {
-              path: "uclistedit/:id",
-              element: <UCListEditForm />,
             },
           ]
         },
@@ -395,12 +355,6 @@ const router = createBrowserRouter([
               path: "financial-report-graph/:id",
               element: <Financial_Report_Graph />,
             },
-
-            // {
-            //   path: "financial-report_test/:id",
-            //   element: <Financial_Report__test />,
-            // },
-            
             {
                 path: "head-accountwise-report/:id",
                 element: <HeadAccountwise_Report />,
@@ -437,16 +391,6 @@ const router = createBrowserRouter([
 
           ]
         },
-        // {
-        //   path: "progress_report",
-        //   element: <PRView />,
-        //   children: [
-        //     {
-        //       path: "prdetails/:id",
-        //       element: <PRDetails />,
-        //     }
-        //   ]
-        // },
       ]
       }
 ]}
