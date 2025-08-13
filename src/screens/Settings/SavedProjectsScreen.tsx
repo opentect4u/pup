@@ -241,14 +241,19 @@ const getAddressFromCoordinates = async (lat: string, long: string): Promise<str
 const updateProjectLive = async () => {
   setLoading(true);
 
-  const stored = await projectSaveSpecificStorage.getString('projects');
-  let storedProjects: any[] = stored ? JSON.parse(stored) : [];
+  // const stored = await projectSaveSpecificStorage.getString('projects');
+  // const stored = projects.length > 0 ? JSON.stringify(projects) : null;
+  // let storedProjects: any[] = stored ? JSON.parse(stored) : [];
+
+  let storedProjects: any[] = projects;
 
   const successfullyUploadedApprovalNos: string[] = [];
 
   for (let i = 0; i < storedProjects.length; i++) {
     const project = storedProjects[i];
     const formData = new FormData();
+
+    console.log(projects, 'formData_________', project.lat, project.long);
 
     const address = await getAddressFromCoordinates(project.lat.toString(), project.long.toString());
 
@@ -273,6 +278,8 @@ const updateProjectLive = async () => {
       });
     }
 
+    
+    
     try {
       const response = await axios.post(`${ADDRESSES.PROJECT_PROGRESS_UPDATE}`, formData, {
         headers: {
