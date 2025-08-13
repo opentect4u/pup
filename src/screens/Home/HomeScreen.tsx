@@ -56,6 +56,7 @@ import NetInfo from "@react-native-community/netinfo";
 import InternetStatusContext from '../../context/InternetStatusContext';
 import navigationRoutes from '../../routes/routes';
 import useloadLiveProjectList from '../../hooks/useLoadLiveProjectList';
+import { useFetchProjectDetails } from '../../hooks/useFetchProjectDetails';
 
 
 const strings = homeScreenStrings.getStrings();
@@ -100,7 +101,7 @@ const HomeScreen = () => {
     const [projectsList, setProjectsList] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     // const [loadingLivePro, setLoadingLivePro] = useState(false);
-    const [fetchedProjectDetails, setFetchedProjectDetails] = useState(() => '');
+    
     const [progressComplete, setProgressComplete] = useState(() => Number(0));
     const [progressCompleteAPI, setProgressCompleteAPI] = useState(() => Number(0));
     const [openDate, setOpenDate] = useState(() => false);
@@ -109,23 +110,16 @@ const HomeScreen = () => {
     const [projectsDate, setProjectsDate] = useState('');
     const [fetchDataDetails, setFetchDataDetails] = useState(false);
 
-    const [internetStatus, setInternetStatus] = useState(false);
-
     const isOnline = useContext(InternetStatusContext);
 
+    const { loading:loading_, fetchedProjectDetails, fetchProjectDetails, setFetchedProjectDetails } = useFetchProjectDetails();
+
+    // const [fetchedProjectDetails, setFetchedProjectDetails] = useState(() => '');
+
     useEffect(() => {
-        console.log('isOnlineCopy', isOnline, 'isFocusedCopy', isFocused);
-    if (isOnline) {
-    setInternetStatus(true);
-    
-    }
-
     if (!isOnline) {
-    // Alert.alert('No Internet', 'Please connect to the internet.');
-    // console.log('interStatus', 'No Internet Please connect to the internet.');
-    setInternetStatus(false);
+    Alert.alert('No Internet', 'Please connect to the internet.');
     }
-
     }, [isOnline]);
 
     // Set projectId to null instead of "" to indicate no selection
@@ -238,6 +232,10 @@ const HomeScreen = () => {
         
     };
 
+    useEffect(() =>{
+        console.log('fetchProjectsList__useEffect: ------', fetchedProjectDetails);
+    },[fetchedProjectDetails])
+
 
     const fetchProgressDone = async (data: any) => {
 
@@ -299,17 +297,6 @@ const HomeScreen = () => {
 
     setProgressComplete(result?.progress_percent);
     setProgressCompleteAPI(result?.progress_percent);
-
-    // setProgressComplete(res?.data?.progress_percent);
-    // setProgressCompleteAPI(res?.data?.progress_percent);
-
-    // const dt = parsedProjects__.map((item: any) => ({
-    // // label: `${item?.project_id} / ${item?.approval_no}\n${item?.scheme_name}`,
-    // label: `${item?.project_id} \n${item?.scheme_name}`,
-    // value: `${item?.approval_no},${item?.project_id}`,
-    // }));
-    // console.log(dt, 'dt____________');
-    // setProjectsList(dt)
     }
     }
         
@@ -317,75 +304,60 @@ const HomeScreen = () => {
 
  
 
-    // useEffect(() => {
-    //     fetchProjectsList();
-    // }, [fetchProjectsList]);
-
-
-
-    //  useEffect(() => {
-    //     fetchProjectsList();
-    // }, []);
 
      useEffect(() => {
-        // fetchProjectDetails();
-        // if(fetchDataDetails) {
         setFetchDataDetails(false);
-        // } else {
-        // setFetchDataDetails(true);
-        // }
-
     }, [formData1.projectId]);
     
 
-    const fetchProjectDetails = async () => {
+    // const fetchProjectDetails = async () => {
 
-        // if(fetchDataDetails) {
-        // setFetchDataDetails(false);
-        // } else {
-        // setFetchDataDetails(true);
-        // }
+    //     // if(fetchDataDetails) {
+    //     // setFetchDataDetails(false);
+    //     // } else {
+    //     // setFetchDataDetails(true);
+    //     // }
         
-        setFetchDataDetails(true);
+    //     setFetchDataDetails(true);
 
-        setLoading(true);
-        const formData = new FormData();
-        formData.append('approval_no', formData1?.projectId?.split(',')[0]);
+    //     setLoading(true);
+    //     const formData = new FormData();
+    //     formData.append('approval_no', formData1?.projectId?.split(',')[0]);
 
-        try {
-            const res = await axios.post(
-                `${ADDRESSES.FETCH_PROJECT_PROCESS}`,
-                formData,
-                {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                        // auth_key: AUTH_KEY,
-                        'Authorization': `Bearer ` + loginTokenStore?.token
-                    },
-                },
-            );
-            console.log(res, 'fetchProjectDetails_');
-            if (res?.data?.status === 1) {
-                console.log('PROJECT DTLS : ', res?.data);
-                // const newProjectsList = res?.data?.message?.map((item: any) => ({
-                //     label: `${item?.project_id} / ${item?.approval_no}\n${item?.scheme_name}`,
-                //     value: item?.approval_no
-                // }))
-                // setProjectsList(newProjectsList)
-                setFetchedProjectDetails(JSON.stringify(res?.data));
-            } else {
-                setFetchedProjectDetails('');
-                ToastAndroid.show('Have No Project Data.', ToastAndroid.SHORT);
-            }
-        } catch (err) {
-            console.log('ERR PROJ DTLS', err, 'fetchProjectDetails_');
-            ToastAndroid.show(
-                'Some error occurred while fetching project details.',
-                ToastAndroid.SHORT,
-            );
-        }
-        setLoading(false);
-    };
+    //     try {
+    //         const res = await axios.post(
+    //             `${ADDRESSES.FETCH_PROJECT_PROCESS}`,
+    //             formData,
+    //             {
+    //                 headers: {
+    //                     'Content-Type': 'multipart/form-data',
+    //                     // auth_key: AUTH_KEY,
+    //                     'Authorization': `Bearer ` + loginTokenStore?.token
+    //                 },
+    //             },
+    //         );
+    //         console.log(res, 'fetchProjectDetails_');
+    //         if (res?.data?.status === 1) {
+    //             console.log('PROJECT DTLS : ', res?.data);
+    //             // const newProjectsList = res?.data?.message?.map((item: any) => ({
+    //             //     label: `${item?.project_id} / ${item?.approval_no}\n${item?.scheme_name}`,
+    //             //     value: item?.approval_no
+    //             // }))
+    //             // setProjectsList(newProjectsList)
+    //             setFetchedProjectDetails(JSON.stringify(res?.data));
+    //         } else {
+    //             setFetchedProjectDetails('');
+    //             ToastAndroid.show('Have No Project Data.', ToastAndroid.SHORT);
+    //         }
+    //     } catch (err) {
+    //         console.log('ERR PROJ DTLS', err, 'fetchProjectDetails_');
+    //         ToastAndroid.show(
+    //             'Some error occurred while fetching project details.',
+    //             ToastAndroid.SHORT,
+    //         );
+    //     }
+    //     setLoading(false);
+    // };
 
     const openGallery = useCallback(() => {
         const options: ImageLibraryOptions = {
@@ -487,39 +459,6 @@ const HomeScreen = () => {
         fileStorage.delete('file-uri');
     }, []);
 
-    // Start Now its not working (Use for fixed the range of progress)
-    // const fetchProgressRangeCap = async () => {
-    //     const formData = new FormData();
-
-    //     formData.append('project_id', formData1.projectId?.split(',')[1]);
-
-    //     await axios
-    //         .post(ADDRESSES.FETCH_PROJECT_RANGE, formData, {
-    //             headers: {
-    //                 'Content-Type': 'multipart/form-data',
-    //                 // auth_key: AUTH_KEY,
-    //                 'Authorization': `Bearer ` + loginTokenStore?.token
-    //             },
-    //         })
-    //         .then(res => {
-    //             if (res?.data?.status === 1) {
-    //                 const [a, b] = getWorkRange(res?.data?.message) ?? [];
-    //                 setCheckErr(formData1.progress < a || formData1.progress > b);
-    //             }
-    //         })
-    //         .catch(err => {
-    //             console.log('Project Ranges CAP ERRRR === ', err, 'fetchProgressRangeCap__');
-    //             ToastAndroid.show(
-    //                 'Some error occurred while fetching Project Ranges.',
-    //                 ToastAndroid.SHORT,
-    //             );
-    //         });
-    // };
-    // End Now its not working (Use for fixed the range of progress)
-
-    // useEffect(() => {
-    //     fetchProgressRangeCap();
-    // }, [formData1.projectId, formData1.progress, handleFormChange]);
 
     const updateProjectProgressDetails = useCallback(async (currentLocation: any) => {
         await axios
@@ -633,7 +572,6 @@ const HomeScreen = () => {
 
 
     }, [formData1, imgData, loginStore, removeAllImages, handleFormChange]);
-    // }, [formData1, imgData, loginStore, removeAllImages, handleFormChange]);
 
     const checkAndSubmit = async () => {
         try {
@@ -772,7 +710,6 @@ const HomeScreen = () => {
 
 
     useEffect(() => {
-        // fetchProjects_Date()
         if (isFocused) {
         fetchLocalStorageProjects();
         }
@@ -1097,18 +1034,13 @@ const HomeScreen = () => {
     
 
     useEffect(() => {
-        // && isFocused
         if (isOnline) {
-            console.log('isOnline', isOnline, 'isFocused', isFocused);
             loadLiveProjectList();
             fetchProjectsList()
         }
         else{
-            console.log('isOffline', !isOnline, 'isFocused', isFocused);
-
             fetchProjectsList()
         }
-
         
     }, [isOnline, isFocused]);
     
@@ -1190,7 +1122,15 @@ const HomeScreen = () => {
                         <ButtonPaper
                         icon={'cloud-search-outline'}
                         mode="contained"
-                        onPress={async () => await fetchProjectDetails()}
+                        onPress={async () => {
+                            // await fetchProjectDetails(formData1?.projectId?.split(',')[0] || '')
+                            await fetchProjectDetails(formData1?.projectId?.split(',')[0] || '');
+                            // setTimeout(() => {
+                            //         console.log(fetchedProjectDetails, ' fetchedProjectDetails');
+                            // }, 5000);
+                            setFetchDataDetails(true);
+                            
+                        }}
                         style={{ marginTop: 15, paddingVertical: 8 }}
                         disabled={!formData1.projectId || loading}
                         loading={loading}>

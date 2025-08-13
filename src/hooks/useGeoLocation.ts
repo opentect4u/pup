@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import GetLocation from 'react-native-get-location';
 
 const useGeoLocation = () => {
-  const [location, setLocation] = useState({
+  const [location, setLocation] = useState<{ latitude: number | null; longitude: number | null }>({
     latitude: null,
     longitude: null,
   });
